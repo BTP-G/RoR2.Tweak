@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace BtpTweak {
 
-    internal class LevelStatsTweak {
+    internal class StatsTweak {
 
         public static void 角色修改() {
             On.RoR2.CharacterBody.OnLevelUp += CharacterBody_OnLevelUp;

@@ -33,7 +33,7 @@ namespace BtpTweak {
             InitConfig();
             Localization.汉化();
             InfusionTweak.浸剂修改();  // 一次5点，无上限
-            LevelStatsTweak.角色修改();
+            StatsTweak.角色修改();
             DamageTweak.虚灵伤害修改();
             DamageTweak.毒狗被动伤害修改();
             StageDifficultyTweak.关卡难度缩放修改();
