@@ -18,12 +18,12 @@ namespace BtpTweak {
         public const string PluginName = "BtpTweak";
         public const string PluginVersion = "1.1.1";
 
-        public static float 玩家角色等级_ = 1;
+        public static int 玩家角色等级_ = 1;
         public static float 玩家角色等级生命值系数_ = 1;
         public static bool 是否选择造物难度_ = false;
-        public static float holdTime = 0;
+        public static float megaBlasterChargedTime_ = 0;
         public static ushort 虚灵战斗阶段计数_;
-        public static ushort fireSeekingArrowCount = 0;
+        public static int banditSkullCount_ = 0;
 
         public static ConfigEntry<float> 造物难度最大修正难度缩放_;
         public static ConfigEntry<int> 浸剂击杀奖励倍率_;
