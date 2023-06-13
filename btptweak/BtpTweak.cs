@@ -20,6 +20,8 @@ namespace BtpTweak {
 
         public static int 玩家角色等级_ = 1;
         public static float 玩家角色等级生命值系数_ = 1;
+        public static float 怪物等级生命值系数_ = 1;
+        public static float 怪物等级伤害系数_ = 1;
         public static bool 是否选择造物难度_ = false;
         public static float megaBlasterChargedTime_ = 0;
         public static ushort 虚灵战斗阶段计数_;
@@ -31,12 +33,12 @@ namespace BtpTweak {
 
         public void Awake() {
             InitConfig();
-            Localization.汉化();
-            InfusionTweak.浸剂修改();  // 一次5点，无上限
-            StatsTweak.角色修改();
-            DamageTweak.虚灵伤害修改();
-            DamageTweak.毒狗被动伤害修改();
-            StageDifficultyTweak.关卡难度缩放修改();
+            Localization.AddHook();
+            Infusion.浸剂修改();  // 一次5点，无上限
+            Stats.角色属性调整();
+            Damage.虚灵伤害修改();
+            Damage.毒狗被动伤害修改();
+            StageDifficulty.关卡难度缩放修改();
         }
 
         public void InitConfig() {

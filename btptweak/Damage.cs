@@ -6,7 +6,7 @@ using static RoR2.DotController;
 
 namespace BtpTweak {
 
-    internal class DamageTweak {
+    internal class Damage {
 
         public static void 虚灵伤害修改() {
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
@@ -29,6 +29,7 @@ namespace BtpTweak {
                     if (TeamIndex.Player == self.body?.teamComponent.teamIndex) {
                         damageInfo.damage += self.health / 10;
                     } else {
+                        damageInfo.procCoefficient = 0;
                         damageInfo.damage = Mathf.Min(damageInfo.damage, self.fullCombinedHealth / 100);
                     }
                 }

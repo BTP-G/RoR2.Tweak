@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using R2API;
+using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
 using UnityEngine;
@@ -7,46 +8,33 @@ using UnityEngine.Networking;
 
 namespace BtpTweak {
 
-    internal class StatsTweak {
+    internal class Skills {
 
-        public static void 角色修改() {
-            On.RoR2.CharacterBody.OnLevelUp += CharacterBody_OnLevelUp;
-            On.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
-            On.RoR2.CharacterMaster.OnBodyStart += CharacterMaster_OnBodyStart;
-            On.RoR2.PhaseCounter.GoToNextPhase += PhaseCounter_GoToNextPhase;
+        public static void 技能调整() {
             虚空恶鬼技能修改();
             女猎人弓箭修改();
+            On.EntityStates.Heretic.Weapon.Squawk.OnEnter += Squawk_OnEnter;
+            ContentAddition.AddEntityState<AncientScepter.HereticPerishSong>(out _);
             On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.ModifyBullet += FireSidearmSkullRevolver_ModifyBullet;
         }
 
-        public static void RemoveHook() {
-            On.RoR2.CharacterBody.OnLevelUp -= CharacterBody_OnLevelUp;
-            On.RoR2.CharacterBody.RecalculateStats -= CharacterBody_RecalculateStats;
-            On.RoR2.PhaseCounter.GoToNextPhase -= PhaseCounter_GoToNextPhase;
-            On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter -= FireHandBeam_OnEnter;
-            On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.FireProjectiles -= FireCorruptDisks_FireProjectiles;
-            On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter -= ChargeMegaBlaster_OnEnter;
-            On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.FixedUpdate -= ChargeMegaBlaster_FixedUpdate;
-            On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles -= FireMegaBlasterBase_FireProjectiles;
-            On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnEnter -= FireSeekingArrow_OnEnter;
-            On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit -= FireSeekingArrow_OnExit;
-        }
-
-        private static void CharacterMaster_OnBodyStart(On.RoR2.CharacterMaster.orig_OnBodyStart orig, CharacterMaster self, CharacterBody body) {
-            orig(self, body);
-            if (TeamIndex.Player == body.teamComponent.teamIndex && body.name.StartsWith("Band")) {
-                for (int i = BtpTweak.banditSkullCount_; i > 0; --i) {
-                    body.AddBuff(RoR2Content.Buffs.BanditSkull);
+        private static void Squawk_OnEnter(On.EntityStates.Heretic.Weapon.Squawk.orig_OnEnter orig, EntityStates.Heretic.Weapon.Squawk self) {
+            orig(self);
+            foreach (CharacterBody characterBody in CharacterBody.readOnlyInstancesList) {
+                if (characterBody) {
+                    if (TeamIndex.Lunar == characterBody.teamComponent.teamIndex) {
+                        characterBody.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 9);
+                    } else {
+                        characterBody.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 3);
+                    }
                 }
             }
         }
 
-        //===============================================================================================================================================================================================================================================
-
         private static void FireSidearmSkullRevolver_ModifyBullet(On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.orig_ModifyBullet orig, EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver self, BulletAttack bulletAttack) {
             orig(self, bulletAttack);
             BtpTweak.banditSkullCount_ = self.GetBuffCount(RoR2Content.Buffs.BanditSkull);
-            self.characterBody.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, BtpTweak.banditSkullCount_ -= BtpTweak.banditSkullCount_ / (10 * BtpTweak.玩家角色等级_));
+            self.characterBody.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, BtpTweak.banditSkullCount_ -= BtpTweak.banditSkullCount_ / (5 * BtpTweak.玩家角色等级_));
         }
 
         private static void 虚空恶鬼技能修改() {
@@ -105,8 +93,6 @@ namespace BtpTweak {
             orig(self);
         }
 
-        //===============================================================================================================================================================================================================================================
-
         private static void 女猎人弓箭修改() {
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnEnter += FireSeekingArrow_OnEnter;
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit += FireSeekingArrow_OnExit;
@@ -134,44 +120,6 @@ namespace BtpTweak {
                         OrbManager.instance.AddOrb(genericDamageOrb);
                     }
                 }
-            }
-            orig(self);
-        }
-
-        //===============================================================================================================================================================================================================================================
-
-        private static void CharacterBody_OnLevelUp(On.RoR2.CharacterBody.orig_OnLevelUp orig, CharacterBody self) {
-            orig(self);
-            if (self.isPlayerControlled) {
-                BtpTweak.玩家角色等级_ = (int)self.level;
-                //=== 女猎人
-                HIFUHuntressTweaks.Skills.Strafe.damage = 1.6f + BtpTweak.玩家角色等级_ * 0.2f;
-                HIFUHuntressTweaks.Skills.Flurry.minArrows = 3 + BtpTweak.玩家角色等级_ / 3;
-                HIFUHuntressTweaks.Skills.Flurry.maxArrows = 2 * HIFUHuntressTweaks.Skills.Flurry.minArrows;
-                HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (BtpTweak.女猎人射程每级增加距离_.Value * BtpTweak.玩家角色等级_);
-                //=== 船长
-                HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6 + BtpTweak.玩家角色等级_ / 3;
-                //=== 工匠
-            }
-        }
-
-        private static void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self) {
-            if (TeamIndex.Player == self.teamComponent.teamIndex) {
-                if (BtpTweak.是否选择造物难度_) {
-                    self.levelMaxHealth =
-                        BtpTweak.玩家角色等级生命值系数_ *
-                        BtpTweak.玩家角色等级_ *
-                        self.baseMaxHealth * 0.02f;
-                }
-            }
-            orig(self);
-            self.moveSpeed = Mathf.Min(self.moveSpeed, 72);
-        }
-
-        private static void PhaseCounter_GoToNextPhase(On.RoR2.PhaseCounter.orig_GoToNextPhase orig, PhaseCounter self) {
-            if (BtpTweak.是否选择造物难度_ && PhaseCounter.instance?.phase != 0) {
-                BtpTweak.玩家角色等级生命值系数_ *= 1.5f;
-                Chat.SendBroadcastChat(new Chat.SimpleChatMessage() { baseToken = $"<color=green><size=130%>击败米斯历克斯第{PhaseCounter.instance?.phase}阶段，奖励最大生命值！</size></color>" });
             }
             orig(self);
         }

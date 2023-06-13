@@ -30,6 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="AncientScepter">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\amogus_lovers-StandaloneAncientScepter\AncientScepter.dll</HintPath>
+    </Reference>
     <Reference Include="ConfigurableDifficulty">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\TheMysticSword-ConfigurableDifficulty\ConfigurableDifficulty.dll</HintPath>
     </Reference>
