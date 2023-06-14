@@ -55,7 +55,7 @@ namespace BtpTweak {
                         Stats.Re_CalculateLevelStats(characterBody);
                     }
                 }
-                ++DifficultyCatalog.GetDifficultyDef(Run.instance.selectedDifficulty).scalingValue;
+                DifficultyCatalog.GetDifficultyDef(Run.instance.selectedDifficulty).scalingValue *= 1.1f;
                 Chat.SendBroadcastChat(new Chat.SimpleChatMessage() { baseToken = $"<color=green><size=100%>传送器充能完毕，获得最大生命值奖励！</size></color>" });
             }
         }

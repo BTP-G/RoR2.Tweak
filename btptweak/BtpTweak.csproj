@@ -53,6 +53,9 @@
       <HintPath>libs\KdTreeLib.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="MissileDroneSurvivor">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\Team_Pepega-Ms_Isle\MissileDroneSurvivor.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Security">
       <HintPath>libs\Mono.Security.dll</HintPath>
       <Private>false</Private>

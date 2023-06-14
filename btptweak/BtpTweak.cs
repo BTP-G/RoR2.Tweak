@@ -1,5 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
+using UnityEngine.AddressableAssets;
+using UnityEngine;
 
 namespace BtpTweak {
 
@@ -31,13 +33,16 @@ namespace BtpTweak {
         public static ConfigEntry<int> 浸剂击杀奖励倍率_;
         public static ConfigEntry<uint> 女猎人射程每级增加距离_;
 
+        public static GameObject electricOrbProjectilePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ElectricWorm/ElectricOrbProjectile.prefab").WaitForCompletion();
+        public static GameObject mageBody = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageBody.prefab").WaitForCompletion();
+
         public void Awake() {
             InitConfig();
             Localization.AddHook();
             Infusion.浸剂修改();  // 一次5点，无上限
+            Skills.技能调整();
             Stats.角色属性调整();
-            Damage.虚灵伤害修改();
-            Damage.毒狗被动伤害修改();
+            Damage.伤害调整();
             StageDifficulty.关卡难度缩放修改();
         }
 

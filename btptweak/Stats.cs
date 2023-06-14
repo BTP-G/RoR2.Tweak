@@ -35,30 +35,29 @@ namespace BtpTweak {
                 body.levelMaxHealth =
                         Mathf.Round(BtpTweak.玩家角色等级生命值系数_ * body.level * body.baseMaxHealth * 0.02f);
             } else if (TeamIndex.Monster == body.teamComponent.teamIndex) {
-                body.levelMaxHealth = Mathf.Round(BtpTweak.怪物等级生命值系数_ * body.baseMaxHealth * 0.3f);
+                body.levelMaxHealth =
+                    Mathf.Round(BtpTweak.怪物等级生命值系数_ * body.baseMaxHealth * 0.3f);
                 //body.levelDamage = BtpTweak.怪物等级伤害系数_ * body.baseDamage * 0.2f;
             }
         }
 
         private static void CharacterBody_OnLevelUp(On.RoR2.CharacterBody.orig_OnLevelUp orig, CharacterBody self) {
-            Re_CalculateLevelStats(self);
             orig(self);
+            Re_CalculateLevelStats(self);
             if (self.isPlayerControlled) {
                 BtpTweak.玩家角色等级_ = (int)self.level;
                 //=== 女猎人
-                HIFUHuntressTweaks.Skills.Strafe.damage = 1.6f + self.level * 0.2f;
+                HIFUHuntressTweaks.Skills.Strafe.damage = 1.5f + self.level * 0.3f;
                 HIFUHuntressTweaks.Skills.Flurry.minArrows = 3 + BtpTweak.玩家角色等级_ / 3;
                 HIFUHuntressTweaks.Skills.Flurry.maxArrows = 2 * HIFUHuntressTweaks.Skills.Flurry.minArrows;
                 HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (BtpTweak.女猎人射程每级增加距离_.Value * BtpTweak.玩家角色等级_);
                 //=== 船长
                 HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6 + BtpTweak.玩家角色等级_ / 3;
-                //=== 工匠
             }
         }
 
         private static void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self) {
             orig(self);
-            self.moveSpeed = Mathf.Min(self.moveSpeed, 72);
         }
 
         private static void PhaseCounter_GoToNextPhase(On.RoR2.PhaseCounter.orig_GoToNextPhase orig, PhaseCounter self) {

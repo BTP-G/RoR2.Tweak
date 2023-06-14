@@ -8,11 +8,8 @@ namespace BtpTweak {
 
     internal class Damage {
 
-        public static void 虚灵伤害修改() {
+        public static void 伤害调整() {
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
-        }
-
-        public static void 毒狗被动伤害修改() {
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
             On.RoR2.DotController.AddDot += DotController_AddDot;
         }
@@ -27,9 +24,9 @@ namespace BtpTweak {
             if (NetworkServer.active) {
                 if (BtpTweak.虚灵战斗阶段计数_ != 0 && damageInfo.attacker) {
                     if (TeamIndex.Player == self.body?.teamComponent.teamIndex) {
-                        damageInfo.damage += self.health / 10;
+                        damageInfo.damage = Mathf.Max(damageInfo.damage, self.health / 10);
                     } else {
-                        damageInfo.procCoefficient = 0;
+                        damageInfo.procCoefficient *= 0.75f;
                         damageInfo.damage = Mathf.Min(damageInfo.damage, self.fullCombinedHealth / 100);
                     }
                 }
