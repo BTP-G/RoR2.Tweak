@@ -1,7 +1,7 @@
 ﻿using RoR2;
 using RoR2.Orbs;
 
-namespace BtpTweak {
+namespace Btp {
 
     internal class Infusion {
 

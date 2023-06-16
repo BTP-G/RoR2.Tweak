@@ -1,10 +1,10 @@
 ﻿using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
-using UnityEngine;
-using UnityEngine.Networking;
 using static RoR2.DotController;
+using UnityEngine.Networking;
+using UnityEngine;
 
-namespace BtpTweak {
+namespace Btp {
 
     internal class Damage {
 
@@ -23,7 +23,7 @@ namespace BtpTweak {
         private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
             if (NetworkServer.active) {
                 if (BtpTweak.虚灵战斗阶段计数_ != 0 && damageInfo.attacker) {
-                    if (TeamIndex.Player == self.body?.teamComponent.teamIndex) {
+                    if (TeamIndex.Player == self.body.teamComponent.teamIndex) {
                         damageInfo.damage = Mathf.Max(damageInfo.damage, self.health / 10);
                     } else {
                         damageInfo.procCoefficient *= 0.75f;
@@ -34,7 +34,7 @@ namespace BtpTweak {
             orig(self, damageInfo);
         }
 
-        private static void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, RoR2.CharacterBody self, RoR2.BuffDef buffDef, float duration) {
+        private static void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {
             if (buffDef.buffIndex == DeepRot.scriptableObject.buffs[1].buffIndex
                 && self.HasBuff(DeepRot.scriptableObject.buffs[0])) {
                 return;
@@ -42,7 +42,7 @@ namespace BtpTweak {
             orig(self, buffDef, duration);
         }
 
-        private static void DotController_AddDot(On.RoR2.DotController.orig_AddDot orig, DotController self, GameObject attackerObject, float duration, DotController.DotIndex dotIndex, float damageMultiplier, uint? maxStacksFromAttacker, float? totalDamage, DotController.DotIndex? preUpgradeDotIndex) {
+        private static void DotController_AddDot(On.RoR2.DotController.orig_AddDot orig, DotController self, GameObject attackerObject, float duration, DotIndex dotIndex, float damageMultiplier, uint? maxStacksFromAttacker, float? totalDamage, DotIndex? preUpgradeDotIndex) {
             if (dotIndex == DeepRot.deepRotDOT) {
                 duration = 666f;
             } else if (dotIndex == DotIndex.Blight) {

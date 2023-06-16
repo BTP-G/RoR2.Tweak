@@ -43,8 +43,14 @@
     <Reference Include="HIFUCaptainTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFUCaptainTweaks\HIFUCaptainTweaks.dll</HintPath>
     </Reference>
+    <Reference Include="HIFUEngineerTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFUEngineerTweaks\HIFUEngineerTweaks.dll</HintPath>
+    </Reference>
     <Reference Include="HIFUHuntressTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFUHuntressTweaks\HIFUHuntressTweaks.dll</HintPath>
+    </Reference>
+    <Reference Include="HIFURailgunnerTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFURailgunnerTweaks\HIFURailgunnerTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HuntressAutoaimFix">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HuntressAutoaimFix\HuntressAutoaimFix.dll</HintPath>
