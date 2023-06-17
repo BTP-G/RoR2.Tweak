@@ -18,6 +18,7 @@ namespace Btp {
             工匠();
             盗贼();
             多功能抢兵();
+            船长();
             磁轨炮手();
             虚空恶鬼();
             异教徒();
@@ -31,13 +32,13 @@ namespace Btp {
             //=== 女猎人
             HIFUHuntressTweaks.Skills.Strafe.damage = 1.8f;
             HIFUHuntressTweaks.Skills.Flurry.damage = 1.2f;
-            HIFUHuntressTweaks.Skills.Flurry.minArrows = 3 + BtpTweak.玩家等级_ / 3;
-            HIFUHuntressTweaks.Skills.Flurry.maxArrows = 2 * HIFUHuntressTweaks.Skills.Flurry.minArrows;
-            HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (BtpTweak.女猎人射程每级增加距离_.Value * BtpTweak.玩家等级_);
+            HIFUHuntressTweaks.Skills.Flurry.minArrows = 3;
+            HIFUHuntressTweaks.Skills.Flurry.maxArrows = 6;
+            HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60;
             //=== 船 长
             HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6;
             //=== 盗贼
-            BtpTweak.banditSkullCount_ = 0;
+            BtpTweak.盗贼标记_ = 0;
             //=== 导弹无人机
             MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 35;
             //=== 工程师
@@ -58,15 +59,15 @@ namespace Btp {
             //=== 导弹无人机
             MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 34 + BtpTweak.玩家等级_;
             //=== 工程师
-            ++HIFUEngineerTweaks.Skills.PressureMines.charges;
-            ++HIFUEngineerTweaks.Skills.SpiderMines.charges;
+            HIFUEngineerTweaks.Skills.PressureMines.charges = 4 + BtpTweak.玩家等级_;
+            HIFUEngineerTweaks.Skills.SpiderMines.charges = 2 + BtpTweak.玩家等级_;
             //=== 磁轨炮手
         }
 
         private static void 女猎人() {
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnEnter += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnEnter orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
+                self.baseDuration = 0.7f + 0.1f * HIFUHuntressTweaks.Skills.Flurry.minArrows;
                 orig(self);
-                self.arrowReloadDuration /= (self.isCrit ? HIFUHuntressTweaks.Skills.Flurry.maxArrows : HIFUHuntressTweaks.Skills.Flurry.minArrows);
             };
             //==========
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnExit orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
@@ -107,8 +108,8 @@ namespace Btp {
         private static void 盗贼() {
             On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.ModifyBullet += delegate (On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.orig_ModifyBullet orig, EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
-                BtpTweak.banditSkullCount_ = self.GetBuffCount(RoR2Content.Buffs.BanditSkull);
-                self.characterBody.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, BtpTweak.banditSkullCount_ -= BtpTweak.banditSkullCount_ / (5 * BtpTweak.玩家等级_));
+                BtpTweak.盗贼标记_ = self.GetBuffCount(RoR2Content.Buffs.BanditSkull);
+                self.characterBody.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, BtpTweak.盗贼标记_ -= BtpTweak.盗贼标记_ / (3 * BtpTweak.玩家等级_));
             };
         }
 
@@ -126,6 +127,13 @@ namespace Btp {
             On.EntityStates.Toolbot.FireSpear.OnEnter += delegate (On.EntityStates.Toolbot.FireSpear.orig_OnEnter orig, FireSpear self) {
                 self.damageCoefficient += BtpTweak.玩家等级_ / 7;
                 orig(self);
+            };
+        }
+
+        private static void 船长() {
+            On.EntityStates.Captain.Weapon.FireCaptainShotgun.ModifyBullet += delegate (On.EntityStates.Captain.Weapon.FireCaptainShotgun.orig_ModifyBullet orig, EntityStates.Captain.Weapon.FireCaptainShotgun self, BulletAttack bulletAttack) {
+                bulletAttack.force /= HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount;
+                orig(self, bulletAttack);
             };
         }
 
@@ -156,18 +164,18 @@ namespace Btp {
             };
             //==========
             On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter += delegate (On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster self) {
-                BtpTweak.megaBlasterChargedTime_ = 0;
+                BtpTweak.虚空恶鬼二技能充能时间_ = 0;
                 self.baseDuration = 4;
                 orig(self);
             };
             //==========
             On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.FixedUpdate += delegate (On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.orig_FixedUpdate orig, EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster self) {
-                BtpTweak.megaBlasterChargedTime_ += Time.fixedDeltaTime;
+                BtpTweak.虚空恶鬼二技能充能时间_ += Time.fixedDeltaTime;
                 orig(self);
             };
             //==========
             On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles += delegate (On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.orig_FireProjectiles orig, EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase self) {
-                float 充能百分比 = Mathf.Min(BtpTweak.megaBlasterChargedTime_ * self.attackSpeedStat * 0.25f, 1);
+                float 充能百分比 = Mathf.Min(BtpTweak.虚空恶鬼二技能充能时间_ * self.attackSpeedStat * 0.25f, 1);
                 self.selfKnockbackForce = 0;
                 self.force = 4444 * 充能百分比;
                 self.damageCoefficient = 44.44f * 充能百分比;
@@ -204,9 +212,9 @@ namespace Btp {
                 foreach (CharacterBody characterBody in CharacterBody.readOnlyInstancesList) {
                     if (characterBody) {
                         if (TeamIndex.Lunar == characterBody.teamComponent.teamIndex) {
-                            characterBody.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 9);
+                            characterBody.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot.buffIndex, 9);
                         } else {
-                            characterBody.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 3);
+                            characterBody.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot.buffIndex, 3);
                         }
                     }
                 }
