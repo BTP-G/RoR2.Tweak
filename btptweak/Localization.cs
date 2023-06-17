@@ -27,7 +27,7 @@ namespace Btp {
 
         public static void 全局汉化() {
             AddOverlay("CAPTAIN_PRIMARY_DESCRIPTION", "喷射一大团弹丸，造成<style=cIsDamage>6<style=cStack>(每3级+1)</style>x100%的伤害</style>。为攻击充能将缩小<style=cIsUtility>扩散范围</style>。");
-            AddOverlay("DIFFICULTY_CONFIGURABLEDIFFICULTYMOD_DESCRIPTION_DYNAMIC", "追求刺激，贯彻到底！开启进化神器，踏上弑神之路（24关）\n\n<style=cStack>难度调整：\n难度缩放+100%\n\n敌人调整：\n最大生命值+25%\n治疗量+25%\n护甲+10点\n暴击率+10%\n跳跃高度+10%\n技能冷却-10%\n跌落伤害-99%\n金钱掉落-20%\n低血量获得强心剂增益，进入狂暴状态10秒\n\n友方调整:\n治疗量-25%\n生命值再生速度-25%\n跌落伤害+100%\n获得初始物品-迪奥的朋友、Hopoo羽毛，谨慎的蛞蝓</style>", "zh-CN");
+            AddOverlay("DIFFICULTY_CONFIGURABLEDIFFICULTYMOD_DESCRIPTION_DYNAMIC", "追求刺激，贯彻到底！开启进化神器，踏上弑神之路（24关）\n\n<style=cStack>难度调整：\n难度缩放+100%\n\n敌人调整：\n最大生命值+25%\n治疗量+25%\n护甲+10点\n暴击率+10%\n跳跃高度+10%\n技能冷却-10%\n跌落伤害-99%\n金钱掉落-20%\n怪物低血量时获得强心剂增益（次数上限=当前关卡数），进入狂暴状态20秒\n\n友方调整:\n治疗量-25%\n生命值再生速度-25%\n跌落伤害+100%\n获得初始物品-迪奥的朋友、Hopoo羽毛，谨慎的蛞蝓</style>", "zh-CN");
             AddOverlay("ENGI_SECONDARY_DESCRIPTION", $"放置一枚二阶段地雷，能够造成<style=cIsDamage>300%的伤害</style>，或在完全引爆时造成<style=cIsDamage>{Mathf.Round(300f * PressureMines.damageScale)}%的伤害</style>。最多放置{PressureMines.charges}<style=cStack>(每级+1)</style>枚。");
             AddOverlay("ENGI_SPIDERMINE_DESCRIPTION", $"放置一枚机器人地雷，在敌人走近时自动引爆，造成<style=cIsDamage>{SpiderMines.damage}%的伤害</style>，最多放置{SpiderMines.charges}<style=cStack>(每级+1)</style>枚。");
             AddOverlay("HUNTRESS_PRIMARY_ALT_DESCRIPTION", "<style=cIsUtility>灵巧</style>。拉弓射出<style=cIsDamage>3<style=cStack>(每3级+1)</style>枚</style>跟踪箭，每枚造成<style=cIsDamage>120%的伤害</style>。如果暴击则发射<style=cIsDamage>双倍</style>跟踪箭。", "zh-CN");

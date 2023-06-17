@@ -7,6 +7,7 @@ using RoR2;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 using UnityEngine;
+using System;
 
 namespace Btp {
 
@@ -14,6 +15,7 @@ namespace Btp {
 
         public static void 技能调整() {
             技能冷却();
+            指挥官();
             女猎人();
             工匠();
             盗贼();
@@ -22,6 +24,9 @@ namespace Btp {
             磁轨炮手();
             虚空恶鬼();
             异教徒();
+        }
+
+        private static void 指挥官() {
         }
 
         private static void 技能冷却() => On.RoR2.GenericSkill.RecalculateFinalRechargeInterval += delegate (On.RoR2.GenericSkill.orig_RecalculateFinalRechargeInterval orig, GenericSkill self) {
@@ -65,11 +70,6 @@ namespace Btp {
         }
 
         private static void 女猎人() {
-            On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnEnter += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnEnter orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
-                self.baseDuration = 0.7f + 0.1f * HIFUHuntressTweaks.Skills.Flurry.minArrows;
-                orig(self);
-            };
-            //==========
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnExit orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
                 if (NetworkServer.active) {
                     while (self.firedArrowCount++ < self.maxArrowCount) {  // 发射剩余箭矢，防止攻速过快箭矢丢失

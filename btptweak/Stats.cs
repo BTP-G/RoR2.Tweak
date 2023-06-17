@@ -40,6 +40,7 @@ namespace Btp {
                     BtpTweak.玩家等级_ = (int)self.level;
                     Skills.按等级重新调整技能();
                 }
+                self.oneShotProtectionFraction = 0.1f;
             }
             if (self.moveSpeed > 72 && (self.bodyFlags & CharacterBody.BodyFlags.IgnoreFallDamage) != CharacterBody.BodyFlags.IgnoreFallDamage) {
                 self.moveSpeed = 72;

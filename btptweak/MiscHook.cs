@@ -41,7 +41,7 @@ namespace Btp {
             orig(self);
             if (BtpTweak.是否选择造物难度_) {
                 BtpTweak.玩家等级生命值系数_ += 1;
-                BtpTweak.怪物等级生命值系数_ += 0.1f + Run.instance.loopClearCount;
+                BtpTweak.怪物等级生命值系数_ += 0.2f + Run.instance.loopClearCount;
                 Chat.SendBroadcastChat(new Chat.SimpleChatMessage() { baseToken = $"<color=green><size=100%>传送器充能完毕，获得最大生命值奖励！</size></color>" });
             }
         }
