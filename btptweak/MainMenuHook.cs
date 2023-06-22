@@ -1,15 +1,15 @@
 ﻿using HIFUEngineerTweaks.Skills;
 using HIFUHuntressTweaks.Skills;
-using RoR2.Projectile;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static R2API.LanguageAPI;
 
-namespace Btp {
+namespace BtpTweak {
 
-    internal class Localization {
-        public static List<LanguageOverlay> languageOverlays = new();
+    internal class MainMenuHook {
+        private static List<LanguageOverlay> languageOverlays = new();
 
         public static void AddHook() {
             On.RoR2.UI.MainMenu.MainMenuController.Start += MainMenuController_Start;
@@ -21,32 +21,46 @@ namespace Btp {
 
         private static void MainMenuController_Start(On.RoR2.UI.MainMenu.MainMenuController.orig_Start orig, RoR2.UI.MainMenu.MainMenuController self) {
             orig(self);
-            全局汉化();
+            初始汉化();
+            //=== 迪奥调整
+            if (RoR2Content.Items.ExtraLife.DoesNotContainTag(ItemTag.CannotSteal)) {
+                List<ItemTag> itemTags = new List<ItemTag>();
+                for (int i = 0; i < RoR2Content.Items.ExtraLife.tags.Length; ++i) {
+                    itemTags.Add(RoR2Content.Items.ExtraLife.tags[i]);
+                }
+                itemTags.Add(ItemTag.CannotSteal);
+                RoR2Content.Items.ExtraLife.tags = itemTags.ToArray();
+            }
             RemoveHook();
         }
 
-        public static void 全局汉化() {
-            AddOverlay("CAPTAIN_PRIMARY_DESCRIPTION", "喷射一大团弹丸，造成<style=cIsDamage>6<style=cStack>(每3级+1)</style>x100%的伤害</style>。为攻击充能将缩小<style=cIsUtility>扩散范围</style>。");
-            AddOverlay("DIFFICULTY_CONFIGURABLEDIFFICULTYMOD_DESCRIPTION_DYNAMIC", "追求刺激，贯彻到底！开启进化神器，踏上弑神之路（24关）\n\n<style=cStack>难度调整：\n难度缩放+100%\n\n敌人调整：\n最大生命值+25%\n治疗量+25%\n护甲+10点\n暴击率+10%\n跳跃高度+10%\n技能冷却-10%\n跌落伤害-99%\n金钱掉落-20%\n怪物低血量时获得强心剂增益（次数上限=当前关卡数），进入狂暴状态20秒\n\n友方调整:\n治疗量-25%\n生命值再生速度-25%\n跌落伤害+100%\n获得初始物品-迪奥的朋友、Hopoo羽毛，谨慎的蛞蝓</style>", "zh-CN");
-            AddOverlay("ENGI_SECONDARY_DESCRIPTION", $"放置一枚二阶段地雷，能够造成<style=cIsDamage>300%的伤害</style>，或在完全引爆时造成<style=cIsDamage>{Mathf.Round(300f * PressureMines.damageScale)}%的伤害</style>。最多放置{PressureMines.charges}<style=cStack>(每级+1)</style>枚。");
-            AddOverlay("ENGI_SPIDERMINE_DESCRIPTION", $"放置一枚机器人地雷，在敌人走近时自动引爆，造成<style=cIsDamage>{SpiderMines.damage}%的伤害</style>，最多放置{SpiderMines.charges}<style=cStack>(每级+1)</style>枚。");
+        public static void 初始汉化() {
+            AddOverlay("CAPTAIN_PRIMARY_DESCRIPTION", "喷射一大团弹丸，造成<style=cIsDamage>6<style=cStack>(每3级+1)</style>x100%的伤害</style>。为攻击充能将缩小<style=cIsUtility>扩散范围</style>。", "zh-CN");
+            AddOverlay("CAPTAIN_SECONDARY_NAME", "能量电镖", "zh-CN");
+            AddOverlay("DIFFICULTY_CONFIGURABLEDIFFICULTYMOD_DESCRIPTION_DYNAMIC", "追求刺激，贯彻到底！开启进化神器，踏上弑神之路（24关）\n\n<style=cStack>难度调整：\n难度缩放+100%\n\n敌人调整：\n最大生命值+25%\n治疗量+25%\n护甲+10点\n暴击率+10%\n跳跃高度+10%\n技能冷却-10%\n跌落伤害-100%\n金钱掉落-20%\n怪物低血量时获得强心剂增益，进入狂暴状态（10x当前关卡数）秒\n\n友方调整:\n治疗量-25%\n生命值再生速度-25%\n跌落伤害+100%\n获得初始物品-迪奥的朋友、Hopoo羽毛，谨慎的蛞蝓</style>", "zh-CN");
+            AddOverlay("ENGI_SECONDARY_DESCRIPTION", $"放置一枚二阶段地雷，能够造成<style=cIsDamage>300%的伤害</style>，或在完全引爆时造成<style=cIsDamage>{Mathf.Round(300f * PressureMines.damageScale)}%的伤害</style>。最多放置{PressureMines.charges}枚。", "zh-CN");
+            AddOverlay("ENGI_SPIDERMINE_DESCRIPTION", $"放置一枚机器人地雷，在敌人走近时自动引爆，造成<style=cIsDamage>{SpiderMines.damage}%的伤害</style>，最多放置{SpiderMines.charges}枚。", "zh-CN");
             AddOverlay("HUNTRESS_PRIMARY_ALT_DESCRIPTION", "<style=cIsUtility>灵巧</style>。拉弓射出<style=cIsDamage>3<style=cStack>(每3级+1)</style>枚</style>跟踪箭，每枚造成<style=cIsDamage>120%的伤害</style>。如果暴击则发射<style=cIsDamage>双倍</style>跟踪箭。", "zh-CN");
             AddOverlay("HUNTRESS_PRIMARY_DESCRIPTION", "<style=cIsUtility>灵巧</style>。快速射出一名能够造成<style=cIsDamage>180%<style=cStack>（每级增加30%）</style>伤害</style>的跟踪箭。", "zh-CN");
-            AddOverlay("HUNTRESS_SECONDARY_DESCRIPTION", $"{(LaserGlaive.agile ? "<style=cIsUtility>敏捷</style>. " : "")}投掷一把追踪月刃，可弹射最多<style=cIsDamage>{LaserGlaive.bounceCount}</style>次，初始造成<style=cIsDamage>{100 * LaserGlaive.damage}%的伤害</style>，每次弹射伤害增加<style=cIsDamage>{Math.Round((double)((LaserGlaive.bounceDamage - 1f) * 100f), 1)}%</style>。");
-            AddOverlay("HUNTRESS_SPECIAL_ALT1_DESCRIPTION", $"向后<style=cIsUtility>传送</style>至空中。最多发射<style=cIsDamage>{Ballista.boltCount}</style>道能量闪电，造成<style=cIsDamage>{Ballista.boltCount}x{Ballista.damage * 100}%的伤害</style>。");
-            AddOverlay("HUNTRESS_SPECIAL_DESCRIPTION", $"<style=cIsUtility>传送</style>至空中，向目标区域射下箭雨，使区域内所有敌人<style=cIsUtility>减速</style>，并造成<style=cIsDamage>每秒{300f * ArrowRain.damage}%的伤害</style>。");
+            AddOverlay("HUNTRESS_SECONDARY_DESCRIPTION", $"{(LaserGlaive.agile ? "<style=cIsUtility>灵巧</style>。" : "")}投掷一把追踪月刃，可弹射最多<style=cIsDamage>{LaserGlaive.bounceCount}</style>次，初始造成<style=cIsDamage>{100 * LaserGlaive.damage}%的伤害</style>，每次弹射伤害增加<style=cIsDamage>{Math.Round((double)((LaserGlaive.bounceDamage - 1f) * 100f), 1)}%</style>。", "zh-CN");
+            AddOverlay("HUNTRESS_SPECIAL_ALT1_DESCRIPTION", $"向后<style=cIsUtility>传送</style>至空中。最多发射<style=cIsDamage>{Ballista.boltCount}</style>道能量闪电，造成<style=cIsDamage>{Ballista.boltCount}x{Ballista.damage * 100}%的伤害</style>。", "zh-CN");
+            AddOverlay("HUNTRESS_SPECIAL_DESCRIPTION", $"<style=cIsUtility>传送</style>至空中，向目标区域射下箭雨，使区域内所有敌人<style=cIsUtility>减速</style>，并造成<style=cIsDamage>每秒{300f * ArrowRain.damage}%的伤害</style>。", "zh-CN");
             AddOverlay("ITEM_AbyssalMedkit_DESCRIPTION", "抵挡<style=cIsUtility> 10次 </style>减益后失效。每一次抵挡都有 10% 概率给予你<style=cIsHealing>“祝·福”</style>。<style=cIsUtility>每个祝福可提升 3% 的所有属性</style>。<style=cIsVoid>使所有医疗包无效化</style>", "zh-CN");
             AddOverlay("ITEM_AbyssalMedkit_PICKUP", "消耗品，可以替你抵挡10次减益，每一次抵挡都有概率给予你“祝·福”", "zh-CN");
             AddOverlay("ITEM_INFUSION_DESC", "每击败一名敌人，即可<style=cIsHealing>永久性</style>增加<style=cIsHealing>" + BtpTweak.浸剂击杀奖励倍率_.Value + "</style>点生命值<style=cStack>（每层增加" + BtpTweak.浸剂击杀奖励倍率_.Value + "点）</style>，<style=cIsHealing>无上限</style>。", "zh-CN");
-            AddOverlay("KEYWORD_SOULROT", "<style=cKeywordName>灵魂之痛</style><style=cSub> 总共造成等同于敌人最大生命值 <style=cIsVoid>62.5%</style> 的<style=cIsVoid>致命伤害</style>。</style>", "zh-CN");
-            AddOverlay("MAGE_PRIMARY_FIRE_DESCRIPTION", "<style=cIsDamage>点燃</style>。发射火焰弹，造成<style=cIsDamage>220%的伤害</style>。</style>");
-            AddOverlay("MAGE_PRIMARY_LIGHTNING_DESCRIPTION", $"发射一道闪电，造成<style=cIsDamage>300%的伤害</style>并<style=cIsDamage>引爆</style>小片区域。</style>");
-            AddOverlay("MAGE_SECONDARY_ICE_DESCRIPTION", "<style=cIsUtility>冰冻</style>。使用拥有<style=cIsDamage>穿透</style>效果的纳米枪发动攻击，充能后能造成<style=cIsDamage>400%-1200%</style>的伤害，造成范围等同与当前等级的冰冻爆炸。");
-            AddOverlay("MAGE_SECONDARY_LIGHTNING_DESCRIPTION", "<style=cIsDamage>眩晕</style>。发射一枚会<style=cIsDamage>爆炸并分裂0<style=cStack>(每3级+1)</style>颗闪电球</style>的纳米炸弹，如果充能将造成<style=cIsDamage>500%-2500%</style>的伤害（每颗闪电球造成<style=cIsDamage>一半</style>伤害）。");
+            AddOverlay("KEYWORD_EMPOWERING", "<style=cKeywordName>授权</style><style=cSub>使用此技能后短时间内增强你的其他技能。\n火神散弹枪：<style=cIsDamage>攻速+75%</style>。\n轨道探测器：<style=cIsDamage>伤害+400%</style>。\nOGM-72“大恶魔”打击：<style=cIsDamage>范围+100%</style>。</style>", "zh -CN");
+            AddOverlay("KEYWORD_FLEETING", "<style=cKeywordName>一闪</style><style=cSub><style=cIsDamage>攻速</style>转化为<style=cIsDamage>技能伤害</style>。", "zh-CN");
+            AddOverlay("KEYWORD_SOULROT", "<style=cKeywordName>灵魂之痛</style><style=cSub>持续<style=cIsVoid>666</style>秒的<style=cIsVoid>致命buff</style>。</style>", "zh-CN");
+            AddOverlay("KEYWORD_VERY_HEAVY", "<style=cKeywordName>超重</style><style=cSub>下落速度越快，技能造成的伤害越高。<color=#FF7F7F>小心冲击力</color>。</style>", "zh-CN");
+            AddOverlay("MAGE_PRIMARY_FIRE_DESCRIPTION", "<style=cIsDamage>点燃</style>。发射火焰弹，造成<style=cIsDamage>220%的伤害</style>。</style>", "zh-CN");
+            AddOverlay("MAGE_PRIMARY_LIGHTNING_DESCRIPTION", $"发射一道闪电，造成<style=cIsDamage>300%的伤害</style>并<style=cIsDamage>引爆</style>小片区域。</style>", "zh-CN");
+            AddOverlay("MAGE_SECONDARY_ICE_DESCRIPTION", "<style=cIsUtility>冰冻</style>。使用拥有<style=cIsDamage>穿透</style>效果的纳米枪发动攻击，充能后能造成<style=cIsDamage>400%-1200%</style>的伤害，造成范围等同与当前等级的冰冻爆炸。", "zh-CN");
+            AddOverlay("MAGE_SECONDARY_LIGHTNING_DESCRIPTION", "<style=cIsDamage>眩晕</style>。发射一枚会<style=cIsDamage>爆炸并分裂0<style=cStack>(每3级+1)</style>颗闪电球</style>的纳米炸弹，如果充能将造成<style=cIsDamage>500%-2500%</style>的伤害（每颗闪电球造成<style=cIsDamage>一半</style>伤害）。", "zh-CN");
             AddOverlay("SPIKESTRIPSKILL_DEEPROT_DESCRIPTION", "<style=cIsVoid>“虚 空 的 馈 赠”</style>\n施加<style=cIsVoid>虚空之毒</style>，使<style=cIsVoid>速度减慢10%</style>。叠加<style=cIsVoid>5</style>次后，<style=cIsVoid>虚空之毒</style>将转化为<style=cIsVoid>灵魂之痛</style>，造成巨量伤害！", "zh-CN");
             AddOverlay("SPIKESTRIPSKILL_DEEPROT_NAME", "腐朽", "zh-CN");
-            AddOverlay("TOOLBOT_PRIMARY_ALT1_DESCRIPTION", "发射1条具有穿透效果的钢筋，造成<style=cIsDamage>600<style=cStack>（每7级+100）</style>%的伤害</style>。");
-            AddOverlay("TOOLBOT_PRIMARY_DESCRIPTION", "快速发射钉子，造成<style=cIsDamage>77%<style=cStack>（按住发射，每发射一颗后+0.01%，最高210%，松开后清零）</style>的伤害</style>。最后一次性发射<style=cIsDamage>12</style>枚<style=cIsDamage>77<style=cStack>（每级+7）</style>%伤害</style>的钉子。");
+            AddOverlay("TOOLBOT_PRIMARY_ALT1_DESCRIPTION", "发射1条具有穿透效果的钢筋，造成<style=cIsDamage>600<style=cStack>（每7级+100）</style>%的伤害</style>。", "zh-CN");
+            AddOverlay("TOOLBOT_PRIMARY_ALT3_DESCRIPTION", "锯伤周围敌人，造成<style=cIsDamage>每秒1000%的伤害</style><style=cStack>（按住伤害会慢慢递增，增加的量随时间减少，松开后清零）</style>。", "zh-CN");
+            AddOverlay("TOOLBOT_PRIMARY_DESCRIPTION", "快速发射钉子，造成<style=cIsDamage>77%<style=cStack>（按住发射，每发射一颗后+0.01%，最高210%，松开后清零）</style>的伤害</style>。最后一次性发射<style=cIsDamage>12</style>枚<style=cIsDamage>77<style=cStack>（每级+7）</style>%伤害</style>的钉子。", "zh-CN");
         }
 
         public static void 后续汉化() {
@@ -57,16 +71,6 @@ namespace Btp {
                 languageOverlays[i].Remove();
                 languageOverlays.RemoveAt(i);
             }
-            //=== 无人机幸存者重新调整
-            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMaxHealth = 40;
-            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseDamage = 12f;
-            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMoveSpeed = 18f;
-            MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = Vector3.zero;
-            MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.damageCoefficient = 2;
-            MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.baseFireInterval *= 0.75f;
-            MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileSimple>().desiredForwardSpeed = 50;
-            MissileDroneSurvivor.MissileDroneMod.bodyComponent.PerformAutoCalculateLevelStats();
-            //===
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_BANDIT2_RESETREVOLVERDESC", "<style=cIsDamage>屠杀者</style>。使用左轮手枪进行射击，造成<style=cIsDamage>600%的伤害</style>。击杀敌人可以<style=cIsUtility>重置所有能力的冷却时间</style>。\n<color=#d299ff>权杖：额外发射一发子弹。</color>", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_BANDIT2_RESETREVOLVERNAME", "暗杀", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_BANDIT2_SKULLREVOLVERDESC", "<style=cIsDamage>屠杀者</style>。使用左轮手枪进行射击，造成<style=cIsDamage>600%的伤害</style>（可以直接斩杀血量低于12.5%的敌人）。击杀敌人可以<style=cIsDamage>叠加效果</style>（死亡和过关不消失），使亡命徒的伤害提高<style=cIsDamage>10%</style>。射击需要消耗当前<style=cIsDamage>叠加层数</style>的<style=cIsDamage>1 / (3x人物等级)</style>。\n<color=#d299ff>权杖：子弹有25%（每个标记+0.35%）概率弹射到30米内的其他敌人（最多8次）。\n每次弹射后距离和伤害-10%。不受运气影响。</color>", "zh-CN"));
@@ -103,10 +107,10 @@ namespace Btp {
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_MERC_EVISPROJNAME", "死亡之风", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPECRYODESC", "<style=cIsUtility>冰冻</style>。发射<style=cIsDamage>具有穿透效果</style>的子弹，造成<style=cIsDamage>2000%的伤害</style>。\n<color=#d299ff>权杖：<color=blue>冰冻</color>爆炸，对6米内的敌人造成射弹的 2倍 伤害，并减速80%，持续20秒</color>", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPECRYONAME", "T°->绝对零度", "zh-CN"));
-            languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPECRYONAME", "<color=blue>冰</color>"));
+            languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPECRYONAME", "<color=blue>冰</color>", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPESUPERDESC", "发射一枚<style=cIsDamage>具有穿刺效果，</style>造成<style=cIsDamage>3000%的伤害且具有双倍暴击伤害</style>的超载射弹。之后，<style=cIsHealth>你的所有武器都将失灵</style>，持续<style=cIsHealth>5</style>秒。\n<color=#d299ff>权杖：<color=yellow>当前金钱的1<style=cStack>（每有个备用弹夹+1）</style>%转化为伤害</color>。永久降低20点护甲。Proc系数+0.5。</color>", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPESUPERNAME", "超电磁炮", "zh-CN"));
-            languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPESUPERNAME", "“一枚硬币”"));
+            languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPESUPERNAME", "“一枚硬币”", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_SCEPLOADER_CHARGEZAPFISTDESC", "<style=cIsUtility>重型</style>。发动一次<style=cIsUtility>单体攻击</style>直拳，造成<style=cIsDamage>2100%的伤害</style>，<style=cIsDamage>震荡</style>锥形区域内的所有敌人并造成<style=cIsDamage>1000%的伤害</style>。\n<color=#d299ff>权杖：全向闪电。“<link=\"BulwarksHauntShaky\">以雷霆~ 击碎黑暗！</link>”</color>", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_SCEPLOADER_CHARGEZAPFISTNAME", "雷霆一击·超", "zh-CN"));
             languageOverlays.Add(AddOverlay("ANCIENTSCEPTER_TOOLBOT_DASHDESC", "<style=cIsUtility>重型</style>。向前方冲刺，获得<style=cIsUtility>200护甲</style>与<style=cIsUtility>220%移动速度</style>。对敌人造成<style=cIsDamage>250%伤害</style>。\n<color=#d299ff>权杖：将传入的伤害减半（与护甲叠加），持续时间加倍。停止后：爆炸，以巨大的爆炸击晕敌人，造成所受伤害的200%的伤害。</color>", "zh-CN"));

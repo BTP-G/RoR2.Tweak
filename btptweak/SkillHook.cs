@@ -1,24 +1,26 @@
 ﻿using EntityStates.Toolbot;
 using R2API;
+using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
 using RoR2.Skills;
-using RoR2;
-using UnityEngine.AddressableAssets;
-using UnityEngine.Networking;
 using UnityEngine;
-using System;
+using UnityEngine.AddressableAssets;
 
-namespace Btp {
+namespace BtpTweak {
 
-    internal class Skills {
+    internal class SkillHook {
 
-        public static void 技能调整() {
+        //private static bool hasTweakbonusBlastForce = false;
+        public static float iceExplosionRadius = 1;
+
+        public static void AddHook() {
             技能冷却();
             指挥官();
             女猎人();
             工匠();
             盗贼();
+            装卸工();
             多功能抢兵();
             船长();
             磁轨炮手();
@@ -26,14 +28,11 @@ namespace Btp {
             异教徒();
         }
 
-        private static void 指挥官() {
-        }
-
         private static void 技能冷却() => On.RoR2.GenericSkill.RecalculateFinalRechargeInterval += delegate (On.RoR2.GenericSkill.orig_RecalculateFinalRechargeInterval orig, GenericSkill self) {
             self.finalRechargeInterval = Mathf.Max(0, self.baseRechargeInterval * self.cooldownScale - self.flatCooldownReduction);
         };
 
-        public static void RunInit() {
+        public static void Init() {
             //=== 女猎人
             HIFUHuntressTweaks.Skills.Strafe.damage = 1.8f;
             HIFUHuntressTweaks.Skills.Flurry.damage = 1.2f;
@@ -45,15 +44,23 @@ namespace Btp {
             //=== 盗贼
             BtpTweak.盗贼标记_ = 0;
             //=== 导弹无人机
-            MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 35;
-            //=== 工程师
-            HIFUEngineerTweaks.Skills.PressureMines.charges = 4;
-            HIFUEngineerTweaks.Skills.SpiderMines.charges = 2;
+            MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 30;
+            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMaxHealth = 40;
+            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseDamage = 11f;
+            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMoveSpeed = 18f;
+            MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = Vector3.zero;
+            MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.damageCoefficient = 2;
+            MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.baseFireInterval *= 0.75f;
+            MissileDroneSurvivor.MissileDroneMod.bodyComponent.PerformAutoCalculateLevelStats();
             //=== 磁轨炮手
             HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f;
+            //=== 工匠
+            iceExplosionRadius = 1;
+            //=== 多功能枪兵
+            //hasTweakbonusBlastForce = false;
         }
 
-        public static void 按等级重新调整技能() {
+        public static void LevelUp() {
             //=== 女猎人
             HIFUHuntressTweaks.Skills.Strafe.damage = 1.5f + BtpTweak.玩家等级_ * 0.3f;
             HIFUHuntressTweaks.Skills.Flurry.minArrows = 3 + BtpTweak.玩家等级_ / 3;
@@ -61,17 +68,16 @@ namespace Btp {
             HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (BtpTweak.女猎人射程每级增加距离_.Value * BtpTweak.玩家等级_);
             //=== 船长
             HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6 + BtpTweak.玩家等级_ / 3;
-            //=== 导弹无人机
-            MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 34 + BtpTweak.玩家等级_;
-            //=== 工程师
-            HIFUEngineerTweaks.Skills.PressureMines.charges = 4 + BtpTweak.玩家等级_;
-            HIFUEngineerTweaks.Skills.SpiderMines.charges = 2 + BtpTweak.玩家等级_;
-            //=== 磁轨炮手
+            //=== 工匠
+            iceExplosionRadius = Mathf.Min(BtpTweak.玩家等级_, 30);
+        }
+
+        private static void 指挥官() {
         }
 
         private static void 女猎人() {
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnExit orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
-                if (NetworkServer.active) {
+                if (self.isAuthority) {
                     while (self.firedArrowCount++ < self.maxArrowCount) {  // 发射剩余箭矢，防止攻速过快箭矢丢失
                         GenericDamageOrb genericDamageOrb = self.CreateArrowOrb();
                         genericDamageOrb.damageValue = self.characterBody.damage * self.orbDamageCoefficient;
@@ -99,10 +105,22 @@ namespace Btp {
             mageFlamethrower.baseRechargeInterval = 0;
             mageFireFirebolt.baseRechargeInterval *= 0.5f;
             mageFireLightningBolt.baseRechargeInterval *= 0.5f;
-            GameObject mageNovaBomb = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageLightningBombProjectile.prefab").WaitForCompletion();
-            mageNovaBomb.AddComponent<Meatball>();
-            GameObject mageiceBomb = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageIceBombProjectile.prefab").WaitForCompletion();
-            mageiceBomb.AddComponent<IceExplosion>();
+            //GameObject mageNovaBomb = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageLightningBombProjectile.prefab").WaitForCompletion();
+            //mageNovaBomb.AddComponent<Meatball>();
+            //GameObject mageiceBomb = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageIceBombProjectile.prefab").WaitForCompletion();
+            //mageiceBomb.AddComponent<IceExplosion>();
+            On.EntityStates.Mage.Weapon.BaseThrowBombState.OnEnter += delegate (On.EntityStates.Mage.Weapon.BaseThrowBombState.orig_OnEnter orig, EntityStates.Mage.Weapon.BaseThrowBombState self) {
+                orig(self);
+                if (self is EntityStates.Mage.Weapon.ThrowNovabomb) {
+                    if (self.projectilePrefab.GetComponent<Meatball>() == null) {
+                        self.projectilePrefab.AddComponent<Meatball>();
+                    }
+                } else if (self is EntityStates.Mage.Weapon.ThrowIcebomb) {
+                    if (self.projectilePrefab.GetComponent<IceExplosion>() == null) {
+                        self.projectilePrefab.AddComponent<IceExplosion>();
+                    }
+                }
+            };
         }
 
         private static void 盗贼() {
@@ -113,20 +131,43 @@ namespace Btp {
             };
         }
 
+        private static void 装卸工() {
+        }
+
         private static void 多功能抢兵() {
             On.EntityStates.Toolbot.BaseNailgunState.PullCurrentStats += delegate (On.EntityStates.Toolbot.BaseNailgunState.orig_PullCurrentStats orig, BaseNailgunState self) {
-                BaseNailgunState.damageCoefficient = Mathf.Min(2.1f, 0.77f + self.fireNumber * 0.001f);
+                if (self.isAuthority) {
+                    BaseNailgunState.damageCoefficient = Mathf.Min(2.1f, 0.77f + self.fireNumber * 0.001f);
+                }
                 orig(self);
             };
             //==========
             On.EntityStates.Toolbot.NailgunFinalBurst.OnEnter += delegate (On.EntityStates.Toolbot.NailgunFinalBurst.orig_OnEnter orig, NailgunFinalBurst self) {
-                BaseNailgunState.damageCoefficient += BtpTweak.玩家等级_ * 0.7f;
+                if (self.isAuthority) {
+                    BaseNailgunState.damageCoefficient += BtpTweak.玩家等级_ * 0.7f;
+                }
                 orig(self);
             };
             //==========
             On.EntityStates.Toolbot.FireSpear.OnEnter += delegate (On.EntityStates.Toolbot.FireSpear.orig_OnEnter orig, FireSpear self) {
-                self.damageCoefficient += BtpTweak.玩家等级_ / 7;
+                if (self.isAuthority) {
+                    self.damageCoefficient += BtpTweak.玩家等级_ / 7;
+                }
                 orig(self);
+            };
+            On.EntityStates.Toolbot.FireBuzzsaw.FixedUpdate += delegate (On.EntityStates.Toolbot.FireBuzzsaw.orig_FixedUpdate orig, FireBuzzsaw self) {
+                orig(self);
+                if (self.isAuthority) {
+                    self.attack.damage += (Time.fixedDeltaTime * self.damageStat) / (1 + self.fixedAge);
+                }
+            };
+            On.EntityStates.Toolbot.AimGrenade.OnEnter += delegate (On.EntityStates.Toolbot.AimGrenade.orig_OnEnter orig, AimGrenade self) {
+                orig(self);
+                if (self.isAuthority) {
+                    //if (!hasTweakbonusBlastForce) {
+                    self.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = -2000 * Vector3.one;
+                    //}
+                }
             };
         }
 
@@ -140,9 +181,10 @@ namespace Btp {
         private static void 磁轨炮手() {
             On.EntityStates.Railgunner.Weapon.BaseFireSnipe.ModifyBullet += delegate (On.EntityStates.Railgunner.Weapon.BaseFireSnipe.orig_ModifyBullet orig, EntityStates.Railgunner.Weapon.BaseFireSnipe self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
-                if (self is EntityStates.Railgunner.Weapon.FireSnipeSuper) {
+                if (self.isAuthority && self is EntityStates.Railgunner.Weapon.FireSnipeSuper) {
                     if (self.outer.commonComponents.characterBody.skillLocator.special.skillDef.skillName.EndsWith("Scepter")) {
-                        float moneyToDamage = self.outer.commonComponents.characterBody.master.money * ((self.outer.commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine) + 1) / 100.0f);
+                        float moneyToDamage = Mathf.Min(self.outer.commonComponents.characterBody.master.money * (0.01f * (self.outer.commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine) + 1))
+                                                        , self.outer.commonComponents.characterBody.master.money);
                         bulletAttack.damage += moneyToDamage;
                         self.outer.commonComponents.characterBody.master.money -= (uint)moneyToDamage;
                     }
@@ -205,7 +247,8 @@ namespace Btp {
         }
 
         private static void 异教徒() {
-            ContentAddition.AddEntityState<AncientScepter.HereticPerishSong>(out _);
+            ContentAddition.AddEntityState<AncientScepter.HereticPerishSong>(out bool wasAdded);
+
             //==========
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += delegate (On.EntityStates.Heretic.Weapon.Squawk.orig_OnEnter orig, EntityStates.Heretic.Weapon.Squawk self) {
                 orig(self);

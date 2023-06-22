@@ -31,36 +31,39 @@
 
   <ItemGroup>
     <Reference Include="AncientScepter">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\amogus_lovers-StandaloneAncientScepter\AncientScepter.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\amogus_lovers-StandaloneAncientScepter\AncientScepter.dll</HintPath>
     </Reference>
     <Reference Include="ConfigurableDifficulty">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\TheMysticSword-ConfigurableDifficulty\ConfigurableDifficulty.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\TheMysticSword-ConfigurableDifficulty\ConfigurableDifficulty.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.Steamworks">
       <HintPath>libs\Facepunch.Steamworks.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="HIFUArtificerTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUArtificerTweaks\HIFUArtificerTweaks.dll</HintPath>
+    </Reference>
     <Reference Include="HIFUCaptainTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFUCaptainTweaks\HIFUCaptainTweaks.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUCaptainTweaks\HIFUCaptainTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HIFUEngineerTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFUEngineerTweaks\HIFUEngineerTweaks.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUEngineerTweaks\HIFUEngineerTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HIFUHuntressTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFUHuntressTweaks\HIFUHuntressTweaks.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUHuntressTweaks\HIFUHuntressTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HIFURailgunnerTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HIFURailgunnerTweaks\HIFURailgunnerTweaks.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFURailgunnerTweaks\HIFURailgunnerTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HuntressAutoaimFix">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\HIFU-HuntressAutoaimFix\HuntressAutoaimFix.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HuntressAutoaimFix\HuntressAutoaimFix.dll</HintPath>
     </Reference>
     <Reference Include="KdTreeLib">
       <HintPath>libs\KdTreeLib.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="MissileDroneSurvivor">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\Team_Pepega-Ms_Isle\MissileDroneSurvivor.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Team_Pepega-Ms_Isle\MissileDroneSurvivor.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
       <HintPath>libs\Mono.Security.dll</HintPath>
@@ -71,7 +74,7 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="PlasmaCoreSpikestripContent">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-010\BepInEx\plugins\SpikestripModding-Spikestrip2_0\PlasmaCoreSpikestripContent.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\SpikestripModding-Spikestrip2_0\PlasmaCoreSpikestripContent.dll</HintPath>
     </Reference>
     <Reference Include="Poly2Tri">
       <HintPath>libs\Poly2Tri.dll</HintPath>

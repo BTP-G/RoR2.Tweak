@@ -3,13 +3,12 @@ using RoR2;
 using static RoR2.DotController;
 using UnityEngine.Networking;
 using UnityEngine;
-using MonoMod.Cil;
 
-namespace Btp {
+namespace BtpTweak {
 
-    internal class Damage {
+    internal class DamageHook {
 
-        public static void 伤害调整() {
+        public static void AddHook() {
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             On.RoR2.HealthComponent.TriggerOneShotProtection += HealthComponent_TriggerOneShotProtection;
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
@@ -18,6 +17,7 @@ namespace Btp {
 
         public static void RemoveHook() {
             On.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
+            On.RoR2.HealthComponent.TriggerOneShotProtection -= HealthComponent_TriggerOneShotProtection;
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float -= CharacterBody_AddTimedBuff_BuffDef_float;
             On.RoR2.DotController.AddDot -= DotController_AddDot;
         }
@@ -26,23 +26,23 @@ namespace Btp {
             if (NetworkServer.active) {
                 if (BtpTweak.虚灵战斗阶段计数_ != 0 && damageInfo.attacker) {
                     if (TeamIndex.Player == self.body.teamComponent.teamIndex) {
-                        damageInfo.damage = Mathf.Max(self.health / 10, damageInfo.damage);
+                        damageInfo.damage = Mathf.Max(0.1f * self.fullHealth, damageInfo.damage);
                     } else {
                         damageInfo.procCoefficient *= 0.5f;
-                        damageInfo.damage = Mathf.Min(damageInfo.damage, self.fullCombinedHealth / 1000);
+                        damageInfo.damage = Mathf.Min(damageInfo.damage, 0.001f * self.fullCombinedHealth);
                     }
                 }
                 orig(self, damageInfo);
                 if (BtpTweak.是否选择造物难度_
-                        && TeamIndex.Monster == self.body.teamComponent.teamIndex
-                        && self.isHealthLow
-                        && !self.body.HasBuff(RoR2Content.Buffs.TonicBuff.buffIndex)
-                        && (self.body.inventory.GetItemCount(RoR2Content.Items.TonicAffliction) <= Run.instance.stageClearCount)) {
+                    && TeamIndex.Monster == self.body.teamComponent.teamIndex
+                    && self.isHealthLow
+                    && !self.body.HasBuff(RoR2Content.Buffs.TonicBuff.buffIndex)
+                    && (self.body.inventory?.GetItemCount(RoR2Content.Items.TonicAffliction) == 0)) {
                     if (PhaseCounter.instance?.phase == 3) {
                         self.body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                     } else {
-                        self.body.AddTimedBuff(RoR2Content.Buffs.TonicBuff.buffIndex, 20);
-                        self.body.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                        self.body.AddTimedBuff(RoR2Content.Buffs.TonicBuff.buffIndex, 10 * (1 + Run.instance.stageClearCount));
+                        self.body.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex, 1 + Run.instance.stageClearCount);
                     }
                 }
             }

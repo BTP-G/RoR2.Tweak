@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
-namespace Btp {
+namespace BtpTweak {
 
     internal class Meatball : MonoBehaviour {
+        private static readonly GameObject electricOrbProjectilePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ElectricWorm/ElectricOrbProjectile.prefab").WaitForCompletion();
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
 
@@ -22,19 +23,19 @@ namespace Btp {
         }
 
         public void FireMeatballs(Vector3 impactPosition, float meatballCount, float meatballAngle, float meatballForce) {
-            float num = 360f / meatballCount;
-            for (int i = 0, 偏移角 = Random.Range(0, 360); i < meatballCount; ++i) {
-                Quaternion rotation = Quaternion.Euler(meatballAngle, i * num + 偏移角, 0);
-                ProjectileManager.instance.FireProjectile(BtpTweak.electricOrbProjectilePrefab, impactPosition, rotation, projectileController.owner?.gameObject, projectileDamage.damage * 0.5f, meatballForce, projectileDamage.crit);
+            float 每球偏移角度_Y = 360f / meatballCount;
+            Quaternion rotation;
+            for (int i = 0, 随机偏移角_Y = Random.Range(0, 360); i < meatballCount; ++i) {
+                rotation = Quaternion.Euler(meatballAngle, i * 每球偏移角度_Y + 随机偏移角_Y, 0);
+                ProjectileManager.instance.FireProjectile(electricOrbProjectilePrefab, impactPosition, rotation, projectileController.owner?.gameObject, projectileDamage.damage * 0.5f, meatballForce, projectileDamage.crit);
             }
         }
     }
 
     internal class IceExplosion : MonoBehaviour {
+        private static readonly GameObject whiteExplosionPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
-
-        private static readonly GameObject whiteExplosionPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
 
         public void Awake() {
             projectileController = GetComponent<ProjectileController>();
@@ -64,7 +65,7 @@ namespace Btp {
                 position = transform.position,
                 procChainMask = default(ProcChainMask),
                 procCoefficient = 1f,
-                radius = BtpTweak.玩家等级_,
+                radius = SkillHook.iceExplosionRadius,
                 teamIndex = projectileController.teamFilter.teamIndex
             };
             EffectData effectData = new EffectData {
@@ -77,10 +78,9 @@ namespace Btp {
     }
 
     internal class CallAirstrike : MonoBehaviour {
+        private static readonly GameObject captainAirstrikePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainAirstrikeProjectile1.prefab").WaitForCompletion();
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
-
-        private static readonly GameObject captainAirstrikePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainAirstrikeProjectile1.prefab").WaitForCompletion();
 
         public void Awake() {
             projectileController = GetComponent<ProjectileController>();
