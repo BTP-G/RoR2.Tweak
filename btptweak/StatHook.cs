@@ -2,13 +2,14 @@
 using MonoMod.Cil;
 using RoR2;
 using System;
-using UnityEngine.Networking;
 
 namespace BtpTweak {
 
     internal class StatHook {
 
         public static void AddHook() {
+            On.RoR2.CharacterBody.OnLevelUp += CharacterBody_OnLevelUp;
+            R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
             IL.RoR2.CharacterBody.RecalculateStats += HealthTweak;
             IL.RoR2.CharacterBody.RecalculateStats += RegenTweak;
             IL.RoR2.CharacterBody.RecalculateStats += AttackSpeedTweak;
@@ -16,10 +17,28 @@ namespace BtpTweak {
         }
 
         public static void RemoveHook() {
+            On.RoR2.CharacterBody.OnLevelUp -= CharacterBody_OnLevelUp;
+            R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
             IL.RoR2.CharacterBody.RecalculateStats -= HealthTweak;
             IL.RoR2.CharacterBody.RecalculateStats -= RegenTweak;
             IL.RoR2.CharacterBody.RecalculateStats -= AttackSpeedTweak;
             IL.RoR2.CharacterBody.RecalculateStats -= MoveSpeedTweak;
+        }
+
+        private static void CharacterBody_OnLevelUp(On.RoR2.CharacterBody.orig_OnLevelUp orig, CharacterBody self) {
+            if (self.isPlayerControlled && BtpTweak.玩家等级_ != (int)self.level) {
+                BtpTweak.玩家等级_ = (int)self.level;
+                SkillHook.LevelUp();
+            }
+            orig(self);
+        }
+
+        private static void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
+            if (sender.isPlayerControlled) {
+                args.armorAdd += sender.level;
+            } else {
+                args.armorAdd += 0.05f * sender.level;
+            }
         }
 
         private static void HealthTweak(ILContext il) {
@@ -34,15 +53,13 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldloc, 62);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float>>(delegate (RoR2.CharacterBody self, float value) {
                     if (self.isPlayerControlled) {
-                        //=== 技能
-                        if (BtpTweak.玩家等级_ != (int)self.level) {
-                            BtpTweak.玩家等级_ = (int)self.level;
-                            SkillHook.LevelUp();
-                        }
-                        //===
-                        return value + BtpTweak.玩家生命值增加系数_ * (self.baseMaxHealth > 200 ? 200 : self.baseMaxHealth) * (self.level - 1) * self.level;
+                        return value  // 原值
+                        + BtpTweak.玩家生命值增加系数_ * self.levelMaxHealth * (self.level - 1)  // 增加
+                        * self.level;  // 倍数
                     } else {
-                        return value + BtpTweak.怪物生命值增加系数_ * self.baseMaxHealth * (self.level - 1);
+                        return value  // 原值
+                        + BtpTweak.怪物生命值增加系数_ * self.levelMaxHealth * (self.level - 1)  // 增加
+                        * BtpTweak.怪物生命值倍数_;  // 倍数
                     }
                 });
                 ilcursor.Emit(OpCodes.Stloc, 62);
@@ -59,7 +76,7 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldloc, 67);
                 ilcursor.Emit(OpCodes.Ldloc, 66);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float, float>>(delegate (RoR2.CharacterBody self, float value, float scaling) {
-                    return value + (self.isPlayerControlled ? 0.001f * self.level * self.maxHealth : 0);
+                    return value + (self.isPlayerControlled ? 0.01f * self.maxHealth : 0);
                 });
                 ilcursor.Emit(OpCodes.Stloc, 67);
             }
@@ -76,7 +93,7 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldloc, 83);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float>>(delegate (RoR2.CharacterBody self, float value) {
-                    return value + (self.isPlayerControlled ? 0.03f * (self.level - 1) : 0);
+                    return value + (self.isPlayerControlled ? 0.04f * self.level : 0);
                 });
                 ilcursor.Emit(OpCodes.Stloc, 83);
             }
@@ -92,12 +109,12 @@ namespace BtpTweak {
             array[4] = ((Instruction x) => ILPatternMatchingExt.MatchMul(x));
             array[5] = ((Instruction x) => ILPatternMatchingExt.MatchStloc(x, 74));
             if (ilcursor.TryGotoNext(array)) {
-                ilcursor.Index++;
+                ++ilcursor.Index;
                 ilcursor.Emit(OpCodes.Pop);
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldloc, 75);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float>>(delegate (RoR2.CharacterBody self, float value) {
-                    return value + (self.isPlayerControlled ? 0.03f * (self.level - 1) : 0);
+                    return value + (self.isPlayerControlled ? 0.04f * self.level : 0);
                 });
                 ilcursor.Emit(OpCodes.Stloc, 75);
                 ilcursor.Emit(OpCodes.Ldloc, 74);

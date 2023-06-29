@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using System.Collections.Generic;
 
 namespace BtpTweak {
 
@@ -20,18 +21,23 @@ namespace BtpTweak {
         public const string PluginVersion = "1.1.1";
 
         public static bool 是否选择造物难度_ = false;
-        public static byte 虚灵战斗阶段计数_;
+        public static byte 虚灵战斗阶段计数_ = 0;
         public static float 虚空恶鬼二技能充能时间_ = 0;
-        public static float 玩家生命值增加系数_ = 0.02f;
-        public static float 怪物生命值增加系数_ = 0.01f;
-        public static int 盗贼标记_ = 0;
+        public static float 玩家生命值增加系数_;
+        public static float 怪物生命值增加系数_;
+        public static float 玩家生命值倍数_ = 1;
+        public static float 怪物生命值倍数_ = 1;
+
+        public static Dictionary<int, int> 盗贼标记_ = new();
         public static int 玩家等级_ = 1;
         public static int 敌人等级_ = 1;
 
+        public static ManualLogSource logger_ = null;
         public static ConfigEntry<int> 浸剂击杀奖励倍率_;
         public static ConfigEntry<uint> 女猎人射程每级增加距离_;
 
         public void Awake() {
+            logger_ = Logger;
             InitConfig();
             DamageHook.AddHook();
             MainMenuHook.AddHook();
@@ -40,6 +46,7 @@ namespace BtpTweak {
             RunHook.AddHook();
             SkillHook.AddHook();
             StatHook.AddHook();
+            Tp_item_back.AddHook();
         }
 
         public void InitConfig() {

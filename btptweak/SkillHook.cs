@@ -1,5 +1,4 @@
 ﻿using EntityStates.Toolbot;
-using R2API;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
@@ -42,7 +41,7 @@ namespace BtpTweak {
             //=== 船 长
             HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6;
             //=== 盗贼
-            BtpTweak.盗贼标记_ = 0;
+            BtpTweak.盗贼标记_.Clear();
             //=== 导弹无人机
             MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 30;
             MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMaxHealth = 40;
@@ -57,7 +56,6 @@ namespace BtpTweak {
             //=== 工匠
             iceExplosionRadius = 1;
             //=== 多功能枪兵
-            //hasTweakbonusBlastForce = false;
         }
 
         public static void LevelUp() {
@@ -69,7 +67,7 @@ namespace BtpTweak {
             //=== 船长
             HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6 + BtpTweak.玩家等级_ / 3;
             //=== 工匠
-            iceExplosionRadius = Mathf.Min(BtpTweak.玩家等级_, 30);
+            iceExplosionRadius = BtpTweak.玩家等级_ > 30 ? 30 : BtpTweak.玩家等级_;
         }
 
         private static void 指挥官() {
@@ -77,24 +75,23 @@ namespace BtpTweak {
 
         private static void 女猎人() {
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnExit orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
-                if (self.isAuthority) {
-                    while (self.firedArrowCount++ < self.maxArrowCount) {  // 发射剩余箭矢，防止攻速过快箭矢丢失
-                        GenericDamageOrb genericDamageOrb = self.CreateArrowOrb();
-                        genericDamageOrb.damageValue = self.characterBody.damage * self.orbDamageCoefficient;
-                        genericDamageOrb.isCrit = self.isCrit;
-                        genericDamageOrb.teamIndex = self.teamComponent.teamIndex;
-                        genericDamageOrb.attacker = self.gameObject;
-                        genericDamageOrb.procCoefficient = self.orbProcCoefficient;
-                        HurtBox hurtBox = self.initialOrbTarget;
-                        if (hurtBox) {
-                            Transform transform = self.childLocator.FindChild(self.muzzleString);
-                            genericDamageOrb.origin = transform.position;
+                orig(self);
+                if (self.isAuthority && self.firedArrowCount < self.maxArrowCount) {  // 发射剩余箭矢，防止攻速过快箭矢丢失
+                    GenericDamageOrb genericDamageOrb = self.CreateArrowOrb();
+                    genericDamageOrb.damageValue = self.characterBody.damage * self.orbDamageCoefficient;
+                    genericDamageOrb.isCrit = self.isCrit;
+                    genericDamageOrb.teamIndex = self.teamComponent.teamIndex;
+                    genericDamageOrb.attacker = self.gameObject;
+                    genericDamageOrb.procCoefficient = self.orbProcCoefficient;
+                    HurtBox hurtBox = self.initialOrbTarget;
+                    if (hurtBox) {
+                        while (self.firedArrowCount++ < self.maxArrowCount) {
+                            genericDamageOrb.origin = self.childLocator.FindChild(self.muzzleString).position;
                             genericDamageOrb.target = hurtBox;
                             OrbManager.instance.AddOrb(genericDamageOrb);
                         }
                     }
                 }
-                orig(self);
             };
         }
 
@@ -126,8 +123,10 @@ namespace BtpTweak {
         private static void 盗贼() {
             On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.ModifyBullet += delegate (On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.orig_ModifyBullet orig, EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
-                BtpTweak.盗贼标记_ = self.GetBuffCount(RoR2Content.Buffs.BanditSkull);
-                self.characterBody.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, BtpTweak.盗贼标记_ -= BtpTweak.盗贼标记_ / (3 * BtpTweak.玩家等级_));
+                if (self.isAuthority) {
+                    BtpTweak.盗贼标记_[self.characterBody.playerControllerId] = self.GetBuffCount(RoR2Content.Buffs.BanditSkull);
+                    self.characterBody.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, BtpTweak.盗贼标记_[self.characterBody.playerControllerId] -= BtpTweak.盗贼标记_[self.characterBody.playerControllerId] / (3 * BtpTweak.玩家等级_));
+                }
             };
         }
 
@@ -144,7 +143,7 @@ namespace BtpTweak {
             //==========
             On.EntityStates.Toolbot.NailgunFinalBurst.OnEnter += delegate (On.EntityStates.Toolbot.NailgunFinalBurst.orig_OnEnter orig, NailgunFinalBurst self) {
                 if (self.isAuthority) {
-                    BaseNailgunState.damageCoefficient += BtpTweak.玩家等级_ * 0.7f;
+                    BaseNailgunState.damageCoefficient += 0.07f * self.characterBody.level;
                 }
                 orig(self);
             };
@@ -162,12 +161,10 @@ namespace BtpTweak {
                 }
             };
             On.EntityStates.Toolbot.AimGrenade.OnEnter += delegate (On.EntityStates.Toolbot.AimGrenade.orig_OnEnter orig, AimGrenade self) {
-                orig(self);
                 if (self.isAuthority) {
-                    //if (!hasTweakbonusBlastForce) {
-                    self.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = -2000 * Vector3.one;
-                    //}
+                    self.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = -2500 * Vector3.one;
                 }
+                orig(self);
             };
         }
 
@@ -194,39 +191,43 @@ namespace BtpTweak {
             On.EntityStates.Railgunner.Reload.Reloading.OnEnter += delegate (On.EntityStates.Railgunner.Reload.Reloading.orig_OnEnter orig, EntityStates.Railgunner.Reload.Reloading self) {
                 int magazineCount = self.outer.commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine);
                 HRGT.Misc.ScopeAndReload.Damage = 5 + (magazineCount * 0.5f);
-                HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f + ((BtpTweak.玩家等级_ - magazineCount) * 0.01f);
+                HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f + ((self.characterBody.level - magazineCount) * 0.01f);
                 orig(self);
             };
         }
 
         private static void 虚空恶鬼() {
             On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter += delegate (On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireHandBeam self) {
-                self.damageCoefficient = 4.44f;
+                if (self.isAuthority) {
+                    self.damageCoefficient = 3.6f;
+                }
                 orig(self);
             };
             //==========
             On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter += delegate (On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster self) {
-                BtpTweak.虚空恶鬼二技能充能时间_ = 0;
                 self.baseDuration = 4;
                 orig(self);
             };
             //==========
-            On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.FixedUpdate += delegate (On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.orig_FixedUpdate orig, EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster self) {
-                BtpTweak.虚空恶鬼二技能充能时间_ += Time.fixedDeltaTime;
-                orig(self);
-            };
-            //==========
             On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles += delegate (On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.orig_FireProjectiles orig, EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase self) {
-                float 充能百分比 = Mathf.Min(BtpTweak.虚空恶鬼二技能充能时间_ * self.attackSpeedStat * 0.25f, 1);
-                self.selfKnockbackForce = 0;
-                self.force = 4444 * 充能百分比;
-                self.damageCoefficient = 44.44f * 充能百分比;
+                if (self.isAuthority) {
+                    if (self is EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBig) {
+                        self.force = 4444;
+                        self.damageCoefficient = 44.44f;
+                    } else {
+                        self.force = 666;
+                        self.damageCoefficient = 6.66f;
+                    }
+                }
+                self.selfKnockbackForce *= 0.5f;
                 orig(self);
             };
             //==========
             On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.FireProjectiles += delegate (On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.orig_FireProjectiles orig, EntityStates.VoidSurvivor.Weapon.FireCorruptDisks self) {
-                self.selfKnockbackForce *= 0.5f;
-                self.damageCoefficient = 22.22f;
+                if (self.isAuthority) {
+                    self.damageCoefficient = 25;
+                }
+                self.selfKnockbackForce = 0;
                 orig(self);
             };
             //=== 腐化二技能
@@ -247,8 +248,6 @@ namespace BtpTweak {
         }
 
         private static void 异教徒() {
-            ContentAddition.AddEntityState<AncientScepter.HereticPerishSong>(out bool wasAdded);
-
             //==========
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += delegate (On.EntityStates.Heretic.Weapon.Squawk.orig_OnEnter orig, EntityStates.Heretic.Weapon.Squawk self) {
                 orig(self);
