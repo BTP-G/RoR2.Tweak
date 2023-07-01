@@ -25,7 +25,7 @@ namespace BtpTweak {
         private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
             if (NetworkServer.active) {
                 if (BtpTweak.虚灵战斗阶段计数_ != 0) {
-                    if (TeamIndex.Player == self.body.teamComponent.teamIndex) {
+                    if (TeamIndex.Player == self.body.teamComponent.teamIndex && damageInfo.attacker) {
                         damageInfo.damage = Mathf.Max(0.1f * BtpTweak.虚灵战斗阶段计数_ * self.fullHealth, damageInfo.damage);
                     } else if (TeamIndex.Void == self.body.teamComponent.teamIndex) {
                         switch (BtpTweak.虚灵战斗阶段计数_) {

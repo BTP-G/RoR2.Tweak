@@ -26,18 +26,21 @@ namespace BtpTweak {
         }
 
         private static void CharacterBody_OnLevelUp(On.RoR2.CharacterBody.orig_OnLevelUp orig, CharacterBody self) {
+            orig(self);
             if (self.isPlayerControlled && BtpTweak.玩家等级_ != (int)self.level) {
                 BtpTweak.玩家等级_ = (int)self.level;
                 SkillHook.LevelUp();
             }
-            orig(self);
         }
 
         private static void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
-            if (sender.isPlayerControlled) {
-                args.armorAdd += sender.level;
-            } else {
-                args.armorAdd += 0.05f * sender.level;
+            if (sender?.inventory) {
+                if (sender.isPlayerControlled) {
+                    args.armorAdd += sender.level;
+                } else {
+                    args.armorAdd += 0.05f * sender.level;
+                }
+                args.baseHealthAdd += (sender.level - 1) * (10 * sender.inventory.GetItemCount(RoR2Content.Items.FlatHealth) + sender.levelMaxHealth * sender.inventory.GetItemCount(RoR2Content.Items.Knurl));
             }
         }
 
@@ -76,7 +79,7 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldloc, 67);
                 ilcursor.Emit(OpCodes.Ldloc, 66);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float, float>>(delegate (RoR2.CharacterBody self, float value, float scaling) {
-                    return value + (self.isPlayerControlled ? 0.01f * self.maxHealth : 0);
+                    return value + (self.isPlayerControlled ? 1.6f * (self.level - 1) * self.inventory.GetItemCount(RoR2Content.Items.Knurl) : 0);
                 });
                 ilcursor.Emit(OpCodes.Stloc, 67);
             }

@@ -1,6 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using R2API.Utils;
+using RoR2;
+using RoR2.UI;
 using System.Collections.Generic;
 
 namespace BtpTweak {
@@ -51,7 +54,7 @@ namespace BtpTweak {
 
         public void InitConfig() {
             Logger.LogInfo("InitConfig");
-            浸剂击杀奖励倍率_ = Config.Bind("BtpTweak - 浸剂", "InfusionCefficient - 浸剂击杀奖励倍率", 5, "击杀一个敌人增加多少的最大生命值。");
+            浸剂击杀奖励倍率_ = Config.Bind("BtpTweak - 浸剂", "InfusionCefficient - 浸剂击杀奖励倍率", 2, "击杀一个敌人增加多少的最大生命值。");
             女猎人射程每级增加距离_ = Config.Bind<uint>("BtpTweak - 女猎人射程", "HuntressMaxTrackingDistance - 女猎人每级射程增加量", 5, "默认射程60m（设置为0就不增加）");
         }
 

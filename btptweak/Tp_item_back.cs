@@ -22,6 +22,7 @@ namespace BtpTweak {
         }
 
         private static void MapZone_TryZoneStart(On.RoR2.MapZone.orig_TryZoneStart orig, MapZone self, Collider other) {
+            orig(self, other);
             if (self.zoneType == MapZone.ZoneType.OutOfBounds) {
                 if (ColliderPickup(other)) {
                     SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
@@ -41,7 +42,6 @@ namespace BtpTweak {
                     Object.Destroy(spawnCard);
                 }
             }
-            orig(self, other);
         }
     }
 }

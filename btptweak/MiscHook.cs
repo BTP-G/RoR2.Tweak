@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using R2API.Utils;
+using RoR2;
 using RoR2.Orbs;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -59,10 +60,10 @@ namespace BtpTweak {
                             target = Util.FindBodyMainHurtBox(damageReport.attackerBody),
                             maxHpValue = item_infusion_count
                         };
-                        if (inventory.infusionBonus >= max_hp) {
+                        if (inventory.infusionBonus >= max_hp && BtpTweak.浸剂击杀奖励倍率_.Value > 0) {
                             infusionOrb.maxHpValue *= BtpTweak.浸剂击杀奖励倍率_.Value;
                             OrbManager.instance.AddOrb(infusionOrb);
-                        } else {
+                        } else if (BtpTweak.浸剂击杀奖励倍率_.Value > 1) {
                             infusionOrb.maxHpValue *= BtpTweak.浸剂击杀奖励倍率_.Value - 1;
                             OrbManager.instance.AddOrb(infusionOrb);
                         }
@@ -75,11 +76,11 @@ namespace BtpTweak {
         private static void ChargedState_OnEnter(On.RoR2.TeleporterInteraction.ChargedState.orig_OnEnter orig, EntityStates.BaseState self) {
             orig(self);
             if (BtpTweak.是否选择造物难度_) {
-                BtpTweak.玩家生命值增加系数_ += 0.005f * Run.instance.stageClearCount;
+                BtpTweak.玩家生命值增加系数_ += 0.01f * Run.instance.stageClearCount;
                 BtpTweak.怪物生命值增加系数_ += 0.05f * Run.instance.stageClearCount * (Run.instance.loopClearCount > 0 ? Run.instance.stageClearCount : 0.1f);
                 BtpTweak.怪物生命值倍数_ = Mathf.Pow(Run.instance.stageClearCount, Run.instance.loopClearCount);
                 if (NetworkServer.active) {
-                    Chat.SendBroadcastChat(new Chat.SimpleChatMessage() { baseToken = $"<color=green>传送器充能完毕，获得最大生命值奖励！</color>" });
+                    ChatMessage.SendColored("传送器充能完毕，获得最大生命值奖励！", Color.green);
                 }
             }
         }

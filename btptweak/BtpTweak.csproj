@@ -52,6 +52,9 @@
     <Reference Include="HIFUHuntressTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUHuntressTweaks\HIFUHuntressTweaks.dll</HintPath>
     </Reference>
+    <Reference Include="HIFUMercenaryTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUMercenaryTweaks\HIFUMercenaryTweaks.dll</HintPath>
+    </Reference>
     <Reference Include="HIFURailgunnerTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFURailgunnerTweaks\HIFURailgunnerTweaks.dll</HintPath>
     </Reference>
