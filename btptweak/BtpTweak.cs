@@ -1,9 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using R2API.Utils;
-using RoR2;
-using RoR2.UI;
 using System.Collections.Generic;
 
 namespace BtpTweak {

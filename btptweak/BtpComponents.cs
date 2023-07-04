@@ -33,7 +33,6 @@ namespace BtpTweak {
     }
 
     internal class IceExplosion : MonoBehaviour {
-        private static readonly GameObject whiteExplosionPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
 
@@ -49,31 +48,27 @@ namespace BtpTweak {
         }
 
         private void Explosion() {
-            BlastAttack blastAttack = new BlastAttack {
-                attacker = projectileController.owner?.gameObject,
-                attackerFiltering = AttackerFiltering.Default,
-                baseDamage = projectileDamage.damage,
-                baseForce = 0f,
-                bonusForce = Vector3.zero,
-                canRejectForce = true,
-                crit = projectileDamage.crit,
-                damageColorIndex = DamageColorIndex.Default,
-                damageType = DamageType.Freeze2s,
-                falloffModel = BlastAttack.FalloffModel.SweetSpot,
-                inflictor = projectileController.owner?.gameObject,
-                losType = BlastAttack.LoSType.NearestHit,
-                position = transform.position,
-                procChainMask = default(ProcChainMask),
-                procCoefficient = 1f,
-                radius = SkillHook.iceExplosionRadius,
-                teamIndex = projectileController.teamFilter.teamIndex
-            };
-            EffectData effectData = new EffectData {
-                origin = blastAttack.position,
-                scale = blastAttack.radius
-            };
-            EffectManager.SpawnEffect(whiteExplosionPrefab, effectData, true);
-            blastAttack.Fire();
+            GameObject iceExplosion = Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/GenericDelayBlast"), transform.position, Quaternion.identity);
+            iceExplosion.transform.localScale = new Vector3(SkillHook.iceExplosionRadius, SkillHook.iceExplosionRadius, SkillHook.iceExplosionRadius);
+            DelayBlast delayBlast = iceExplosion.GetComponent<DelayBlast>();
+            if (delayBlast) {
+                delayBlast.position = transform.position;
+                delayBlast.baseDamage = projectileDamage.damage;
+                delayBlast.baseForce = 1000f;
+                delayBlast.attacker = projectileController.owner?.gameObject;
+                delayBlast.radius = SkillHook.iceExplosionRadius;
+                delayBlast.crit = projectileDamage.crit;
+                delayBlast.procCoefficient = 0.75f;
+                delayBlast.maxTimer = 2f;
+                delayBlast.falloffModel = BlastAttack.FalloffModel.None;
+                delayBlast.explosionEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
+                delayBlast.delayEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/AffixWhiteDelayEffect");
+                delayBlast.damageType = DamageType.Freeze2s;
+                TeamFilter teamFilter = iceExplosion.GetComponent<TeamFilter>();
+                if (teamFilter) {
+                    teamFilter.teamIndex = projectileController.teamFilter.teamIndex;
+                }
+            }
         }
     }
 

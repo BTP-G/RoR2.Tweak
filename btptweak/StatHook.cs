@@ -36,11 +36,11 @@ namespace BtpTweak {
         private static void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
             if (sender?.inventory) {
                 if (sender.isPlayerControlled) {
-                    args.armorAdd += sender.level;
+                    args.armorAdd += 0.5f * sender.level;
                 } else {
                     args.armorAdd += 0.05f * sender.level;
                 }
-                args.baseHealthAdd += (sender.level - 1) * (10 * sender.inventory.GetItemCount(RoR2Content.Items.FlatHealth) + sender.levelMaxHealth * sender.inventory.GetItemCount(RoR2Content.Items.Knurl));
+                args.baseHealthAdd += (sender.level - 1) * (10 * sender.inventory.GetItemCount(RoR2Content.Items.FlatHealth) + 0.5f * sender.levelMaxHealth * sender.inventory.GetItemCount(RoR2Content.Items.Knurl));
             }
         }
 
@@ -58,7 +58,7 @@ namespace BtpTweak {
                     if (self.isPlayerControlled) {
                         return value  // 原值
                         + BtpTweak.玩家生命值增加系数_ * self.levelMaxHealth * (self.level - 1)  // 增加
-                        * self.level;  // 倍数
+                        * self.level * BtpTweak.玩家生命值倍数_;  // 倍数
                     } else {
                         return value  // 原值
                         + BtpTweak.怪物生命值增加系数_ * self.levelMaxHealth * (self.level - 1)  // 增加
@@ -96,7 +96,7 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldloc, 83);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float>>(delegate (RoR2.CharacterBody self, float value) {
-                    return value + (self.isPlayerControlled ? 0.04f * self.level : 0);
+                    return value + (self.isPlayerControlled ? 0.02f * (self.level - 1) : 0);
                 });
                 ilcursor.Emit(OpCodes.Stloc, 83);
             }
@@ -117,7 +117,7 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldloc, 75);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float>>(delegate (RoR2.CharacterBody self, float value) {
-                    return value + (self.isPlayerControlled ? 0.04f * self.level : 0);
+                    return value + (self.isPlayerControlled ? 0.02f * (self.level - 1) : 0);
                 });
                 ilcursor.Emit(OpCodes.Stloc, 75);
                 ilcursor.Emit(OpCodes.Ldloc, 74);

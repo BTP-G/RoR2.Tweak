@@ -16,7 +16,7 @@ namespace BtpTweak {
     internal class SkillHook {
 
         //private static bool hasTweakbonusBlastForce = false;
-        public static float iceExplosionRadius = 1;
+        public static float iceExplosionRadius = 6;
 
         public static void AddHook() {
             技能冷却();
@@ -46,10 +46,9 @@ namespace BtpTweak {
             //=== 盗贼
             BtpTweak.盗贼标记_.Clear();
             //=== 导弹无人机
-            MissileDroneSurvivor.MsIsleEntityStates.NukeAbility.projectilePrefabNuke.GetComponent<ProjectileImpactExplosion>().blastRadius = 30;
             MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMaxHealth = 40;
             MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseDamage = 11f;
-            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMoveSpeed = 18f;
+            MissileDroneSurvivor.MissileDroneMod.bodyComponent.baseMoveSpeed = 14f;
             MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = Vector3.zero;
             MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.damageCoefficient = 2;
             MissileDroneSurvivor.MsIsleEntityStates.MissileBarrage.baseFireInterval *= 0.75f;
@@ -57,7 +56,7 @@ namespace BtpTweak {
             //=== 磁轨炮手
             HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f;
             //=== 工匠
-            iceExplosionRadius = 1;
+            iceExplosionRadius = 6;
             //=== 多功能枪兵
             //=== 工程师
             SkillDef spider = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset").WaitForCompletion();
@@ -75,7 +74,7 @@ namespace BtpTweak {
             //=== 船长
             HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6 + BtpTweak.玩家等级_ / 6;
             //=== 工匠
-            iceExplosionRadius = BtpTweak.玩家等级_ > 30 ? 30 : BtpTweak.玩家等级_;
+            iceExplosionRadius = 6 + 0.5f * BtpTweak.玩家等级_;
             //=== 工程师
             SkillDef spider = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset").WaitForCompletion();
             SkillDef pressure = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceMine.asset").WaitForCompletion();
@@ -98,7 +97,7 @@ namespace BtpTweak {
             On.EntityStates.Railgunner.Weapon.BaseFireSnipe.ModifyBullet += delegate (On.EntityStates.Railgunner.Weapon.BaseFireSnipe.orig_ModifyBullet orig, EntityStates.Railgunner.Weapon.BaseFireSnipe self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
                 if (self.isAuthority && self is EntityStates.Railgunner.Weapon.FireSnipeSuper) {
-                    if (self.outer.commonComponents.characterBody.skillLocator.special.skillDef.skillName.EndsWith("Scepter")) {
+                    if (self.outer.commonComponents.characterBody.inventory.GetItemCount(AncientScepter.AncientScepterItem.instance.ItemDef) > 0) {
                         float moneyToDamage = Mathf.Min(self.outer.commonComponents.characterBody.master.money * (0.01f * (self.outer.commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine) + 1))
                                                         , self.outer.commonComponents.characterBody.master.money);
                         bulletAttack.damage += moneyToDamage;
@@ -109,8 +108,8 @@ namespace BtpTweak {
             //==========
             On.EntityStates.Railgunner.Reload.Reloading.OnEnter += delegate (On.EntityStates.Railgunner.Reload.Reloading.orig_OnEnter orig, EntityStates.Railgunner.Reload.Reloading self) {
                 int magazineCount = self.outer.commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine);
-                HRGT.Misc.ScopeAndReload.Damage = 5 + (magazineCount * 0.5f);
-                HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f + ((self.characterBody.level - magazineCount) * 0.01f);
+                HRGT.Misc.ScopeAndReload.Damage = 5 + (0.5f * magazineCount);
+                HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f + (0.01f * (self.characterBody.level - magazineCount));
                 orig(self);
             };
         }
@@ -140,12 +139,6 @@ namespace BtpTweak {
                 orig(self);
             };
             //==========
-            On.EntityStates.Toolbot.FireSpear.OnEnter += delegate (On.EntityStates.Toolbot.FireSpear.orig_OnEnter orig, FireSpear self) {
-                if (self.isAuthority) {
-                    self.damageCoefficient += BtpTweak.玩家等级_ / 7;
-                }
-                orig(self);
-            };
             On.EntityStates.Toolbot.FireBuzzsaw.FixedUpdate += delegate (On.EntityStates.Toolbot.FireBuzzsaw.orig_FixedUpdate orig, FireBuzzsaw self) {
                 orig(self);
                 if (self.isAuthority) {
@@ -154,7 +147,8 @@ namespace BtpTweak {
             };
             On.EntityStates.Toolbot.AimGrenade.OnEnter += delegate (On.EntityStates.Toolbot.AimGrenade.orig_OnEnter orig, AimGrenade self) {
                 if (self.isAuthority) {
-                    self.projectilePrefab.GetComponent<ProjectileImpactExplosion>().bonusBlastForce = -2500 * Vector3.one;
+                    BtpTweak.logger_.LogInfo("self.detonationRadius ============== " + self.detonationRadius);
+                    self.detonationRadius *= 2;
                 }
                 orig(self);
             };
@@ -173,16 +167,10 @@ namespace BtpTweak {
         }
 
         private static void 工匠() {
-            SkillDef mageFlamethrower = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Mage/MageBodyFlamethrower.asset").WaitForCompletion();
             SteppedSkillDef mageFireFirebolt = Addressables.LoadAssetAsync<SteppedSkillDef>("RoR2/Base/Mage/MageBodyFireFirebolt.asset").WaitForCompletion();
             SteppedSkillDef mageFireLightningBolt = Addressables.LoadAssetAsync<SteppedSkillDef>("RoR2/Base/Mage/MageBodyFireLightningBolt.asset").WaitForCompletion();
-            mageFlamethrower.baseRechargeInterval = 0;
-            mageFireFirebolt.baseRechargeInterval *= 0.5f;
-            mageFireLightningBolt.baseRechargeInterval *= 0.5f;
-            //GameObject mageNovaBomb = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageLightningBombProjectile.prefab").WaitForCompletion();
-            //mageNovaBomb.AddComponent<Meatball>();
-            //GameObject mageiceBomb = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Mage/MageIceBombProjectile.prefab").WaitForCompletion();
-            //mageiceBomb.AddComponent<IceExplosion>();
+            mageFireFirebolt.baseRechargeInterval = 1f;
+            mageFireLightningBolt.baseRechargeInterval = 1f;
             On.EntityStates.Mage.Weapon.BaseThrowBombState.OnEnter += delegate (On.EntityStates.Mage.Weapon.BaseThrowBombState.orig_OnEnter orig, EntityStates.Mage.Weapon.BaseThrowBombState self) {
                 orig(self);
                 if (self is EntityStates.Mage.Weapon.ThrowNovabomb) {
@@ -202,10 +190,6 @@ namespace BtpTweak {
                 orig(self);
                 Eviscerate.instance.ignoreAllies = false;
             };
-            On.EntityStates.Merc.Evis.OnExit += delegate (On.EntityStates.Merc.Evis.orig_OnExit orig, EntityStates.Merc.Evis self) {
-                orig(self);
-                Eviscerate.instance.ignoreAllies = true;
-            };
             On.EntityStates.Merc.Evis.SearchForTarget += delegate (On.EntityStates.Merc.Evis.orig_SearchForTarget orig, EntityStates.Merc.Evis self) {
                 BullseyeSearch bullseyeSearch = new BullseyeSearch {
                     searchOrigin = self.transform.position,
@@ -217,10 +201,14 @@ namespace BtpTweak {
                 bullseyeSearch.RefreshCandidates();
                 bullseyeSearch.FilterOutGameObject(self.gameObject);
                 HurtBox result = bullseyeSearch.GetResults().FirstOrDefault<HurtBox>();
-                if (result != null) {
+                if (result != null && self.isAuthority) {
                     EntityStates.Merc.Evis.damageCoefficient += 0.013f;
                 }
                 return result;
+            };
+            On.EntityStates.Merc.Evis.OnExit += delegate (On.EntityStates.Merc.Evis.orig_OnExit orig, EntityStates.Merc.Evis self) {
+                orig(self);
+                Eviscerate.instance.ignoreAllies = true;
             };
             On.EntityStates.Merc.WhirlwindBase.OnEnter += delegate (On.EntityStates.Merc.WhirlwindBase.orig_OnEnter orig, EntityStates.Merc.WhirlwindBase self) {
                 orig(self);
@@ -266,6 +254,22 @@ namespace BtpTweak {
         }
 
         private static void 虚空恶鬼() {
+            //=== 腐化二技能
+            GameObject gameObject = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterBigProjectileCorrupted.prefab").WaitForCompletion();
+            ProjectileSimple component = gameObject.GetComponent<ProjectileSimple>();
+            component.desiredForwardSpeed = 44;
+            component.lifetime = 6.6f;
+            component.lifetimeExpiredEffect = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterExplosionCorrupted.prefab").WaitForCompletion();
+            ProjectileImpactExplosion component2 = gameObject.GetComponent<ProjectileImpactExplosion>();
+            component2.blastRadius = 25;
+            RadialForce radialForce = gameObject.AddComponent<RadialForce>();
+            radialForce.radius = 25;
+            radialForce.damping = 0.5f;
+            radialForce.forceMagnitude = -2500;
+            radialForce.forceCoefficientAtEdge = 0.5f;
+            GameObject ghostPrefab = gameObject.GetComponent<ProjectileController>().ghostPrefab;
+            ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
+            //==========
             On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter += delegate (On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireHandBeam self) {
                 if (self.isAuthority) {
                     self.damageCoefficient = 3.6f;
@@ -288,32 +292,16 @@ namespace BtpTweak {
                         self.damageCoefficient = 6.66f;
                     }
                 }
-                self.selfKnockbackForce *= 0.5f;
                 orig(self);
             };
             //==========
-            On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.FireProjectiles += delegate (On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.orig_FireProjectiles orig, EntityStates.VoidSurvivor.Weapon.FireCorruptDisks self) {
+            On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.OnEnter += delegate (On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireCorruptDisks self) {
                 if (self.isAuthority) {
                     self.damageCoefficient = 25;
                 }
                 self.selfKnockbackForce = 0;
                 orig(self);
             };
-            //=== 腐化二技能
-            GameObject gameObject = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterBigProjectileCorrupted.prefab").WaitForCompletion();
-            ProjectileSimple component = gameObject.GetComponent<ProjectileSimple>();
-            component.desiredForwardSpeed = 44;
-            component.lifetime = 6.6f;
-            component.lifetimeExpiredEffect = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterExplosionCorrupted.prefab").WaitForCompletion();
-            ProjectileImpactExplosion component2 = gameObject.GetComponent<ProjectileImpactExplosion>();
-            component2.blastRadius = 25;
-            RadialForce radialForce = gameObject.AddComponent<RadialForce>();
-            radialForce.radius = 25;
-            radialForce.damping = 0.5f;
-            radialForce.forceMagnitude = -2500;
-            radialForce.forceCoefficientAtEdge = 0.5f;
-            GameObject ghostPrefab = gameObject.GetComponent<ProjectileController>().ghostPrefab;
-            ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
         }
 
         private static void 异教徒() {

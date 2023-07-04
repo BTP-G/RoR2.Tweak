@@ -10,13 +10,14 @@ namespace BtpTweak {
         public static void AddHook() {
             On.EntityStates.VoidRaidCrab.SpawnState.OnEnter += SpawnState_OnEnter;
             On.EntityStates.VoidRaidCrab.DeathState.OnEnter += DeathState_OnEnter;
-            On.RoR2.PhaseCounter.GoToNextPhase += PhaseCounter_GoToNextPhase;
             On.EntityStates.BrotherMonster.TrueDeathState.Dissolve += TrueDeathState_Dissolve;
+            On.RoR2.PhaseCounter.GoToNextPhase += PhaseCounter_GoToNextPhase;
         }
 
         public static void RemoveHook() {
             On.EntityStates.VoidRaidCrab.SpawnState.OnEnter -= SpawnState_OnEnter;
             On.EntityStates.VoidRaidCrab.DeathState.OnEnter -= DeathState_OnEnter;
+            On.EntityStates.BrotherMonster.TrueDeathState.Dissolve -= TrueDeathState_Dissolve;
             On.RoR2.PhaseCounter.GoToNextPhase -= PhaseCounter_GoToNextPhase;
         }
 
@@ -50,9 +51,9 @@ namespace BtpTweak {
         }
 
         private static void PhaseCounter_GoToNextPhase(On.RoR2.PhaseCounter.orig_GoToNextPhase orig, PhaseCounter self) {
-            if (BtpTweak.是否选择造物难度_ && PhaseCounter.instance?.phase != 0) {
-                BtpTweak.玩家生命值增加系数_ *= 1.25f * PhaseCounter.instance.phase;
-                BtpTweak.怪物生命值增加系数_ *= 1.25f * PhaseCounter.instance.phase;
+            if (BtpTweak.是否选择造物难度_ && PhaseCounter.instance.phase > 0) {
+                BtpTweak.玩家生命值倍数_ = 1 + 0.05f * (Run.instance.stageClearCount + PhaseCounter.instance.phase);
+                BtpTweak.怪物生命值倍数_ = Mathf.Pow(1 + Run.instance.stageClearCount, Run.instance.stageClearCount / 5) + PhaseCounter.instance.phase;
                 if (NetworkServer.active) {
                     ChatMessage.SendColored("你吸收了部分月之力，最大生命值提升！", Color.green);
                 }
@@ -60,13 +61,15 @@ namespace BtpTweak {
             orig(self);
         }
 
-        private static void TrueDeathState_Dissolve(On.EntityStates.BrotherMonster.TrueDeathState.orig_Dissolve orig, EntityStates.BrotherMonster.TrueDeathState self) {
+        public static void TrueDeathState_Dissolve(On.EntityStates.BrotherMonster.TrueDeathState.orig_Dissolve orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
-            BtpTweak.怪物生命值倍数_ = 6;
-            if (NetworkServer.active) {
-                ChatMessage.SendColored("--世界不再是你熟悉的那样！！！", Color.red);
+            if (BtpTweak.是否选择造物难度_ && Run.instance.loopClearCount == 0) {
+                BtpTweak.玩家生命值倍数_ = 1 + 0.05f * Run.instance.stageClearCount;
+                BtpTweak.怪物生命值倍数_ = Mathf.Pow(1 + Run.instance.stageClearCount, Run.instance.stageClearCount / 5);
+                if (NetworkServer.active) {
+                    ChatMessage.SendColored("--世界不再是你熟悉的那样！！！", Color.blue);
+                }
             }
-            On.EntityStates.BrotherMonster.TrueDeathState.Dissolve -= TrueDeathState_Dissolve;
         }
     }
 }
