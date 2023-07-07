@@ -14,9 +14,7 @@ using UnityEngine.Networking;
 namespace BtpTweak {
 
     internal class SkillHook {
-
         //private static bool hasTweakbonusBlastForce = false;
-        public static float iceExplosionRadius = 6;
 
         public static void AddHook() {
             技能冷却();
@@ -55,9 +53,6 @@ namespace BtpTweak {
             MissileDroneSurvivor.MissileDroneMod.bodyComponent.PerformAutoCalculateLevelStats();
             //=== 磁轨炮手
             HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f;
-            //=== 工匠
-            iceExplosionRadius = 6;
-            //=== 多功能枪兵
             //=== 工程师
             SkillDef spider = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset").WaitForCompletion();
             SkillDef pressure = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceMine.asset").WaitForCompletion();
@@ -73,8 +68,6 @@ namespace BtpTweak {
             HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (BtpTweak.女猎人射程每级增加距离_.Value * BtpTweak.玩家等级_);
             //=== 船长
             HIFUCaptainTweaks.Skills.VulcanShotgun.PelletCount = 6 + BtpTweak.玩家等级_ / 6;
-            //=== 工匠
-            iceExplosionRadius = 6 + 0.5f * BtpTweak.玩家等级_;
             //=== 工程师
             SkillDef spider = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset").WaitForCompletion();
             SkillDef pressure = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceMine.asset").WaitForCompletion();
@@ -106,11 +99,24 @@ namespace BtpTweak {
                 }
             };
             //==========
-            On.EntityStates.Railgunner.Reload.Reloading.OnEnter += delegate (On.EntityStates.Railgunner.Reload.Reloading.orig_OnEnter orig, EntityStates.Railgunner.Reload.Reloading self) {
+            On.EntityStates.Railgunner.Reload.Waiting.OnEnter += delegate (On.EntityStates.Railgunner.Reload.Waiting.orig_OnEnter orig, EntityStates.Railgunner.Reload.Waiting self) {
                 int magazineCount = self.outer.commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine);
                 HRGT.Misc.ScopeAndReload.Damage = 5 + (0.5f * magazineCount);
-                HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f + (0.01f * (self.characterBody.level - magazineCount));
+                HRGT.Misc.ScopeAndReload.ReloadBarPercent = 0.15f + (0.01f * (self.characterBody.level - 1 - magazineCount));
                 orig(self);
+            };
+            //==========
+            On.EntityStates.Railgunner.Scope.BaseWindUp.OnEnter += delegate (On.EntityStates.Railgunner.Scope.BaseWindUp.orig_OnEnter orig, EntityStates.Railgunner.Scope.BaseWindUp self) {
+                HurtBox.sniperTargetRadius = 1 + 0.5f * self.outer.commonComponents.characterBody.inventory.GetItemCount(DLC1Content.Items.CritDamage);
+                HurtBox.sniperTargetRadiusSqr = HurtBox.sniperTargetRadius * HurtBox.sniperTargetRadius;
+                orig(self);
+            };
+            //==========
+            On.RoR2.Projectile.SlowDownProjectiles.Start += delegate (On.RoR2.Projectile.SlowDownProjectiles.orig_Start orig, SlowDownProjectiles self) {
+                orig(self);
+                if (self.name.StartsWith("Rail")) {
+                    self.slowDownCoefficient = 0.03f;
+                }
             };
         }
 
@@ -174,11 +180,17 @@ namespace BtpTweak {
             On.EntityStates.Mage.Weapon.BaseThrowBombState.OnEnter += delegate (On.EntityStates.Mage.Weapon.BaseThrowBombState.orig_OnEnter orig, EntityStates.Mage.Weapon.BaseThrowBombState self) {
                 orig(self);
                 if (self is EntityStates.Mage.Weapon.ThrowNovabomb) {
-                    if (self.projectilePrefab.GetComponent<Meatball>() == null) {
+                    Meatball meatball = self.projectilePrefab.GetComponent<Meatball>();
+                    if (meatball) {
+                        return;
+                    } else {
                         self.projectilePrefab.AddComponent<Meatball>();
                     }
                 } else if (self is EntityStates.Mage.Weapon.ThrowIcebomb) {
-                    if (self.projectilePrefab.GetComponent<IceExplosion>() == null) {
+                    IceExplosion iceExplosion = self.projectilePrefab.GetComponent<IceExplosion>();
+                    if (iceExplosion) {
+                        iceExplosion.explosionRadius = 6 + self.characterBody.inventory.GetItemCount(RoR2Content.Items.IceRing.itemIndex);
+                    } else {
                         self.projectilePrefab.AddComponent<IceExplosion>();
                     }
                 }
@@ -234,7 +246,7 @@ namespace BtpTweak {
         private static void 女猎人() {
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.OnExit += delegate (On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_OnExit orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
                 orig(self);
-                if (self.isAuthority && self.firedArrowCount < self.maxArrowCount) {  // 发射剩余箭矢，防止攻速过快箭矢丢失
+                if (NetworkServer.active && self.firedArrowCount < self.maxArrowCount) {  // 发射剩余箭矢，防止攻速过快箭矢丢失
                     GenericDamageOrb genericDamageOrb = self.CreateArrowOrb();
                     genericDamageOrb.damageValue = self.characterBody.damage * self.orbDamageCoefficient;
                     genericDamageOrb.isCrit = self.isCrit;

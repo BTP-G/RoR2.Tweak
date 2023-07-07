@@ -19,30 +19,33 @@ namespace BtpTweak {
 
         private static void Run_Start_Init(On.RoR2.Run.orig_Start orig, Run self) {
             orig(self);
-            MainMenuHook.后续汉化();
+            Helpers.后续汉化();
             SkillHook.Init();
             BtpTweak.是否选择造物难度_ = self.selectedDifficulty == ConfigurableDifficulty.ConfigurableDifficultyPlugin.configurableDifficultyIndex;
             BtpTweak.玩家等级_ = 1;
-            BtpTweak.玩家生命值增加系数_ = 0.1f;
-            BtpTweak.玩家生命值倍数_ = 1;
-            BtpTweak.怪物生命值增加系数_ = 0.1f;
-            BtpTweak.怪物生命值倍数_ = 1;
+            BtpTweak.玩家生命值提升系数_ = 0;
+            BtpTweak.玩家生命值提升倍数_ = 0;
+            BtpTweak.敌人生命值提升系数_ = 0;
+            BtpTweak.敌人生命值提升倍数_ = 0;
+            MiscHook.战斗祭坛额外奖励数量 = 0;
             BtpTweak.虚灵战斗阶段计数_ = 0;
         }
 
         private static void Run_AdvanceStage(On.RoR2.Run.orig_AdvanceStage orig, Run self, SceneDef nextScene) {
             orig(self, nextScene);
             MiscHook.战斗祭坛额外奖励数量 = 0;
+            BtpTweak.虚灵战斗阶段计数_ = 0;
             if (BtpTweak.是否选择造物难度_) {
                 float num = Mathf.Pow(1 + Run.instance.stageClearCount, Run.instance.stageClearCount / 5f);
-                BtpTweak.怪物生命值增加系数_ = 0.1f + 0.03f * num;
-                BtpTweak.怪物生命值倍数_ = num;
+                BtpTweak.敌人生命值提升系数_ = 0.05f * num;
+                BtpTweak.敌人生命值提升倍数_ = num;
             }
         }
 
         private static void Run_BeginGameOver(On.RoR2.Run.orig_BeginGameOver orig, Run self, GameEndingDef gameEndingDef) {
             orig(self, gameEndingDef);
             BtpTweak.是否选择造物难度_ = false;
+            MiscHook.战斗祭坛额外奖励数量 = 0;
             BtpTweak.虚灵战斗阶段计数_ = 0;
         }
     }

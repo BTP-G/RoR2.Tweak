@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 namespace BtpTweak {
 
     internal class Meatball : MonoBehaviour {
-        private static readonly GameObject electricOrbProjectilePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ElectricWorm/ElectricOrbProjectile.prefab").WaitForCompletion();
+        public static readonly GameObject electricOrbProjectilePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/ElectricWorm/ElectricOrbProjectile.prefab").WaitForCompletion();
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
 
@@ -18,16 +18,17 @@ namespace BtpTweak {
 
         public void OnDestroy() {
             if (NetworkServer.active) {
-                FireMeatballs(transform.position + Vector3.up, BtpTweak.玩家等级_ / 3, -75, 1000);
+                FireMeatballs(BtpTweak.玩家等级_ / 4, 0.5f * projectileDamage.damage);
             }
         }
 
-        public void FireMeatballs(Vector3 impactPosition, float meatballCount, float meatballAngle, float meatballForce) {
+        public void FireMeatballs(float meatballCount, float meatbalDamage) {
             float 每球偏移角度_Y = 360f / meatballCount;
+            Vector3 pos = transform.position + Vector3.up;
             Quaternion rotation;
             for (int i = 0, 随机偏移角_Y = Random.Range(0, 360); i < meatballCount; ++i) {
-                rotation = Quaternion.Euler(meatballAngle, i * 每球偏移角度_Y + 随机偏移角_Y, 0);
-                ProjectileManager.instance.FireProjectile(electricOrbProjectilePrefab, impactPosition, rotation, projectileController.owner?.gameObject, projectileDamage.damage * 0.5f, meatballForce, projectileDamage.crit);
+                rotation = Quaternion.Euler(-75, i * 每球偏移角度_Y + 随机偏移角_Y, 0);
+                ProjectileManager.instance.FireProjectile(electricOrbProjectilePrefab, pos, rotation, projectileController.owner?.gameObject, meatbalDamage, projectileDamage.force, projectileDamage.crit);
             }
         }
     }
@@ -35,6 +36,8 @@ namespace BtpTweak {
     internal class IceExplosion : MonoBehaviour {
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
+
+        public float explosionRadius = 6;
 
         public void Awake() {
             projectileController = GetComponent<ProjectileController>();
@@ -49,16 +52,19 @@ namespace BtpTweak {
 
         private void Explosion() {
             GameObject iceExplosion = Instantiate<GameObject>(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/GenericDelayBlast"), transform.position, Quaternion.identity);
-            iceExplosion.transform.localScale = new Vector3(SkillHook.iceExplosionRadius, SkillHook.iceExplosionRadius, SkillHook.iceExplosionRadius);
+            if (projectileDamage.crit) {
+                explosionRadius *= 2;
+            }
+            iceExplosion.transform.localScale = new Vector3(explosionRadius, explosionRadius, explosionRadius);
             DelayBlast delayBlast = iceExplosion.GetComponent<DelayBlast>();
             if (delayBlast) {
                 delayBlast.position = transform.position;
-                delayBlast.baseDamage = projectileDamage.damage;
-                delayBlast.baseForce = 1000f;
+                delayBlast.baseDamage = 0.5f * projectileDamage.damage;
+                delayBlast.baseForce = projectileDamage.force;
                 delayBlast.attacker = projectileController.owner?.gameObject;
-                delayBlast.radius = SkillHook.iceExplosionRadius;
+                delayBlast.radius = explosionRadius;
                 delayBlast.crit = projectileDamage.crit;
-                delayBlast.procCoefficient = 0.75f;
+                delayBlast.procCoefficient = 0.5f;
                 delayBlast.maxTimer = 2f;
                 delayBlast.falloffModel = BlastAttack.FalloffModel.None;
                 delayBlast.explosionEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
@@ -73,7 +79,7 @@ namespace BtpTweak {
     }
 
     internal class CallAirstrike : MonoBehaviour {
-        private static readonly GameObject captainAirstrikePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainAirstrikeProjectile1.prefab").WaitForCompletion();
+        public static readonly GameObject captainAirstrikePrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainAirstrikeProjectile1.prefab").WaitForCompletion();
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
 

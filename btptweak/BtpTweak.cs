@@ -23,23 +23,24 @@ namespace BtpTweak {
         public static bool 是否选择造物难度_ = false;
         public static byte 虚灵战斗阶段计数_ = 0;
         public static float 虚空恶鬼二技能充能时间_ = 0;
-        public static float 玩家生命值增加系数_;
-        public static float 怪物生命值增加系数_;
-        public static float 玩家生命值倍数_ = 1;
-        public static float 怪物生命值倍数_ = 1;
+        public static float 玩家生命值提升系数_ = 0;
+        public static float 玩家生命值提升倍数_ = 0;
+        public static float 敌人生命值提升系数_ = 0;
+        public static float 敌人生命值提升倍数_ = 0;
 
         public static Dictionary<int, int> 盗贼标记_ = new();
         public static int 玩家等级_ = 1;
         public static int 敌人等级_ = 1;
 
-        public static ManualLogSource logger_ = null;
+        public static ManualLogSource logger_;
         public static ConfigEntry<int> 浸剂击杀奖励倍率_;
         public static ConfigEntry<uint> 女猎人射程每级增加距离_;
 
         public void Awake() {
             logger_ = Logger;
             InitConfig();
-            DamageHook.AddHook();
+            BuffAndDotHook.AddHook();
+            HealthComponentHook.AddHook();
             MainMenuHook.AddHook();
             MiscHook.AddHook();
             PhaseHook.AddHook();
@@ -51,17 +52,18 @@ namespace BtpTweak {
 
         public void InitConfig() {
             Logger.LogInfo("InitConfig");
-            浸剂击杀奖励倍率_ = Config.Bind("BtpTweak - 浸剂", "InfusionCefficient - 浸剂击杀奖励倍率", 2, "击杀一个敌人增加多少的最大生命值。");
+            浸剂击杀奖励倍率_ = Config.Bind("BtpTweak - 浸剂", "InfusionCefficient - 浸剂击杀奖励倍率", 1, "击杀一个敌人增加多少的最大生命值。");
             女猎人射程每级增加距离_ = Config.Bind<uint>("BtpTweak - 女猎人射程", "HuntressMaxTrackingDistance - 女猎人每级射程增加量", 5, "默认射程60m（设置为0就不增加）");
         }
 
-        public void RemoveHook() {
-            DamageHook.RemoveHook();
+        public void RemoveAllHooks() {
+            BuffAndDotHook.RemoveHook();
+            HealthComponentHook.RemoveHook();
             MainMenuHook.RemoveHook();
             MiscHook.RemoveHook();
             PhaseHook.RemoveHook();
             RunHook.RemoveHook();
-            //SkillHook.RemoveHook();
+            //SkillHook.RemoveAllHooks();
             StatHook.RemoveHook();
         }
     }

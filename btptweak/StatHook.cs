@@ -10,8 +10,8 @@ namespace BtpTweak {
         public static void AddHook() {
             On.RoR2.CharacterBody.OnLevelUp += CharacterBody_OnLevelUp;
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
-            IL.RoR2.CharacterBody.RecalculateStats += HealthTweak;
-            IL.RoR2.CharacterBody.RecalculateStats += RegenTweak;
+            //IL.RoR2.CharacterBody.RecalculateStats += HealthTweak;
+            //IL.RoR2.CharacterBody.RecalculateStats += RegenTweak;
             IL.RoR2.CharacterBody.RecalculateStats += AttackSpeedTweak;
             IL.RoR2.CharacterBody.RecalculateStats += MoveSpeedTweak;
         }
@@ -19,8 +19,8 @@ namespace BtpTweak {
         public static void RemoveHook() {
             On.RoR2.CharacterBody.OnLevelUp -= CharacterBody_OnLevelUp;
             R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
-            IL.RoR2.CharacterBody.RecalculateStats -= HealthTweak;
-            IL.RoR2.CharacterBody.RecalculateStats -= RegenTweak;
+            //IL.RoR2.CharacterBody.RecalculateStats -= HealthTweak;
+            //IL.RoR2.CharacterBody.RecalculateStats -= RegenTweak;
             IL.RoR2.CharacterBody.RecalculateStats -= AttackSpeedTweak;
             IL.RoR2.CharacterBody.RecalculateStats -= MoveSpeedTweak;
         }
@@ -34,40 +34,59 @@ namespace BtpTweak {
         }
 
         private static void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
-            if (sender?.inventory) {
-                if (sender.isPlayerControlled) {
-                    args.armorAdd += 0.5f * sender.level;
+            if (sender.inventory) {
+                float levelHealthAdd = 2.5f * sender.inventory.GetItemCount(RoR2Content.Items.FlatHealth);
+                levelHealthAdd += (levelHealthAdd + 0.25f * sender.levelMaxHealth) * sender.inventory.GetItemCount(RoR2Content.Items.Knurl);
+                if (TeamIndex.Player == sender.teamComponent.teamIndex) {
+                    args.armorAdd += 0.5f * (sender.level - 1);
+                    args.baseHealthAdd += (BtpTweak.玩家生命值提升系数_ * sender.levelMaxHealth + levelHealthAdd) * (sender.level - 1);
+                    args.healthMultAdd += BtpTweak.玩家生命值提升倍数_;
                 } else {
-                    args.armorAdd += 0.05f * sender.level;
+                    args.armorAdd += 0.05f * (sender.level - 1);
+                    args.baseHealthAdd += (BtpTweak.敌人生命值提升系数_ * sender.levelMaxHealth + levelHealthAdd) * (sender.level - 1);
+                    args.healthMultAdd += BtpTweak.敌人生命值提升倍数_;
                 }
-                args.baseHealthAdd += (sender.level - 1) * (10 * sender.inventory.GetItemCount(RoR2Content.Items.FlatHealth) + 0.5f * sender.levelMaxHealth * sender.inventory.GetItemCount(RoR2Content.Items.Knurl));
+                if (sender.name.StartsWith("Comm")) {
+                    float statUpPercent = 0.03f * sender.inventory.GetItemCount(RoR2Content.Items.Syringe.itemIndex);
+                    if (statUpPercent > 0) {
+                        args.attackSpeedMultAdd += statUpPercent;
+                        args.critAdd += 100 * statUpPercent;
+                        args.damageMultAdd += statUpPercent;
+                        args.healthMultAdd += statUpPercent;
+                        args.moveSpeedMultAdd += statUpPercent;
+                        args.regenMultAdd += statUpPercent;
+                    }
+                }
             }
         }
 
-        private static void HealthTweak(ILContext il) {
-            ILCursor ilcursor = new ILCursor(il);
-            Func<Instruction, bool>[] array = new Func<Instruction, bool>[4];
-            array[0] = ((Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 62));
-            array[1] = ((Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 63));
-            array[2] = ((Instruction x) => ILPatternMatchingExt.MatchMul(x));
-            array[3] = ((Instruction x) => ILPatternMatchingExt.MatchStloc(x, 62));
-            if (ilcursor.TryGotoNext(array)) {
-                ilcursor.Emit(OpCodes.Ldarg, 0);
-                ilcursor.Emit(OpCodes.Ldloc, 62);
-                ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float>>(delegate (RoR2.CharacterBody self, float value) {
-                    if (self.isPlayerControlled) {
-                        return value  // 原值
-                        + BtpTweak.玩家生命值增加系数_ * self.levelMaxHealth * (self.level - 1)  // 增加
-                        * self.level * BtpTweak.玩家生命值倍数_;  // 倍数
-                    } else {
-                        return value  // 原值
-                        + BtpTweak.怪物生命值增加系数_ * self.levelMaxHealth * (self.level - 1)  // 增加
-                        * BtpTweak.怪物生命值倍数_;  // 倍数
-                    }
-                });
-                ilcursor.Emit(OpCodes.Stloc, 62);
-            }
-        }
+        //private static void HealthTweak(ILContext il) {
+        //    ILCursor ilcursor = new ILCursor(il);
+        //    Func<Instruction, bool>[] array = new Func<Instruction, bool>[4];
+        //    array[0] = ((Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 62));
+        //    array[1] = ((Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 63));
+        //    array[2] = ((Instruction x) => ILPatternMatchingExt.MatchMul(x));
+        //    array[3] = ((Instruction x) => ILPatternMatchingExt.MatchStloc(x, 62));
+        //    if (ilcursor.TryGotoNext(array)) {
+        //        ilcursor.Emit(OpCodes.Ldarg, 0);
+        //        ilcursor.Emit(OpCodes.Ldloc, 62);
+        //        ilcursor.Emit(OpCodes.Ldloc, 63);
+        //        ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float, float>>(delegate (RoR2.CharacterBody self, float num50, float num51) {
+        //            float levelHealthAdd = self.levelMaxHealth + 5 * self.inventory.GetItemCount(RoR2Content.Items.FlatHealth);
+        //            levelHealthAdd += 0.5f * levelHealthAdd * self.inventory.GetItemCount(RoR2Content.Items.Knurl);
+        //            if (self.isPlayerControlled) {
+        //                return num50  // 原值
+        //                + BtpTweak.玩家生命值提升系数_ * levelHealthAdd * (self.level - 1)  // 增加
+        //                * BtpTweak.玩家生命值提升倍数_ * num51;  // 倍数
+        //            } else {
+        //                return num50  // 原值
+        //                + BtpTweak.敌人生命值提升系数_ * levelHealthAdd * (self.level - 1)  // 增加
+        //                * BtpTweak.敌人生命值提升倍数_ * num51;  // 倍数
+        //            }
+        //        });
+        //        ilcursor.Emit(OpCodes.Stloc, 62);
+        //    }
+        //}
 
         private static void RegenTweak(ILContext il) {
             ILCursor ilcursor = new ILCursor(il);
@@ -79,7 +98,7 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldloc, 67);
                 ilcursor.Emit(OpCodes.Ldloc, 66);
                 ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float, float>>(delegate (RoR2.CharacterBody self, float value, float scaling) {
-                    return value + (self.isPlayerControlled ? 1.6f * (self.level - 1) * self.inventory.GetItemCount(RoR2Content.Items.Knurl) : 0);
+                    return value;
                 });
                 ilcursor.Emit(OpCodes.Stloc, 67);
             }
