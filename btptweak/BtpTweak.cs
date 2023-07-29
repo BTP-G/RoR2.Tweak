@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using System.Collections.Generic;
 
 namespace BtpTweak {
 
@@ -18,47 +17,42 @@ namespace BtpTweak {
 
         public const string PluginAuthor = "BTP";
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "1.1.1";
+        public const string PluginVersion = "2.3.33";
 
         public static bool 是否选择造物难度_ = false;
         public static byte 虚灵战斗阶段计数_ = 0;
-        public static float 虚空恶鬼二技能充能时间_ = 0;
-        public static float 玩家生命值提升系数_ = 0;
-        public static float 玩家生命值提升倍数_ = 0;
-        public static float 敌人生命值提升系数_ = 0;
-        public static float 敌人生命值提升倍数_ = 0;
 
-        public static Dictionary<int, int> 盗贼标记_ = new();
         public static int 玩家等级_ = 1;
-        public static int 敌人等级_ = 1;
 
         public static ManualLogSource logger_;
-        public static ConfigEntry<int> 浸剂击杀奖励倍率_;
         public static ConfigEntry<uint> 女猎人射程每级增加距离_;
 
         public void Awake() {
             logger_ = Logger;
             InitConfig();
             BuffAndDotHook.AddHook();
-            HealthComponentHook.AddHook();
+            CombatHook.AddHook();
+            EffectHook.AddHook();
+            GlobalEventHook.AddHook();
+            HealthHook.AddHook();
             MainMenuHook.AddHook();
             MiscHook.AddHook();
             PhaseHook.AddHook();
             RunHook.AddHook();
             SkillHook.AddHook();
             StatHook.AddHook();
-            Tp_item_back.AddHook();
+            TpItemBack.AddHook();
         }
 
         public void InitConfig() {
             Logger.LogInfo("InitConfig");
-            浸剂击杀奖励倍率_ = Config.Bind("BtpTweak - 浸剂", "InfusionCefficient - 浸剂击杀奖励倍率", 1, "击杀一个敌人增加多少的最大生命值。");
             女猎人射程每级增加距离_ = Config.Bind<uint>("BtpTweak - 女猎人射程", "HuntressMaxTrackingDistance - 女猎人每级射程增加量", 5, "默认射程60m（设置为0就不增加）");
         }
 
         public void RemoveAllHooks() {
             BuffAndDotHook.RemoveHook();
-            HealthComponentHook.RemoveHook();
+            GlobalEventHook.RemoveHook();
+            HealthHook.RemoveHook();
             MainMenuHook.RemoveHook();
             MiscHook.RemoveHook();
             PhaseHook.RemoveHook();

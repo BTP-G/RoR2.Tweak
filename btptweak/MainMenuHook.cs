@@ -1,10 +1,14 @@
-﻿using HIFUEngineerTweaks.Skills;
-using HIFUHuntressTweaks.Skills;
+﻿using AncientScepter;
+using EntityStates;
 using RoR2;
+using RoR2.Projectile;
+using RoR2.Skills;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using static R2API.LanguageAPI;
+using static RoR2.DotController;
 
 namespace BtpTweak {
 
@@ -20,85 +24,52 @@ namespace BtpTweak {
 
         private static void MainMenuController_Start(On.RoR2.UI.MainMenu.MainMenuController.orig_Start orig, RoR2.UI.MainMenu.MainMenuController self) {
             orig(self);
-            初始汉化();
+            Helpers.初始汉化();
             圣骑士汉化();
             探路者汉化();
             物品调整();
+            其他调整();
             RemoveHook();
         }
 
-        public static void 初始汉化() {
-            AddOverlay("CAPTAIN_PRIMARY_DESCRIPTION", "喷射一大团弹丸，造成<style=cIsDamage>6<style=cStack>(每6级+1)</style>x100%的伤害</style>。为攻击充能将缩小<style=cIsUtility>扩散范围</style>。", "zh-CN");
-            AddOverlay("CAPTAIN_SECONDARY_NAME", "能量电镖", "zh-CN");
-            AddOverlay("COMMANDO_HEAVYTAP_DESCRIPTION", "<style=cIsDamage>绝对光滑</style>。射击两次，造成<style=cIsDamage>2x155%的伤害</style>。", "zh-CN");
-            AddOverlay("COMMANDO_HEAVYTAP_NAME", "沉重双击", "zh-CN");
-            AddOverlay("COMMANDO_PLASMATAP_DESCRIPTION", "<style=cIsDamage>击穿</style>。发射一道锥形闪电，造成<style=cIsDamage>100%的伤害</style>。", "zh-CN");
-            AddOverlay("COMMANDO_PLASMATAP_NAME", "电弧子弹", "zh-CN");
-            AddOverlay("COMMANDO_PRFRVWILDFIRESTORM_DESCRIPTION", "发射一股火焰，每秒造成<style=cIsDamage>550%的伤害</style>，并有机会<style=cIsDamage>点燃</style>敌人。", "zh-CN");
-            AddOverlay("COMMANDO_PRFRVWILDFIRESTORM_NAME", "PRFR-V野火风暴", "zh-CN");
-            AddOverlay("DIFFICULTY_CONFIGURABLEDIFFICULTYMOD_DESCRIPTION_DYNAMIC", "<color=#4190cc>世界不再是你熟悉的那样！</color>\n\n<style=cStack>世界调整：\n难度缩放+100%\n传送器半径-25%\n传送器未充能时，进度-0.5%每秒\n可交互物品数量增加\n\n敌人调整：\n最大生命值+25%\n治疗量+25%\n护甲+10点\n暴击率+10%\n跳跃高度+10%\n技能冷却-10%\n跌落伤害-100%\n金钱掉落-20%\n怪物低血量时获得强心剂增益，进入狂暴状态（10x当前关卡数）秒\n\n友方调整:\n治疗量-25%\n生命值再生速度-25%\n跌落伤害+100%\n获得初始物品-迪奥的朋友、Hopoo羽毛，谨慎的蛞蝓</style>", "zh-CN");
-            AddOverlay("ENGI_SECONDARY_DESCRIPTION", $"放置一枚二阶段地雷，能够造成<style=cIsDamage>300%的伤害</style>，或在完全引爆时造成<style=cIsDamage>{Mathf.Round(300f * PressureMines.damageScale)}%的伤害</style>。最多放置{PressureMines.charges}枚<style=cStack>(每级+1枚)</style>。", "zh-CN");
-            AddOverlay("ENGI_SPIDERMINE_DESCRIPTION", $"放置一枚机器人地雷，在敌人走近时自动引爆，造成<style=cIsDamage>{Helpers.D(SpiderMines.damage)}%的伤害</style>，最多放置{SpiderMines.charges}枚<style=cStack>(每级+1枚)</style>。", "zh-CN");
-            AddOverlay("HAT_MAGE_UTILITY_FIRE_DESCRIPTION", "<style=cIsUtility>灵巧</style>。<style=cIsDamage>点燃</style>。向前冲刺，在身后召唤造成每秒<style=cIsDamage>" + Helpers.D(HIFUArtificerTweaks.Main.flamewallDamage.Value) + "%伤害的火柱</style>。", "zh-CN");
-            AddOverlay("HAT_MAGE_UTILITY_FIRE_NAME", "火墙", "zh-CN");
-            AddOverlay("HUNTRESS_PRIMARY_ALT_DESCRIPTION", "<style=cIsUtility>灵巧</style>。拉弓射出<style=cIsDamage>3枚<style=cStack>(每6级+1枚)</style></style>跟踪箭，每枚造成<style=cIsDamage>120%的伤害</style>。如果暴击则发射<style=cIsDamage>双倍</style>跟踪箭。", "zh-CN");
-            AddOverlay("HUNTRESS_PRIMARY_DESCRIPTION", "<style=cIsUtility>灵巧</style>。快速射出一名能够造成<style=cIsDamage>180%<style=cStack>（每级+20%）</style>伤害</style>的跟踪箭。(暂时未想到更好的修改方式)", "zh-CN");
-            AddOverlay("HUNTRESS_SECONDARY_DESCRIPTION", $"{(LaserGlaive.agile ? "<style=cIsUtility>灵巧</style>。" : "")}投掷一把追踪月刃，可弹射最多<style=cIsDamage>{LaserGlaive.bounceCount}</style>次，初始造成<style=cIsDamage>{Helpers.D(LaserGlaive.damage)}%的伤害</style>，每次弹射伤害增加<style=cIsDamage>{Math.Round((double)((LaserGlaive.bounceDamage - 1f) * 100f), 1)}%</style>。", "zh-CN");
-            AddOverlay("HUNTRESS_SPECIAL_ALT1_DESCRIPTION", $"向后<style=cIsUtility>传送</style>至空中。最多发射<style=cIsDamage>{Ballista.boltCount}</style>道能量闪电，造成<style=cIsDamage>{Ballista.boltCount}x{Ballista.damage * 100}%的伤害</style>。", "zh-CN");
-            AddOverlay("HUNTRESS_SPECIAL_DESCRIPTION", $"<style=cIsUtility>传送</style>至空中，向目标区域射下箭雨，使区域内所有敌人<style=cIsUtility>减速</style>，并造成<style=cIsDamage>每秒{300f * ArrowRain.damage}%的伤害</style>。", "zh-CN");
-            AddOverlay("ITEM_AbyssalMedkit_DESCRIPTION", "<style=cIsUtility>消耗品</style>，抵挡<style=cIsUtility>10次</style>减益后失效。每一次抵挡都有<style=cIsHealing>10%</style>概率给予你<style=cIsHealing>“祝·福”</style>。每个<style=cIsHealing>祝福</style>可使你<style=cIsUtility>所有属性提升3%</style>。<style=cIsVoid>使所有医疗包无效化</style>", "zh-CN");
-            AddOverlay("ITEM_AbyssalMedkit_PICKUP", "消耗品，可以替你抵挡10次减益，每一次抵挡都有概率给予你“祝·福”", "zh-CN");
-            AddOverlay("ITEM_INFUSION_DESC", "每击败一名敌人，即可<style=cIsHealing>永久性</style>增加<style=cIsHealing>" + BtpTweak.浸剂击杀奖励倍率_.Value + "</style>点<style=cStack>（每层增加" + BtpTweak.浸剂击杀奖励倍率_.Value + "点）</style>生命值，<style=cIsHealing>无上限</style>。\n<style=cIsUtility>此物品不会被米斯历克斯拿走</style>。", "zh-CN");
-            AddOverlay("KEYWORD_ARC", "<style=cKeywordName>击穿</style><style=cSub>在最多4个敌人之间形成电弧，每次造成30%的伤害。</style>", "zh-CN");
-            AddOverlay("KEYWORD_EMPOWERING", "<style=cKeywordName>授权</style><style=cSub>使用此技能后短时间内增强你的其他技能。\n火神散弹枪：<style=cIsDamage>攻速+75%</style>。\n轨道探测器：<style=cIsDamage>伤害+400%</style>。\nOGM-72“大恶魔”打击：<style=cIsDamage>范围+100%</style>。</style>", "zh -CN");
-            AddOverlay("KEYWORD_FLEETING", "<style=cKeywordName>一闪</style><style=cSub><style=cIsDamage>攻速</style>转化为<style=cIsDamage>技能伤害</style>。", "zh-CN");
-            AddOverlay("KEYWORD_FRICTIONLESS", "<style=cKeywordName>绝对光滑</style><style=cSub>无伤害衰减</style>。", "zh-CN");
-            AddOverlay("KEYWORD_SOULROT", "<style=cKeywordName>灵魂之痛</style><style=cSub>持续<style=cIsVoid>666</style>秒的<style=cIsVoid>致命debuff</style>。造成的<style=cIsDamage>伤害</style>基于敌人的<style=cIsHealing>最大生命值</style>。</style>", "zh-CN");
-            AddOverlay("KEYWORD_VERY_HEAVY", "<style=cKeywordName>超重</style><style=cSub>下落速度越快，技能造成的伤害越高。<color=#FF7F7F>小心冲击力</color>。</style>", "zh-CN");
-            AddOverlay("MAGE_PRIMARY_FIRE_DESCRIPTION", "<style=cIsDamage>点燃</style>。发射火焰弹，造成<style=cIsDamage>220%的伤害</style>。</style>", "zh-CN");
-            AddOverlay("MAGE_PRIMARY_LIGHTNING_DESCRIPTION", $"发射一道闪电，造成<style=cIsDamage>300%的伤害</style>并<style=cIsDamage>引爆</style>小片区域。</style>", "zh-CN");
-            AddOverlay("MAGE_SECONDARY_ICE_DESCRIPTION", "<style=cIsUtility>冰冻</style>。使用拥有<style=cIsDamage>穿透</style>效果的纳米枪发动攻击，充能后能造成<style=cIsDamage>400%-1200%</style>的伤害，爆炸时留下一个<style=cIsUtility>冰冻炸弹</style>，2秒后爆炸，造成纳米炸弹<style=cIsDamage>一半的伤害</style>并<style=cIsUtility>冰冻</style>附件6米<style=cStack>（每有一个鲁纳德的手环+1米）</style>的敌人，暴击时<style=cIsUtility>冰冻</style>范围翻倍。", "zh-CN");
-            AddOverlay("MAGE_SECONDARY_LIGHTNING_DESCRIPTION", "<style=cIsDamage>眩晕</style>。发射一枚会<style=cIsDamage>爆炸并分裂0<style=cStack>(每4级+1)</style>颗闪电球</style>的纳米炸弹，如果充能将造成<style=cIsDamage>500%-2500%</style>的伤害（每颗闪电球造成<style=cIsDamage>一半</style>伤害）。", "zh-CN");
-            AddOverlay("RAILGUNNER_SPECIAL_RAILRETOOL_DESC", "同时持有<style=cIsUtility>两件装备</style>。激活'转换器'可以切换<style=cIsUtility>激活的装备</style>和<style=cIsDamage>磁轨炮手的次要技能攻击</style>。", "zh-CN");
-            AddOverlay("RAILGUNNER_SPECIAL_RAILRETOOL_DESC_ALT", "切换磁轨炮手的装备和瞄准镜", "zh-CN");
-            AddOverlay("RAILGUNNER_SPECIAL_RAILRETOOL_NAME", "转换器", "zh-CN");
-            AddOverlay("SPIKESTRIPSKILL_DEEPROT_DESCRIPTION", "<style=cIsVoid>虚 空 馈 赠</style>：<style=cIsHealing>毒化</style>攻击改为叠加<style=cIsVoid>虚空之毒</style>，使<style=cIsVoid>速度减慢10%</style>。叠加<style=cIsVoid>5</style>次后，<style=cIsVoid>虚空之毒</style>将转化为<style=cIsVoid>灵魂之痛</style>，造成巨量伤害！所有<style=cArtifact>虚空</style>攻击都有几率<style=cArtifact>定身</style>敌人。 (如果选择了“腐朽”被动，则额外造成<style=cIsVoid>虚空之毒</style>减益)", "zh-CN");
-            AddOverlay("SPIKESTRIPSKILL_DEEPROT_NAME", "腐朽", "zh-CN");
-            AddOverlay("TOOLBOT_PRIMARY_ALT1_DESCRIPTION", "发射1条具有穿透效果的钢筋，造成<style=cIsDamage>600%</style>的伤害。", "zh-CN");
-            AddOverlay("TOOLBOT_PRIMARY_ALT3_DESCRIPTION", "锯伤周围敌人，造成<style=cIsDamage>每秒1000%的伤害</style><style=cStack>（按住伤害会慢慢递增，增加的量随时间减少，松开后清零）</style>。", "zh-CN");
-            AddOverlay("TOOLBOT_PRIMARY_DESCRIPTION", "快速发射钉子，造成<style=cIsDamage>77%<style=cStack>（每发射1发钉子+0.1%，最高到210%，松开后清零）</style>的伤害</style>。最后一次性发射<style=cIsDamage>12</style>枚伤害为<style=cIsDamage>70%<style=cStack>（每级+7%）</style><style=cStack>的钉子。", "zh-CN");
-            AddOverlay("VOIDCRID_ENTROPY", "<style=cArtifact>「虚混<style=cIsHealing>无</style>乱』</style>", "zh-CN");
-            AddOverlay("VOIDCRID_FLAMEBREATH", "火焰吐息", "zh-CN");
-            AddOverlay("VOIDCRID_FLAMEBREATH_DESC", "<style=cDeath>点燃</style>。<style=cIsDamage>灵巧</style>。向前方喷出<style=cIsDamage>火焰</style>，<style=cDeath>点燃</style>敌人，造成<style=cIsDamage>250%</style>的伤害。", "zh-CN");
-            AddOverlay("VOIDCRID_NULLBEAM", "<style=cArtifact>「虚空光束』</style>", "zh-CN");
-            AddOverlay("VOIDCRID_NULLBEAM_DESC", "<style=cArtifact>虚空</style>。从<style=cArtifact>虚空</style>中汲取力量，发射中距离<style=cDeath>虚空光束</style>攻击敌人，造成<style=cIsDamage>900%</style>的伤害。", "zh-CN");
-            AddOverlay("VOIDCRID_PASSIVE", "<style=cArtifact>虚空</style>克里德", "zh-CN");
-            AddOverlay("VOIDCRID_PASSIVE_DESC", "所有<style=cArtifact>虚空</style>攻击都有几率<style=cArtifact>定身</style>敌人。 (如果选择了“腐朽”被动，则额外造成<style=cWorldEvent>虚空之毒</style>减益)", "zh-CN");
-            AddOverlay("VOIDCRID_SCEPTER_ENTROPY", "<style=cArtifact>「幻影? 虚<style=cIsHealing>乱</style>无混』</style>", "zh-CN");
-            AddOverlay("VOIDCRID_VOIDDRIFT", "<style=cArtifact>「虚无漂流』</style>", "zh-CN");
-            AddOverlay("VOIDCRID_VOIDRIFT_DESC", "<style=cArtifact>虚空</style>。<style=cIsDamage>眩晕</style>。遁入<style=cArtifact>虚空</style>，造成<style=cIsDamage>400%</style>的总伤害，有概率直接<style=cIsVoid>监禁</style>敌人。", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_PRIMARY_ALT_DESCRIPTION", "<style=cKeywordName>腐化升级</style><style=cSub>发射一束造成2000%伤害的短程光束。</style>", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_PRIMARY_DESCRIPTION", "发射一束<style=cIsUtility>减速</style>远程光束，造成<style=cIsDamage>360%伤害</style>。", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_SECONDARY_ALT_DESCRIPTION", "<style=cKeywordName>腐化升级</style><style=cSub>发射一枚造成2500%伤害的黑洞炸弹，半径变为25米。</style>", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_SECONDARY_DESCRIPTION", "充能一枚虚空炸弹，造成<style=cIsDamage>666%伤害</style>。完全充能时可以变成爆炸性虚空炸弹，造成<style=cIsDamage>4444%伤害</style>。", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_SECONDARY_UPRADE_TOOLTIP", "<style=cKeywordName>腐化升级</style><style=cSub>转化成能造成2500%伤害的黑洞炸弹，半径变为25米。</style>", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_SPECIAL_ALT_DESCRIPTION", "<style=cKeywordName>腐化升级</style><style=cSub>消耗25%的生命值来获得25%的腐化。</style>", "zh-CN");
-            AddOverlay("VOIDSURVIVOR_UTILITY_ALT_DESCRIPTION", "<style=cIsUtility>消失</style>进入虚空，<style=cIsUtility>向前沿弧线</style>移动，同时<style=cIsUtility>清除所有减益效果</style>。", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.CryoCanister.instance.ItemLangTokenName + "_DESCRIPTION", "杀死一个敌人会使<style=cIsDamage>10</style>米<style=cStack>(每层+2.5米)</style>内的所有敌人变慢，造成<style=cIsDamage>15%</style><style=cStack>(每层+15%)</style>的伤害，持续<style=cIsUtility>4</style>秒<style=cStack>(每层+2秒)</style>。<style=cIsVoid>腐化所有汽油</style>。", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.CryoCanister.instance.ItemLangTokenName + "_NAME", "超临界冷却剂", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.CryoCanister.instance.ItemLangTokenName + "_PICKUP", "杀死一个敌人会减缓附近的其他敌人。<style=cIsVoid>腐化所有汽油</style>。", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.CrystalLotus.instance.ItemLangTokenName + "_DESCRIPTION", "在传送事件中释放一个<style=cIsUtility>减速</style>脉冲，使敌人和投射物<style=cIsUtility>减速</style>92.5%，持续30秒，发生<style=cIsHealing>1</style>次<style=cStack>（每层+1次）</style>。<style=cIsVoid>腐化所有轻粒子雏菊</style>。", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.CrystalLotus.instance.ItemLangTokenName + "_NAME", "结晶的莲花", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.CrystalLotus.instance.ItemLangTokenName + "_PICKUP", "在传送事件和‘滞留区’（如虚空领域）中定期释放减速脉冲。<style=cIsVoid>腐化所有轻粒子雏菊</style>。", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.ExeBlade.instance.ItemLangTokenName + "_DESCRIPTION", "你的<style=cIsDamage>击杀效果</style>在杀死一个精英后会额外发生<style=cIsDamage>1</style>次<style=cStack>（每层+1次）</style>。另外会产生半径<style=cIsDamage>12</style>米的<style=cIsDamage>爆炸</style>，造成<style=cIsDamage>100%</style>的伤害。<style=cIsVoid>腐化所有陈旧断头台</style>。", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.ExeBlade.instance.ItemLangTokenName + "_NAME", "刽子手的重负", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.ExeBlade.instance.ItemLangTokenName + "_PICKUP", "你的击杀效果在杀死一个精英后会额外发生一次。在杀死精英时还会造成一个伤害性的AOE。<style=cIsVoid>腐化所有陈旧断头台</style>。", "zh-CN");
-            string text = Language.GetString("VV_ITEM_" + vanillaVoid.Items.VoidShell.instance.ItemLangTokenName + "_DESCRIPTION");
-            text = text.Replace(") will appear in a random location <style=cIsUtility>on each stage</style>. <style=cStack>(Increases rarity chances of the items per stack).</style> <style=cIsVoid>Corrupts all 运输申请单s</style>.", "）的<style=cIsUtility>深空信号</style>。<style=cStack>（层数越高，该物品拥有高稀有度的几率越高）</style>。<style=cIsVoid>腐化所有运输申请单</style>。");
-            text = text.Replace("A <style=cIsVoid>special</style> delivery containing items (", "在<style=cIsUtility>每个关卡中</style>，都会在随机位置生成一个内含特殊物品（");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.VoidShell.instance.ItemLangTokenName + "_DESCRIPTION", text, "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.VoidShell.instance.ItemLangTokenName + "_NAME", "无尽的聚宝盆", "zh-CN");
-            AddOverlay("VV_ITEM_" + vanillaVoid.Items.VoidShell.instance.ItemLangTokenName + "_PICKUP", "获得一个特殊的、危险的快递，并获得强大的奖励。<style=cIsVoid>腐化所有运输申请单</style>。", "zh-CN");
+        private static void 其他调整() {
+            CharacterBody huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();
+            huntressBody.baseDamage = 15f;
+            huntressBody.baseCrit = 10;
+            huntressBody.PerformAutoCalculateLevelStats();
+            //======
+            PlasmaCoreSpikestripContent.Content.Skills.DeepRot.scriptableObject.buffs[0].canStack = true;
+            //======
+            SkillHook.权杖 = AncientScepterItem.instance.ItemDef.itemIndex;
+            //======
+            foreach (SkillDef skillDef in SkillCatalog.allSkillDefs) {
+                if (skillDef.skillName == "HereticDefaultSkillScepter") {
+                    skillDef.activationState = new SerializableEntityStateType(typeof(EntityStates.Heretic.Weapon.Squawk));
+                }
+            }
+            //======
+            CaptainAirstrikeAlt2.airstrikePrefab.AddComponent<跟随目标>();
+            //======
+            GameObject fireRain = ProjectileCatalog.GetProjectilePrefab(ProjectileCatalog.FindProjectileIndex("AncientScepterHuntressRain"));
+            fireRain.AddComponent<粘住目标>();
+            SkillHook.fireRain_ = fireRain.GetComponent<ProjectileDotZone>();
+            //======
+            StatHook.LateInit();
+            //======
+            GameObject thunderCrash = ProjectileCatalog.GetProjectilePrefab(ProjectileCatalog.FindProjectileIndex("AncientScepterLoaderThundercrash"));
+            ProjectileProximityBeamController projectileProximityBeamController = thunderCrash.GetComponent<ProjectileProximityBeamController>();
+            projectileProximityBeamController.attackFireCount *= 3;
+            projectileProximityBeamController.bounces = 3;
+            projectileProximityBeamController.attackRange *= 1.5f;
+            projectileProximityBeamController.maxAngleFilter = 360f;
+            projectileProximityBeamController.procCoefficient = 1;
+            //======
+            EffectHook.LateInit();
+            //======
+            Addressables.LoadAssetAsync<InteractableSpawnCard>("RoR2/Base/Scrapper/iscScrapper.asset").WaitForCompletion().maxSpawnsPerStage = 1;
+            //======
+            GameObject bonusMoneyPack = LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/BonusMoneyPack");
+            bonusMoneyPack.transform.Find("GravityTrigger").gameObject.AddComponent<宝物自动寻找最近玩家>();
         }
 
         public static void 圣骑士汉化() {
@@ -107,7 +78,7 @@ namespace BtpTweak {
             text += "< ! > 旋转猛击既可以作为强大的群体控制技能，也可以作为限制移动的一种形式。" + Environment.NewLine + Environment.NewLine;
             text += "< ! > 疾走（Quickstep）的冷却时间随着每一次命中而降低，这是对你坚持到底的奖励。" + Environment.NewLine + Environment.NewLine;
             text += "< ! > 沉默誓言（Vow of Silence）是对付飞行敌人的好方法，因为它会把所有受影响的敌人拖到地上。</color>" + Environment.NewLine + Environment.NewLine;
-            AddOverlay("PALADIN_NAME", "圣骑士", "zh-CN");
+            AddOverlay("PALADIN_NAME", "RobPaladin", "zh-CN");
             AddOverlay("PALADIN_DESCRIPTION", text, "zh-CN");
             AddOverlay("PALADIN_SUBTITLE", "普罗维登斯的侍从", "zh-CN");
             AddOverlay("PALADIN_OUTRO_FLAVOR", "..于是他离开了，对他的教义的信心动摇了。", "zh-CN");
@@ -237,13 +208,13 @@ namespace BtpTweak {
             AddOverlay("PALADIN_UNLOCKABLE_ACHIEVEMENT_NAME", "圣骑士的誓言", "zh-CN");
             AddOverlay("PALADIN_UNLOCKABLE_ACHIEVEMENT_DESC", "使用“忠诚之珠”，再次变得完整。", "zh-CN");
             AddOverlay("PALADIN_UNLOCKABLE_UNLOCKABLE_NAME", "圣骑士的誓言", "zh-CN");
-            AddOverlay("PALADIN_MASTERYUNLOCKABLE_ACHIEVEMENT_NAME", "圣骑士：精通", "zh-CN");
+            AddOverlay("PALADIN_MASTERYUNLOCKABLE_ACHIEVEMENT_NAME", "RobPaladin：精通", "zh-CN");
             AddOverlay("PALADIN_MASTERYUNLOCKABLE_ACHIEVEMENT_DESC", "作为圣骑士，击败游戏或消灭季风。", "zh-CN");
-            AddOverlay("PALADIN_MASTERYUNLOCKABLE_UNLOCKABLE_NAME", "圣骑士：精通", "zh-CN");
+            AddOverlay("PALADIN_MASTERYUNLOCKABLE_UNLOCKABLE_NAME", "RobPaladin：精通", "zh-CN");
             string str = "\n<color=#8888>(台风困难需要星际风暴2模组)</color>";
-            AddOverlay("PALADIN_TYPHOONUNLOCKABLE_ACHIEVEMENT_NAME", "圣骑士：大师", "zh-CN");
+            AddOverlay("PALADIN_TYPHOONUNLOCKABLE_ACHIEVEMENT_NAME", "RobPaladin：大师", "zh-CN");
             AddOverlay("PALADIN_TYPHOONUNLOCKABLE_ACHIEVEMENT_DESC", "作为圣骑士，在台风或更高级别难度下通关或者抹除自己。" + str, "zh-CN");
-            AddOverlay("PALADIN_TYPHOONUNLOCKABLE_UNLOCKABLE_NAME", "圣骑士：大师", "zh-CN");
+            AddOverlay("PALADIN_TYPHOONUNLOCKABLE_UNLOCKABLE_NAME", "RobPaladin：大师", "zh-CN");
             AddOverlay("PALADIN_POISONUNLOCKABLE_ACHIEVEMENT_NAME", "他的弟子", "zh-CN");
             AddOverlay("PALADIN_POISONUNLOCKABLE_ACHIEVEMENT_DESC", "作为圣骑士，与腐败女神立约。（看不懂）", "zh-CN");
             AddOverlay("PALADIN_POISONUNLOCKABLE_UNLOCKABLE_NAME", "她的弟子", "zh-CN");
@@ -284,11 +255,11 @@ namespace BtpTweak {
             AddOverlay(str2 + "MASTERY_SKIN_NAME", "猎头者", "zh-CN");
             AddOverlay(str2 + "PASSIVE_NAME", "驯鹰者", "zh-CN");
             AddOverlay(str2 + "PASSIVE_DESCRIPTION", "一只机器猎鹰（狂风）将跟随你，它会继承你的<style=cIsDamage>大部分</style>物品，并且<style=cIsUtility>免疫</style>所有伤害，但它靠<style=cIsUtility>电池</style>运行。", "zh-CN");
-            AddOverlay("KEYWORD_BATTERY", "<style=cKeywordName>电池</style><style=cSub>狂风有两种模式：<color=#FF0000>攻击</color>和<color=#00FF00>跟随</color>。在<color=#FF0000>攻击模式</color>下，狂风每秒<style=cIsDamage>消耗 8%</style>的电量。在<color=#00FF00>跟随模式</color>下，狂风每秒<style=cIsHealing>充能 1%</style>电量，速度随<style=cIsUtility>攻速</style>变换。如果电量耗尽，狂风将强制进入<color=#00FF00>跟随模式</color>。</style>", "zh-CN");
+            AddOverlay("KEYWORD_BATTERY", "<style=cKeywordName>电池</style><style=cSub>狂风有两种模式：<color=#FF0000>攻击</color>和<color=#00FF00>跟随目标</color>。在<color=#FF0000>攻击模式</color>下，狂风每秒<style=cIsDamage>消耗 8%</style>的电量。在<color=#00FF00>跟随模式</color>下，狂风每秒<style=cIsHealing>充能 1%</style>电量，速度随<style=cIsUtility>攻速</style>变换。如果电量耗尽，狂风将强制进入<color=#00FF00>跟随模式</color>。</style>", "zh-CN");
             AddOverlay("KEYWORD_PIERCE", "<style=cKeywordName>穿孔</style><style=cSub>用尖端<style=cIsUtility>攻击</style>造成<style=cIsDamage>325%伤害</style>并忽略<style=cIsDamage>敌人护甲</style>。</style>", "zh-CN");
             AddOverlay("KEYWORD_ELECTROCUTE", "<style=cKeywordName>电击</style><style=cSub>使目标移动速度降低50%，每秒造成<style=cIsDamage>120% 的伤害</style>。</style>", "zh-CN");
             AddOverlay("KEYWORD_ATTACK", "<style=cKeywordName><color=#FF0000>攻击</color></style><style=cSub>指挥狂风攻击敌人，并激活<color=#FF0000>攻击模式</color>，使用机枪造成<style=cIsDamage>2x50% 伤害</style>，发射导弹造成<style=cIsDamage>300% 伤害</style>。</style>", "zh-CN");
-            AddOverlay("KEYWORD_FOLLOW", "<style=cKeywordName><color=#00FF00>跟随</color></style><style=cSub>让狂风回到身边，激活<color=#00FF00>跟随模式</color>，使狂风跟随在身边。</style>", "zh-CN");
+            AddOverlay("KEYWORD_FOLLOW", "<style=cKeywordName><color=#00FF00>跟随目标</color></style><style=cSub>让狂风回到身边，激活<color=#00FF00>跟随模式</color>，使狂风跟随在身边。</style>", "zh-CN");
             AddOverlay("KEYWORD_SQUALL_UTILITY", "<style=cKeywordName><color=#87b9cf>辅助</color></style><style=cSub>指挥狂风使用<style=cIsUtility>辅助</style>技能。</style>", "zh-CN");
             AddOverlay("KEYWORD_SQUALL_SPECIAL", "<style=cKeywordName><color=#efeb1c>特殊--追击!</color></style><style=cSub>指挥狂风反复打击目标敌人，造成<style=cIsDamage>70% 伤害</style>。每次攻击都会降低目标<style=cIsDamage>5点</style><style=cIsDamage>护甲</style> ，并<style=cIsUtility>充能 2%</style>电量，暴击时有双倍效果。此技能可将暂时将电量充能到<style=cIsUtility>120%</style>。</style>", "zh-CN");
             AddOverlay(str2 + "PRIMARY_THRUST_NAME", "突刺", "zh-CN");
@@ -302,33 +273,38 @@ namespace BtpTweak {
             AddOverlay(str2 + "UTILITY_BOLAS_DESCRIPTION", "投掷带电的套索，<style=cIsUtility>电击</style>周围敌人，并产生<style=cIsUtility>电击</style>区域，存在<style=cIsUtility>10，秒</style>。", "zh-CN");
             AddOverlay(str2 + "SPECIAL_COMMAND_NAME", "指令", "zh-CN");
             AddOverlay(str2 + "SPECIAL_COMMAND2_NAME", "指令 - 辅助", "zh-CN");
-            AddOverlay(str2 + "SPECIAL_COMMAND_DESCRIPTION", "向狂风发出指令。你可以指挥狂风<color=#FF0000>攻击</color>，<color=#00FF00>跟随</color>或<color=#efeb1c>特殊指令</color>。", "zh-CN");
+            AddOverlay(str2 + "SPECIAL_COMMAND_DESCRIPTION", "向狂风发出指令。你可以指挥狂风<color=#FF0000>攻击</color>，<color=#00FF00>跟随目标</color>或<color=#efeb1c>特殊指令</color>。", "zh-CN");
             AddOverlay(str2 + "SPECIAL_COMMAND2_DESCRIPTION", "<color=#3ea252>特殊指令</color>。狂风的<color=#efeb1c>特殊指令</color>现在替换了你的<style=cIsUtility>特殊</style>技能。", "zh-CN");
             AddOverlay(str2 + "SPECIAL_ATTACK_NAME", "攻击 - 指令", "zh-CN");
             AddOverlay(str2 + "SPECIAL_ATTACK_DESCRIPTION", "</style><style=cSub>指挥狂风攻击敌人，并激活<color=#FF0000>攻击模式</color>，使用机枪造成<style=cIsDamage>2x50% 伤害</style>，发射导弹造成<style=cIsDamage>300% 伤害</style>。</style>", "zh-CN");
-            AddOverlay(str2 + "SPECIAL_FOLLOW_NAME", "跟随 - 指令", "zh-CN");
+            AddOverlay(str2 + "SPECIAL_FOLLOW_NAME", "跟随目标 - 指令", "zh-CN");
             AddOverlay(str2 + "SPECIAL_FOLLOW_DESCRIPTION", "<style=cSub>让狂风回到身边，激活<color=#00FF00>跟随模式</color>，使狂风跟随在身边。</style>", "zh-CN");
             AddOverlay(str2 + "SPECIAL_CANCEL_NAME", "取消", "zh-CN");
             AddOverlay(str2 + "SPECIAL_CANCEL_DESCRIPTION", "取消", "zh-CN");
             AddOverlay(str + "_SQUALL_SPECIAL_GOFORTHROAT_NAME", "追击!", "zh-CN");
             AddOverlay(str + "_SQUALL_SPECIAL_GOFORTHROAT_DESCRIPTION", "</style><style=cSub>指挥狂风反复打击目标敌人，造成<style=cIsDamage>70% 伤害</style>。每次攻击都会降低目标<style=cIsDamage>5点</style><style=cIsDamage>护甲</style> ，并<style=cIsUtility>充能 2%</style>电量，暴击时有双倍效果。此技能可将暂时将电量充能到<style=cIsUtility>120%</style>。</style>", "zh-CN");
-            AddOverlay(str2 + "MASTERYUNLOCKABLE_ACHIEVEMENT_NAME", "探路者：精通", "zh-CN");
+            AddOverlay(str2 + "MASTERYUNLOCKABLE_ACHIEVEMENT_NAME", "Pathfinder.：精通", "zh-CN");
             AddOverlay(str2 + "MASTERYUNLOCKABLE_ACHIEVEMENT_DESC", "作为探路者，在季风难度下通关或抹除自己。", "zh-CN");
-            AddOverlay(str2 + "MASTERYUNLOCKABLE_UNLOCKABLE_NAME", "探路者：精通", "zh-CN");
+            AddOverlay(str2 + "MASTERYUNLOCKABLE_UNLOCKABLE_NAME", "Pathfinder.：精通", "zh-CN");
         }
 
         private static void 物品调整() {
-            Helpers.AddTag(ref RoR2Content.Items.ExtraLife, ItemTag.CannotSteal);
-            Helpers.AddTag(ref RoR2Content.Items.Infusion, ItemTag.CannotSteal);
-            if (AncientScepter.AncientScepterItem.instance.ItemDef.DoesNotContainTag(ItemTag.CannotSteal)) {
+            Helpers.AddTag(in RoR2Content.Items.ExtraLife, ItemTag.CannotSteal);
+            Helpers.AddTag(in RoR2Content.Items.Infusion, ItemTag.CannotSteal);
+            Helpers.AddTag(in RoR2Content.Items.CaptainDefenseMatrix, ItemTag.CannotSteal);
+            if (AncientScepterItem.instance.ItemDef.DoesNotContainTag(ItemTag.CannotSteal)) {
                 List<ItemTag> itemTags = new();
-                for (int i = 0; i < AncientScepter.AncientScepterItem.instance.ItemDef.tags.Length; ++i) {
-                    itemTags.Add(AncientScepter.AncientScepterItem.instance.ItemDef.tags[i]);
+                for (int i = 0; i < AncientScepterItem.instance.ItemDef.tags.Length; ++i) {
+                    itemTags.Add(AncientScepterItem.instance.ItemDef.tags[i]);
                 }
                 itemTags.Add(ItemTag.CannotSteal);
-                AncientScepter.AncientScepterItem.instance.ItemDef.tags = itemTags.ToArray();
+                AncientScepterItem.instance.ItemDef.tags = itemTags.ToArray();
                 itemTags.Clear();
             }
+            ProjectileImpactExplosion projectileImpactExplosion = LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/StickyBomb").GetComponent<ProjectileImpactExplosion>();
+            projectileImpactExplosion.lifetime *= 0.3f;
+            projectileImpactExplosion.lifetimeAfterImpact *= 0.3f;
+            dotDefs[(int)DotIndex.Bleed].damageCoefficient *= 0.5f;
             //AddTag(ref DLC1Content.Items.VoidmanPassiveItem, ItemTag.CannotSteal);
             //AddTag(ref DLC1Content.Items.VoidMegaCrabItem, ItemTag.CannotSteal);
             //AddTag(ref DLC1Content.Items.BearVoid, ItemTag.CannotSteal);

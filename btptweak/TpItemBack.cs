@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BtpTweak {
 
-    internal class Tp_item_back {
+    internal class TpItemBack {
 
         public static void AddHook() {
             Physics.IgnoreLayerCollision(15, 13, false);
@@ -29,7 +29,7 @@ namespace BtpTweak {
                     spawnCard.hullSize = HullClassification.Human;
                     spawnCard.nodeGraphType = MapNodeGroup.GraphType.Ground;
                     spawnCard.prefab = LegacyResourcesAPI.Load<GameObject>("SpawnCards/HelperPrefab");
-                    DirectorPlacementRule placementRule = new DirectorPlacementRule {
+                    DirectorPlacementRule placementRule = new() {
                         placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
                         position = other.transform.position
                     };

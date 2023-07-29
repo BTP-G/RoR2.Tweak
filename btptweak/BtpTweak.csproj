@@ -22,11 +22,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
+    <PackageReference Include="UnityEngine" Version="5.6.1" />
     <PackageReference Include="MMHOOK.RoR2" Version="2022.9.20">
       <NoWarn>NU1701</NoWarn>
     </PackageReference>
-    <PackageReference Include="R2API" Version="4.3.5" />
+    <PackageReference Include="R2API" Version="5.0.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,11 +40,20 @@
       <HintPath>libs\Facepunch.Steamworks.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="GoldenCoastPlus">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Skell-GoldenCoastPlus\GoldenCoastPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="GrooveSaladSpikestripContent">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\SpikestripModding-Spikestrip2_0\GrooveSaladSpikestripContent.dll</HintPath>
+    </Reference>
     <Reference Include="HIFUArtificerTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUArtificerTweaks\HIFUArtificerTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HIFUCaptainTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUCaptainTweaks\HIFUCaptainTweaks.dll</HintPath>
+    </Reference>
+    <Reference Include="HIFUCommandoTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUCommandoTweaks\HIFUCommandoTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HIFUEngineerTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUEngineerTweaks\HIFUEngineerTweaks.dll</HintPath>
@@ -52,11 +61,17 @@
     <Reference Include="HIFUHuntressTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUHuntressTweaks\HIFUHuntressTweaks.dll</HintPath>
     </Reference>
+    <Reference Include="HIFULoaderTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFULoaderTweaks\HIFULoaderTweaks.dll</HintPath>
+    </Reference>
     <Reference Include="HIFUMercenaryTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUMercenaryTweaks\HIFUMercenaryTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HIFURailgunnerTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFURailgunnerTweaks\HIFURailgunnerTweaks.dll</HintPath>
+    </Reference>
+    <Reference Include="HIFURexTweaks">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFURexTweaks\HIFURexTweaks.dll</HintPath>
     </Reference>
     <Reference Include="HuntressAutoaimFix">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HuntressAutoaimFix\HuntressAutoaimFix.dll</HintPath>
@@ -64,9 +79,6 @@
     <Reference Include="KdTreeLib">
       <HintPath>libs\KdTreeLib.dll</HintPath>
       <Private>false</Private>
-    </Reference>
-    <Reference Include="MissileDroneSurvivor">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Team_Pepega-Ms_Isle\MissileDroneSurvivor.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security">
       <HintPath>libs\Mono.Security.dll</HintPath>
@@ -101,6 +113,9 @@
     </Reference>
     <Reference Include="vanillaVoid">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Zenithrium-VanillaVoid\vanillaVoid.dll</HintPath>
+    </Reference>
+    <Reference Include="ZetAspects">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\William758-ZetAspects\ZetAspects.dll</HintPath>
     </Reference>
     <Reference Include="Zio">
       <HintPath>libs\Zio.dll</HintPath>
