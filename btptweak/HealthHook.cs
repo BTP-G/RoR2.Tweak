@@ -2,6 +2,7 @@
 using MonoMod.Cil;
 using R2API.Utils;
 using RoR2;
+using RoR2.Audio;
 using System;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,24 +10,49 @@ using UnityEngine.Networking;
 namespace BtpTweak {
 
     internal class HealthHook {
-        public static float 虚灵爆发伤害保护 = 1;
-        public static float 虚灵触发伤害保护 = 1;
-        public static float 老米爆发伤害保护 = 1;
-        public static float 老米触发伤害保护 = 1;
-        public static float 伤害阈值 = 0.01f;
+        public static float 老米爆发伤害保护_ = 1;
+        public static float 老米触发伤害保护_ = 1;
+        public static float 伤害阈值_ = 0.01f;
+        public static float 虚灵爆发伤害保护_ = 1;
+        public static float 虚灵触发伤害保护_ = 1;
+        public static BodyIndex 老米_;
+        public static BodyIndex 负伤老米_;
+        public static BodyIndex 虚灵_;
 
         public static void AddHook() {
             IL.RoR2.HealthComponent.TakeDamage += IL_HealthComponent_TakeDamage;
             IL.RoR2.HealthComponent.TriggerOneShotProtection += IL_HealthComponent_TriggerOneShotProtection;
-            On.RoR2.HealthComponent.Awake += HealthComponent_Awake;
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
 
         public static void RemoveHook() {
             IL.RoR2.HealthComponent.TakeDamage -= IL_HealthComponent_TakeDamage;
             IL.RoR2.HealthComponent.TriggerOneShotProtection -= IL_HealthComponent_TriggerOneShotProtection;
-            On.RoR2.HealthComponent.Awake -= HealthComponent_Awake;
             On.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
+        }
+
+        private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
+            if (NetworkServer.active) {
+                if (self.shield > 0 && damageInfo.damageType == DamageType.DoT) {
+                    damageInfo.damage *= 0.5f;
+                }
+                orig(self, damageInfo);
+                if (Main.是否选择造物难度_) {
+                    CharacterBody body = self.body;
+                    if (TeamIndex.Monster == body.teamComponent.teamIndex && (body.inventory?.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex) == 0) && self.isHealthLow) {
+                        if (PhaseCounter.instance && self.name.StartsWith("Bro")) {
+                            body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
+                            body.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 3);
+                            body.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                            self.ospTimer = 0.5f;
+                        } else {
+                            body.AddTimedBuff(RoR2Content.Buffs.TonicBuff, 10 * (1 + Run.instance.stageClearCount));
+                            body.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex, 1 + Run.instance.stageClearCount);
+                            self.ospTimer = 0.25f;
+                        }
+                    }
+                }
+            }
         }
 
         private static void IL_HealthComponent_TakeDamage(ILContext il) {
@@ -50,12 +76,12 @@ namespace BtpTweak {
                         EffectManager.SpawnEffect(HealthComponent.AssetReferences.bearVoidEffectPrefab, effectData2, true);
                         damageInfo.rejected = true;
                     }
-                    healthComponent.body.RemoveBuff(DLC1Content.Buffs.BearVoidReady);
+                    healthComponent.body.RemoveBuff(DLC1Content.Buffs.BearVoidReady.buffIndex);
                     int itemCount = healthComponent.body.inventory.GetItemCount(DLC1Content.Items.BearVoid);
                     healthComponent.body.AddTimedBuff(DLC1Content.Buffs.BearVoidCooldown, 15f * Mathf.Pow(0.9f, itemCount));
                 });
             } else {
-                BtpTweak.logger_.LogError("BearVoid Hook Error");
+                Main.logger_.LogError("BearVoid Hook Error");
             }
             //======
             Func<Instruction, bool>[] array2 = new Func<Instruction, bool>[3];
@@ -93,14 +119,14 @@ namespace BtpTweak {
                         attackerObject = damageInfo.attacker,
                         damageMultiplier = 1,
                         dotIndex = DotController.DotIndex.PercentBurn,
-                        duration = 666,
+                        duration = 100,
                         totalDamage = healthComponent.fullHealth,
                         victimObject = healthComponent.gameObject,
                     };
                     DotController.InflictDot(ref dotInfo);
                 });
             } else {
-                BtpTweak.logger_.LogError("ExplodeOnDeathVoid Hook Error");
+                Main.logger_.LogError("ExplodeOnDeathVoid Hook Error");
             }
             //======
             Func<Instruction, bool>[] array3 = new Func<Instruction, bool>[1];
@@ -112,7 +138,24 @@ namespace BtpTweak {
                     return (healthComponent.barrier + healthComponent.shield) > 0;
                 });
             } else {
-                BtpTweak.logger_.LogError("BossDamageBonus Hook Error");
+                Main.logger_.LogError("BossDamageBonus Hook Error");
+            }
+            //======
+            Func<Instruction, bool>[] array4 = new Func<Instruction, bool>[4];
+            array4[0] = ((Instruction x) => ILPatternMatchingExt.MatchLdarg(x, 0));
+            array4[1] = ((Instruction x) => ILPatternMatchingExt.MatchLdarg(x, 0));
+            array4[2] = ((Instruction x) => ILPatternMatchingExt.MatchLdflda<HealthComponent>(x, "itemCounts"));
+            array4[3] = ((Instruction x) => ILPatternMatchingExt.MatchLdfld(x, "RoR2.HealthComponent/ItemCounts", "parentEgg"));
+            if (ilcursor.TryGotoNext(array4)) {
+                ilcursor.RemoveRange(19);
+                ilcursor.Emit(OpCodes.Ldarg_0);
+                ilcursor.Emit(OpCodes.Ldloc, 6);
+                ilcursor.EmitDelegate(delegate (HealthComponent healthComponent, float damage) {
+                    healthComponent.Heal(healthComponent.itemCounts.parentEgg * damage * 0.01f, default, true);
+                    EntitySoundManager.EmitSoundServer(LegacyResourcesAPI.Load<NetworkSoundEventDef>("NetworkSoundEventDefs/nseParentEggHeal").index, healthComponent.gameObject);
+                });
+            } else {
+                Main.logger_.LogError("parentEgg hook error");
             }
             //======
             array3[0] = (Instruction x) => ILPatternMatchingExt.MatchStloc(x, 41);
@@ -122,32 +165,33 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldarg, 1);
                 ilcursor.Emit(OpCodes.Ldloc, 6);
                 ilcursor.EmitDelegate(delegate (HealthComponent healthComponent, DamageInfo damageInfo, float damage) {
-                    if (BtpTweak.是否选择造物难度_) {
-                        if (BtpTweak.虚灵战斗阶段计数_ > 0 && TeamIndex.Void == healthComponent.body.teamComponent.teamIndex) {
-                            if (damage < 伤害阈值 * healthComponent.fullHealth || damageInfo.damageType == DamageType.DoT) {  // 虚灵
-                                damage = Mathf.Min(damage, 虚灵触发伤害保护 * healthComponent.fullHealth);
+                    if (Main.是否选择造物难度_) {
+                        if (FinalBossHook.处于天文馆_ && healthComponent.body.bodyIndex == 虚灵_) {
+                            if (damage < 伤害阈值_ * healthComponent.fullHealth) {  // 虚灵
+                                damage = Mathf.Min(damage, 虚灵触发伤害保护_ * healthComponent.fullHealth);
                             } else {
-                                damage *= 虚灵爆发伤害保护;
-                                healthComponent.ospTimer = 1;
-                                damage = Mathf.Min(damage, 0.5f * healthComponent.health);
+                                damage *= 虚灵爆发伤害保护_;
+                                damage = Mathf.Min(damage, 0.1f * healthComponent.health);
+                                Util.CleanseBody(healthComponent.body, true, false, false, true, true, true);
                             }
-                        } else if (PhaseCounter.instance && TeamIndex.Monster == healthComponent.body.teamComponent.teamIndex && healthComponent.name.StartsWith("Bro")) {  // 米斯历克斯
-                            if (PhaseCounter.instance.phase == 4) {
-                                damage = Mathf.Max(damage, healthComponent.fullCombinedHealth / healthComponent.body.level * 0.1f);
-                            } else {
-                                if (damage < 伤害阈值 * healthComponent.fullCombinedHealth || damageInfo.damageType == DamageType.DoT) {
-                                    damage = Mathf.Min(damage, 老米触发伤害保护 * healthComponent.fullCombinedHealth);
+                        } else if (PhaseCounter.instance) {
+                            BodyIndex selfIndex = healthComponent.body.bodyIndex;
+                            if (selfIndex == 老米_) {  // 米斯历克斯
+                                if (damage < 伤害阈值_ * healthComponent.fullCombinedHealth) {
+                                    damage = Mathf.Min(damage, 老米触发伤害保护_ * healthComponent.fullCombinedHealth);
                                 } else {
-                                    damage *= 老米爆发伤害保护;
-                                    healthComponent.ospTimer = 1;
-                                    damage = Mathf.Min(damage, 0.5f * healthComponent.combinedHealth);
+                                    damage *= 老米爆发伤害保护_;
+                                    damage = Mathf.Min(damage, 0.2f * healthComponent.combinedHealth);
+                                    Util.CleanseBody(healthComponent.body, true, false, false, true, true, true);
                                 }
+                            } else if (selfIndex == 负伤老米_) {
+                                damage = Mathf.Max(damage, healthComponent.fullCombinedHealth / healthComponent.body.level * 0.1f);
                             }
                         }
                         if (!healthComponent.body.hasOneShotProtection && healthComponent.shield > 0) {
                             float protectedHealth = healthComponent.shield + healthComponent.barrier;
                             if (damage > protectedHealth) {
-                                healthComponent.body.AddTimedBuff(RoR2Content.Buffs.ArmorBoost.buffIndex, 3 * protectedHealth / healthComponent.fullShield);
+                                healthComponent.body.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 3 * protectedHealth / healthComponent.fullShield);
                                 return protectedHealth;
                             }
                         }
@@ -156,7 +200,7 @@ namespace BtpTweak {
                 });
                 ilcursor.Emit(OpCodes.Stloc, 6);
             } else {
-                BtpTweak.logger_.LogError("Enemy TakeDamage Hook Error");
+                Main.logger_.LogError("Enemy TakeDamage Hook Error");
             }
             //======
             array3[0] = (Instruction x) => ILPatternMatchingExt.MatchLdsfld(x, typeof(HealthComponent.AssetReferences).GetFieldCached("critGlassesVoidExecuteEffectPrefab"));
@@ -168,7 +212,7 @@ namespace BtpTweak {
                     healthComponent.body.AddBuff(RoR2Content.Buffs.PermanentCurse.buffIndex);
                 });
             } else {
-                BtpTweak.logger_.LogError("critGlassesVoid Hook Error");
+                Main.logger_.LogError("critGlassesVoid Hook Error");
             }
         }
 
@@ -180,41 +224,7 @@ namespace BtpTweak {
                 ilcursor.Remove();
                 ilcursor.Emit(OpCodes.Ldc_R4, 0.5f);
             } else {
-                BtpTweak.logger_.LogError("ospTimer Hook Error");
-            }
-        }
-
-        private static void HealthComponent_Awake(On.RoR2.HealthComponent.orig_Awake orig, HealthComponent self) {
-            orig(self);
-            self.ospTimer = 0.5f;
-        }
-
-        private static void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
-            if (NetworkServer.active) {
-                if (BtpTweak.虚灵战斗阶段计数_ > 0) {
-                    if (TeamIndex.Player == self.body.teamComponent.teamIndex && damageInfo.attacker) {
-                        damageInfo.damage = Mathf.Max(0.15f * BtpTweak.虚灵战斗阶段计数_ * self.fullCombinedHealth, damageInfo.damage);
-                    }
-                }
-                if (self.shield > 0 && damageInfo.damageType == DamageType.DoT) {
-                    damageInfo.damage *= 0.5f;
-                }
-                orig(self, damageInfo);
-                if (BtpTweak.是否选择造物难度_
-                    && TeamIndex.Monster == self.body.teamComponent.teamIndex
-                    && self.isHealthLow
-                    && !self.body.HasBuff(RoR2Content.Buffs.TonicBuff.buffIndex)
-                    && (self.body.inventory?.GetItemCount(RoR2Content.Items.TonicAffliction) == 0)) {
-                    if (PhaseCounter.instance && self.name.StartsWith("Bro")) {
-                        self.body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
-                        self.body.AddTimedBuff(RoR2Content.Buffs.ArmorBoost.buffIndex, 3);
-                        self.ospTimer = 0.5f;
-                    } else {
-                        self.body.AddTimedBuff(RoR2Content.Buffs.TonicBuff.buffIndex, 10 * (1 + Run.instance.stageClearCount));
-                        self.body.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex, 1 + Run.instance.stageClearCount);
-                        self.ospTimer = 0.25f;
-                    }
-                }
+                Main.logger_.LogError("ospTimer Hook Error");
             }
         }
     }

@@ -8,21 +8,6 @@ using UnityEngine.Networking;
 
 namespace BtpTweak {
 
-    public class 宝物自动寻找最近玩家 : MonoBehaviour {
-        private GravitatePickup gravitatePickup;
-
-        public void Start() {
-            gravitatePickup = GetComponent<GravitatePickup>();
-            gravitatePickup.maxSpeed = 60;
-        }
-
-        public void FixedUpdate() {
-            if (gravitatePickup.gravitateTarget == null) {
-                gravitatePickup.gravitateTarget = Helpers.GetClosestPlayerCharacterBody(TeamComponent.GetTeamMembers(TeamIndex.Player), gravitatePickup.transform.position).coreTransform;
-            }
-        }
-    }
-
     public class 爆炸产生闪电链 : MonoBehaviour {
         public ProjectileController projectileController;
         public ProjectileDamage projectileDamage;
@@ -153,58 +138,38 @@ namespace BtpTweak {
     }
 
     public abstract class 自动寻敌 : MonoBehaviour {
-        public TeamIndex projectileTeamIndex;
-        public CharacterBody target;
+        public ProjectileTargetComponent targetComponent;
         public float fixedAge = 0;
 
         public void Start() {
-            projectileTeamIndex = GetComponent<ProjectileController>()?.teamFilter.teamIndex ?? TeamIndex.None;
-            if (projectileTeamIndex == TeamIndex.Player) {
-                TrySearchForTargetEnemy();
-            }
+            targetComponent = GetComponent<ProjectileTargetComponent>();
         }
 
         public void FixedUpdate() {
             fixedAge += Time.fixedDeltaTime;
         }
-
-        public void TrySearchForTargetEnemy() {
-            target = Helpers.GetClosestCharacterBody(TeamComponent.GetTeamMembers(TeamIndex.Monster), transform.position);
-            if (target == null) {
-                target = Helpers.GetClosestCharacterBody(TeamComponent.GetTeamMembers(TeamIndex.Void), transform.position);
-            }
-            if (target == null) {
-                target = Helpers.GetClosestCharacterBody(TeamComponent.GetTeamMembers(TeamIndex.Lunar), transform.position);
-            }
-        }
     }
 
     public class 跟随目标 : 自动寻敌 {
-        public float speed = 6;
+        public float speed = 10;
 
         public new void FixedUpdate() {
             base.FixedUpdate();
-            if (projectileTeamIndex == TeamIndex.Player) {
-                if (target) {
-                    transform.position = Vector3.MoveTowards(transform.position, target.corePosition, Time.fixedDeltaTime * speed);
-                } else {
-                    TrySearchForTargetEnemy();
-                }
+            if (targetComponent.target) {
+                transform.position = Vector3.MoveTowards(transform.position, targetComponent.target.position, Time.fixedDeltaTime * speed);
             }
         }
     }
 
     public class 粘住目标 : 自动寻敌 {
-        private float timer = 0;
+        public float TPInterval = 0.5f;
 
         public new void FixedUpdate() {
             base.FixedUpdate();
-            if (projectileTeamIndex == TeamIndex.Player) {
-                if (target && fixedAge > timer) {
-                    timer = fixedAge + 0.5f;
-                    transform.SetPositionAndRotation(target.footPosition, target.transform.rotation);
-                } else {
-                    TrySearchForTargetEnemy();
+            if (targetComponent.target) {
+                if (fixedAge > TPInterval) {
+                    fixedAge = 0;
+                    transform.SetPositionAndRotation(targetComponent.target.position, targetComponent.target.rotation);
                 }
             }
         }

@@ -1,110 +1,88 @@
-﻿using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using RoR2;
-using System;
+﻿using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace BtpTweak {
 
     internal class StatHook {
-        public static Dictionary<BodyIndex, int> body_caseLoc = new Dictionary<BodyIndex, int>();
+        public static Dictionary<BodyIndex, int> body_caseLoc_ = new();
 
-        public static ItemIndex 护甲板;
-        public static ItemIndex 巨型隆起;
-        public static ItemIndex 红茶;
-        public static ItemIndex 燃料电池;
-        public static ItemIndex 肉排;
-        public static ItemIndex 注射器;
-        public static ItemIndex 黄金隆起;
+        public static ItemIndex 穿甲弹_;
+        public static ItemIndex 护甲板_;
+        public static ItemIndex 黄金隆起_;
+        public static ItemIndex 巨型隆起_;
+        public static ItemIndex 摩卡_;
+        public static ItemIndex 燃料电池_;
+        public static ItemIndex 肉排_;
+        public static ItemIndex 异端幻象_;
+        public static ItemIndex 注射器_;
 
         public static void AddHook() {
-            On.RoR2.CharacterBody.OnLevelUp += CharacterBody_OnLevelUp;
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
-            //IL.RoR2.CharacterBody.RecalculateStats += HealthTweak;
-            //IL.RoR2.CharacterBody.RecalculateStats += RegenTweak;
-            IL.RoR2.CharacterBody.RecalculateStats += AttackSpeedTweak;
-            IL.RoR2.CharacterBody.RecalculateStats += MoveSpeedTweak;
+            On.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
         }
 
         public static void RemoveHook() {
-            On.RoR2.CharacterBody.OnLevelUp -= CharacterBody_OnLevelUp;
             R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
-            //IL.RoR2.CharacterBody.RecalculateStats -= HealthTweak;
-            //IL.RoR2.CharacterBody.RecalculateStats -= RegenTweak;
-            IL.RoR2.CharacterBody.RecalculateStats -= AttackSpeedTweak;
-            IL.RoR2.CharacterBody.RecalculateStats -= MoveSpeedTweak;
+            On.RoR2.CharacterBody.RecalculateStats -= CharacterBody_RecalculateStats;
         }
 
         public static void LateInit() {
-            护甲板 = RoR2Content.Items.ArmorPlate.itemIndex;
-            注射器 = RoR2Content.Items.Syringe.itemIndex;
-            燃料电池 = RoR2Content.Items.EquipmentMagazine.itemIndex;
-            红茶 = ItemCatalog.FindItemIndex("RuinaBlackTea");
-            肉排 = RoR2Content.Items.FlatHealth.itemIndex;
-            巨型隆起 = RoR2Content.Items.Knurl.itemIndex;
-            黄金隆起 = GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef.itemIndex;
-            MiscHook.bandit2Bodyindex = BodyCatalog.FindBodyIndex("Bandit2Body");
-            BuffAndDotHook.mageBodyindex = BodyCatalog.FindBodyIndex("MageBody");
+            CharacterBody huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();  // 女猎人调整
+            huntressBody.baseDamage = 15;
+            huntressBody.levelDamage = huntressBody.baseDamage * 0.2f;
+            huntressBody.baseCrit = 10;
+            huntressBody.levelCrit = 1;
             //======
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("ArbiterBody"), 1);
-            body_caseLoc.Add(MiscHook.bandit2Bodyindex, 2);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("CaptainBody"), 3);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("CHEF"), 4);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("CommandoBody"), 5);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("CrocoBody"), 6);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("EngiBody"), 7);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("HuntressBody"), 8);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("LoaderBody"), 9);
-            body_caseLoc.Add(BuffAndDotHook.mageBodyindex, 10);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("MercBody"), 11);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("RailgunnerBody"), 12);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("RedMistBody"), 13);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("PathfinderBody"), 14);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("RobPaladinBody"), 15);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("SniperClassicBody"), 16);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("ToolbotBody"), 17);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("TreebotBody"), 18);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("VoidSurvivorBody"), 19);
-
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("EngiTurretBody"), 20);
-            body_caseLoc.Add(BodyCatalog.FindBodyIndex("EngiWalkerTurretBody"), 20);
+            穿甲弹_ = RoR2Content.Items.BossDamageBonus.itemIndex;
+            护甲板_ = RoR2Content.Items.ArmorPlate.itemIndex;
+            黄金隆起_ = GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef.itemIndex;
+            巨型隆起_ = RoR2Content.Items.Knurl.itemIndex;
+            摩卡_ = DLC1Content.Items.AttackSpeedAndMoveSpeed.itemIndex;
+            燃料电池_ = RoR2Content.Items.EquipmentMagazine.itemIndex;
+            肉排_ = RoR2Content.Items.FlatHealth.itemIndex;
+            异端幻象_ = RoR2Content.Items.LunarPrimaryReplacement.itemIndex;
+            注射器_ = RoR2Content.Items.Syringe.itemIndex;
+            BuffAndDotHook.工匠_ = BodyCatalog.FindBodyIndex("MageBody");
+            GlobalEventHook.工程师固定炮台_ = BodyCatalog.FindBodyIndex("EngiTurretBody");
+            GlobalEventHook.工程师移动炮台_ = BodyCatalog.FindBodyIndex("EngiWalkerTurretBody");
+            GlobalEventHook.雇佣兵_ = BodyCatalog.FindBodyIndex("MercBody");
             //======
-        }
-
-        private static void CharacterBody_OnLevelUp(On.RoR2.CharacterBody.orig_OnLevelUp orig, CharacterBody self) {
-            orig(self);
-            if (TeamIndex.Player == self.teamComponent.teamIndex && BtpTweak.玩家等级_ != (int)self.level) {
-                BtpTweak.玩家等级_ = (int)self.level;
-                SkillHook.LevelUp();
-            } else {
-                float 敌人等级 = Run.instance.ambientLevel;
-                MiscHook.造物难度敌人珍珠 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(敌人等级 * 0.1f, MiscHook.往日不再 ? 1 + 0.1f * Run.instance.stageClearCount : 1), 1000000));  //
-                if (敌人等级 > 100) {
-                    HealthHook.老米触发伤害保护 = 0.1f / 敌人等级;
-                    HealthHook.老米爆发伤害保护 = 100f / 敌人等级;
-                    HealthHook.虚灵触发伤害保护 = 0.05f / 敌人等级;
-                    HealthHook.虚灵爆发伤害保护 = 50f / 敌人等级;
-                } else {
-                    HealthHook.老米触发伤害保护 = 0.001f;
-                    HealthHook.老米爆发伤害保护 = 1;
-                    HealthHook.虚灵触发伤害保护 = 0.0005f;
-                    HealthHook.虚灵爆发伤害保护 = 1;
-                }
-            }
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("ArbiterBody"), 1);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("Bandit2Body"), 2);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CaptainBody"), 3);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CHEF"), 4);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CommandoBody"), 5);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CrocoBody"), 6);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("EngiBody"), 7);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("HuntressBody"), 8);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("LoaderBody"), 9);
+            body_caseLoc_.Add(BuffAndDotHook.工匠_, 10);
+            body_caseLoc_.Add(GlobalEventHook.雇佣兵_, 11);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("RailgunnerBody"), 12);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("RedMistBody"), 13);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("PathfinderBody"), 14);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("RobPaladinBody"), 15);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("SniperClassicBody"), 16);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("ToolbotBody"), 17);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("TreebotBody"), 18);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("VoidSurvivorBody"), 19);
+            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("HereticBody"), 20);
+            body_caseLoc_.Add(GlobalEventHook.工程师固定炮台_, 21);
+            body_caseLoc_.Add(GlobalEventHook.工程师移动炮台_, 21);
         }
 
         private static void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
             Inventory inventory = sender.inventory;
             if (inventory) {
                 float upLevel = sender.level - 1;
-                int itemCount = inventory.GetItemCount(肉排);
+                int itemCount = inventory.GetItemCount(肉排_);
                 float levelMaxHealthAdd = 2.5f * itemCount;
-                if (body_caseLoc.TryGetValue(sender.bodyIndex, out int loc)) {
+                if (body_caseLoc_.TryGetValue(sender.bodyIndex, out int loc)) {
                     switch (loc) {
                         case 1: {  // Arbiter
-                            args.cooldownMultAdd -= upLevel / (10 + upLevel);
-                            float statUpPercent = 0.05f * inventory.GetItemCount(红茶);
+                            args.cooldownMultAdd -= upLevel / (15 + upLevel);
+                            float statUpPercent = 0.05f * inventory.GetItemCount(摩卡_);
                             args.healthMultAdd += statUpPercent;
                             args.regenMultAdd += statUpPercent;
                             break;
@@ -120,26 +98,21 @@ namespace BtpTweak {
                             break;
                         }
                         case 5: {  // Commando
-                            float statUpPercent = 0.03f * inventory.GetItemCount(注射器);
-                            if (statUpPercent > 0) {
-                                args.attackSpeedMultAdd += statUpPercent;
-                                args.critAdd += 100 * statUpPercent;
-                                args.damageMultAdd += statUpPercent;
-                                args.healthMultAdd += statUpPercent;
-                                args.moveSpeedMultAdd += statUpPercent;
-                                args.regenMultAdd += statUpPercent;
-                            }
+                            float statUpPercent = 0.03f * inventory.GetItemCount(注射器_);
+                            args.attackSpeedMultAdd += statUpPercent;
+                            args.healthMultAdd += statUpPercent;
+                            args.moveSpeedMultAdd += statUpPercent;
+                            args.baseDamageAdd += 2 * inventory.GetItemCount(穿甲弹_);
                             break;
                         }
                         case 6: {  // Croco
                             break;
                         }
                         case 7: {  // Engi
-                            args.armorAdd += 10 * inventory.GetItemCount(护甲板);
+                            args.armorAdd += 10 * inventory.GetItemCount(护甲板_);
                             break;
                         }
                         case 8: {  // Huntress
-                            args.critAdd += upLevel;
                             break;
                         }
                         case 9: {  // Loader
@@ -170,109 +143,39 @@ namespace BtpTweak {
                             break;
                         }
                         case 18: {  // Treebot
-                            args.cooldownMultAdd += Mathf.Pow(0.9f, inventory.GetItemCount(燃料电池)) - 1f;
+                            args.cooldownMultAdd += Mathf.Pow(0.9f, inventory.GetItemCount(燃料电池_)) - 1f;
                             break;
                         }
                         case 19: {  // VoidSurvivor
                             break;
                         }
-                        case 20: {  // EngiTurretBody & EngiWalkerTurretBody
-                            float statUpPercent = 0.25f * inventory.GetItemCount(SkillHook.权杖);
+                        case 20: {  // Heretic
+                            args.primaryCooldownMultAdd -= inventory.GetItemCount(RoR2Content.Items.LunarPrimaryReplacement.itemIndex);
+                            break;
+                        }
+                        case 21: {  // EngiTurretBody & EngiWalkerTurretBody
+                            float statUpPercent = 0.25f * inventory.GetItemCount(SkillHook.古代权杖_);
                             args.attackSpeedMultAdd += statUpPercent;
                             args.damageMultAdd += statUpPercent;
                             break;
                         }
                     }
                 }
-                levelMaxHealthAdd += 0.25f * (sender.levelMaxHealth + levelMaxHealthAdd) * inventory.GetItemCount(巨型隆起);
+                itemCount = inventory.GetItemCount(巨型隆起_);
+                levelMaxHealthAdd += 0.25f * (sender.levelMaxHealth + levelMaxHealthAdd) * itemCount;
                 args.baseHealthAdd += levelMaxHealthAdd * upLevel;
-                itemCount = inventory.GetItemCount(黄金隆起);
+                args.regenMultAdd += 0.25f * itemCount;
+                itemCount = inventory.GetItemCount(黄金隆起_);
                 if (itemCount > 0 && sender.master) {
                     args.baseRegenAdd += (itemCount + sender.master.money / 100000000) * 0.01f * sender.maxHealth;
                 }
             }
         }
 
-        //private static void HealthTweak(ILContext il) {
-        //    ILCursor ilcursor = new ILCursor(il);
-        //    Func<Instruction, bool>[] array = new Func<Instruction, bool>[4];
-        //    array[0] = ((Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 62));
-        //    array[1] = ((Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 63));
-        //    array[2] = ((Instruction x) => ILPatternMatchingExt.MatchMul(x));
-        //    array[3] = ((Instruction x) => ILPatternMatchingExt.MatchStloc(x, 62));
-        //    if (ilcursor.TryGotoNext(array)) {
-        //        ilcursor.Emit(OpCodes.Ldarg, 0);
-        //        ilcursor.Emit(OpCodes.Ldloc, 62);
-        //        ilcursor.Emit(OpCodes.Ldloc, 63);
-        //        ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float, float>>(delegate (RoR2.CharacterBody self, float num50, float num51) {
-        //            float levelHealthAdd = self.levelMaxHealth + 5 * self.inventory.GetItemCount(RoR2Content.Items.FlatHealth);
-        //            levelHealthAdd += 0.5f * levelHealthAdd * self.inventory.GetItemCount(RoR2Content.Items.Knurl);
-        //            if (self.isPlayerControlled) {
-        //                return num50  // 原值
-        //                + BtpTweak.玩家生命值提升系数_ * levelHealthAdd * (self.level - 1)  // 增加
-        //                * BtpTweak.玩家生命值提升倍数_ * num51;  // 倍数
-        //            } else {
-        //                return num50  // 原值
-        //                + BtpTweak.敌人生命值提升系数_ * levelHealthAdd * (self.level - 1)  // 增加
-        //                * BtpTweak.敌人生命值提升倍数_ * num51;  // 倍数
-        //            }
-        //        });
-        //        ilcursor.Emit(OpCodes.Stloc, 62);
-        //    }
-        //}
-
-        //private static void RegenTweak(ILContext il) {
-        //    ILCursor ilcursor = new ILCursor(il);
-        //    Func<Instruction, bool>[] array = new Func<Instruction, bool>[2];
-        //    array[0] = ((Instruction x) => ILPatternMatchingExt.MatchLdcR4(x, 1f));
-        //    array[1] = ((Instruction x) => ILPatternMatchingExt.MatchStloc(x, 72));
-        //    if (ilcursor.TryGotoNext(array)) {
-        //        ilcursor.Emit(OpCodes.Ldarg, 0);
-        //        ilcursor.Emit(OpCodes.Ldloc, 67);
-        //        ilcursor.Emit(OpCodes.Ldloc, 66);
-        //        ilcursor.EmitDelegate<Func<RoR2.CharacterBody, float, float, float>>(delegate (RoR2.CharacterBody self, float value, float scaling) {
-        //            return value;
-        //        });
-        //        ilcursor.Emit(OpCodes.Stloc, 67);
-        //    }
-        //}
-
-        private static void AttackSpeedTweak(ILContext il) {
-            ILCursor ilcursor = new(il);
-            Func<Instruction, bool>[] array = new Func<Instruction, bool>[4];
-            array[0] = (Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 82);
-            array[1] = (Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 83);
-            array[2] = (Instruction x) => ILPatternMatchingExt.MatchMul(x);
-            array[3] = (Instruction x) => ILPatternMatchingExt.MatchStloc(x, 82);
-            if (ilcursor.TryGotoNext(array)) {
-                ilcursor.Emit(OpCodes.Ldarg, 0);
-                ilcursor.Emit(OpCodes.Ldloc, 83);
-                ilcursor.EmitDelegate(delegate (CharacterBody self, float value) {
-                    return value + (self.isPlayerControlled ? 0.02f * (self.level - 1) : 0);
-                });
-                ilcursor.Emit(OpCodes.Stloc, 83);
-            }
-        }
-
-        private static void MoveSpeedTweak(ILContext il) {
-            ILCursor ilcursor = new(il);
-            Func<Instruction, bool>[] array = new Func<Instruction, bool>[6];
-            array[0] = (Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 74);
-            array[1] = (Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 75);
-            array[2] = (Instruction x) => ILPatternMatchingExt.MatchLdloc(x, 76);
-            array[3] = (Instruction x) => ILPatternMatchingExt.MatchDiv(x);
-            array[4] = (Instruction x) => ILPatternMatchingExt.MatchMul(x);
-            array[5] = (Instruction x) => ILPatternMatchingExt.MatchStloc(x, 74);
-            if (ilcursor.TryGotoNext(array)) {
-                ++ilcursor.Index;
-                ilcursor.Emit(OpCodes.Pop);
-                ilcursor.Emit(OpCodes.Ldarg, 0);
-                ilcursor.Emit(OpCodes.Ldloc, 75);
-                ilcursor.EmitDelegate(delegate (CharacterBody self, float value) {
-                    return value + (self.isPlayerControlled ? 0.02f * (self.level - 1) : 0);
-                });
-                ilcursor.Emit(OpCodes.Stloc, 75);
-                ilcursor.Emit(OpCodes.Ldloc, 74);
+        private static void CharacterBody_RecalculateStats(On.RoR2.CharacterBody.orig_RecalculateStats orig, CharacterBody self) {
+            orig(self);
+            if (self.moveSpeed > 49) {
+                self.moveSpeed = 49;
             }
         }
     }

@@ -1,55 +1,71 @@
 ﻿using RoR2;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 namespace BtpTweak {
 
     internal class RunHook {
+        public static bool 往日不再_ = false;
 
         public static void AddHook() {
-            On.RoR2.Run.Start += Run_Start_Init;
-            On.RoR2.Run.AdvanceStage += Run_AdvanceStage;
-            On.RoR2.Run.BeginGameOver += Run_BeginGameOver;
+            Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
+            Run.onRunStartGlobal += Run_onRunStartGlobal;
+            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
         }
 
         public static void RemoveHook() {
-            On.RoR2.Run.Start -= Run_Start_Init;
-            On.RoR2.Run.AdvanceStage -= Run_AdvanceStage;
-            On.RoR2.Run.BeginGameOver -= Run_BeginGameOver;
+            Run.onRunAmbientLevelUp -= Run_onRunAmbientLevelUp;
+            Run.onRunStartGlobal -= Run_onRunStartGlobal;
+            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
         }
 
-        private static void Run_Start_Init(On.RoR2.Run.orig_Start orig, Run self) {
-            orig(self);
-            Helpers.后续汉化();
-            SkillHook.Init();
-            BtpTweak.是否选择造物难度_ = self.selectedDifficulty == ConfigurableDifficulty.ConfigurableDifficultyPlugin.configurableDifficultyIndex;
-            BtpTweak.玩家等级_ = 1;
-            BtpTweak.虚灵战斗阶段计数_ = 0;
-            CombatHook.敌人最大生成数 = 24;
-            HealthHook.伤害阈值 = 0.01f;
-            MiscHook.古代权杖掉落数 = self.participatingPlayerCount;
-            MiscHook.往日不再 = false;
-            MiscHook.造物难度敌人珍珠 = 0;
-            MiscHook.战斗祭坛物品掉落数 = self.participatingPlayerCount;
-            Addressables.LoadAssetAsync<InteractableSpawnCard>("RoR2/Base/ShrineBlood/iscShrineBlood.asset").WaitForCompletion().maxSpawnsPerStage = self.participatingPlayerCount;
-            Addressables.LoadAssetAsync<InteractableSpawnCard>("RoR2/Base/ShrineCombat/iscShrineCombat.asset").WaitForCompletion().maxSpawnsPerStage = MiscHook.战斗祭坛物品掉落数;
+        private static void Run_onRunAmbientLevelUp(Run run) {
+            MiscHook.造物难度敌人珍珠_ = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, 往日不再_ ? 1 + 0.1f * run.stageClearCount : 1), 10000000));  //
+            if (run.ambientLevel > 100) {
+                HealthHook.老米触发伤害保护_ = 0.1f / run.ambientLevel;
+                HealthHook.老米爆发伤害保护_ = 100f / run.ambientLevel;
+                HealthHook.虚灵触发伤害保护_ = 0.05f / run.ambientLevel;
+                HealthHook.虚灵爆发伤害保护_ = 50f / run.ambientLevel;
+            } else {
+                HealthHook.老米触发伤害保护_ = 0.001f;
+                HealthHook.老米爆发伤害保护_ = 1;
+                HealthHook.虚灵触发伤害保护_ = 0.0005f;
+                HealthHook.虚灵爆发伤害保护_ = 1;
+            }
         }
 
-        private static void Run_AdvanceStage(On.RoR2.Run.orig_AdvanceStage orig, Run self, SceneDef nextScene) {
-            orig(self, nextScene);
-            BtpTweak.虚灵战斗阶段计数_ = 0;
-            CombatHook.敌人最大生成数 = Mathf.Max(6, 24 - self.stageClearCount);
-            HealthHook.伤害阈值 = 0.01f * self.stageClearCount;
-            MiscHook.战斗祭坛物品掉落数 = Mathf.Min(self.participatingPlayerCount + self.stageClearCount, 5 * self.participatingPlayerCount);
-            Addressables.LoadAssetAsync<InteractableSpawnCard>("RoR2/Base/ShrineCombat/iscShrineCombat.asset").WaitForCompletion().maxSpawnsPerStage = MiscHook.战斗祭坛物品掉落数;
+        private static void Run_onRunStartGlobal(Run run) {
+            往日不再_ = false;
+            Helpers.权杖技能汉化();
+            SkillHook.RunStartInit();
+            CombatHook.LateInit();
+            Main.是否选择造物难度_ = run.selectedDifficulty == ConfigurableDifficulty.ConfigurableDifficultyPlugin.configurableDifficultyIndex;
+            MiscHook.虚空潜能古代权杖掉落数_ = run.participatingPlayerCount;
+            MiscHook.造物难度敌人珍珠_ = 0;
         }
 
-        private static void Run_BeginGameOver(On.RoR2.Run.orig_BeginGameOver orig, Run self, GameEndingDef gameEndingDef) {
-            orig(self, gameEndingDef);
-            BtpTweak.是否选择造物难度_ = false;
-            BtpTweak.虚灵战斗阶段计数_ = 0;
-            MiscHook.战斗祭坛物品掉落数 = 0;
-            MiscHook.古代权杖掉落数 = 0;
+        private static void Stage_onStageStartGlobal(Stage stage) {
+            int stageCount = Run.instance.stageClearCount + 1;
+            string sceneName = stage.sceneDef.cachedName;
+            CombatDirector.cvDirectorCombatEnableInternalLogs.SetBool(ModConfig.开启日志_.Value);
+            CombatHook.敌人最大生成数_ = Mathf.Max(6, 25 - stageCount);
+            CombatHook.精英转化几率 = 0;
+            CombatHook.特殊环境精英属性_ = null;
+            if (sceneName == "goldshores") {
+                CombatHook.特殊环境精英属性_ = Resources.Load<EliteDef>("elitedefs/Gold");
+                CombatHook.精英转化几率 = 100;
+            } else if (sceneName == "dampcavesimple") {
+                CombatHook.特殊环境精英属性_ = RoR2Content.Elites.Fire;
+                CombatHook.精英转化几率 = 50;
+            } else if (sceneName == "frozenwall") {
+                CombatHook.特殊环境精英属性_ = RoR2Content.Elites.Ice;
+                CombatHook.精英转化几率 = 60;
+            } else if (sceneName.StartsWith("golemplains")) {
+                CombatHook.特殊环境精英属性_ = DLC1Content.Elites.Earth;
+                CombatHook.精英转化几率 = 36;
+            }
+            FinalBossHook.处于天文馆_ = sceneName == "voidraid";
+            HealthHook.伤害阈值_ = 0.01f * stageCount;
+            MiscHook.战斗祭坛物品掉落数_ = Mathf.Min(Mathf.RoundToInt(stageCount * 0.5f), 5) * Run.instance.participatingPlayerCount;
         }
     }
 }

@@ -114,6 +114,9 @@
     <Reference Include="vanillaVoid">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Zenithrium-VanillaVoid\vanillaVoid.dll</HintPath>
     </Reference>
+    <Reference Include="VoidlingRestored">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Nuxlar-VoidlingRestored\VoidlingRestored.dll</HintPath>
+    </Reference>
     <Reference Include="ZetAspects">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\William758-ZetAspects\ZetAspects.dll</HintPath>
     </Reference>
