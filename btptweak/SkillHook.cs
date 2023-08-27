@@ -1,34 +1,35 @@
 ﻿using AncientScepter;
+using EntityStates;
+using EntityStates.GlobalSkills.LunarNeedle;
 using EntityStates.Merc;
 using EntityStates.Toolbot;
-using EntityStates;
-using HIFUCaptainTweaks.Skills;
+using EntityStates.Treebot.TreebotFlower;
 using HIFUEngineerTweaks.Skills;
 using HIFULoaderTweaks.Skills;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using PlasmaCoreSpikestripContent.Content.Skills;
+using RoR2;
+using RoR2.CharacterAI;
 using RoR2.Orbs;
 using RoR2.Projectile;
 using RoR2.Skills;
-using RoR2;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System;
-using UnityEngine.AddressableAssets;
-using UnityEngine.Networking;
+using System.Linq;
 using UnityEngine;
-using RoR2.CharacterAI;
-using EntityStates.Treebot.TreebotFlower;
+using UnityEngine.Networking;
+using BtpTweak.Utils;
+using BtpTweak.Utils.Paths;
 
 namespace BtpTweak {
 
-    internal class SkillHook {
-        public static ProjectileDotZone fireRainDotZone_;  // 火雨
-        public static ProjectileProximityBeamController projectileProximityBeamController;  // 电塔
+    public class SkillHook {
+        public static BodyIndex Heretic;
         public static ItemIndex 古代权杖_;
-        public static GameObject 异端万刃风暴_;
-
-        public static Dictionary<int, int> 盗贼标记_ = new();
+        public static ProjectileDotZone fireRainDotZone_;  // 火雨
+        public static ProjectileProximityBeamController proximityBeamController;  // 电塔
 
         public static void AddHook() {
             船长();
@@ -48,122 +49,162 @@ namespace BtpTweak {
         }
 
         public static void LateInit() {
+            RoR2GameObjects r2GameObjects = new();
             //=== other
             古代权杖_ = AncientScepterItem.instance.ItemDef.itemIndex;
             //=== Bandit2
             //=== Captain
+            EntityStates.CaptainSupplyDrop.ShockZoneMainState.shockRadius = 20;
+            GameObject captainTazer = Helpers.FindProjectilePrefab("CaptainTazer");
+            captainTazer.AddComponent<ProjectileImpactActionCaller>().BindAction(ExplosionActions.闪电链);
+            captainTazer.GetComponent<ProjectileSimple>().lifetime = 6f;
+            ProjectileImpactExplosion impactExplosion = captainTazer.GetComponent<ProjectileImpactExplosion>();
+            impactExplosion.lifetimeAfterImpact = 6f;
+            impactExplosion.lifetime = 6f;
+            SkillDef 大恶魔打击 = new RoR2CaptainOrbitalSkillDefs().PrepAirstrikeAlt.Load<SkillDef>();
+            大恶魔打击.baseRechargeInterval = 10;
+            大恶魔打击.baseMaxStock = 4;
+            大恶魔打击.requiredStock = 4;
+            大恶魔打击.stockToConsume = 4;
+            SkillDef 莉莉丝打击 = (from v in SkillCatalog.allSkillDefs where v.baseRechargeInterval == 60 && v.skillName == 大恶魔打击.skillName + "Scepter" select v).FirstOrDefault();
+            莉莉丝打击.baseRechargeInterval = 10;
+            莉莉丝打击.baseMaxStock = 6;
+            莉莉丝打击.requiredStock = 6;
+            莉莉丝打击.stockToConsume = 6;
             CaptainAirstrikeAlt2.airstrikePrefab.AddComponent<ProjectileTargetComponent>();  // 莉莉丝打击
-            CaptainAirstrikeAlt2.airstrikePrefab.AddComponent<跟随目标>();
+            CaptainAirstrikeAlt2.airstrikePrefab.AddComponent<莉莉丝打击追踪>();
+            CaptainAirstrikeAlt2.airstrikePrefab.AddComponent<ProjectileNetworkTransform>();
+            var projectileImpactExplosion = CaptainAirstrikeAlt2.airstrikePrefab.GetComponent<ProjectileImpactExplosion>();
+            projectileImpactExplosion.fireChildren = true;
+            projectileImpactExplosion.childrenCount = 1;
+            projectileImpactExplosion.childrenDamageCoefficient = 1;
+            projectileImpactExplosion.childrenProjectilePrefab = Helpers.FindProjectilePrefab("BrassMonolithLargeShockwave");
             ProjectileSphereTargetFinder sphereTargetFinder = CaptainAirstrikeAlt2.airstrikePrefab.AddComponent<ProjectileSphereTargetFinder>();
             sphereTargetFinder.lookRange = float.MaxValue;
             sphereTargetFinder.allowTargetLoss = true;
             sphereTargetFinder.onlySearchIfNoTarget = true;
             sphereTargetFinder.ignoreAir = false;
             //=== Croco
-            PlasmaCoreSpikestripContent.Content.Skills.DeepRot.scriptableObject.buffs[0].canStack = true;
+            DeepRot.scriptableObject.buffs[0].canStack = true;
             //=== Engi
+            Array.Find(r2GameObjects.EngiTurretMaster.LoadComponents<AISkillDriver>(), match => match.customName == "FireAtEnemy").maxDistance *= 3;
             //=== Heretic
-            foreach (SkillDef skillDef in SkillCatalog.allSkillDefs) {
-                if (skillDef.skillName == "HereticDefaultSkillScepter") {
-                    skillDef.activationState = new SerializableEntityStateType(typeof(EntityStates.Heretic.Weapon.Squawk));
-                }
-            }
-            //Assets / RoR2 / Base / Items / LunarSkillReplacements / LunarSecondaryReplacement / Skills / LunarSecondaryProjectile.prefab
-            //异端万刃风暴_ = R2API.PrefabAPI.InstantiateClone(, "异端万刃风暴");
-            //异端万刃风暴_.AddComponent<ProjectileTargetComponent>();
-            //ProjectileDirectionalTargetFinder directionalTargetFinder = 异端万刃风暴_.AddComponent<ProjectileDirectionalTargetFinder>();
-            //directionalTargetFinder.lookCone = 90;
-            //directionalTargetFinder.lookRange = 12;
-            //directionalTargetFinder.allowTargetLoss = true;
-            //directionalTargetFinder.onlySearchIfNoTarget = true;
-            //directionalTargetFinder.ignoreAir = false;
-            //steerTowardTarget = 异端万刃风暴_.AddComponent<ProjectileSteerTowardTarget>();
-            //steerTowardTarget.rotationSpeed = 360;
+            LegacyResourcesAPI.Load<SkillDef>("SkillDefs/HereticBody/HereticDefaultAbility").baseRechargeInterval = 40;
+            Helpers.FindSkillDef("HereticDefaultSkillScepter").activationState = new SerializableEntityStateType(typeof(EntityStates.Heretic.Weapon.Squawk));
             //=== Huntress
-            GameObject fireRain = ProjectileCatalog.GetProjectilePrefab(ProjectileCatalog.FindProjectileIndex("AncientScepterHuntressRain"));
+            CharacterBody huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();  // 女猎人调整
+            huntressBody.baseDamage = 15;
+            huntressBody.levelDamage = huntressBody.baseDamage * 0.2f;
+            huntressBody.baseCrit = 10;
+            huntressBody.levelCrit = 1;
+            GameObject fireRain = Helpers.FindProjectilePrefab("AncientScepterHuntressRain");
             fireRain.AddComponent<ProjectileTargetComponent>();
-            fireRain.AddComponent<粘住目标>();
+            fireRain.AddComponent<火雨传送>();
+            fireRain.AddComponent<ProjectileNetworkTransform>();
+            fireRainDotZone_ = fireRain.GetComponent<ProjectileDotZone>();
             sphereTargetFinder = fireRain.AddComponent<ProjectileSphereTargetFinder>();
             sphereTargetFinder.lookRange = float.MaxValue;
             sphereTargetFinder.onlySearchIfNoTarget = true;
             sphereTargetFinder.ignoreAir = false;
             sphereTargetFinder.allowTargetLoss = false;
-            fireRainDotZone_ = fireRain.GetComponent<ProjectileDotZone>();
             //=== Loader
-            GameObject thunderCrash = ProjectileCatalog.GetProjectilePrefab(ProjectileCatalog.FindProjectileIndex("AncientScepterLoaderThundercrash"));
-            ProjectileProximityBeamController projectileProximityBeamController = thunderCrash.GetComponent<ProjectileProximityBeamController>();
-            projectileProximityBeamController.attackFireCount *= 3;
-            projectileProximityBeamController.bounces = 3;
-            projectileProximityBeamController.attackRange *= 2f;
-            projectileProximityBeamController.procCoefficient = 1f;
+            //=== Mage
+            Helpers.FindProjectilePrefab("MageIceBombProjectile").AddComponent<ProjectileImpactActionCaller>().BindAction(ExplosionActions.冰冻炸弹);
+            GameObject mageLightningBomb = Helpers.FindProjectilePrefab("MageLightningBombProjectile");
+            mageLightningBomb.AddComponent<ProjectileImpactActionCaller>().BindAction(ExplosionActions.纳米炸弹);
+            ProjectileProximityBeamController mageProximityBeamController = mageLightningBomb.GetComponent<ProjectileProximityBeamController>();
+            mageProximityBeamController.attackFireCount = 3;
+            mageProximityBeamController.attackRange = 30;
+            mageProximityBeamController.inheritDamageType = true;
+            mageProximityBeamController.damageCoefficient *= 0.1f;
+            mageProximityBeamController.listClearInterval = 0;
             //=== Railgunner
         }
 
         public static void RunStartInit() {
             //=== Bandit2
-            MiscHook.bandit2Count = 0;
-            盗贼标记_.Clear();
             //=== Captain
-            HealingBeacon.Healing = 0.1f;
+            HealingWard healingWard = EntityStates.CaptainSupplyDrop.HealZoneMainState.healZonePrefab.GetComponent<HealingWard>();
+            healingWard.radius = 10;
+            healingWard.healFraction = 0.02f;
+            new RoR2GameObjects().CaptainSupplyDropEquipmentRestock.LoadComponent<GenericEnergyComponent>().chargeRate = 0.5f;
             //=== Engi
-            SkillDef spider = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset").WaitForCompletion();
-            SkillDef pressure = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceMine.asset").WaitForCompletion();
-            spider.baseMaxStock = SpiderMines.charges;
-            pressure.baseMaxStock = PressureMines.charges;
+            RoR2SkillDefs r2SkillDefs = new();
+            r2SkillDefs.EngiBodyPlaceMine.Load<SkillDef>().baseMaxStock = PressureMines.charges;
+            r2SkillDefs.EngiBodyPlaceSpiderMine.Load<SkillDef>().baseMaxStock = SpiderMines.charges;
             //=== Huntress
             HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60;
             //=== Loader
             EntityStates.Loader.BaseSwingChargedFist.velocityDamageCoefficient = 0.3f;
             Thunderslam.yVelocityCoeff = 0.23f;
             //=== Railgunner
-            HIFURailgunnerTweaks.Misc.ScopeAndReload.ReloadBarPercent = 0.15f;
         }
 
         public static void LevelUp(int level) {
             int upLevel = level - 1;
             //=== Captain
-            HealingBeacon.Healing = 0.1f + 0.01f * upLevel;
+            HealingWard healingWard = EntityStates.CaptainSupplyDrop.HealZoneMainState.healZonePrefab.GetComponent<HealingWard>();
+            healingWard.radius = 10 + upLevel;
+            healingWard.healFraction = 0.02f + 0.002f * upLevel;
+            new RoR2GameObjects().CaptainSupplyDropEquipmentRestock.LoadComponent<GenericEnergyComponent>().chargeRate = 0.5f * level;
             //=== Engi
-            SkillDef spider = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset").WaitForCompletion();
-            SkillDef pressure = Addressables.LoadAssetAsync<SkillDef>("RoR2/Base/Engi/EngiBodyPlaceMine.asset").WaitForCompletion();
-            spider.baseMaxStock = SpiderMines.charges + upLevel;
-            pressure.baseMaxStock = PressureMines.charges + upLevel;
+            RoR2SkillDefs r2SkillDefs = new();
+            r2SkillDefs.EngiBodyPlaceMine.Load<SkillDef>().baseMaxStock = PressureMines.charges + upLevel;
+            r2SkillDefs.EngiBodyPlaceSpiderMine.Load<SkillDef>().baseMaxStock = SpiderMines.charges + upLevel;
             //=== Huntress
             HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (ModConfig.女猎人射程每级增加距离_.Value * upLevel);
             //=== Loader
-            EntityStates.Loader.BaseSwingChargedFist.velocityDamageCoefficient = 0.3f + 0.005f * upLevel;
-            Thunderslam.yVelocityCoeff = 0.23f + 0.007f * upLevel;
+            EntityStates.Loader.BaseSwingChargedFist.velocityDamageCoefficient = 0.3f + 0.006f * upLevel;
+            Thunderslam.yVelocityCoeff = 0.23f + 0.008f * upLevel;
         }
 
         private static void 船长() {
-            GameObject TazerP = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Captain/CaptainTazer.prefab").WaitForCompletion();
-            TazerP.GetComponent<ProjectileSimple>().lifetime = 6f;
-            TazerP.AddComponent<爆炸产生闪电链>();
-            ProjectileImpactExplosion TPPIE = TazerP.GetComponent<ProjectileImpactExplosion>();
-            TPPIE.lifetimeAfterImpact = 6f;
-            TPPIE.lifetime = 6f;
-            //======
+            new RoR2CaptainSupplyDropSkillDefs().PrepSupplyDrop.Load<SkillDef>().baseRechargeInterval = 1;
+            RoR2Application.onLoad = (Action)Delegate.Combine(RoR2Application.onLoad, delegate () {
+                foreach (SceneDef sceneDef in SceneCatalog.allSceneDefs) {
+                    sceneDef.blockOrbitalSkills = false;
+                }
+            });
             On.EntityStates.Captain.Weapon.FireCaptainShotgun.ModifyBullet += delegate (On.EntityStates.Captain.Weapon.FireCaptainShotgun.orig_ModifyBullet orig, EntityStates.Captain.Weapon.FireCaptainShotgun self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
                 bulletAttack.force *= 1 + self.characterBody.inventory.GetItemCount(RoR2Content.Items.Behemoth.itemIndex);
             };
             //======
-            On.EntityStates.Captain.Weapon.CallAirstrikeBase.OnEnter += delegate (On.EntityStates.Captain.Weapon.CallAirstrikeBase.orig_OnEnter orig, EntityStates.Captain.Weapon.CallAirstrikeBase self) {
+            On.EntityStates.Captain.Weapon.CallAirstrikeAlt.OnExit += delegate (On.EntityStates.Captain.Weapon.CallAirstrikeAlt.orig_OnExit orig, EntityStates.Captain.Weapon.CallAirstrikeAlt self) {
+                if (self.characterBody.inventory.GetItemCount(古代权杖_) == 0) {
+                    self.damageCoefficient = 500f;
+                }
                 orig(self);
-                CaptainAirstrikeAlt2.airstrikePrefab.GetComponent<跟随目标>().speed = self.characterBody.level * self.characterBody.inventory.GetItemCount(古代权杖_);
+            };
+            //======
+            On.EntityStates.Captain.Weapon.CallAirstrikeBase.ModifyProjectile += delegate (On.EntityStates.Captain.Weapon.CallAirstrikeBase.orig_ModifyProjectile orig, EntityStates.Captain.Weapon.CallAirstrikeBase self, ref FireProjectileInfo fireProjectileInfo) {
+                orig(self, ref fireProjectileInfo);
+                int itemCount = self.characterBody.inventory.GetItemCount(RoR2Content.Items.UtilitySkillMagazine.itemIndex);
+                if (itemCount > 0) {
+                    fireProjectileInfo.useFuseOverride = true;
+                    fireProjectileInfo.fuseOverride = fireProjectileInfo.projectilePrefab.GetComponent<ProjectileImpactExplosion>().lifetime * Mathf.Pow(0.666f, itemCount);
+                }
             };
         }
 
         private static void 磁轨炮手() {
+            On.EntityStates.Railgunner.Weapon.BaseFireSnipe.OnEnter += delegate (On.EntityStates.Railgunner.Weapon.BaseFireSnipe.orig_OnEnter orig, EntityStates.Railgunner.Weapon.BaseFireSnipe self) {
+                orig(self);
+                if (NetworkServer.active && self is EntityStates.Railgunner.Weapon.FireSnipeSuper) {
+                    CharacterMaster master = self.characterBody.master;
+                    int itemCount = master.inventory.GetItemCount(古代权杖_);
+                    if (itemCount > 0) {
+                        master.money -= Convert.ToUInt32(Mathf.Min(0.1f * itemCount * master.money, master.money));
+                    }
+                }
+            };
             On.EntityStates.Railgunner.Weapon.BaseFireSnipe.ModifyBullet += delegate (On.EntityStates.Railgunner.Weapon.BaseFireSnipe.orig_ModifyBullet orig, EntityStates.Railgunner.Weapon.BaseFireSnipe self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
                 if (self is EntityStates.Railgunner.Weapon.FireSnipeSuper) {
                     CharacterMaster master = self.characterBody.master;
                     int itemCount = master.inventory.GetItemCount(古代权杖_);
                     if (itemCount > 0) {
-                        float moneyToDamage = 0.1f * itemCount * master.money;
-                        bulletAttack.damage += moneyToDamage;
-                        master.money -= Convert.ToUInt32(Mathf.Min(moneyToDamage, master.money));
+                        bulletAttack.damage += 0.1f * itemCount * master.money;
                     }
                 }
             };
@@ -176,8 +217,7 @@ namespace BtpTweak {
             };
             //==========
             On.EntityStates.Railgunner.Scope.BaseWindUp.OnEnter += delegate (On.EntityStates.Railgunner.Scope.BaseWindUp.orig_OnEnter orig, EntityStates.Railgunner.Scope.BaseWindUp self) {
-                HurtBox.sniperTargetRadius = 1 + self.characterBody.inventory.GetItemCount(DLC1Content.Items.CritDamage.itemIndex);
-                HurtBox.sniperTargetRadiusSqr = HurtBox.sniperTargetRadius * HurtBox.sniperTargetRadius;
+                HurtBox.sniperTargetRadiusSqr = Mathf.Pow(self.characterBody.inventory.GetItemCount(DLC1Content.Items.CritDamage.itemIndex) + 1, 2);
                 orig(self);
             };
             //==========
@@ -192,7 +232,7 @@ namespace BtpTweak {
         private static void 盗贼() {
             On.EntityStates.Bandit2.Weapon.FireSidearmResetRevolver.ModifyBullet += delegate (On.EntityStates.Bandit2.Weapon.FireSidearmResetRevolver.orig_ModifyBullet orig, EntityStates.Bandit2.Weapon.FireSidearmResetRevolver self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
-                bulletAttack.damage *= 2;
+                bulletAttack.damage *= 2f;
             };
             //======
             On.EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState.OnEnter += delegate (On.EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState.orig_OnEnter orig, EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState self) {
@@ -201,11 +241,10 @@ namespace BtpTweak {
                     CharacterBody body = self.characterBody;
                     if (body.isPlayerControlled) {
                         Inventory inventory = body.inventory;
-                        int buffCount = 盗贼标记_[inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex)] = body.GetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex);
-                        int buffReduce = buffCount / (3 * (int)body.level * (1 + inventory.GetItemCount(古代权杖_)));
-                        while (buffReduce-- > 0) {
-                            body.RemoveBuff(RoR2Content.Buffs.BanditSkull.buffIndex);
-                        }
+                        int buffCount = body.GetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex);
+                        buffCount -= buffCount / (3 * (int)body.level * (1 + inventory.GetItemCount(古代权杖_)));
+                        body.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, buffCount);
+                        inventory.GiveItem(JunkContent.Items.SkullCounter.itemIndex, buffCount - inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex));
                     }
                 }
             };
@@ -221,7 +260,7 @@ namespace BtpTweak {
             //==========
             On.EntityStates.Toolbot.FireSpear.ModifyBullet += delegate (On.EntityStates.Toolbot.FireSpear.orig_ModifyBullet orig, FireSpear self, BulletAttack bulletAttack) {
                 orig(self, bulletAttack);
-                bulletAttack.damage *= 1 + 0.1f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.BleedOnHit.itemIndex);
+                bulletAttack.damage *= 1 + 0.05f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.Crowbar.itemIndex);
             };
             //==========
             On.EntityStates.Toolbot.AimGrenade.OnEnter += delegate (On.EntityStates.Toolbot.AimGrenade.orig_OnEnter orig, AimGrenade self) {
@@ -247,14 +286,6 @@ namespace BtpTweak {
         }
 
         private static void 工程师() {
-            GameObject engiTurretMaster = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Engi/EngiTurretMaster.prefab").WaitForCompletion();
-            AISkillDriver[] drivers = engiTurretMaster.GetComponents<AISkillDriver>();
-            foreach (AISkillDriver driver in drivers) {
-                if (driver.maxDistance < float.MaxValue) {
-                    driver.maxDistance = 360;
-                }
-            }
-            //======
             On.EntityStates.Engi.EngiBubbleShield.Deployed.OnEnter += delegate (On.EntityStates.Engi.EngiBubbleShield.Deployed.orig_OnEnter orig, EntityStates.Engi.EngiBubbleShield.Deployed self) {
                 orig(self);
                 if (NetworkServer.active) {
@@ -267,36 +298,28 @@ namespace BtpTweak {
         }
 
         private static void 工匠() {
-            SteppedSkillDef mageFireFirebolt = Addressables.LoadAssetAsync<SteppedSkillDef>("RoR2/Base/Mage/MageBodyFireFirebolt.asset").WaitForCompletion();
-            SteppedSkillDef mageFireLightningBolt = Addressables.LoadAssetAsync<SteppedSkillDef>("RoR2/Base/Mage/MageBodyFireLightningBolt.asset").WaitForCompletion();
-            mageFireFirebolt.baseRechargeInterval = 0.5f;
-            mageFireLightningBolt.baseRechargeInterval = 0.5f;
+            RoR2SteppedSkillDefs r2SteppedSkillDefs = new();
+            SteppedSkillDef mageFireFirebolt = r2SteppedSkillDefs.MageBodyFireFirebolt.Load<SteppedSkillDef>();
+            mageFireFirebolt.baseRechargeInterval = 0;
+            mageFireFirebolt.baseMaxStock = 1;
+            SteppedSkillDef mageFireLightningBolt = r2SteppedSkillDefs.MageBodyFireIceBolt.Load<SteppedSkillDef>();
+            mageFireLightningBolt.baseRechargeInterval = 0;
+            mageFireLightningBolt.baseMaxStock = 1;
             //======
-            On.EntityStates.Mage.Weapon.BaseThrowBombState.OnEnter += delegate (On.EntityStates.Mage.Weapon.BaseThrowBombState.orig_OnEnter orig, EntityStates.Mage.Weapon.BaseThrowBombState self) {
-                orig(self);
-                if (self is EntityStates.Mage.Weapon.ThrowNovabomb) {
-                    爆炸发射闪电球 fireBall = self.projectilePrefab.GetComponent<爆炸发射闪电球>();
-                    if (fireBall) {
-                        fireBall.meatballCount = Mathf.FloorToInt(self.characterBody.level * 0.25f);
-                    } else {
-                        self.projectilePrefab.AddComponent<爆炸发射闪电球>();
-                    }
-                } else if (self is EntityStates.Mage.Weapon.ThrowIcebomb) {
-                    爆炸产生冰冻炸弹 iceExplosion = self.projectilePrefab.GetComponent<爆炸产生冰冻炸弹>();
-                    if (iceExplosion) {
-                        iceExplosion.explosionRadius = 6 + self.characterBody.inventory.GetItemCount(RoR2Content.Items.IceRing.itemIndex);
-                    } else {
-                        self.projectilePrefab.AddComponent<爆炸产生冰冻炸弹>();
-                    }
-                }
-            };
-            //======
-            On.EntityStates.Mage.Weapon.FireFireBolt.FireGauntlet += delegate (On.EntityStates.Mage.Weapon.FireFireBolt.orig_FireGauntlet orig, EntityStates.Mage.Weapon.FireFireBolt self) {
+            On.EntityStates.Mage.Weapon.FireFireBolt.OnEnter += delegate (On.EntityStates.Mage.Weapon.FireFireBolt.orig_OnEnter orig, EntityStates.Mage.Weapon.FireFireBolt self) {
                 if (self.isAuthority) {
                     self.damageCoefficient += self.characterBody.inventory.GetItemCount(RoR2Content.Items.FireRing.itemIndex);
                 }
                 orig(self);
             };
+            //======
+            On.EntityStates.Mage.Weapon.BaseThrowBombState.ModifyProjectile += delegate (On.EntityStates.Mage.Weapon.BaseThrowBombState.orig_ModifyProjectile orig, EntityStates.Mage.Weapon.BaseThrowBombState self, ref FireProjectileInfo projectileInfo) {
+                orig(self, ref projectileInfo);
+                if (self is EntityStates.Mage.Weapon.ThrowNovabomb) {
+                    projectileInfo.damage *= 1 + 0.1f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
+                }
+            };
+            //======
         }
 
         private static void 雇佣兵() {
@@ -312,26 +335,17 @@ namespace BtpTweak {
                             Evis.damageCoefficient += 0.015f;
                         }
                         if (evis.GetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex) > 0) {
-                            evis.stopwatch = 0;
                             evis.characterBody.RemoveBuff(RoR2Content.Buffs.BanditSkull.buffIndex);
-                        }
-                        if (evis.inputBank.jump.down) {
-                            evis.stopwatch = 99;
+                            if (evis.inputBank.jump.down && evis.isAuthority) {
+                                evis.stopwatch = 99;
+                            } else {
+                                evis.stopwatch = 0;
+                            }
                         }
                     });
                 } else {
                     Main.logger_.LogError("Evis Hook Error");
                 }
-            };
-            //======
-            On.EntityStates.Merc.Evis.OnEnter += delegate (On.EntityStates.Merc.Evis.orig_OnEnter orig, Evis self) {
-                int itemCount = self.characterBody.inventory.GetItemCount(古代权杖_);
-                if (itemCount > 0) {
-                    Evis.duration = 0.5f * (1 + itemCount);
-                } else {
-                    Evis.duration = 1f;
-                }
-                orig(self);
             };
             //======
             On.EntityStates.Merc.WhirlwindBase.OnEnter += delegate (On.EntityStates.Merc.WhirlwindBase.orig_OnEnter orig, WhirlwindBase self) {
@@ -356,7 +370,7 @@ namespace BtpTweak {
                         TreebotFlower2Projectile.rootPulseCount = 16 * itemCount;
                         TreebotFlower2Projectile.healPulseCount = 16 * itemCount;
                     }
-                    TreebotFlower2Projectile.healthFractionYieldPerHit = 0.11f + 0.01f * ownerInventory.GetItemCount(RoR2Content.Items.TPHealingNova.itemIndex);
+                    TreebotFlower2Projectile.healthFractionYieldPerHit = 0.11f + 0.05f * ownerInventory.GetItemCount(RoR2Content.Items.TPHealingNova.itemIndex);
                 }
             };
         }
@@ -386,8 +400,8 @@ namespace BtpTweak {
             };
             //======
             On.EntityStates.Huntress.ArrowRain.OnEnter += delegate (On.EntityStates.Huntress.ArrowRain.orig_OnEnter orig, EntityStates.Huntress.ArrowRain self) {
-                fireRainDotZone_.lifetime = 6 + 3 * self.characterBody.inventory.GetItemCount(古代权杖_);
                 orig(self);
+                fireRainDotZone_.lifetime = 6 + 3 * self.characterBody.inventory.GetItemCount(古代权杖_);
             };
         }
 
@@ -401,21 +415,20 @@ namespace BtpTweak {
         }
 
         private static void 虚空恶鬼() {
+            RoR2GameObjects r2GameObjects = new();
             //=== 腐化二技能
-            GameObject gameObject = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterBigProjectileCorrupted.prefab").WaitForCompletion();
-            ProjectileSimple component = gameObject.GetComponent<ProjectileSimple>();
-            component.desiredForwardSpeed = 40f;
-            component.lifetime = 6.6f;
-            component.lifetimeExpiredEffect = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterExplosionCorrupted.prefab").WaitForCompletion();
-            ProjectileImpactExplosion component2 = gameObject.GetComponent<ProjectileImpactExplosion>();
-            component2.blastRadius = 25f;
+            GameObject gameObject = r2GameObjects.VoidSurvivorMegaBlasterBigProjectileCorrupted.Load<GameObject>();
+            ProjectileSimple projectileSimple = gameObject.GetComponent<ProjectileSimple>();
+            projectileSimple.desiredForwardSpeed = 40f;
+            projectileSimple.lifetime = 6.6f;
+            projectileSimple.lifetimeExpiredEffect = r2GameObjects.VoidSurvivorMegaBlasterExplosionCorrupted.Load<GameObject>();
+            gameObject.GetComponent<ProjectileImpactExplosion>().blastRadius = 25f; ;
             RadialForce radialForce = gameObject.AddComponent<RadialForce>();
             radialForce.radius = 25f;
             radialForce.damping = 0.5f;
             radialForce.forceMagnitude = -2500f;
             radialForce.forceCoefficientAtEdge = 0.5f;
-            GameObject ghostPrefab = gameObject.GetComponent<ProjectileController>().ghostPrefab;
-            ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
+            gameObject.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
             //==========
             On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter += delegate (On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireHandBeam self) {
                 self.damageCoefficient = 3.6f;
@@ -449,65 +462,177 @@ namespace BtpTweak {
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += delegate (On.EntityStates.Heretic.Weapon.Squawk.orig_OnEnter orig, EntityStates.Heretic.Weapon.Squawk self) {
                 orig(self);
                 BuffDef buffDef = RoR2Content.Buffs.LunarSecondaryRoot;
-                float duration = 3;
+                float duration = 10;
                 int itemCount = self.characterBody.inventory.GetItemCount(古代权杖_);
                 if (itemCount > 0) {
                     buffDef = AncientScepterMain.perishSongDebuff;
                     duration = 10 * itemCount;
                 }
                 foreach (CharacterBody characterBody in CharacterBody.readOnlyInstancesList) {
-                    if (characterBody) {
-                        if (TeamIndex.Lunar == characterBody.teamComponent.teamIndex) {
-                            duration *= 3;
-                        }
-                        characterBody.AddTimedBuff(buffDef, duration);
+                    if (TeamIndex.Lunar == characterBody.teamComponent.teamIndex) {
+                        duration *= 3;
                     }
+                    characterBody.AddTimedBuff(buffDef, duration);
                 }
+            };
+            //=====
+            On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter += delegate (On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.orig_OnEnter orig, FireLunarNeedle self) {
+                if (self.characterBody.bodyIndex == Heretic) {
+                    FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 360f;
+                } else {
+                    FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 90f;
+                }
+                orig(self);
+            };
+            //=====
+            On.EntityStates.GhostUtilitySkillState.FixedUpdate += delegate (On.EntityStates.GhostUtilitySkillState.orig_FixedUpdate orig, GhostUtilitySkillState self) {
+                orig(self);
+                if (self.isAuthority && self.characterBody.bodyIndex == Heretic && self.inputBank.skill3.justReleased && self.fixedAge > 1f) {
+                    self.outer.SetNextStateToMain();
+                }
+            };
+            //=====
+            On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter += delegate (On.EntityStates.GlobalSkills.LunarDetonator.Detonate.orig_OnEnter orig, EntityStates.GlobalSkills.LunarDetonator.Detonate self) {
+                if (self.characterBody.bodyIndex == Heretic) {
+                    EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
+                } else {
+                    EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f;
+                }
+                orig(self);
             };
         }
 
         private static void 指挥官() {
-            On.EntityStates.Commando.CommandoWeapon.FireBarrage.OnEnter += delegate (On.EntityStates.Commando.CommandoWeapon.FireBarrage.orig_OnEnter orig, EntityStates.Commando.CommandoWeapon.FireBarrage self) {
+        }
+
+        private static void 装卸工() {
+            RoR2GameObjects r2GameObjects = new();
+            SkillHook.proximityBeamController = r2GameObjects.LoaderPylon.LoadComponent<ProjectileProximityBeamController>();  // 电塔
+            GameObject loaderHook = r2GameObjects.LoaderHook.Load<GameObject>();  // 抓钩
+            loaderHook.GetComponent<ProjectileSimple>().desiredForwardSpeed *= 2f;
+            loaderHook.GetComponent<ProjectileGrappleController>().maxTravelDistance *= 1.5f;
+            //====== 雷冲
+            new RoR2SteppedSkillDefs().ChargeZapFist.Load<SteppedSkillDef>().baseRechargeInterval = 3f;
+            ProjectileProximityBeamController proximityBeamController = r2GameObjects.LoaderZapCone.LoadComponent<ProjectileProximityBeamController>();
+            proximityBeamController.attackRange *= 2;
+            proximityBeamController.bounces = 1;
+            //======
+            On.EntityStates.Loader.ThrowPylon.OnEnter += delegate (On.EntityStates.Loader.ThrowPylon.orig_OnEnter orig, EntityStates.Loader.ThrowPylon self) {
+                int itemCount = self.characterBody.inventory.GetItemCount(RoR2Content.Items.ShockNearby.itemIndex);
+                SkillHook.proximityBeamController.attackRange = M551Pylon.aoe * (1 + itemCount);
+                SkillHook.proximityBeamController.bounces = M551Pylon.bounces + itemCount;
+                orig(self);
+            };
+            //======
+            On.EntityStates.Loader.SwingZapFist.OnExit += delegate (On.EntityStates.Loader.SwingZapFist.orig_OnExit orig, EntityStates.Loader.SwingZapFist self) {
+                EntityStates.Loader.SwingZapFist.selfKnockback = 100 * self.punchSpeed;
                 orig(self);
             };
         }
 
-        private static void 装卸工() {
-            GameObject pylon = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/LoaderPylon.prefab").WaitForCompletion();
-            projectileProximityBeamController = pylon.GetComponent<ProjectileProximityBeamController>();
-            GameObject grap = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/Loader/LoaderHook.prefab").WaitForCompletion();
-            ProjectileSimple projectileSimple = grap.GetComponent<ProjectileSimple>();
-            projectileSimple.desiredForwardSpeed *= 2f;
-            ProjectileGrappleController grapC = grap.GetComponent<ProjectileGrappleController>();
-            grapC.maxTravelDistance *= 1.5f;
-            //======  雷冲
-            SteppedSkillDef thunder = Addressables.LoadAssetAsync<SteppedSkillDef>("RoR2/Base/Loader/ChargeZapFist.asset").WaitForCompletion();
-            thunder.baseRechargeInterval = 3f;
-            //======
-            On.EntityStates.Loader.ThrowPylon.OnEnter += delegate (On.EntityStates.Loader.ThrowPylon.orig_OnEnter orig, EntityStates.Loader.ThrowPylon self) {
-                int itemCount = self.characterBody.inventory.GetItemCount(RoR2Content.Items.ShockNearby.itemIndex);
-                if (itemCount > 1) {
-                    projectileProximityBeamController.attackRange = M551Pylon.aoe * (1 + itemCount);
-                    projectileProximityBeamController.bounces = M551Pylon.bounces + itemCount;
+        public class ExplosionActions {
+
+            public static void 纳米炸弹(ProjectileImpactActionCaller 炸弹, ProjectileImpactInfo impactInfo) {
+                ProjectileController projectileController = 炸弹.GetComponent<ProjectileController>();
+                if (projectileController.owner == null) {
+                    return;
                 }
-                orig(self);
-            };
-            //======
-            On.EntityStates.Loader.BaseSwingChargedFist.OnEnter += delegate (On.EntityStates.Loader.BaseSwingChargedFist.orig_OnEnter orig, EntityStates.Loader.BaseSwingChargedFist self) {
-                if (self.isAuthority) {
-                    int 提升 = 1 + self.characterBody.inventory.GetItemCount(古代权杖_);
-                    if (提升 > 1) {
-                        if ((self is EntityStates.Loader.SwingChargedFist)) {
-                            self.maxPunchForce *= 2;
-                            self.maxLungeSpeed *= 提升;
-                        } else {
-                            self.characterBody.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, self.baseDuration);
-                            self.maxLungeSpeed *= 1 + 提升;
-                        }
+                ProjectileDamage projectileDamage = 炸弹.GetComponent<ProjectileDamage>();
+                int itemCount = projectileController.owner.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
+                List<HealthComponent> bouncedObjects = new();
+                BullseyeSearch search = new() {
+                    filterByLoS = false,
+                    maxDistanceFilter = 30 + 3 * itemCount,
+                    searchDirection = Vector3.zero,
+                    searchOrigin = impactInfo.estimatedPointOfImpact,
+                    sortMode = BullseyeSearch.SortMode.Distance,
+                    teamMaskFilter = TeamMask.allButNeutral,
+                };
+                search.teamMaskFilter.RemoveTeam(projectileController.teamFilter.teamIndex);
+                for (int i = 0 - itemCount; i < 3; ++i) {
+                    LightningOrb lightningOrb = new() {
+                        attacker = projectileController.owner.gameObject,
+                        bouncedObjects = new List<HealthComponent>(),
+                        bouncesRemaining = 0,
+                        damageColorIndex = DamageColorIndex.Default,
+                        damageType = projectileDamage.damageType,
+                        damageValue = projectileDamage.damage * (0.4f * (1 + itemCount)),
+                        isCrit = projectileDamage.crit,
+                        lightningType = LightningOrb.LightningType.MageLightning,
+                        origin = search.searchOrigin,
+                        procChainMask = default,
+                        procCoefficient = 0.3f,
+                        range = search.maxDistanceFilter,
+                        teamIndex = projectileController.teamFilter.teamIndex
+                    };
+                    search.RefreshCandidates();
+                    HurtBox hurtBox = (from v in search.GetResults() where !bouncedObjects.Contains(v.healthComponent) select v).FirstOrDefault<HurtBox>();
+                    if (hurtBox) {
+                        bouncedObjects.Add(hurtBox.healthComponent);
+                        lightningOrb.target = hurtBox;
+                        OrbManager.instance.AddOrb(lightningOrb);
                     }
                 }
-                orig(self);
-            };
+            }
+
+            public static void 冰冻炸弹(ProjectileImpactActionCaller 冰冻, ProjectileImpactInfo impactInfo) {
+                ProjectileController projectileController = 冰冻.GetComponent<ProjectileController>();
+                if (projectileController.owner == null) {
+                    return;
+                }
+                ProjectileDamage projectileDamage = 冰冻.GetComponent<ProjectileDamage>();
+                int explosionRadius = 10 + projectileController.owner.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.IceRing.itemIndex);
+                if (projectileDamage.crit) {
+                    explosionRadius *= 2;
+                }
+                GameObject iceExplosion = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/GenericDelayBlast"), impactInfo.estimatedPointOfImpact, Quaternion.identity);
+                iceExplosion.transform.localScale = new Vector3(explosionRadius, explosionRadius, explosionRadius);
+                DelayBlast delayBlast = iceExplosion.GetComponent<DelayBlast>();
+                if (delayBlast) {
+                    delayBlast.position = impactInfo.estimatedPointOfImpact;
+                    delayBlast.baseDamage = projectileDamage.damage;
+                    delayBlast.baseForce = projectileDamage.force;
+                    delayBlast.attacker = projectileController.owner.gameObject;
+                    delayBlast.radius = explosionRadius;
+                    delayBlast.crit = projectileDamage.crit;
+                    delayBlast.procCoefficient = 0.5f;
+                    delayBlast.maxTimer = 2f;
+                    delayBlast.falloffModel = BlastAttack.FalloffModel.None;
+                    delayBlast.explosionEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
+                    delayBlast.delayEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/AffixWhiteDelayEffect");
+                    delayBlast.damageType = DamageType.Freeze2s;
+                    TeamFilter teamFilter = iceExplosion.GetComponent<TeamFilter>();
+                    if (teamFilter) {
+                        teamFilter.teamIndex = projectileController.teamFilter.teamIndex;
+                    }
+                }
+            }
+
+            public static void 闪电链(ProjectileImpactActionCaller 闪电链, ProjectileImpactInfo impactInfo) {
+                ProjectileController projectileController = 闪电链.GetComponent<ProjectileController>();
+                ProjectileDamage projectileDamage = 闪电链.GetComponent<ProjectileDamage>();
+                LightningOrb lightningOrb = new() {
+                    attacker = projectileController.owner?.gameObject,
+                    bouncedObjects = new List<HealthComponent>(),
+                    bouncesRemaining = 30,
+                    damageColorIndex = DamageColorIndex.Default,
+                    damageType = projectileDamage.damageType,
+                    damageValue = projectileDamage.damage,
+                    isCrit = projectileDamage.crit,
+                    lightningType = LightningOrb.LightningType.Ukulele,
+                    origin = impactInfo.estimatedPointOfImpact,
+                    procChainMask = default,
+                    procCoefficient = 1f,
+                    range = 30,
+                    teamIndex = projectileController.teamFilter.teamIndex
+                };
+                lightningOrb.procChainMask.AddProc(ProcType.ChainLightning);
+                HurtBox hurtBox = lightningOrb.PickNextTarget(impactInfo.estimatedPointOfImpact);
+                if (hurtBox) {
+                    lightningOrb.target = hurtBox;
+                    OrbManager.instance.AddOrb(lightningOrb);
+                }
+            }
         }
     }
 }

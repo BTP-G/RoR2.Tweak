@@ -8,6 +8,7 @@ using System;
 using UnityEngine.Networking;
 using UnityEngine;
 using RoR2.Artifacts;
+using BtpTweak.Utils;
 
 namespace BtpTweak {
 
@@ -21,6 +22,7 @@ namespace BtpTweak {
             IL.RoR2.CharacterBody.OnInventoryChanged += IL_CharacterBody_OnInventoryChanged;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;
             IL.RoR2.GlobalEventManager.ProcIgniteOnKill += IL_GlobalEventManager_ProcIgniteOnKill;
+            IL.RoR2.GlobalEventManager.OnHitEnemy += IL_GlobalEventManager_OnHitEnemy;
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
             GlobalEventManager.onTeamLevelUp += GlobalEventManager_onTeamLevelUp;
             On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
@@ -31,6 +33,7 @@ namespace BtpTweak {
             IL.RoR2.CharacterBody.OnInventoryChanged -= IL_CharacterBody_OnInventoryChanged;
             IL.RoR2.GlobalEventManager.OnCharacterDeath -= IL_GlobalEventManager_OnCharacterDeath;
             IL.RoR2.GlobalEventManager.ProcIgniteOnKill -= IL_GlobalEventManager_ProcIgniteOnKill;
+            IL.RoR2.GlobalEventManager.OnHitEnemy -= IL_GlobalEventManager_OnHitEnemy;
             GlobalEventManager.onCharacterDeathGlobal -= GlobalEventManager_onCharacterDeathGlobal;
             GlobalEventManager.onTeamLevelUp -= GlobalEventManager_onTeamLevelUp;
             On.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
@@ -66,13 +69,13 @@ namespace BtpTweak {
                 ilcursor.Emit(OpCodes.Ldloc, 15);
                 ilcursor.Emit(OpCodes.Ldloc, 17);
                 ilcursor.Emit(OpCodes.Ldloc, 6);
-                ilcursor.Emit(OpCodes.Ldloc, 43);
-                ilcursor.EmitDelegate(delegate (CharacterBody attackerBody, Inventory inventory, Vector3 pos, int itemCount5) {
-                    if (inventory.infusionBonus < Convert.ToUInt64(attackerBody.level * attackerBody.levelMaxHealth * itemCount5)) {
+                ilcursor.EmitDelegate(delegate (CharacterBody attackerBody, Inventory inventory, Vector3 pos) {
+                    int itemCountAll = Util.GetItemCountForTeam(attackerBody.teamComponent.teamIndex, RoR2Content.Items.Infusion.itemIndex, true);
+                    if (inventory.infusionBonus < Convert.ToUInt64(attackerBody.level * attackerBody.levelMaxHealth * itemCountAll)) {
                         InfusionOrb infusionOrb = new() {
                             origin = pos,
                             target = attackerBody.mainHurtBox,
-                            maxHpValue = itemCount5
+                            maxHpValue = itemCountAll
                         };
                         OrbManager.instance.AddOrb(infusionOrb);
                     }
@@ -80,11 +83,11 @@ namespace BtpTweak {
                         foreach (TeamComponent teamMember in TeamComponent.GetTeamMembers(attackerBody.teamComponent.teamIndex)) {
                             CharacterBody body = teamMember.body;
                             if (body.isPlayerControlled) {
-                                if (body.inventory.infusionBonus < Convert.ToUInt64(body.level * body.levelMaxHealth * itemCount5)) {
+                                if (body.inventory.infusionBonus < Convert.ToUInt64(body.level * body.levelMaxHealth * itemCountAll)) {
                                     InfusionOrb infusionOrb = new() {
                                         origin = pos,
                                         target = body.mainHurtBox,
-                                        maxHpValue = itemCount5
+                                        maxHpValue = itemCountAll
                                     };
                                     OrbManager.instance.AddOrb(infusionOrb);
                                 }
@@ -139,6 +142,33 @@ namespace BtpTweak {
             }
         }
 
+        private static void IL_GlobalEventManager_OnHitEnemy(ILContext il) {
+            ILCursor ilcursor = new(il);
+            Func<Instruction, bool>[] array = new Func<Instruction, bool>[3];
+            array[0] = (Instruction x) => ILPatternMatchingExt.MatchLdcI4(x, 8);
+            array[1] = (Instruction x) => ILPatternMatchingExt.MatchCall<DotController>(x, "GetDotDef");
+            array[2] = (Instruction x) => ILPatternMatchingExt.MatchStloc(x, 26);
+            if (ilcursor.TryGotoNext(array)) {
+                ilcursor.RemoveRange(12);
+                ilcursor.Emit(OpCodes.Ldarg_1);
+                ilcursor.Emit(OpCodes.Ldarg_2);
+                ilcursor.Emit(OpCodes.Ldloc, 1);
+                ilcursor.EmitDelegate(delegate (DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) {
+                    DotController.DotIndex dotIndex = DotController.DotIndex.Fracture;
+                    DotController.DotDef dotDef = DotController.GetDotDef(dotIndex);
+                    float damageMultiplier = damageInfo.damage * (attackerBody.HasBuff(DLC1Content.Buffs.EliteVoid.buffIndex) ? 0.3f : 0.15f);
+                    if (damageInfo.crit) {
+                        damageMultiplier *= attackerBody.critMultiplier;
+                    }
+                    float num = attackerBody.damage * (dotDef.damageCoefficient / dotDef.interval);
+                    float num2 = damageMultiplier / dotDef.interval;
+                    DotController.InflictDot(victim, attackerBody.gameObject, dotIndex, dotDef.interval, num2 / num, null);
+                });
+            } else {
+                Main.logger_.LogError("FractureOnHit Hook Error");
+            }
+        }
+
         private static void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {
             if (NetworkServer.active) {  //=== 灭绝之歌
                 if (damageReport.victimBody.HasBuff(AncientScepter.AncientScepterMain.perishSongDebuff.buffIndex)) {
@@ -148,7 +178,7 @@ namespace BtpTweak {
                             teamMember.body.healthComponent.Suicide(damageReport.attacker);
                             if (Util.CheckRoll(1, damageReport.attackerMaster)) {
                                 PickupIndex pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableLunarItemDropList);
-                                PickupDropletController.CreatePickupDroplet(pickupIndex, teamMember.transform.position, 3 * Vector3.up);
+                                PickupDropletController.CreatePickupDroplet(pickupIndex, teamMember.transform.position, 30 * Vector3.up);
                             }
                         }
                     }
@@ -174,8 +204,12 @@ namespace BtpTweak {
         }
 
         private static void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
+            if (victim.GetComponent<CharacterBody>()?.master == null) {
+                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = false;
+            }
             orig(self, damageInfo, victim);
             if (NetworkServer.active) {
+                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = true;
                 CharacterBody victimBody = victim.GetComponent<CharacterBody>();
                 if (victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[1].buffIndex) > 5 * victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[0].buffIndex)) {
                     DotController.InflictDot(victim, damageInfo.attacker, DeepRot.deepRotDOT, 20f + 10f * damageInfo.attacker.GetComponent<CharacterBody>().inventory.GetItemCount(SkillHook.古代权杖_));
@@ -190,7 +224,7 @@ namespace BtpTweak {
             if (damageReport.attackerTeamIndex == damageReport.victimTeamIndex && damageReport.victimMaster.minionOwnership.ownerMaster) {
                 return;
             }
-            float expAdjustedDropChancePercent = Util.GetExpAdjustedDropChancePercent(5 + 牺牲保底概率_, damageReport.victim.gameObject);
+            float expAdjustedDropChancePercent = ModConfig.测试用_.Value ? Helpers.GetExpAdjustedDropChancePercent(5 + 牺牲保底概率_, damageReport.victim.gameObject) : Util.GetExpAdjustedDropChancePercent(5 + 牺牲保底概率_, damageReport.victim.gameObject);
             牺牲保底概率_ += 1f;
             Debug.LogFormat("Drop chance from {0} == {1}", damageReport.victimBody, expAdjustedDropChancePercent);
             if (Util.CheckRoll(expAdjustedDropChancePercent, 0f, null)) {

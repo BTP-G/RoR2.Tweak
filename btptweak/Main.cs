@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using RoR2;
 
 namespace BtpTweak {
 
@@ -10,7 +11,6 @@ namespace BtpTweak {
     [BepInDependency("com.Skell.GoldenCoastPlus")]
     [BepInDependency(ConfigurableDifficulty.ConfigurableDifficultyPlugin.PluginGUID)]
     [BepInDependency(HIFUArtificerTweaks.Main.PluginGUID)]
-    [BepInDependency(HIFUCaptainTweaks.Main.PluginGUID)]
     [BepInDependency(HIFUCommandoTweaks.Main.PluginGUID)]
     [BepInDependency(HIFUEngineerTweaks.Main.PluginGUID)]
     [BepInDependency(HIFUHuntressTweaks.Main.PluginGUID)]

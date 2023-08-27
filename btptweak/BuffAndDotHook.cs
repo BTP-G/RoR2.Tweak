@@ -1,46 +1,58 @@
 ﻿using PlasmaCoreSpikestripContent.Content.Skills;
-using static RoR2.DotController;
 using UnityEngine;
 using RoR2;
+using static RoR2.DotController;
 using System.Collections.Generic;
+using GrooveSaladSpikestripContent.Content;
 
 namespace BtpTweak {
 
     internal class BuffAndDotHook {
+        public static Dictionary<BuffIndex, BuffName> BuffIndexToName_ = new();
         public static BodyIndex 工匠_;
-        public static Dictionary<BuffIndex, int> buff_caseLoc_ = new();
+
+        public enum BuffName {
+            None = 0,
+            Immune,
+            Nullified,
+            damageReductionBuff,
+        }
 
         public static void AddHook() {
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
             On.RoR2.DotController.AddDot += DotController_AddDot;
-            DotController.onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
+            onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
         }
 
         public static void RemoveHook() {
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float -= CharacterBody_AddTimedBuff_BuffDef_float;
             On.RoR2.DotController.AddDot -= DotController_AddDot;
-            DotController.onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
+            onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
         }
 
         public static void LateInit() {
-            dotDefs[(int)DotIndex.Bleed].damageCoefficient *= 0.5f;
-            buff_caseLoc_.Add(RoR2Content.Buffs.Immune.buffIndex, 1);
-            buff_caseLoc_.Add(RoR2Content.Buffs.Nullified.buffIndex, 2);
+            BuffIndexToName_.Add(RoR2Content.Buffs.Immune.buffIndex, BuffName.Immune);
+            BuffIndexToName_.Add(RoR2Content.Buffs.Nullified.buffIndex, BuffName.Nullified);
+            BuffIndexToName_.Add(PlatedElite.damageReductionBuff.buffIndex, BuffName.damageReductionBuff);
+            GetDotDef(DotIndex.Bleed).damageCoefficient *= 0.5f;
         }
 
         private static void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {
-            if (buff_caseLoc_.TryGetValue(buffDef.buffIndex, out int loc)) {
-                switch (loc) {
-                    case 1: {
+            if (BuffIndexToName_.TryGetValue(buffDef.buffIndex, out BuffName buffName)) {
+                switch (buffName) {
+                    case BuffName.Immune:
                         buffDef = RoR2Content.Buffs.HiddenInvincibility;
                         break;
-                    }
-                    case 2: {
-                        if (self.bodyIndex == HealthHook.虚灵_) {
+
+                    case BuffName.Nullified:
+                        if (self.teamComponent.teamIndex == TeamIndex.Void) {
                             return;
                         }
                         break;
-                    }
+
+                    case BuffName.damageReductionBuff:
+                        duration *= Mathf.Pow(0.5f, 1 + self.GetBuffCount(buffDef.buffIndex));
+                        break;
                 }
             }
             orig(self, buffDef, duration);
@@ -63,8 +75,7 @@ namespace BtpTweak {
                 if (victimBody.GetBuffCount(RoR2Content.Buffs.Bleeding.buffIndex) == 1000) {
                     inflictDotInfo.dotIndex = DotIndex.SuperBleed;
                     inflictDotInfo.totalDamage = 0.1f * dotController.victimHealthComponent.fullHealth;
-                    inflictDotInfo.damageMultiplier = 10 * (1 + victimBody.GetBuffCount(RoR2Content.Buffs.SuperBleed.buffIndex));
-                    dotController.dotTimers[(int)DotIndex.Bleed] = 0;
+                    inflictDotInfo.damageMultiplier *= 100 * (1 + victimBody.GetBuffCount(RoR2Content.Buffs.SuperBleed.buffIndex));
                     for (int i = dotController.dotStackList.Count - 1; i >= 0; --i) {
                         if (dotController.dotStackList[i].dotIndex == DotIndex.Bleed) {
                             dotController.RemoveDotStackAtServer(i);

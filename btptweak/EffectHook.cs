@@ -6,18 +6,22 @@ using UnityEngine;
 namespace BtpTweak {
 
     public class EffectHook {
-        public static float 暴击_timer_ = 0;
-        public static float 共生蝎_timer_ = 0;
-        public static float 聚合鲁特琴_timer_ = 0;
-        public static float 熔融钻机_timer_ = 0;
-        public static float 完美巨兽_timer_ = 0;
-        public static float 异教徒生成_timer_ = 0;
-        public static float 雷电球_timer_ = 0;
-        public static float 剃刀_timer_ = 0;
-        public static float 黏弹_timer_ = 0;
-        public static float 等离子虾_timer_ = 0;
-
-        public static Dictionary<EffectIndex, int> effect_caseLoc_ = new();
+        public static Dictionary<EffectIndex, int> EffectIndexToCaseIndex_ = new();
+        private static float 暴击_timer_;
+        private static float 等离子虾_timer_;
+        private static float 共生蝎_timer_;
+        private static float 金钱_timer_;
+        private static float 聚合鲁特琴_timer_;
+        private static float 雷电球_timer_;
+        private static float 黏弹_timer_;
+        private static float 凝神水晶_timer_;
+        private static float 撬棍_timer_;
+        private static float 熔融钻机_timer_;
+        private static float 剃刀_timer_;
+        private static float 完美巨兽_timer_;
+        private static float 幸运草_timer_;
+        private static float 异教徒生成_timer_;
+        private static float 硬币_timer_;
 
         public static void AddHook() {
             On.RoR2.EffectManager.SpawnEffect_GameObject_EffectData_bool += EffectManager_SpawnEffect_GameObject_EffectData_bool;
@@ -32,32 +36,49 @@ namespace BtpTweak {
                 string name = entry.prefabName;
                 if (name.StartsWith("Crits")) {
                     if (name == "Critspark") {
-                        effect_caseLoc_.Add(entry.index, 1);
+                        EffectIndexToCaseIndex_.Add(entry.index, 1);
                     } else if (name == "CritsparkHeavy") {
-                        effect_caseLoc_.Add(entry.index, 1);
+                        EffectIndexToCaseIndex_.Add(entry.index, 1);
                     }
                 } else if (name.StartsWith("FireM")) {
-                    effect_caseLoc_.Add(entry.index, 2);
+                    EffectIndexToCaseIndex_.Add(entry.index, 2);
                 } else if (name.StartsWith("Here")) {
-                    effect_caseLoc_.Add(entry.index, 3);
+                    EffectIndexToCaseIndex_.Add(entry.index, 3);
                 } else if (name.StartsWith("Perma")) {
-                    effect_caseLoc_.Add(entry.index, 4);
+                    EffectIndexToCaseIndex_.Add(entry.index, 4);
                 } else if (name.StartsWith("VoidL")) {
                     if (name == "VoidLightningOrbEffect") {
-                        effect_caseLoc_.Add(entry.index, 5);
+                        EffectIndexToCaseIndex_.Add(entry.index, 5);
                     } else if (name == "VoidLightningStrikeImpact") {
-                        effect_caseLoc_.Add(entry.index, 5);
+                        EffectIndexToCaseIndex_.Add(entry.index, 5);
                     }
                 } else if (name.EndsWith("XQuick")) {
-                    effect_caseLoc_.Add(entry.index, 6);
+                    EffectIndexToCaseIndex_.Add(entry.index, 6);
                 } else if (name == "LightningStakeNova") {
-                    effect_caseLoc_.Add(entry.index, 7);
+                    EffectIndexToCaseIndex_.Add(entry.index, 7);
                 } else if (name == "RazorwireOrbEffect" || name == "AffixWhiteImpactEffect") {
-                    effect_caseLoc_.Add(entry.index, 8);
+                    EffectIndexToCaseIndex_.Add(entry.index, 8);
                 } else if (name == "BehemothVFX") {
-                    effect_caseLoc_.Add(entry.index, 9);
-                } else if (name == "VoidImpactEffect") {
-                    effect_caseLoc_.Add(entry.index, 10);
+                    EffectIndexToCaseIndex_.Add(entry.index, 9);
+                } else if (name == "VoidImpactEffect" || name == "MissileVoidOrbEffect") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 10);
+                } else if (name == "ImpactCrowbar") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 11);
+                } else if (name == "DiamondDamageBonusEffect") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 12);
+                } else if (name == "GoldOrbEffect") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 13);
+                } else if (name == "CoinImpact") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 14);
+                } else if (name == "CloverEffect") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 15);
+                } else if (name == "CleanseEffect") {
+                    EffectIndexToCaseIndex_.Add(entry.index, 16);
+                }
+            }
+            for (int i = 0; i < GrooveSaladSpikestripContent.SpikestripVisuals.temporaryVFXCollection.Count; ++i) {
+                if (GrooveSaladSpikestripContent.SpikestripVisuals.temporaryVFXCollection[i].tempEffectPrefab.name == "VoidFogMildEffect") {
+                    GrooveSaladSpikestripContent.SpikestripVisuals.temporaryVFXCollection.RemoveAt(i--);
                 }
             }
         }
@@ -65,7 +86,7 @@ namespace BtpTweak {
         private static void EffectManager_SpawnEffect_GameObject_EffectData_bool(On.RoR2.EffectManager.orig_SpawnEffect_GameObject_EffectData_bool orig, GameObject effectPrefab, EffectData effectData, bool transmit) {
             EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(effectPrefab);
             if (effectIndex != EffectIndex.Invalid) {
-                if (effect_caseLoc_.TryGetValue(effectIndex, out int loc))
+                if (EffectIndexToCaseIndex_.TryGetValue(effectIndex, out int loc)) {
                     switch (loc) {
                         case 1: {  // 暴击
                             if ((Time.fixedTime - 暴击_timer_) < 0.1f) {
@@ -140,14 +161,58 @@ namespace BtpTweak {
                             break;
                         }
                         case 10: {  // 等离子虾
-                            if ((Time.fixedTime - 等离子虾_timer_) < 0.05f) {
+                            if ((Time.fixedTime - 等离子虾_timer_) < 0.02f) {
                                 return;
                             } else {
                                 等离子虾_timer_ = Time.fixedTime;
                             }
                             break;
                         }
+                        case 11: {  // 撬棍
+                            if ((Time.fixedTime - 撬棍_timer_) < 0.1f) {
+                                return;
+                            } else {
+                                撬棍_timer_ = Time.fixedTime;
+                            }
+                            break;
+                        }
+                        case 12: {  //
+                            if ((Time.fixedTime - 凝神水晶_timer_) < 0.1f) {
+                                return;
+                            } else {
+                                凝神水晶_timer_ = Time.fixedTime;
+                            }
+                            break;
+                        }
+                        case 13: {  //
+                            if ((Time.fixedTime - 金钱_timer_) < 0.02f) {
+                                return;
+                            } else {
+                                金钱_timer_ = Time.fixedTime;
+                            }
+                            break;
+                        }
+                        case 14: {  //
+                            if ((Time.fixedTime - 硬币_timer_) < 0.02f) {
+                                return;
+                            } else {
+                                硬币_timer_ = Time.fixedTime;
+                            }
+                            break;
+                        }
+                        case 15: {  //
+                            if ((Time.fixedTime - 幸运草_timer_) < 0.1f) {
+                                return;
+                            } else {
+                                幸运草_timer_ = Time.fixedTime;
+                            }
+                            break;
+                        }
+                        case 16: {
+                            return;
+                        }
                     }
+                }
                 EffectManager.SpawnEffect(effectIndex, effectData, transmit);
                 return;
             }

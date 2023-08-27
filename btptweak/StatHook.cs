@@ -1,75 +1,101 @@
-﻿using RoR2;
+﻿using BtpTweak.Utils;
+using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace BtpTweak {
 
     internal class StatHook {
-        public static Dictionary<BodyIndex, int> body_caseLoc_ = new();
-
+        public static Dictionary<BodyIndex, BodyName> BodyIndexToName_ = new();
         public static ItemIndex 穿甲弹_;
+        public static ItemIndex 刽子手的重负_;
         public static ItemIndex 护甲板_;
         public static ItemIndex 黄金隆起_;
+        public static ItemIndex 黄晶胸针_;
         public static ItemIndex 巨型隆起_;
         public static ItemIndex 摩卡_;
         public static ItemIndex 燃料电池_;
         public static ItemIndex 肉排_;
-        public static ItemIndex 异端幻象_;
+        public static ItemIndex 特拉法梅的祝福_;
         public static ItemIndex 注射器_;
+
+        public enum BodyName {
+            None,
+            Arbiter,
+            Bandit2,
+            Captain,
+            CHEF,
+            Commando,
+            Croco,
+            Engi,
+            EngiTurret,
+            EngiWalkerTurret,
+            Heretic,
+            Huntress,
+            Loader,
+            Mage,
+            Merc,
+            Pathfinder,
+            Railgunner,
+            RedMist,
+            RobPaladin,
+            SniperClassic,
+            Toolbot,
+            Treebot,
+            VoidSurvivor,
+        }
 
         public static void AddHook() {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
             On.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
+            On.RoR2.EquipmentSlot.FixedUpdate += EquipmentSlot_FixedUpdate;
         }
 
         public static void RemoveHook() {
             R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
             On.RoR2.CharacterBody.RecalculateStats -= CharacterBody_RecalculateStats;
+            On.RoR2.EquipmentSlot.FixedUpdate -= EquipmentSlot_FixedUpdate;
         }
 
         public static void LateInit() {
-            CharacterBody huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();  // 女猎人调整
-            huntressBody.baseDamage = 15;
-            huntressBody.levelDamage = huntressBody.baseDamage * 0.2f;
-            huntressBody.baseCrit = 10;
-            huntressBody.levelCrit = 1;
-            //======
             穿甲弹_ = RoR2Content.Items.BossDamageBonus.itemIndex;
+            刽子手的重负_ = vanillaVoid.Items.ExeBlade.instance.ItemDef.itemIndex;
             护甲板_ = RoR2Content.Items.ArmorPlate.itemIndex;
             黄金隆起_ = GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef.itemIndex;
+            黄晶胸针_ = RoR2Content.Items.BarrierOnKill.itemIndex;
             巨型隆起_ = RoR2Content.Items.Knurl.itemIndex;
             摩卡_ = DLC1Content.Items.AttackSpeedAndMoveSpeed.itemIndex;
             燃料电池_ = RoR2Content.Items.EquipmentMagazine.itemIndex;
             肉排_ = RoR2Content.Items.FlatHealth.itemIndex;
-            异端幻象_ = RoR2Content.Items.LunarPrimaryReplacement.itemIndex;
+            特拉法梅的祝福_ = LegacyResourcesAPI.Load<ItemDef>("ItemDefs/LunarWings").itemIndex;
             注射器_ = RoR2Content.Items.Syringe.itemIndex;
             BuffAndDotHook.工匠_ = BodyCatalog.FindBodyIndex("MageBody");
             GlobalEventHook.工程师固定炮台_ = BodyCatalog.FindBodyIndex("EngiTurretBody");
             GlobalEventHook.工程师移动炮台_ = BodyCatalog.FindBodyIndex("EngiWalkerTurretBody");
             GlobalEventHook.雇佣兵_ = BodyCatalog.FindBodyIndex("MercBody");
-            //======
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("ArbiterBody"), 1);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("Bandit2Body"), 2);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CaptainBody"), 3);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CHEF"), 4);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CommandoBody"), 5);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("CrocoBody"), 6);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("EngiBody"), 7);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("HuntressBody"), 8);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("LoaderBody"), 9);
-            body_caseLoc_.Add(BuffAndDotHook.工匠_, 10);
-            body_caseLoc_.Add(GlobalEventHook.雇佣兵_, 11);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("RailgunnerBody"), 12);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("RedMistBody"), 13);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("PathfinderBody"), 14);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("RobPaladinBody"), 15);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("SniperClassicBody"), 16);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("ToolbotBody"), 17);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("TreebotBody"), 18);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("VoidSurvivorBody"), 19);
-            body_caseLoc_.Add(BodyCatalog.FindBodyIndex("HereticBody"), 20);
-            body_caseLoc_.Add(GlobalEventHook.工程师固定炮台_, 21);
-            body_caseLoc_.Add(GlobalEventHook.工程师移动炮台_, 21);
+            SkillHook.Heretic = BodyCatalog.FindBodyIndex("HereticBody");
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("ArbiterBody"), BodyName.Arbiter);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("Bandit2Body"), BodyName.Bandit2);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("CaptainBody"), BodyName.Captain);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("CHEF"), BodyName.CHEF);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("CommandoBody"), BodyName.Commando);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("CrocoBody"), BodyName.Croco);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("EngiBody"), BodyName.Engi);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("HuntressBody"), BodyName.Huntress);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("LoaderBody"), BodyName.Loader);
+            BodyIndexToName_.Add(BuffAndDotHook.工匠_, BodyName.Mage);
+            BodyIndexToName_.Add(GlobalEventHook.雇佣兵_, BodyName.Merc);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("RailgunnerBody"), BodyName.Railgunner);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("RedMistBody"), BodyName.RedMist);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("PathfinderBody"), BodyName.Pathfinder);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("RobPaladinBody"), BodyName.RobPaladin);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("SniperClassicBody"), BodyName.SniperClassic);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("ToolbotBody"), BodyName.Toolbot);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("TreebotBody"), BodyName.Treebot);
+            BodyIndexToName_.Add(BodyCatalog.FindBodyIndex("VoidSurvivorBody"), BodyName.VoidSurvivor);
+            BodyIndexToName_.Add(SkillHook.Heretic, BodyName.Heretic);
+            BodyIndexToName_.Add(GlobalEventHook.工程师固定炮台_, BodyName.EngiTurret);
+            BodyIndexToName_.Add(GlobalEventHook.工程师移动炮台_, BodyName.EngiWalkerTurret);
         }
 
         private static void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
@@ -78,26 +104,26 @@ namespace BtpTweak {
                 float upLevel = sender.level - 1;
                 int itemCount = inventory.GetItemCount(肉排_);
                 float levelMaxHealthAdd = 2.5f * itemCount;
-                if (body_caseLoc_.TryGetValue(sender.bodyIndex, out int loc)) {
+                if (BodyIndexToName_.TryGetValue(sender.bodyIndex, out BodyName loc)) {
                     switch (loc) {
-                        case 1: {  // Arbiter
-                            args.cooldownMultAdd -= upLevel / (15 + upLevel);
-                            float statUpPercent = 0.05f * inventory.GetItemCount(摩卡_);
+                        case BodyName.Arbiter: {
+                            args.cooldownMultAdd -= upLevel / (15 + upLevel); float statUpPercent = 0.05f * inventory.GetItemCount(摩卡_);
                             args.healthMultAdd += statUpPercent;
                             args.regenMultAdd += statUpPercent;
                             break;
                         }
-                        case 2: {  // Bandit2
+                        case BodyName.Bandit2: { break; }
+                        case BodyName.Captain: {
+                            itemCount = inventory.GetItemCount(黄晶胸针_);
+                            args.baseShieldAdd += 15 * itemCount;
+                            args.shieldMultAdd += 0.25f * itemCount;
                             break;
                         }
-                        case 3: {  // Captain
-                            break;
-                        }
-                        case 4: {  // CHEF
+                        case BodyName.CHEF: {
                             levelMaxHealthAdd *= 2;
                             break;
                         }
-                        case 5: {  // Commando
+                        case BodyName.Commando: {
                             float statUpPercent = 0.03f * inventory.GetItemCount(注射器_);
                             args.attackSpeedMultAdd += statUpPercent;
                             args.healthMultAdd += statUpPercent;
@@ -105,69 +131,62 @@ namespace BtpTweak {
                             args.baseDamageAdd += 2 * inventory.GetItemCount(穿甲弹_);
                             break;
                         }
-                        case 6: {  // Croco
-                            break;
-                        }
-                        case 7: {  // Engi
+                        case BodyName.Croco: { break; }
+                        case BodyName.Engi: {
                             args.armorAdd += 10 * inventory.GetItemCount(护甲板_);
                             break;
                         }
-                        case 8: {  // Huntress
-                            break;
-                        }
-                        case 9: {  // Loader
-                            break;
-                        }
-                        case 10: {  // Mage
-                            break;
-                        }
-                        case 11: {  // Merc
-                            break;
-                        }
-                        case 12: {  // Pathfinder
-                            break;
-                        }
-                        case 13: {  // Railgunner
-                            break;
-                        }
-                        case 14: {  // RedMist
-                            break;
-                        }
-                        case 15: {  // RobPaladin
-                            break;
-                        }
-                        case 16: {  // SniperClassic
-                            break;
-                        }
-                        case 17: {  // Toolbot
-                            break;
-                        }
-                        case 18: {  // Treebot
-                            args.cooldownMultAdd += Mathf.Pow(0.9f, inventory.GetItemCount(燃料电池_)) - 1f;
-                            break;
-                        }
-                        case 19: {  // VoidSurvivor
-                            break;
-                        }
-                        case 20: {  // Heretic
-                            args.primaryCooldownMultAdd -= inventory.GetItemCount(RoR2Content.Items.LunarPrimaryReplacement.itemIndex);
-                            break;
-                        }
-                        case 21: {  // EngiTurretBody & EngiWalkerTurretBody
+                        case BodyName.EngiTurret: {
                             float statUpPercent = 0.25f * inventory.GetItemCount(SkillHook.古代权杖_);
                             args.attackSpeedMultAdd += statUpPercent;
                             args.damageMultAdd += statUpPercent;
                             break;
                         }
+                        case BodyName.EngiWalkerTurret: {
+                            float statUpPercent = 0.25f * inventory.GetItemCount(SkillHook.古代权杖_);
+                            args.attackSpeedMultAdd += statUpPercent;
+                            args.damageMultAdd += statUpPercent;
+                            break;
+                        }
+                        case BodyName.Heretic: {
+                            args.cooldownReductionAdd += 2 * inventory.GetItemCount(RoR2Content.Items.LunarPrimaryReplacement.itemIndex);
+                            args.attackSpeedMultAdd += inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
+                            args.moveSpeedMultAdd += inventory.GetItemCount(RoR2Content.Items.LunarUtilityReplacement.itemIndex);
+                            args.healthMultAdd += inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
+                            break;
+                        }
+                        case BodyName.Huntress: { break; }
+                        case BodyName.Loader: { break; }
+                        case BodyName.Mage: { break; }
+                        case BodyName.Merc: { break; }
+                        case BodyName.Pathfinder: { break; }
+                        case BodyName.Railgunner: { break; }
+                        case BodyName.RedMist: { break; }
+                        case BodyName.RobPaladin: {
+                            args.baseDamageAdd += 3 * inventory.GetItemCount(刽子手的重负_);
+                            break;
+                        }
+                        case BodyName.SniperClassic: { break; }
+                        case BodyName.Toolbot: { break; }
+                        case BodyName.Treebot: {
+                            args.cooldownMultAdd += Mathf.Pow(0.9f, inventory.GetItemCount(燃料电池_)) - 1f;
+                            break;
+                        }
+                        case BodyName.VoidSurvivor: { break; }
                     }
                 }
                 itemCount = inventory.GetItemCount(巨型隆起_);
                 levelMaxHealthAdd += 0.25f * (sender.levelMaxHealth + levelMaxHealthAdd) * itemCount;
                 args.baseHealthAdd += levelMaxHealthAdd * upLevel;
-                args.regenMultAdd += 0.25f * itemCount;
                 itemCount = inventory.GetItemCount(黄金隆起_);
                 if (itemCount > 0 && sender.master) {
-                    args.baseRegenAdd += (itemCount + sender.master.money / 100000000) * 0.01f * sender.maxHealth;
+                    args.regenMultAdd += 0.5f * itemCount + 0.01f * (sender.master.money / 1000000);
+                }
+                if (sender.HasBuff(RoR2Content.Buffs.AffixLunar.buffIndex)) {
+                    args.baseRegenAdd += 0.01f * (1 + inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex)) * sender.maxShield;
+                }
+                if (inventory.HasItem(特拉法梅的祝福_)) {
+                    args.moveSpeedMultAdd += 1;
                 }
             }
         }
@@ -176,6 +195,20 @@ namespace BtpTweak {
             orig(self);
             if (self.moveSpeed > 49) {
                 self.moveSpeed = 49;
+            }
+        }
+
+        private static void EquipmentSlot_FixedUpdate(On.RoR2.EquipmentSlot.orig_FixedUpdate orig, EquipmentSlot self) {
+            orig(self);
+            if (Input.GetKeyDown(KeyCode.LeftAlt) && self.inventory.HasItem(特拉法梅的祝福_)) {
+                JetpackController jetpackController = JetpackController.FindJetpackController(self.gameObject);
+                if (jetpackController) {
+                    jetpackController.stopwatch = jetpackController.duration;
+                } else {
+                    GameObject gameObject = Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/BodyAttachments/JetpackController"));
+                    gameObject.GetComponent<NetworkedBodyAttachment>().AttachToGameObjectAndSpawn(self.gameObject, null);
+                    JetpackController.FindJetpackController(self.gameObject).duration = 600f;
+                }
             }
         }
     }

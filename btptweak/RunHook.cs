@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using BtpTweak.Utils;
+using RoR2;
 using UnityEngine;
 
 namespace BtpTweak {
@@ -35,23 +36,23 @@ namespace BtpTweak {
 
         private static void Run_onRunStartGlobal(Run run) {
             往日不再_ = false;
-            Helpers.权杖技能汉化();
+            run.DisableItemDrop(SkillHook.古代权杖_);
+            Localization.权杖技能汉化();
             SkillHook.RunStartInit();
             CombatHook.LateInit();
             Main.是否选择造物难度_ = run.selectedDifficulty == ConfigurableDifficulty.ConfigurableDifficultyPlugin.configurableDifficultyIndex;
-            MiscHook.虚空潜能古代权杖掉落数_ = run.participatingPlayerCount;
             MiscHook.造物难度敌人珍珠_ = 0;
         }
 
         private static void Stage_onStageStartGlobal(Stage stage) {
             int stageCount = Run.instance.stageClearCount + 1;
             string sceneName = stage.sceneDef.cachedName;
-            CombatDirector.cvDirectorCombatEnableInternalLogs.SetBool(ModConfig.开启日志_.Value);
+            CombatDirector.cvDirectorCombatEnableInternalLogs.SetBool(ModConfig.开启战斗日志_.Value);
             CombatHook.敌人最大生成数_ = Mathf.Max(6, 25 - stageCount);
             CombatHook.精英转化几率 = 0;
             CombatHook.特殊环境精英属性_ = null;
             if (sceneName == "goldshores") {
-                CombatHook.特殊环境精英属性_ = Resources.Load<EliteDef>("elitedefs/Gold");
+                CombatHook.特殊环境精英属性_ = JunkContent.Elites.Gold;
                 CombatHook.精英转化几率 = 100;
             } else if (sceneName == "dampcavesimple") {
                 CombatHook.特殊环境精英属性_ = RoR2Content.Elites.Fire;
@@ -59,13 +60,17 @@ namespace BtpTweak {
             } else if (sceneName == "frozenwall") {
                 CombatHook.特殊环境精英属性_ = RoR2Content.Elites.Ice;
                 CombatHook.精英转化几率 = 60;
+            } else if (sceneName == "snowyforest") {
+                CombatHook.特殊环境精英属性_ = RoR2Content.Elites.Ice;
+                CombatHook.精英转化几率 = 36;
             } else if (sceneName.StartsWith("golemplains")) {
                 CombatHook.特殊环境精英属性_ = DLC1Content.Elites.Earth;
                 CombatHook.精英转化几率 = 36;
             }
             FinalBossHook.处于天文馆_ = sceneName == "voidraid";
             HealthHook.伤害阈值_ = 0.01f * stageCount;
-            MiscHook.战斗祭坛物品掉落数_ = Mathf.Min(Mathf.RoundToInt(stageCount * 0.5f), 5) * Run.instance.participatingPlayerCount;
+            MiscHook.处于虚空之境 = sceneName == "arena";
+            MiscHook.战斗祭坛物品掉落数_ = Mathf.Min(Mathf.RoundToInt(stageCount * 0.51f), 5) * Run.instance.participatingPlayerCount;
         }
     }
 }
