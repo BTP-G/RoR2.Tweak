@@ -11,6 +11,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Metadata", "Metadata", "{3A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BtpTweak", "btptweak\BtpTweak.csproj", "{6C15F36D-2A89-4220-A947-ABAD75BC584C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AncientScepter", "..\AncientScepter\AncientScepter\AncientScepter.csproj", "{1BE55DCD-2865-48B6-9267-33695E19C986}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MithrixTheAccursed", "..\ROR2mod-MithrixTheAccursed\MithrixTheAccursed\MithrixTheAccursed.csproj", "{BD5E6163-E5FC-40B1-BFAF-E2FBFA447C46}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4671615E-2F2B-41C2-804F-52A2DB3B62BC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +30,14 @@ Global
 		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BE55DCD-2865-48B6-9267-33695E19C986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BE55DCD-2865-48B6-9267-33695E19C986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BE55DCD-2865-48B6-9267-33695E19C986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BE55DCD-2865-48B6-9267-33695E19C986}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD5E6163-E5FC-40B1-BFAF-E2FBFA447C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD5E6163-E5FC-40B1-BFAF-E2FBFA447C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD5E6163-E5FC-40B1-BFAF-E2FBFA447C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD5E6163-E5FC-40B1-BFAF-E2FBFA447C46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
