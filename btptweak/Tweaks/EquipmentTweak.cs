@@ -3,13 +3,18 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class EquipmentTweak : TweakBase {
         public readonly GameObject magmaOrbProjectile = "RoR2/Base/MagmaWorm/MagmaOrbProjectile.prefab".Load<GameObject>();
+        public int[] RecycledItemCount = new int[(int)ItemTier.AssignedAtRuntime];
+
+        private static Dictionary<string, int[]> UserNameToRecycledItemCount = new();
 
         public override void AddHooks() {
             base.AddHooks();
@@ -18,8 +23,39 @@ namespace BtpTweak.Tweaks {
             GoldGatFireHook();
             LightningHook();
             AspectGoldHook();
+            RecycleHook();
         }
 
+        public override void Load() {
+            base.Load();
+            var sawmerang = "RoR2/Base/Saw/Sawmerang.prefab".Load<GameObject>();
+            var boomerangProjectile = sawmerang.GetComponent<BoomerangProjectile>();
+            boomerangProjectile.transitionDuration *= 3f;
+            boomerangProjectile.travelSpeed = 36;
+            FireballVehicle fireballVehicle = "RoR2/Base/FireBallDash/FireballVehicle.prefab".LoadComponent<FireballVehicle>();
+            fireballVehicle.duration = 6;
+            fireballVehicle.overlapResetFrequency = 3f;
+            EntityStates.GoldGat.GoldGatFire.maxFireFrequency *= 2;
+            GameObject beamSphere = "RoR2/Base/BFG/BeamSphere.prefab".Load<GameObject>();
+            ProjectileProximityBeamController proximityBeamController = beamSphere.GetComponent<ProjectileProximityBeamController>();
+            proximityBeamController.attackRange = 66.6f;
+            proximityBeamController.damageCoefficient = 6.66f;
+            ProjectileImpactExplosion projectileImpactExplosion = beamSphere.GetComponent<ProjectileImpactExplosion>();
+            projectileImpactExplosion.blastDamageCoefficient = 66.6f;
+            projectileImpactExplosion.lifetime = 66.6f;
+            ProjectileSimple projectileSimple = beamSphere.GetComponent<ProjectileSimple>();
+            projectileSimple.desiredForwardSpeed = 10f;
+            projectileSimple.lifetime = 66.6f;
+            RoR2Content.Equipment.Saw.cooldown = 20f;
+            RoR2Content.Equipment.Recycle.cooldown = 0.5f;
+        }
+
+        public override void RunStartAction(Run run) {
+            base.RunStartAction(run);
+            for (int i = 0; i < RecycledItemCount.Length; ++i) {
+                RecycledItemCount[i] = 0;
+            }
+        }
         private void AspectGoldHook() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += delegate (ILContext il) {
                 ILCursor iLCursor = new(il);
@@ -38,27 +74,6 @@ namespace BtpTweak.Tweaks {
                     Main.logger_.LogError("AspectGold Hook Failed!");
                 }
             };
-        }
-
-        public override void Load() {
-            var sawmerang = "RoR2/Base/Saw/Sawmerang.prefab".Load<GameObject>();
-            var boomerangProjectile = sawmerang.GetComponent<BoomerangProjectile>();
-            boomerangProjectile.transitionDuration *= 3f;
-            boomerangProjectile.travelSpeed = 36;
-            FireballVehicle fireballVehicle = "RoR2/Base/FireBallDash/FireballVehicle.prefab".LoadComponent<FireballVehicle>();
-            fireballVehicle.duration = 6;
-            fireballVehicle.overlapResetFrequency = 1f;
-            EntityStates.GoldGat.GoldGatFire.maxFireFrequency *= 2;
-            GameObject beamSphere = "RoR2/Base/BFG/BeamSphere.prefab".Load<GameObject>();
-            ProjectileProximityBeamController proximityBeamController = beamSphere.GetComponent<ProjectileProximityBeamController>();
-            proximityBeamController.attackRange = 66.6f;
-            proximityBeamController.damageCoefficient = 6.66f;
-            ProjectileImpactExplosion projectileImpactExplosion = beamSphere.GetComponent<ProjectileImpactExplosion>();
-            projectileImpactExplosion.blastDamageCoefficient = 66.6f;
-            projectileImpactExplosion.lifetime = 66.6f;
-            ProjectileSimple projectileSimple = beamSphere.GetComponent<ProjectileSimple>();
-            projectileSimple.desiredForwardSpeed = 10f;
-            projectileSimple.lifetime = 66.6f;
         }
 
         private void FireballVehicleHook() {
@@ -147,6 +162,85 @@ namespace BtpTweak.Tweaks {
                 } else {
                     Main.logger_.LogError("FireLightning Hook Failed!");
                 }
+            };
+        }
+
+        private void RecycleHook() {
+            On.RoR2.EquipmentSlot.FireRecycle += delegate (On.RoR2.EquipmentSlot.orig_FireRecycle orig, EquipmentSlot self) {
+                //var inventory = self.inventory;
+                //if (inventory.GetItemCount(RoR2Content.Items.ScrapWhite.itemIndex) > 3) {
+                //}
+                self.UpdateTargets(RoR2Content.Equipment.Recycle.equipmentIndex, false);
+                GenericPickupController pickupController = self.currentTarget.pickupController;
+                if (!pickupController || pickupController.Recycled) {
+                    return false;
+                }
+                var itemTier = pickupController.pickupIndex.pickupDef.itemTier;
+                var pickupIndex = PickupIndex.none;
+                int pickupCount = 0;
+                switch (itemTier) {
+                    case ItemTier.Tier1:
+                        if (++RecycledItemCount[(int)itemTier] == 3) {
+                            pickupCount = 1;
+                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableTier2DropList);
+                            RecycledItemCount[(int)itemTier] = 0;
+                        }
+                        break;
+
+                    case ItemTier.Tier2:
+                        if (++RecycledItemCount[(int)itemTier] == 5) {
+                            pickupCount = 1;
+                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableTier3DropList);
+                            RecycledItemCount[(int)itemTier] = 0;
+                        }
+                        break;
+
+                    case ItemTier.Tier3:
+                        if (++RecycledItemCount[(int)itemTier] == 1) {
+                            pickupCount = 9;
+                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableTier1DropList);
+                            RecycledItemCount[(int)itemTier] = 0;
+                        }
+                        break;
+
+                    case ItemTier.VoidTier1:
+                        if (++RecycledItemCount[(int)itemTier] == 3) {
+                            pickupCount = 1;
+                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableVoidTier2DropList);
+                            RecycledItemCount[(int)itemTier] = 0;
+                        }
+                        break;
+
+                    case ItemTier.VoidTier2:
+                        if (++RecycledItemCount[(int)itemTier] == 5) {
+                            pickupCount = 1;
+                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableVoidTier3DropList);
+                            RecycledItemCount[(int)itemTier] = 0;
+                        }
+                        break;
+
+                    case ItemTier.VoidTier3:
+                        if (++RecycledItemCount[(int)itemTier] == 1) {
+                            pickupCount = 9;
+                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableVoidTier1DropList);
+                            RecycledItemCount[(int)itemTier] = 0;
+                        }
+                        break;
+
+                    default:
+                        pickupController.NetworkRecycled = true;
+                        self.InvalidateCurrentTarget();
+                        return false;
+                }
+                while (pickupCount-- > 0) {
+                    PickupDropletController.CreatePickupDroplet(pickupIndex, self.characterBody.corePosition, Vector3.up * (pickupCount + 20));
+                }
+                Object.Destroy(pickupController.gameObject);
+                self.subcooldownTimer = 0.2f;
+                EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniRecycleEffect"), pickupController.pickupDisplay.transform.position, Quaternion.identity, true);
+                pickupController.NetworkRecycled = true;
+                self.InvalidateCurrentTarget();
+                return true;
             };
         }
     }

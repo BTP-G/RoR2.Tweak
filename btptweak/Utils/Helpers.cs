@@ -1,12 +1,12 @@
 ﻿using RoR2;
-using UnityEngine;
 using RoR2.Skills;
+using UnityEngine;
 
 namespace BtpTweak.Utils {
 
     public static class Helpers {
 
-        public static void LogInfo(this object loginfo) => Main.logger_.LogInfo(loginfo);
+        public static void Qlog(this object loginfo, string flag = "QQQQQQQQQQQQQQQQQQQQQQlog：") => Main.logger_.LogInfo(flag + loginfo);
 
         public static float GetExpAdjustedDropChancePercent(float baseChancePercent, GameObject victim) {
             DeathRewards component = victim.GetComponent<DeathRewards>();

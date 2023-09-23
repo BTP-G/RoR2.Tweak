@@ -1,14 +1,21 @@
 ﻿using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class ShrineCombatTweak : TweakBase {
         private int 战斗祭坛物品掉落数_;
 
-        public override void StageStartAction(Stage stage) => 战斗祭坛物品掉落数_ = Mathf.Min(Mathf.RoundToInt((Run.instance.stageClearCount + 1) * 0.51f), 5) * Run.instance.participatingPlayerCount;
+        public override void AddHooks() {
+            base.AddHooks();
+            ShrineCombatBehavior.onDefeatedServerGlobal += ShrineCombatBehavior_onDefeatedServerGlobal;
+        }
 
-        public override void AddHooks() => ShrineCombatBehavior.onDefeatedServerGlobal += ShrineCombatBehavior_onDefeatedServerGlobal;
+        public override void StageStartAction(Stage stage) {
+            base.StageStartAction(stage);
+            战斗祭坛物品掉落数_ = Mathf.Min(Mathf.RoundToInt((Run.instance.stageClearCount + 1) * 0.51f), 5) * Run.instance.participatingPlayerCount;
+        }
 
         private void ShrineCombatBehavior_onDefeatedServerGlobal(ShrineCombatBehavior shrine) {
             if (战斗祭坛物品掉落数_ > 0) {

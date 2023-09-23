@@ -5,18 +5,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class CharacterBodyStartTweak : TweakBase {
         private readonly List<string> _已获得起始物品玩家列表 = new();
         private int _造物难度敌人珍珠;
 
         public override void AddHooks() {
+            base.AddHooks();
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
             Run.onRunAmbientLevelUp += RecalculatePearlCount;
         }
 
         public override void RunStartAction(Run run) {
+            base.RunStartAction(run);
             _已获得起始物品玩家列表.Clear();
             _造物难度敌人珍珠 = 0;
         }
@@ -30,18 +33,18 @@ namespace BtpTweak.Tweaks {
                         _已获得起始物品玩家列表.Add(userName);
                         if (RecalculateStatsTweak.BodyIndexToName_.TryGetValue(body.bodyIndex, out RecalculateStatsTweak.BodyName loc1)) {
                             switch (loc1) {
-                                case RecalculateStatsTweak.BodyName.Arbiter: {
+                                case RecalculateStatsTweak.BodyName.ArbiterBody: {
                                     inventory.GiveItem(DLC1Content.Items.AttackSpeedAndMoveSpeed.itemIndex);
                                     inventory.GiveItem(RoR2Content.Items.SprintBonus.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Bandit2: {
+                                case RecalculateStatsTweak.BodyName.Bandit2Body: {
                                     inventory.GiveItem(RoR2Content.Items.BleedOnHit.itemIndex);
                                     inventory.GiveItem(RoR2Content.Items.DeathMark.itemIndex);
                                     inventory.GiveItem(DLC1Content.Items.GoldOnHurt.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Captain: {
+                                case RecalculateStatsTweak.BodyName.CaptainBody: {
                                     inventory.GiveItem(RoR2Content.Items.BarrierOnKill.itemIndex, 3);
                                     inventory.GiveItem(RoR2Content.Items.Behemoth.itemIndex);
                                     break;
@@ -52,32 +55,29 @@ namespace BtpTweak.Tweaks {
                                     inventory.SetEquipmentIndex(RoR2Content.Equipment.Fruit.equipmentIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Commando: {
+                                case RecalculateStatsTweak.BodyName.CommandoBody: {
                                     inventory.GiveItem(RoR2Content.Items.Syringe.itemIndex);
                                     inventory.GiveItem(RoR2Content.Items.SecondarySkillMagazine.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Croco: {
+                                case RecalculateStatsTweak.BodyName.CrocoBody: {
                                     inventory.GiveItem(RoR2Content.Items.Hoof.itemIndex, 2);
                                     inventory.GiveItem(RoR2Content.Items.Tooth.itemIndex, 2);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Engi: {
+                                case RecalculateStatsTweak.BodyName.EngiBody: {
                                     inventory.GiveItem(RoR2Content.Items.ArmorPlate.itemIndex, 4);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Heretic: {
-                                    inventory.GiveItem(RoR2Content.Items.LunarPrimaryReplacement.itemIndex);
-                                    inventory.GiveItem(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
-                                    inventory.GiveItem(RoR2Content.Items.LunarUtilityReplacement.itemIndex);
+                                case RecalculateStatsTweak.BodyName.HereticBody: {
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Huntress: {
+                                case RecalculateStatsTweak.BodyName.HuntressBody: {
                                     inventory.GiveItem(RoR2Content.Items.Feather.itemIndex);
                                     inventory.GiveItem(DLC1Content.Items.MoveSpeedOnKill.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Loader: {
+                                case RecalculateStatsTweak.BodyName.LoaderBody: {
                                     inventory.GiveItem(RoR2Content.Items.PersonalShield.itemIndex);
                                     var skill = body.skillLocator.GetSkillAtIndex(3).skillDef.skillIndex;
                                     if (skill == "RoR2/Base/Loader/ThrowPylon.asset".Load<SkillDef>().skillIndex) {
@@ -87,46 +87,45 @@ namespace BtpTweak.Tweaks {
                                     }
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Mage: {
+                                case RecalculateStatsTweak.BodyName.MageBody: {
                                     inventory.GiveItem(RoR2Content.Items.FireRing.itemIndex);
                                     inventory.GiveItem(RoR2Content.Items.IceRing.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Merc: {
+                                case RecalculateStatsTweak.BodyName.MercBody: {
                                     inventory.GiveItem(RoR2Content.Items.CritGlasses.itemIndex);
                                     inventory.GiveItem(RoR2Content.Items.NearbyDamageBonus.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Pathfinder: {
+                                case RecalculateStatsTweak.BodyName.PathfinderBody: {
                                     inventory.GiveItem(DLC1Content.Items.DroneWeapons.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Railgunner: {
+                                case RecalculateStatsTweak.BodyName.RailgunnerBody: {
                                     inventory.GiveItem(DLC1Content.Items.CritDamage.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.RedMist: {
+                                case RecalculateStatsTweak.BodyName.RedMistBody: {
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.RobPaladin: {
-                                    inventory.GiveItem(RoR2Content.Items.ExecuteLowHealthElite.itemIndex);
+                                case RecalculateStatsTweak.BodyName.RobPaladinBody: {
+                                    inventory.GiveItem(RoR2Content.Items.ExecuteLowHealthElite.itemIndex, 4);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.SniperClassic: {
+                                case RecalculateStatsTweak.BodyName.SniperClassicBody: {
                                     inventory.GiveItem(DLC1Content.Items.CritDamage.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Toolbot: {
-                                    inventory.GiveItem(RoR2Content.Items.Crowbar.itemIndex);
+                                case RecalculateStatsTweak.BodyName.ToolbotBody: {
                                     inventory.GiveItem(RoR2Content.Items.StunChanceOnHit.itemIndex, 3);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.Treebot: {
+                                case RecalculateStatsTweak.BodyName.TreebotBody: {
                                     inventory.GiveItem(RoR2Content.Items.Syringe.itemIndex);
                                     inventory.GiveItem(RoR2Content.Items.TPHealingNova.itemIndex);
                                     break;
                                 }
-                                case RecalculateStatsTweak.BodyName.VoidSurvivor: {
+                                case RecalculateStatsTweak.BodyName.VoidSurvivorBody: {
                                     inventory.GiveItem(DLC1Content.Items.ElementalRingVoid.itemIndex);
                                     break;
                                 }
@@ -141,15 +140,15 @@ namespace BtpTweak.Tweaks {
                 if (body.teamComponent.teamIndex == TeamIndex.Player) {
                     if (RecalculateStatsTweak.BodyIndexToName_.TryGetValue(body.bodyIndex, out RecalculateStatsTweak.BodyName loc2)) {
                         switch (loc2) {
-                            case RecalculateStatsTweak.BodyName.Bandit2: {
+                            case RecalculateStatsTweak.BodyName.Bandit2Body: {
                                 body.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex));
                                 break;
                             }
-                            case RecalculateStatsTweak.BodyName.EngiTurret: {
+                            case RecalculateStatsTweak.BodyName.EngiTurretBody: {
                                 inventory.infusionBonus = body.masterObject.GetComponent<Deployable>().ownerMaster.inventory.infusionBonus;
                                 break;
                             }
-                            case RecalculateStatsTweak.BodyName.EngiWalkerTurret: {
+                            case RecalculateStatsTweak.BodyName.EngiWalkerTurretBody: {
                                 inventory.infusionBonus = body.masterObject.GetComponent<Deployable>().ownerMaster.inventory.infusionBonus;
                                 break;
                             }
@@ -175,6 +174,8 @@ namespace BtpTweak.Tweaks {
             }
         }
 
-        private void RecalculatePearlCount(Run run) => _造物难度敌人珍珠 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, Main.往日不再_ ? 1 + 0.1f * run.stageClearCount : 1), 10000000));
+        private void RecalculatePearlCount(Run run) {
+            _造物难度敌人珍珠 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, Main.往日不再_ ? 1 + 0.1f * run.stageClearCount : 1), 10000000));
+        }
     }
 }

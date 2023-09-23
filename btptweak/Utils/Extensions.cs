@@ -22,6 +22,6 @@ namespace BtpTweak.Utils {
             }
         }
 
-        public static void AddComponent<T>(this Component self) where T : Component => self.gameObject.AddComponent<T>();
+        public static T AddComponent<T>(this Component self) where T : Component => self.gameObject.AddComponent<T>();
     }
 }

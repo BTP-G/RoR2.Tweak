@@ -7,25 +7,17 @@ using RoR2.Artifacts;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class GlobalEventTweak : TweakBase {
         private float 牺牲保底概率_;
 
         public override void AddHooks() {
+            base.AddHooks();
             On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
             On.RoR2.Artifacts.SacrificeArtifactManager.OnServerCharacterDeath += SacrificeArtifactManager_OnServerCharacterDeath;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;
-        }
-
-        private void IL_GlobalEventManager_OnCharacterDeath(ILContext il) {
-            ILCursor ilcursor = new(il);
-            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdstr(x, "Prefabs/Effects/ImpactEffects/Bandit2ResetEffect"))) {
-                ilcursor.Emit(OpCodes.Ldloc, 15);
-                ilcursor.EmitDelegate((CharacterBody attackerBody) => attackerBody.inventory.DeductActiveEquipmentCooldown(float.MaxValue));
-            } else {
-                Main.logger_.LogError("ResetCooldownsOnKill Hook Error");
-            }
         }
 
         private void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
@@ -39,6 +31,16 @@ namespace BtpTweak.Tweaks {
                 if (victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[1].buffIndex) > 5 * victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[0].buffIndex)) {
                     DotController.InflictDot(victim, damageInfo.attacker, DeepRot.deepRotDOT, 20f);
                 }
+            }
+        }
+
+        private void IL_GlobalEventManager_OnCharacterDeath(ILContext il) {
+            ILCursor ilcursor = new(il);
+            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdstr(x, "Prefabs/Effects/ImpactEffects/Bandit2ResetEffect"))) {
+                ilcursor.Emit(OpCodes.Ldloc, 15);
+                ilcursor.EmitDelegate((CharacterBody attackerBody) => attackerBody.inventory.DeductActiveEquipmentCooldown(float.MaxValue));
+            } else {
+                Main.logger_.LogError("ResetCooldownsOnKill Hook Error");
             }
         }
 

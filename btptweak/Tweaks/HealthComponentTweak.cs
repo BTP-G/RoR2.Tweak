@@ -5,42 +5,37 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class HealthComponentTweak : TweakBase {
-        private bool 位于天文馆;
+        private BodyIndex 负伤老米_;
+        private BodyIndex 老米_;
         private float 老米爆发伤害限制_;
         private float 老米触发伤害限制_;
         private float 伤害阈值_;
+        private bool 位于天文馆;
         private float 虚灵爆发伤害限制_;
         private float 虚灵触发伤害限制_;
-        private BodyIndex 老米_;
-        private BodyIndex 负伤老米_;
-
-        public override void Load() {
-            老米_ = "RoR2/Base/Brother/BrotherBody.prefab".LoadComponent<CharacterBody>().bodyIndex;
-            负伤老米_ = "RoR2/Base/Brother/BrotherHurtBody.prefab".LoadComponent<CharacterBody>().bodyIndex;
-        }
 
         public override void AddHooks() {
+            base.AddHooks();
             IL.RoR2.HealthComponent.TakeDamage += IL_HealthComponent_TakeDamage;
             IL.RoR2.HealthComponent.TriggerOneShotProtection += IL_HealthComponent_TriggerOneShotProtection;
             On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
             Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
         }
 
-        public override void StageStartAction(Stage stage) {
-            伤害阈值_ = 0.01f * (Run.instance.stageClearCount + 1);
-            位于天文馆 = stage.sceneDef.cachedName == "voidraid";
+        public override void Load() {
+            base.Load();
+            老米_ = "RoR2/Base/Brother/BrotherBody.prefab".LoadComponent<CharacterBody>().bodyIndex;
+            负伤老米_ = "RoR2/Base/Brother/BrotherHurtBody.prefab".LoadComponent<CharacterBody>().bodyIndex;
         }
 
-        private void Run_onRunAmbientLevelUp(Run run) {
-            float 爆发 = Mathf.Max(0.1f, 1f - 0.1f * (run.stageClearCount + 1) * (run.ambientLevel / (run.ambientLevel + 100f)));
-            老米爆发伤害限制_ = 爆发;
-            虚灵爆发伤害限制_ = 爆发 * 0.5f;
-            float 触发 = 爆发 * 0.001f;
-            老米触发伤害限制_ = 触发;
-            虚灵触发伤害限制_ = 触发 * 0.5f;
+        public override void StageStartAction(Stage stage) {
+            base.StageStartAction(stage);
+            伤害阈值_ = 0.01f * (Run.instance.stageClearCount + 1);
+            位于天文馆 = stage.sceneDef.cachedName == "voidraid";
         }
 
         private void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
@@ -112,6 +107,15 @@ namespace BtpTweak.Tweaks {
             } else {
                 Main.logger_.LogError("ospTimer Hook Error");
             }
+        }
+
+        private void Run_onRunAmbientLevelUp(Run run) {
+            float 爆发 = Mathf.Max(0.1f, 1f - 0.1f * (run.stageClearCount + 1) * (run.ambientLevel / (run.ambientLevel + 100f)));
+            老米爆发伤害限制_ = 爆发;
+            虚灵爆发伤害限制_ = 爆发 * 0.5f;
+            float 触发 = 爆发 * 0.001f;
+            老米触发伤害限制_ = 触发;
+            虚灵触发伤害限制_ = 触发 * 0.5f;
         }
     }
 }

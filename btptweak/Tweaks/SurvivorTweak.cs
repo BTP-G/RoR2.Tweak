@@ -17,14 +17,19 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class SurvivorTweak : TweakBase {
-        private BodyIndex Heretic;
+        private BodyIndex HereticBodyIndex;
 
-        public override void AddHooks() => GlobalEventManager.onTeamLevelUp += LevelUp;
+        public override void AddHooks() {
+            base.AddHooks();
+            GlobalEventManager.onTeamLevelUp += LevelUp;
+        }
 
         public override void Load() {
+            base.Load();
             船长();
             磁轨炮手();
             盗贼();
@@ -42,6 +47,7 @@ namespace BtpTweak.Tweaks {
         }
 
         public override void RunStartAction(Run run) {
+            base.RunStartAction(run);
             //=== Bandit2
             //=== Captain
             HealingWard healingWard = EntityStates.CaptainSupplyDrop.HealZoneMainState.healZonePrefab.GetComponent<HealingWard>();
@@ -54,8 +60,6 @@ namespace BtpTweak.Tweaks {
             //=== Huntress
             HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60;
             //=== Loader
-            EntityStates.Loader.BaseSwingChargedFist.velocityDamageCoefficient = 0.3f;
-            Thunderslam.yVelocityCoeff = 0.23f;
             //=== Railgunner
         }
 
@@ -73,8 +77,6 @@ namespace BtpTweak.Tweaks {
                 //=== Huntress
                 HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (ModConfig.女猎人射程每级增加距离_.Value * upLevel);
                 //=== Loader
-                EntityStates.Loader.BaseSwingChargedFist.velocityDamageCoefficient = 0.3f + 0.006f * upLevel;
-                Thunderslam.yVelocityCoeff = 0.23f + 0.008f * upLevel;
             }
         }
 
@@ -85,8 +87,8 @@ namespace BtpTweak.Tweaks {
                 bulletAttack.force *= 1 + self.characterBody.inventory.GetItemCount(RoR2Content.Items.Behemoth.itemIndex);
             };
             //====== 2
-            GameObject captainTazer = Helpers.FindProjectilePrefab("CaptainTazer");
-            captainTazer.AddComponent<ProjectileImpactActionCaller>().BindAction(ExplosionActions.闪电链);
+            GameObject captainTazer = "RoR2/Base/Captain/CaptainTazer.prefab".Load<GameObject>();
+            captainTazer.AddComponent<ChainLightning>();
             captainTazer.GetComponent<ProjectileSimple>().lifetime = 6f;
             ProjectileImpactExplosion impactExplosion = captainTazer.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.lifetimeAfterImpact = 6f;
@@ -119,16 +121,20 @@ namespace BtpTweak.Tweaks {
 
         private void 磁轨炮手() {
             "RoR2/DLC1/Railgunner/RailgunnerMineAltDetonated.prefab".LoadComponent<SlowDownProjectiles>().slowDownCoefficient = 0.01f;
-            On.EntityStates.Railgunner.Reload.Waiting.OnEnter += delegate (On.EntityStates.Railgunner.Reload.Waiting.orig_OnEnter orig, EntityStates.Railgunner.Reload.Waiting self) {
-                CharacterBody body = self.characterBody;
-                int magazineCount = body.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine.itemIndex);
-                HIFURailgunnerTweaks.Misc.ScopeAndReload.Damage = 4 * (1 + magazineCount);
-                HIFURailgunnerTweaks.Misc.ScopeAndReload.ReloadBarPercent = Mathf.Max(0.05f, 0.14f + (0.01f * (body.level - magazineCount)));
-                orig(self);
+            On.EntityStates.Railgunner.Reload.Reloading.AttemptBoost += delegate (On.EntityStates.Railgunner.Reload.Reloading.orig_AttemptBoost orig, EntityStates.Railgunner.Reload.Reloading self) {
+                if (orig(self)) {
+                    HIFURailgunnerTweaks.Misc.ScopeAndReload.ReloadBarPercent = Mathf.Max(0.01f, HIFURailgunnerTweaks.Misc.ScopeAndReload.ReloadBarPercent * 0.9f);
+                    HIFURailgunnerTweaks.Misc.ScopeAndReload.Damage *= 1.1f;
+                    return true;
+                } else {
+                    HIFURailgunnerTweaks.Misc.ScopeAndReload.ReloadBarPercent = 0.15f * self.characterBody.attackSpeed;
+                    HIFURailgunnerTweaks.Misc.ScopeAndReload.Damage = 4f;
+                    return false;
+                }
             };
             //==========
             On.EntityStates.Railgunner.Scope.BaseWindUp.OnEnter += delegate (On.EntityStates.Railgunner.Scope.BaseWindUp.orig_OnEnter orig, EntityStates.Railgunner.Scope.BaseWindUp self) {
-                HurtBox.sniperTargetRadiusSqr = Mathf.Pow(1 + self.characterBody.inventory.GetItemCount(DLC1Content.Items.CritDamage.itemIndex), 2);
+                HurtBox.sniperTargetRadiusSqr = Mathf.Pow(1 + self.characterBody.inventory.GetItemCount(DLC1Content.Items.CritDamage.itemIndex), 2f);
                 orig(self);
             };
         }
@@ -197,9 +203,9 @@ namespace BtpTweak.Tweaks {
             SteppedSkillDef mageFireLightningBolt = "RoR2/Junk/Mage/MageBodyFireIceBolt.asset".Load<SteppedSkillDef>();
             mageFireLightningBolt.baseRechargeInterval = 0;
             mageFireLightningBolt.baseMaxStock = 1;
-            Helpers.FindProjectilePrefab("MageIceBombProjectile").AddComponent<ProjectileImpactActionCaller>().BindAction(ExplosionActions.冰冻炸弹);
-            GameObject mageLightningBomb = Helpers.FindProjectilePrefab("MageLightningBombProjectile");
-            mageLightningBomb.AddComponent<ProjectileImpactActionCaller>().BindAction(ExplosionActions.纳米炸弹);
+            "RoR2/Base/Mage/MageIceBombProjectile.prefab".Load<GameObject>().AddComponent<IceExplosion>();
+            GameObject mageLightningBomb = "RoR2/Base/Mage/MageLightningBombProjectile.prefab".Load<GameObject>();
+            mageLightningBomb.AddComponent<LightningExplosion>();
             ProjectileProximityBeamController mageProximityBeamController = mageLightningBomb.GetComponent<ProjectileProximityBeamController>();
             mageProximityBeamController.attackFireCount = 3;
             mageProximityBeamController.attackRange = 30;
@@ -336,22 +342,24 @@ namespace BtpTweak.Tweaks {
         }
 
         private void 异教徒() {
-            Heretic = BodyCatalog.FindBodyIndex("HereticBody");
+            HereticBodyIndex = BodyCatalog.FindBodyIndex("HereticBody");
             "RoR2/Base/Heretic/HereticDefaultAbility.asset".Load<SkillDef>().baseRechargeInterval = 40;
             //=====
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += delegate (On.EntityStates.Heretic.Weapon.Squawk.orig_OnEnter orig, EntityStates.Heretic.Weapon.Squawk self) {
                 orig(self);
-                foreach (var body in CharacterBody.readOnlyInstancesList) {
-                    if (TeamIndex.Lunar == body.teamComponent.teamIndex) {
-                        body.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 30);
-                    } else {
-                        body.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 10);
+                if (NetworkServer.active) {
+                    foreach (var body in CharacterBody.readOnlyInstancesList) {
+                        if (TeamIndex.Lunar == body.teamComponent.teamIndex) {
+                            body.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 30);
+                        } else {
+                            body.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 10);
+                        }
                     }
                 }
             };
             //=====
             On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter += delegate (On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.orig_OnEnter orig, FireLunarNeedle self) {
-                if (self.characterBody.bodyIndex == Heretic) {
+                if (self.characterBody.bodyIndex == HereticBodyIndex) {
                     FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 360f;
                 } else {
                     FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 90f;
@@ -361,13 +369,13 @@ namespace BtpTweak.Tweaks {
             //=====
             On.EntityStates.GhostUtilitySkillState.FixedUpdate += delegate (On.EntityStates.GhostUtilitySkillState.orig_FixedUpdate orig, GhostUtilitySkillState self) {
                 orig(self);
-                if (self.isAuthority && self.characterBody.bodyIndex == Heretic && self.inputBank.skill3.justReleased && self.fixedAge > 1f) {
+                if (self.isAuthority && self.characterBody.bodyIndex == HereticBodyIndex && self.inputBank.skill3.justReleased && self.fixedAge > 1f) {
                     self.outer.SetNextStateToMain();
                 }
             };
             //=====
             On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter += delegate (On.EntityStates.GlobalSkills.LunarDetonator.Detonate.orig_OnEnter orig, EntityStates.GlobalSkills.LunarDetonator.Detonate self) {
-                if (self.characterBody.bodyIndex == Heretic) {
+                if (self.characterBody.bodyIndex == HereticBodyIndex) {
                     EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
                 } else {
                     EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f;
@@ -380,7 +388,9 @@ namespace BtpTweak.Tweaks {
         }
 
         private void 装卸工() {
-            "RoR2/Base/Loader/LoaderPylon.prefab".Load<GameObject>().AddComponent<M551电塔随特斯拉增强>();  // 电塔
+            var loaderBody = RoR2Content.Survivors.Loader.bodyPrefab.GetComponent<CharacterBody>();
+            loaderBody.baseAcceleration *= 2f;
+            "RoR2/Base/Loader/LoaderPylon.prefab".Load<GameObject>().AddComponent<M551PylonStartAction>();  // 电塔
             GameObject loaderHook = "RoR2/Base/Loader/LoaderHook.prefab".Load<GameObject>();  // 抓钩1
             loaderHook.GetComponent<ProjectileSimple>().desiredForwardSpeed *= 2f;
             loaderHook.GetComponent<ProjectileGrappleController>().maxTravelDistance *= 2f;
@@ -388,34 +398,83 @@ namespace BtpTweak.Tweaks {
             loaderYankHook.GetComponent<ProjectileSimple>().desiredForwardSpeed *= 2f;
             loaderYankHook.GetComponent<ProjectileGrappleController>().maxTravelDistance *= 2f;
             //====== 雷冲
-            "RoR2/Base/Loader/ChargeZapFist.asset".Load<SteppedSkillDef>().baseRechargeInterval = 3f;
+            var steppedSkillDef = "RoR2/Base/Loader/ChargeZapFist.asset".Load<SteppedSkillDef>();
+            steppedSkillDef.baseRechargeInterval = 3f;
             ProjectileProximityBeamController proximityBeamController = "RoR2/Base/Loader/LoaderZapCone.prefab".LoadComponent<ProjectileProximityBeamController>();
             proximityBeamController.attackRange *= 2;
             proximityBeamController.bounces = 1;
+            BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef.skillName, "SKILL_FIST_NAME", 2.1f);
             //======
             On.EntityStates.Loader.SwingZapFist.OnExit += delegate (On.EntityStates.Loader.SwingZapFist.orig_OnExit orig, EntityStates.Loader.SwingZapFist self) {
                 EntityStates.Loader.SwingZapFist.selfKnockback = 100 * self.punchSpeed;
                 orig(self);
             };
+            On.EntityStates.Loader.BaseSwingChargedFist.OnEnter += delegate (On.EntityStates.Loader.BaseSwingChargedFist.orig_OnEnter orig, EntityStates.Loader.BaseSwingChargedFist self) {
+                if (self is EntityStates.Loader.SwingChargedFist) {
+                    self.procCoefficient = Mathf.Lerp(0.6f, 2.7f, self.charge);
+                } else {
+                    self.procCoefficient = 2.1f;
+                }
+                orig(self);
+            };
         }
 
-        public class ExplosionActions {
+        [RequireComponent(typeof(ProjectileController))]
+        private class ChainLightning : MonoBehaviour, IProjectileImpactBehavior {
+            private ProjectileController projectileController;
+            private ProjectileDamage projectileDamage;
 
-            public static void 冰冻炸弹(ProjectileImpactActionCaller 冰冻, ProjectileImpactInfo impactInfo) {
-                ProjectileController projectileController = 冰冻.GetComponent<ProjectileController>();
-                if (projectileController.owner == null) {
-                    return;
+            public void OnProjectileImpact(ProjectileImpactInfo impactInfo) {
+                LightningOrb lightningOrb = new() {
+                    attacker = projectileController.owner?.gameObject,
+                    bouncedObjects = new List<HealthComponent>(),
+                    bouncesRemaining = int.MaxValue,
+                    damageColorIndex = DamageColorIndex.Default,
+                    damageType = projectileDamage.damageType,
+                    damageValue = projectileDamage.damage,
+                    isCrit = projectileDamage.crit,
+                    lightningType = LightningOrb.LightningType.Ukulele,
+                    origin = impactInfo.estimatedPointOfImpact,
+                    procChainMask = default,
+                    procCoefficient = 1f,
+                    range = 30,
+                    teamIndex = projectileController.teamFilter.teamIndex
+                };
+                lightningOrb.procChainMask.AddProc(ProcType.ChainLightning);
+                HurtBox hurtBox = lightningOrb.PickNextTarget(impactInfo.estimatedPointOfImpact);
+                if (hurtBox) {
+                    lightningOrb.target = hurtBox;
+                    OrbManager.instance.AddOrb(lightningOrb);
                 }
-                ProjectileDamage projectileDamage = 冰冻.GetComponent<ProjectileDamage>();
+            }
+
+            private void Awake() {
+                if (enabled = NetworkServer.active) {
+                    projectileController = gameObject.GetComponent<ProjectileController>();
+                    projectileDamage = gameObject.GetComponent<ProjectileDamage>();
+                }
+            }
+        }
+
+        [RequireComponent(typeof(ProjectileController))]
+        private class IceExplosion : MonoBehaviour {
+
+            private void Awake() {
+                enabled = NetworkServer.active;
+            }
+
+            private void OnDestroy() {
+                ProjectileController projectileController = gameObject.GetComponent<ProjectileController>();
+                ProjectileDamage projectileDamage = gameObject.GetComponent<ProjectileDamage>();
                 int explosionRadius = 10 + projectileController.owner.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.IceRing.itemIndex);
                 if (projectileDamage.crit) {
                     explosionRadius *= 2;
                 }
-                GameObject iceExplosion = UnityEngine.Object.Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/GenericDelayBlast"), impactInfo.estimatedPointOfImpact, Quaternion.identity);
+                GameObject iceExplosion = Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/GenericDelayBlast"), transform.position, Quaternion.identity);
                 iceExplosion.transform.localScale = new Vector3(explosionRadius, explosionRadius, explosionRadius);
                 DelayBlast delayBlast = iceExplosion.GetComponent<DelayBlast>();
                 if (delayBlast) {
-                    delayBlast.position = impactInfo.estimatedPointOfImpact;
+                    delayBlast.position = transform.position;
                     delayBlast.baseDamage = projectileDamage.damage;
                     delayBlast.baseForce = projectileDamage.force;
                     delayBlast.attacker = projectileController.owner;
@@ -433,20 +492,25 @@ namespace BtpTweak.Tweaks {
                     }
                 }
             }
+        }
 
-            public static void 纳米炸弹(ProjectileImpactActionCaller 炸弹, ProjectileImpactInfo impactInfo) {
-                ProjectileController projectileController = 炸弹.GetComponent<ProjectileController>();
-                if (projectileController.owner == null) {
-                    return;
-                }
-                ProjectileDamage projectileDamage = 炸弹.GetComponent<ProjectileDamage>();
+        [RequireComponent(typeof(ProjectileController))]
+        private class LightningExplosion : MonoBehaviour {
+
+            private void Awake() {
+                enabled = NetworkServer.active;
+            }
+
+            private void OnDestroy() {
+                ProjectileController projectileController = gameObject.GetComponent<ProjectileController>();
+                ProjectileDamage projectileDamage = gameObject.GetComponent<ProjectileDamage>();
                 int itemCount = projectileController.owner.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
                 List<HealthComponent> bouncedObjects = new();
                 BullseyeSearch search = new() {
                     filterByLoS = false,
                     maxDistanceFilter = 30 + 3 * itemCount,
                     searchDirection = Vector3.zero,
-                    searchOrigin = impactInfo.estimatedPointOfImpact,
+                    searchOrigin = transform.position,
                     sortMode = BullseyeSearch.SortMode.Distance,
                     teamMaskFilter = TeamMask.allButNeutral,
                 };
@@ -476,30 +540,20 @@ namespace BtpTweak.Tweaks {
                     }
                 }
             }
+        }
 
-            public static void 闪电链(ProjectileImpactActionCaller 闪电链, ProjectileImpactInfo impactInfo) {
-                ProjectileController projectileController = 闪电链.GetComponent<ProjectileController>();
-                ProjectileDamage projectileDamage = 闪电链.GetComponent<ProjectileDamage>();
-                LightningOrb lightningOrb = new() {
-                    attacker = projectileController.owner?.gameObject,
-                    bouncedObjects = new List<HealthComponent>(),
-                    bouncesRemaining = 30,
-                    damageColorIndex = DamageColorIndex.Default,
-                    damageType = projectileDamage.damageType,
-                    damageValue = projectileDamage.damage,
-                    isCrit = projectileDamage.crit,
-                    lightningType = LightningOrb.LightningType.Ukulele,
-                    origin = impactInfo.estimatedPointOfImpact,
-                    procChainMask = default,
-                    procCoefficient = 1f,
-                    range = 30,
-                    teamIndex = projectileController.teamFilter.teamIndex
-                };
-                lightningOrb.procChainMask.AddProc(ProcType.ChainLightning);
-                HurtBox hurtBox = lightningOrb.PickNextTarget(impactInfo.estimatedPointOfImpact);
-                if (hurtBox) {
-                    lightningOrb.target = hurtBox;
-                    OrbManager.instance.AddOrb(lightningOrb);
+        [RequireComponent(typeof(CharacterBody))]
+        [RequireComponent(typeof(ProjectileProximityBeamController))]
+        private class M551PylonStartAction : MonoBehaviour {
+
+            public void Start() {
+                Inventory inventory = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory;
+                if (inventory) {
+                    int itemCount = inventory.GetItemCount(RoR2Content.Items.ShockNearby.itemIndex);
+                    ProjectileProximityBeamController proximityBeamController = GetComponent<ProjectileProximityBeamController>();
+                    proximityBeamController.attackFireCount += itemCount;
+                    proximityBeamController.attackRange += M551Pylon.aoe * itemCount;
+                    proximityBeamController.bounces += itemCount;
                 }
             }
         }

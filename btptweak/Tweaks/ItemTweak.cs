@@ -1,4 +1,6 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.MissilePools;
+using BtpTweak.ProjectileFountains;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API.Utils;
@@ -11,7 +13,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class ItemTweak : TweakBase {
         private static GameObject electricOrbProjectile;
@@ -22,6 +25,7 @@ namespace BtpTweak.Tweaks {
         private bool 位于虚空之境;
 
         public override void AddHooks() {
+            base.AddHooks();
             ExecuteLowHealthEliteHook();
             FireworkHook();
             IgniteOnKillHook();
@@ -35,6 +39,7 @@ namespace BtpTweak.Tweaks {
         }
 
         public override void Load() {
+            base.Load();
             electricOrbProjectile = Helpers.FindProjectilePrefab("ElectricOrbProjectile");
             fireMeatBallProjectile = Helpers.FindProjectilePrefab("FireMeatBall");
             MissileController missileController = GlobalEventManager.CommonAssets.missilePrefab.GetComponent<MissileController>();
@@ -74,13 +79,20 @@ namespace BtpTweak.Tweaks {
             R2API.ItemAPI.ApplyTagToItem(ItemTag.CannotSteal, "RoR2/DLC1/LunarWings/LunarWings.asset".Load<ItemDef>());
             RoR2Content.Items.Firework.tags = new ItemTag[] { ItemTag.Damage };
             RoR2Content.Items.FlatHealth.tags = new ItemTag[] { ItemTag.Healing };
+            RoR2Content.Items.Clover.tier = ItemTier.NoTier;
             "RoR2/Base/BonusGoldPackOnKill/BonusMoneyPack.prefab".LoadComponentInChildren<GravitatePickup>().maxSpeed = 50;
             ProjectileImpactExplosion projectileImpactExplosion = "RoR2/Base/StickyBomb/StickyBomb.prefab".LoadComponent<ProjectileImpactExplosion>();
             projectileImpactExplosion.lifetime *= 0.01f;
             projectileImpactExplosion.lifetimeAfterImpact *= 0.01f;
         }
 
+        public override void RunStartAction(Run run) {
+            base.RunStartAction(run);
+            run.DisableItemDrop(RoR2Content.Items.Clover.itemIndex);
+        }
+
         public override void StageStartAction(Stage stage) {
+            base.StageStartAction(stage);
             位于虚空之境 = stage.sceneDef.cachedName == "arena";
             RerolledCount = 0;
         }
@@ -234,33 +246,34 @@ namespace BtpTweak.Tweaks {
                 Main.logger_.LogError("BonusGoldPackOnKill Hook Failed!");
             }
             //======
-            if (ilcursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchStloc(x, 51))) {
+            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchStloc(x, 51))) {
                 ilcursor.Emit(OpCodes.Ldloc, 15);
                 ilcursor.Emit(OpCodes.Ldloc, 2);
-                ilcursor.Emit(OpCodes.Ldloc, 51);
-                ilcursor.EmitDelegate(delegate (CharacterBody attackerBody, CharacterBody victimBody, int count) {
+                ilcursor.EmitDelegate(delegate (int count, CharacterBody attackerBody, CharacterBody victimBody) {
                     if (count > 0) {
-                        Util.PlaySound("Play_bleedOnCritAndExplode_explode", victimBody.gameObject);
-                        GameObject bleedExplode = UnityEngine.Object.Instantiate(GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect, victimBody.corePosition, Quaternion.identity);
-                        DelayBlast delayBlast = bleedExplode.GetComponent<DelayBlast>();
-                        delayBlast.position = victimBody.corePosition;
-                        delayBlast.baseDamage = Util.OnKillProcDamage(attackerBody.damage, 4f * count);
-                        delayBlast.baseForce = 0f;
-                        delayBlast.radius = 16f;
-                        delayBlast.attacker = attackerBody.gameObject;
-                        delayBlast.inflictor = null;
-                        delayBlast.crit = Util.CheckRoll(attackerBody.crit, attackerBody.master);
-                        delayBlast.maxTimer = 0f;
-                        delayBlast.damageColorIndex = DamageColorIndex.Item;
-                        delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
-                        bleedExplode.GetComponent<TeamFilter>().teamIndex = attackerBody.teamComponent.teamIndex;
-                        NetworkServer.Spawn(bleedExplode);
+                        int bleedBuffCount = victimBody.GetBuffCount(RoR2Content.Buffs.Bleeding.buffIndex) + 1000 * victimBody.GetBuffCount(RoR2Content.Buffs.SuperBleed.buffIndex);
+                        if (bleedBuffCount > 0) {
+                            Util.PlaySound("Play_bleedOnCritAndExplode_explode", victimBody.gameObject);
+                            GameObject bleedExplode = UnityEngine.Object.Instantiate(GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect, victimBody.corePosition, Quaternion.identity);
+                            DelayBlast delayBlast = bleedExplode.GetComponent<DelayBlast>();
+                            delayBlast.position = victimBody.corePosition;
+                            delayBlast.baseDamage = Util.OnKillProcDamage(attackerBody.damage, count * (400 + bleedBuffCount) * 0.01f);
+                            delayBlast.baseForce = 0f;
+                            delayBlast.radius = 16f;
+                            delayBlast.attacker = attackerBody.gameObject;
+                            delayBlast.inflictor = null;
+                            delayBlast.crit = Util.CheckRoll(attackerBody.crit, attackerBody.master);
+                            delayBlast.maxTimer = 0f;
+                            delayBlast.damageColorIndex = DamageColorIndex.Item;
+                            delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
+                            bleedExplode.GetComponent<TeamFilter>().teamIndex = attackerBody.teamComponent.teamIndex;
+                            NetworkServer.Spawn(bleedExplode);
+                        }
                     }
+                    return 0;
                 });
-                ilcursor.Emit(OpCodes.Ldc_I4, 0);
-                ilcursor.Emit(OpCodes.Stloc, 51);
             } else {
-                Main.logger_.LogError("ShatterSpleen :: BleedExplodeHook 1 Failed!");
+                Main.logger_.LogError("ShatterSpleen :: BleedExplodeHook Failed!");
             }
         };
 
@@ -680,8 +693,9 @@ namespace BtpTweak.Tweaks {
                     if (!newAvailable) {
                         ++RerolledCount;
                     }
-                    self.Networkcost = self.cost = RerolledCount + 1;
-                    if (RerolledCount >= 9 + 3 * Util.GetItemCountGlobal(DLC1Content.Items.RandomlyLunar.itemIndex, false, false)) {
+                    int teamItemCount = Util.GetItemCountGlobal(DLC1Content.Items.RandomlyLunar.itemIndex, false);
+                    self.Networkcost = (RerolledCount + 1) + RerolledCount * 3 * teamItemCount;
+                    if (RerolledCount >= 9 + 3 * teamItemCount) {
                         newAvailable = false;
                     }
                 }
@@ -691,13 +705,13 @@ namespace BtpTweak.Tweaks {
 
         private void RepeatHealHook() {
             IL.RoR2.HealthComponent.Heal += delegate (ILContext il) {
-                ILCursor cursor = new(il);
-                if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchStfld<HealthComponent.RepeatHealComponent>(x, "healthFractionToRestorePerSecond"))) {
-                    --cursor.Index;
-                    cursor.Remove();
-                    cursor.Emit(OpCodes.Mul);
+                ILCursor iLCursor = new(il);
+                if (iLCursor.TryGotoNext(x => ILPatternMatchingExt.MatchStfld<HealthComponent.RepeatHealComponent>(x, "healthFractionToRestorePerSecond"))) {
+                    iLCursor.GotoPrev(MoveType.Before, x => ILPatternMatchingExt.MatchLdcR4(x, 0.1f));
+                    iLCursor.Remove();
+                    iLCursor.Emit(OpCodes.Ldc_R4, 0.5f);
                 } else {
-                    Main.logger_.LogError("尸爆 Hook Failed!");
+                    Main.logger_.LogError("RepeatHeal Hook Failed!");
                 }
             };
         }

@@ -4,20 +4,26 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
     internal class BuffAndDotTweak : TweakBase {
-        private BodyIndex 工匠_;
+        private BodyIndex mageBodyIndex;
 
         public override void AddHooks() {
+            base.AddHooks();
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
             On.RoR2.DotController.AddDot += DotController_AddDot;
             DotController.onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
         }
 
-        public override void Load() => 工匠_ = RoR2Content.Survivors.Mage.bodyPrefab.GetComponent<CharacterBody>().bodyIndex;
+        public override void Load() {
+            base.Load();
+            mageBodyIndex = BodyCatalog.FindBodyIndex(RecalculateStatsTweak.BodyName.MageBody.ToString());
+        }
 
         public override void RemoveHooks() {
+            base.RemoveHooks();
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float -= CharacterBody_AddTimedBuff_BuffDef_float;
             On.RoR2.DotController.AddDot -= DotController_AddDot;
             DotController.onDotInflictedServerGlobal -= DotController_onDotInflictedServerGlobal;
@@ -34,7 +40,7 @@ namespace BtpTweak.Tweaks {
         }
 
         private void DotController_AddDot(On.RoR2.DotController.orig_AddDot orig, DotController self, GameObject attackerObject, float duration, DotController.DotIndex dotIndex, float damageMultiplier, uint? maxStacksFromAttacker, float? totalDamage, DotController.DotIndex? preUpgradeDotIndex) {
-            if (self.victimHealthComponent.shield > 0 || self.victimBody.bodyIndex == 工匠_) {
+            if (self.victimHealthComponent.shield > 0 || self.victimBody.bodyIndex == mageBodyIndex) {
                 if (totalDamage != null) {
                     totalDamage *= 0.5f;
                 } else {
