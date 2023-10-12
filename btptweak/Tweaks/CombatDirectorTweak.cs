@@ -1,102 +1,88 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.IndexCollections;
 using RoR2;
-using System;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
     internal class CombatDirectorTweak : TweakBase {
-        private int 当前敌人生成数_;
-        private int 敌人最大生成数_;
-        private short 精英转化几率_;
-        private EliteDef 特殊环境精英属性_;
+        private float _精英转化几率;
+        private EliteDef _特殊环境精英属性;
 
         public override void AddHooks() {
             base.AddHooks();
-            On.RoR2.CombatDirector.Simulate += CombatDirector_Simulate;
+            On.RoR2.CombatDirector.Awake += CombatDirector_Awake;
+            On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
             On.RoR2.CombatDirector.Spawn += CombatDirector_Spawn;
             On.RoR2.Run.AdvanceStage += Run_AdvanceStage;
         }
 
-        public void CombatDirector_Simulate(On.RoR2.CombatDirector.orig_Simulate orig, CombatDirector self, float deltaTime) {
-            if (当前敌人生成数_ > 敌人最大生成数_ * (TeleporterInteraction.instance?.activationState == TeleporterInteraction.ActivationState.Charging ? 1.5f : 1)) {
-                当前敌人生成数_ = TeamComponent.GetTeamMembers(TeamIndex.Monster).Count + TeamComponent.GetTeamMembers(TeamIndex.Void).Count;
-                return;
-            }
-            orig(self, deltaTime);
-        }
-
         public override void Load() {
             base.Load();
-            CombatDirector.EliteTierDef eliteTierDef = Array.Find(CombatDirector.eliteTiers, match => match.costMultiplier == 36);
-            eliteTierDef.eliteTypes = EliteCatalog.eliteDefs;
+            CombatDirector.EliteTierDef eliteTierDef = new() {
+                costMultiplier = CombatDirector.baseEliteCostMultiplier,
+                eliteTypes = EliteCatalog.eliteDefs,
+                isAvailable = (SpawnCard.EliteRules rules) => Run.instance.loopClearCount > 1 && rules == SpawnCard.EliteRules.Default,
+                canSelectWithoutAvailableEliteDef = false
+            };
+            R2API.EliteAPI.AddCustomEliteTier(eliteTierDef);
         }
 
         public override void RemoveHooks() {
             base.RemoveHooks();
-            On.RoR2.CombatDirector.Simulate -= CombatDirector_Simulate;
+            On.RoR2.CombatDirector.Awake -= CombatDirector_Awake;
             On.RoR2.CombatDirector.Spawn -= CombatDirector_Spawn;
+            On.RoR2.Run.AdvanceStage -= Run_AdvanceStage;
         }
 
         public override void RunStartAction(Run run) {
             base.RunStartAction(run);
-            int stageCount = 1;
-            string sceneName = SceneCatalog.GetSceneDefForCurrentScene().cachedName;
-            敌人最大生成数_ = Mathf.Max(6, 25 - stageCount);
-            精英转化几率_ = 0;
-            特殊环境精英属性_ = null;
-            if (sceneName == "goldshores") {
-                特殊环境精英属性_ = JunkContent.Elites.Gold;
-                精英转化几率_ = 100;
-            } else if (sceneName == "dampcavesimple") {
-                特殊环境精英属性_ = RoR2Content.Elites.Fire;
-                精英转化几率_ = 50;
-            } else if (sceneName == "frozenwall") {
-                特殊环境精英属性_ = RoR2Content.Elites.Ice;
-                精英转化几率_ = 60;
-            } else if (sceneName == "snowyforest") {
-                特殊环境精英属性_ = RoR2Content.Elites.Ice;
-                精英转化几率_ = 36;
-            } else if (sceneName.StartsWith("golemplains")) {
-                特殊环境精英属性_ = DLC1Content.Elites.Earth;
-                精英转化几率_ = 36;
-            }
+            TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = 40;
+            TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = 40;
+            SetEliteForCurrentScene(SceneCatalog.GetSceneDefForCurrentScene().sceneDefIndex);
+        }
+
+        private void CombatDirector_Awake(On.RoR2.CombatDirector.orig_Awake orig, CombatDirector self) {
+            orig(self);
+            self.ignoreTeamSizeLimit = false;
+        }
+
+        private void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self) {
+            orig(self);
+            self.ignoreTeamSizeLimit = true;
         }
 
         private bool CombatDirector_Spawn(On.RoR2.CombatDirector.orig_Spawn orig, CombatDirector self, SpawnCard spawnCard, EliteDef eliteDef, Transform spawnTarget, DirectorCore.MonsterSpawnDistance spawnDistance, bool preventOverhead, float valueMultiplier, DirectorPlacementRule.PlacementMode placementMode) {
-            当前敌人生成数_ = TeamComponent.GetTeamMembers(TeamIndex.Monster).Count + TeamComponent.GetTeamMembers(TeamIndex.Void).Count;
-            if (eliteDef) {
-                if (特殊环境精英属性_ && Util.CheckRoll(精英转化几率_)) {
-                    eliteDef = 特殊环境精英属性_;
-                }
-            }
+            eliteDef = Util.CheckRoll(_精英转化几率) ? _特殊环境精英属性 : eliteDef;
             return orig(self, spawnCard, eliteDef, spawnTarget, spawnDistance, preventOverhead, valueMultiplier, placementMode);
+        }
+
+        private void SetEliteForCurrentScene(SceneIndex sceneIndex) {
+            _精英转化几率 = 0;
+            _特殊环境精英属性 = null;
+            if (sceneIndex == SceneIndexCollection.goldshores) {
+                _特殊环境精英属性 = JunkContent.Elites.Gold;
+                _精英转化几率 = 100;
+            } else if (sceneIndex == SceneIndexCollection.dampcavesimple) {
+                _特殊环境精英属性 = RoR2Content.Elites.Fire;
+                _精英转化几率 = 25;
+            } else if (sceneIndex == SceneIndexCollection.frozenwall) {
+                _特殊环境精英属性 = RoR2Content.Elites.Ice;
+                _精英转化几率 = 25;
+            } else if (sceneIndex == SceneIndexCollection.snowyforest) {
+                _特殊环境精英属性 = RoR2Content.Elites.Ice;
+                _精英转化几率 = 25;
+            } else if (sceneIndex == SceneIndexCollection.golemplains || sceneIndex == SceneIndexCollection.golemplains2) {
+                _特殊环境精英属性 = DLC1Content.Elites.Earth;
+                _精英转化几率 = 25;
+            }
         }
 
         private void Run_AdvanceStage(On.RoR2.Run.orig_AdvanceStage orig, Run self, SceneDef nextScene) {
             orig(self, nextScene);
-            int stageCount = self.stageClearCount + 1;
-            string sceneName = nextScene.cachedName;
-            敌人最大生成数_ = Mathf.Max(6, 25 - stageCount);
-            精英转化几率_ = 0;
-            特殊环境精英属性_ = null;
-            if (sceneName == "goldshores") {
-                特殊环境精英属性_ = JunkContent.Elites.Gold;
-                精英转化几率_ = 100;
-            } else if (sceneName == "dampcavesimple") {
-                特殊环境精英属性_ = RoR2Content.Elites.Fire;
-                精英转化几率_ = 50;
-            } else if (sceneName == "frozenwall") {
-                特殊环境精英属性_ = RoR2Content.Elites.Ice;
-                精英转化几率_ = 60;
-            } else if (sceneName == "snowyforest") {
-                特殊环境精英属性_ = RoR2Content.Elites.Ice;
-                精英转化几率_ = 36;
-            } else if (sceneName.StartsWith("golemplains")) {
-                特殊环境精英属性_ = DLC1Content.Elites.Earth;
-                精英转化几率_ = 36;
-            }
+            int newSoftCharacterLimit = Mathf.Max(18, 40 - 4 * self.stageClearCount);
+            TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = newSoftCharacterLimit;
+            TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = newSoftCharacterLimit;
+            SetEliteForCurrentScene(nextScene.sceneDefIndex);
         }
     }
 }

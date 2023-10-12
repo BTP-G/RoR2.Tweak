@@ -1,8 +1,7 @@
 ﻿using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
     internal class ShrineCombatTweak : TweakBase {
         private int 战斗祭坛物品掉落数_;

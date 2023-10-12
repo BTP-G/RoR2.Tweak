@@ -18,7 +18,7 @@ namespace BtpTweak {
             SpawnCard spawnCard = ScriptableObject.CreateInstance<SpawnCard>();
             spawnCard.hullSize = HullClassification.Human;
             spawnCard.nodeGraphType = MapNodeGroup.GraphType.Ground;
-            spawnCard.prefab = LegacyResourcesAPI.Load<GameObject>("SpawnCards/HelperPrefab");
+            spawnCard.prefab = AssetReferences.helperPrefab;
             DirectorPlacementRule placementRule = new() {
                 placementMode = DirectorPlacementRule.PlacementMode.NearestNode,
                 position = transform.position

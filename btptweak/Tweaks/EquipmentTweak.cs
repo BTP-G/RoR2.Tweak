@@ -3,18 +3,13 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
     internal class EquipmentTweak : TweakBase {
-        public readonly GameObject magmaOrbProjectile = "RoR2/Base/MagmaWorm/MagmaOrbProjectile.prefab".Load<GameObject>();
-        public int[] RecycledItemCount = new int[(int)ItemTier.AssignedAtRuntime];
-
-        private static Dictionary<string, int[]> UserNameToRecycledItemCount = new();
 
         public override void AddHooks() {
             base.AddHooks();
@@ -24,14 +19,15 @@ namespace BtpTweak.Tweaks
             LightningHook();
             AspectGoldHook();
             RecycleHook();
+            CommandMissileHook();
         }
 
         public override void Load() {
             base.Load();
             var sawmerang = "RoR2/Base/Saw/Sawmerang.prefab".Load<GameObject>();
             var boomerangProjectile = sawmerang.GetComponent<BoomerangProjectile>();
-            boomerangProjectile.transitionDuration *= 3f;
-            boomerangProjectile.travelSpeed = 36;
+            boomerangProjectile.transitionDuration *= 5f;
+            boomerangProjectile.travelSpeed = 36f;
             FireballVehicle fireballVehicle = "RoR2/Base/FireBallDash/FireballVehicle.prefab".LoadComponent<FireballVehicle>();
             fireballVehicle.duration = 6;
             fireballVehicle.overlapResetFrequency = 3f;
@@ -47,15 +43,8 @@ namespace BtpTweak.Tweaks
             projectileSimple.desiredForwardSpeed = 10f;
             projectileSimple.lifetime = 66.6f;
             RoR2Content.Equipment.Saw.cooldown = 20f;
-            RoR2Content.Equipment.Recycle.cooldown = 0.5f;
         }
 
-        public override void RunStartAction(Run run) {
-            base.RunStartAction(run);
-            for (int i = 0; i < RecycledItemCount.Length; ++i) {
-                RecycledItemCount[i] = 0;
-            }
-        }
         private void AspectGoldHook() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += delegate (ILContext il) {
                 ILCursor iLCursor = new(il);
@@ -71,7 +60,22 @@ namespace BtpTweak.Tweaks
                         }
                     });
                 } else {
-                    Main.logger_.LogError("AspectGold Hook Failed!");
+                    Main.Logger.LogError("AspectGold Hook Failed!");
+                }
+            };
+        }
+
+        private void CommandMissileHook() {
+            IL.RoR2.EquipmentSlot.FireMissile += (ILContext il) => {
+                ILCursor iLCursor = new(il);
+                if (iLCursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchLdcR4(x, 3))) {
+                    iLCursor.Emit(OpCodes.Ldarg_0);
+                    iLCursor.EmitDelegate((EquipmentSlot equipmentSlot) => {
+                        return (float)(3 * equipmentSlot.inventory.GetItemCount(RoR2Content.Items.Missile.itemIndex));
+                    });
+                    iLCursor.Emit(OpCodes.Add);
+                } else {
+                    Main.Logger.LogError("CommandMissile Hook Failed!");
                 }
             };
         }
@@ -90,9 +94,9 @@ namespace BtpTweak.Tweaks
                             owner = currentPassengerBody.gameObject,
                             position = currentPassengerBody.corePosition,
                             procChainMask = default,
-                            projectilePrefab = magmaOrbProjectile,
+                            projectilePrefab = AssetReferences.magmaOrbProjectile,
                             rotation = Util.QuaternionSafeLookRotation(new(Random.Range(-2f, 2f), 6f, Random.Range(-2f, 2f))),
-                            speedOverride = Random.Range(15, 30),
+                            speedOverride = Random.Range(10, 30),
                             target = null,
                             useFuseOverride = true,
                             useSpeedOverride = true,
@@ -117,7 +121,7 @@ namespace BtpTweak.Tweaks
                     iLCursor.Emit<EntityStates.GoldGat.GoldGatFire>(OpCodes.Ldfld, "totalStopwatch");
                     iLCursor.Emit(OpCodes.Add);
                 } else {
-                    Main.logger_.LogError("GoldGat Hook Failed!");
+                    Main.Logger.LogError("GoldGat Hook Failed!");
                 }
                 if (iLCursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdsfld<EntityStates.GoldGat.GoldGatFire>(x, "damageCoefficient"))) {
                     --iLCursor.Index;
@@ -130,10 +134,10 @@ namespace BtpTweak.Tweaks
                         iLCursor.Emit(OpCodes.Conv_R4);
                         iLCursor.Emit(OpCodes.Add);
                     } else {
-                        Main.logger_.LogError("GoldGat DamageHook 2 Failed!");
+                        Main.Logger.LogError("GoldGat DamageHook 2 Failed!");
                     }
                 } else {
-                    Main.logger_.LogError("GoldGat DamageHook 1 Failed!");
+                    Main.Logger.LogError("GoldGat DamageHook 1 Failed!");
                 }
             };
         }
@@ -146,7 +150,7 @@ namespace BtpTweak.Tweaks
                     return Mathf.Max(0.15f * inventory.GetItemCount(RoR2Content.Items.AutoCastEquipment.itemIndex), chargeFinishTime);
                 });
             } else {
-                Main.logger_.LogError("AutoCastEquipment Hook Failed!");
+                Main.Logger.LogError("AutoCastEquipment Hook Failed!");
             }
         }
 
@@ -160,86 +164,99 @@ namespace BtpTweak.Tweaks
                         return body.damage * 30f * (1 + body.inventory.GetItemCount(RoR2Content.Items.LightningStrikeOnHit.itemIndex));
                     });
                 } else {
-                    Main.logger_.LogError("FireLightning Hook Failed!");
+                    Main.Logger.LogError("FireLightning Hook Failed!");
                 }
             };
         }
 
         private void RecycleHook() {
             On.RoR2.EquipmentSlot.FireRecycle += delegate (On.RoR2.EquipmentSlot.orig_FireRecycle orig, EquipmentSlot self) {
-                //var inventory = self.inventory;
-                //if (inventory.GetItemCount(RoR2Content.Items.ScrapWhite.itemIndex) > 3) {
-                //}
                 self.UpdateTargets(RoR2Content.Equipment.Recycle.equipmentIndex, false);
                 GenericPickupController pickupController = self.currentTarget.pickupController;
-                if (!pickupController || pickupController.Recycled) {
+                if (!pickupController || pickupController.pickupIndex.pickupDef.equipmentIndex == RoR2Content.Equipment.Recycle.equipmentIndex) {
+                    self.InvalidateCurrentTarget();
                     return false;
                 }
-                var itemTier = pickupController.pickupIndex.pickupDef.itemTier;
-                var pickupIndex = PickupIndex.none;
-                int pickupCount = 0;
-                switch (itemTier) {
+                PickupIndex initialPickupIndex = pickupController.pickupIndex;
+                self.subcooldownTimer = 0.2f;
+                PickupIndex[] array = (from pickupIndex in PickupTransmutationManager.GetAvailableGroupFromPickupIndex(pickupController.pickupIndex)
+                                       where pickupIndex != initialPickupIndex
+                                       select pickupIndex).ToArray();
+                if (array == null || array.Length == 0) {
+                    return false;
+                }
+                PickupIndex newPickupIndex = Run.instance.treasureRng.NextElementUniform(array);
+                switch (newPickupIndex.pickupDef.itemTier) {
                     case ItemTier.Tier1:
-                        if (++RecycledItemCount[(int)itemTier] == 3) {
-                            pickupCount = 1;
-                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableTier2DropList);
-                            RecycledItemCount[(int)itemTier] = 0;
+                        if (Util.CheckRoll(5)) {
+                            newPickupIndex = PickupCatalog.FindPickupIndex(RoR2Content.Items.ScrapWhite.itemIndex);
                         }
                         break;
 
                     case ItemTier.Tier2:
-                        if (++RecycledItemCount[(int)itemTier] == 5) {
-                            pickupCount = 1;
-                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableTier3DropList);
-                            RecycledItemCount[(int)itemTier] = 0;
+                        if (Util.CheckRoll(10)) {
+                            newPickupIndex = PickupCatalog.FindPickupIndex(RoR2Content.Items.ScrapGreen.itemIndex);
                         }
                         break;
 
                     case ItemTier.Tier3:
-                        if (++RecycledItemCount[(int)itemTier] == 1) {
-                            pickupCount = 9;
-                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableTier1DropList);
-                            RecycledItemCount[(int)itemTier] = 0;
+                        if (Util.CheckRoll(20)) {
+                            newPickupIndex = PickupCatalog.FindPickupIndex(RoR2Content.Items.ScrapRed.itemIndex);
+                        }
+                        break;
+
+                    case ItemTier.Lunar:
+                        if (!SceneCatalog.GetSceneDefForCurrentScene().cachedName.StartsWith("moon") && Util.CheckRoll(15)) {
+                            Object.Destroy(pickupController.gameObject);
+                            EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                                origin = pickupController.pickupDisplay.transform.position,
+                                rotation = default,
+                            }, true);
+                            return true;
+                        }
+                        break;
+
+                    case ItemTier.Boss:
+                        if (Util.CheckRoll(25)) {
+                            newPickupIndex = PickupCatalog.FindPickupIndex(RoR2Content.Items.ScrapYellow.itemIndex);
                         }
                         break;
 
                     case ItemTier.VoidTier1:
-                        if (++RecycledItemCount[(int)itemTier] == 3) {
-                            pickupCount = 1;
-                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableVoidTier2DropList);
-                            RecycledItemCount[(int)itemTier] = 0;
-                        }
-                        break;
-
                     case ItemTier.VoidTier2:
-                        if (++RecycledItemCount[(int)itemTier] == 5) {
-                            pickupCount = 1;
-                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableVoidTier3DropList);
-                            RecycledItemCount[(int)itemTier] = 0;
-                        }
-                        break;
-
                     case ItemTier.VoidTier3:
-                        if (++RecycledItemCount[(int)itemTier] == 1) {
-                            pickupCount = 9;
-                            pickupIndex = Run.instance.treasureRng.NextElementUniform(Run.instance.availableVoidTier1DropList);
-                            RecycledItemCount[(int)itemTier] = 0;
+                    case ItemTier.VoidBoss:
+                        if (Util.CheckRoll(Mathf.Pow((float)newPickupIndex.pickupDef.itemTier, 1.5f))) {
+                            Object.Destroy(pickupController.gameObject);
+                            CharacterBody body = self.characterBody;
+                            FireProjectileInfo fireProjectileInfo = new() {
+                                projectilePrefab = EntityStates.NullifierMonster.DeathState.deathBombProjectile,
+                                position = pickupController.pickupDisplay.transform.position,
+                                rotation = Quaternion.identity,
+                                owner = body.gameObject,
+                                damage = body.damage,
+                                crit = body.RollCrit()
+                            };
+                            ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+                            return true;
                         }
                         break;
 
-                    default:
-                        pickupController.NetworkRecycled = true;
-                        self.InvalidateCurrentTarget();
-                        return false;
+                    case ItemTier.NoTier:
+                        if (newPickupIndex.pickupDef.equipmentIndex != EquipmentIndex.None && newPickupIndex.pickupDef.isLunar) {
+                            if (!SceneCatalog.GetSceneDefForCurrentScene().cachedName.StartsWith("moon") && Util.CheckRoll(15)) {
+                                Object.Destroy(pickupController.gameObject);
+                                EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                                    origin = pickupController.pickupDisplay.transform.position,
+                                    rotation = default,
+                                }, true);
+                                return true;
+                            }
+                        }
+                        break;
                 }
-                while (pickupCount-- > 0) {
-                    PickupDropletController.CreatePickupDroplet(pickupIndex, self.characterBody.corePosition, Vector3.up * (pickupCount + 20));
-                }
-                Object.Destroy(pickupController.gameObject);
-                self.subcooldownTimer = 0.2f;
-                EffectManager.SimpleEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniRecycleEffect"), pickupController.pickupDisplay.transform.position, Quaternion.identity, true);
-                pickupController.NetworkRecycled = true;
-                self.InvalidateCurrentTarget();
+                pickupController.NetworkpickupIndex = newPickupIndex;
+                EffectManager.SimpleEffect(AssetReferences.omniRecycleEffect, pickupController.pickupDisplay.transform.position, Quaternion.identity, true);
                 return true;
             };
         }

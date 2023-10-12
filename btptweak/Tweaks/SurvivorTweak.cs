@@ -17,8 +17,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
     internal class SurvivorTweak : TweakBase {
         private BodyIndex HereticBodyIndex;
@@ -75,7 +74,7 @@ namespace BtpTweak.Tweaks
                 "RoR2/Base/Engi/EngiBodyPlaceMine.asset".Load<SkillDef>().baseMaxStock = PressureMines.charges + upLevel;
                 "RoR2/Base/Engi/EngiBodyPlaceSpiderMine.asset".Load<SkillDef>().baseMaxStock = SpiderMines.charges + upLevel;
                 //=== Huntress
-                HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (ModConfig.女猎人射程每级增加距离_.Value * upLevel);
+                HuntressAutoaimFix.Main.maxTrackingDistance.Value = 60 + (ModConfig.女猎人射程每级增加距离.Value * upLevel);
                 //=== Loader
             }
         }
@@ -212,6 +211,8 @@ namespace BtpTweak.Tweaks
             mageProximityBeamController.inheritDamageType = true;
             mageProximityBeamController.damageCoefficient *= 0.1f;
             mageProximityBeamController.listClearInterval = 0;
+            "RoR2/Base/Mage/MageBodyIceBomb.asset".Load<SkillDef>().mustKeyPress = false;
+            "RoR2/Base/Mage/MageBodyNovaBomb.asset".Load<SkillDef>().mustKeyPress = false;
             //======
             On.EntityStates.Mage.Weapon.FireFireBolt.OnEnter += delegate (On.EntityStates.Mage.Weapon.FireFireBolt.orig_OnEnter orig, EntityStates.Mage.Weapon.FireFireBolt self) {
                 if (self.isAuthority) {
@@ -360,7 +361,7 @@ namespace BtpTweak.Tweaks
             //=====
             On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter += delegate (On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.orig_OnEnter orig, FireLunarNeedle self) {
                 if (self.characterBody.bodyIndex == HereticBodyIndex) {
-                    FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 360f;
+                    FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 900f;
                 } else {
                     FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 90f;
                 }
@@ -470,7 +471,7 @@ namespace BtpTweak.Tweaks
                 if (projectileDamage.crit) {
                     explosionRadius *= 2;
                 }
-                GameObject iceExplosion = Instantiate(LegacyResourcesAPI.Load<GameObject>("Prefabs/NetworkedObjects/GenericDelayBlast"), transform.position, Quaternion.identity);
+                GameObject iceExplosion = Instantiate(AssetReferences.genericDelayBlast, transform.position, Quaternion.identity);
                 iceExplosion.transform.localScale = new Vector3(explosionRadius, explosionRadius, explosionRadius);
                 DelayBlast delayBlast = iceExplosion.GetComponent<DelayBlast>();
                 if (delayBlast) {
@@ -482,9 +483,9 @@ namespace BtpTweak.Tweaks
                     delayBlast.crit = projectileDamage.crit;
                     delayBlast.procCoefficient = 0.5f;
                     delayBlast.maxTimer = 2f;
-                    delayBlast.falloffModel = BlastAttack.FalloffModel.None;
-                    delayBlast.explosionEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ImpactEffects/AffixWhiteExplosion");
-                    delayBlast.delayEffect = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/AffixWhiteDelayEffect");
+                    delayBlast.falloffModel = BlastAttack.FalloffModel.Linear;
+                    delayBlast.explosionEffect = AssetReferences.affixWhiteExplosion;
+                    delayBlast.delayEffect = AssetReferences.affixWhiteDelayEffect;
                     delayBlast.damageType = DamageType.Freeze2s;
                     TeamFilter teamFilter = iceExplosion.GetComponent<TeamFilter>();
                     if (teamFilter) {

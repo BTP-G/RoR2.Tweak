@@ -1,6 +1,5 @@
-﻿namespace BtpTweak.MissilePools
-{
-    public class AtgMissileMK_1Pool : MissilePool
-    {
+﻿namespace BtpTweak.MissilePools {
+
+    public class AtgMissileMK_1Pool : MissilePool {
     }
 }

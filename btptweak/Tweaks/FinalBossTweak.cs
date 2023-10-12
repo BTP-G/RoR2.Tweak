@@ -1,8 +1,7 @@
 ﻿using BtpTweak.Utils;
 using RoR2;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
     internal class FinalBossTweak : TweakBase {
 

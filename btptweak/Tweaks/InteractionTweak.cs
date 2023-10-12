@@ -1,14 +1,16 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.IndexCollections;
+using BtpTweak.Utils;
 using EntityStates.Scrapper;
 using RoR2;
 using RoR2.EntityLogic;
+using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
     internal class InteractionTweak : TweakBase {
+        private bool _位于月球;
 
         public override void AddHooks() {
             base.AddHooks();
@@ -16,12 +18,18 @@ namespace BtpTweak.Tweaks
             On.RoR2.PurchaseInteraction.Awake += PurchaseInteraction_Awake;
         }
 
+        public override void StageStartAction(Stage stage) {
+            base.StageStartAction(stage);
+            var sceneIndex = stage.sceneDef.sceneDefIndex;
+            _位于月球 = sceneIndex == SceneIndexCollection.moon2 || sceneIndex == SceneIndexCollection.moon;
+        }
+
         public override void Load() {
             base.Load();
             WaitToBeginScrapping.duration = 0.125f;
             Scrapping.duration = 0.5f;
             ScrappingToIdle.duration = 0.125f;
-            EntityStates.Duplicator.Duplicating.initialDelayDuration = 0.5f;
+            EntityStates.Duplicator.Duplicating.initialDelayDuration = 0;
             var purchaseInteraction = "RoR2/Base/LunarCauldrons/LunarCauldron, RedToWhite Variant.prefab".LoadComponent<PurchaseInteraction>();
             purchaseInteraction.costType = CostTypeIndex.GreenItem;
             purchaseInteraction.Networkcost = purchaseInteraction.cost = 2;
@@ -29,9 +37,17 @@ namespace BtpTweak.Tweaks
             "RoR2/Base/DuplicatorLarge/DuplicatorLarge.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
             "RoR2/Base/DuplicatorMilitary/DuplicatorMilitary.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
             "RoR2/Base/DuplicatorWild/DuplicatorWild.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
+            "RoR2/Base/Scrapper/iscScrapper.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            "RoR2/Base/ShrineBlood/iscShrineBlood.asset".Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            "RoR2/Base/ShrineBlood/iscShrineBloodSandy.asset".Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            "RoR2/Base/ShrineBlood/iscShrineBloodSnowy.asset".Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            "RoR2/Base/ShrineCleanse/iscShrineCleanse.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            "RoR2/Base/ShrineCleanse/iscShrineCleanseSandy.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            "RoR2/Base/ShrineCleanse/iscShrineCleanseSnowy.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            "RoR2/Base/ShrineGoldshoresAccess/iscShrineGoldshoresAccess.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
         }
 
-        private float GetBreakChance(ItemTier itemTier) => itemTier switch {
+        private float GetTPChanceFromItemTier(ItemTier itemTier) => itemTier switch {
             ItemTier.Tier1 => 5f,
             ItemTier.Tier2 => 15f,
             ItemTier.Tier3 => 30f,
@@ -58,20 +74,66 @@ namespace BtpTweak.Tweaks
                 return;
             }
             if (self.name.StartsWith("Duplicator")) {
-                if (Util.CheckRoll(GetBreakChance(self.itemTier))) {
-                    self.SetNoPickup();
-                    EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/OmniEffect/OmniExplosionVFXQuick"), new EffectData {
-                        origin = self.transform.position + (Vector3.up * 2),
-                        scale = (float)(4 + self.itemTier),
-                        rotation = default,
-                    }, true);
-                } else {
-                    self.GetComponent<PurchaseInteraction>().SetAvailable(true);
+                static void FireVoidBomb(Vector3 position) {
+                    FireProjectileInfo fireProjectileInfo = new() {
+                        projectilePrefab = EntityStates.NullifierMonster.DeathState.deathBombProjectile,
+                        position = position,
+                        rotation = Quaternion.identity,
+                        owner = null,
+                        damage = 0,
+                        crit = false
+                    };
+                    ProjectileManager.instance.FireProjectile(fireProjectileInfo);
                 }
-            } else if (self.name.StartsWith("LunarCauldron") && Util.CheckRoll(GetBreakChance(self.itemTier))) {
+                switch (PickupCatalog.GetPickupDef(self.CurrentPickupIndex()).itemTier) {
+                    case ItemTier.Lunar:
+                        if (!_位于月球 && Util.CheckRoll(20)) {
+                            Object.Destroy(self.gameObject);
+                            EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                                origin = self.pickupDisplay.transform.position,
+                                rotation = default,
+                            }, true);
+                            return;
+                        }
+                        break;
+
+                    case ItemTier.VoidTier1:
+                        if (Util.CheckRoll(10)) {
+                            Object.Destroy(self.gameObject);
+                            FireVoidBomb(self.pickupDisplay.transform.position);
+                            return;
+                        }
+                        break;
+
+                    case ItemTier.VoidTier2:
+                        if (Util.CheckRoll(30)) {
+                            Object.Destroy(self.gameObject);
+                            FireVoidBomb(self.pickupDisplay.transform.position);
+                            return;
+                        }
+                        break;
+
+                    case ItemTier.VoidTier3:
+                        if (Util.CheckRoll(60)) {
+                            Object.Destroy(self.gameObject);
+                            FireVoidBomb(self.pickupDisplay.transform.position);
+                            return;
+                        }
+                        break;
+
+                    case ItemTier.VoidBoss:
+                        if (Util.CheckRoll(40)) {
+                            Object.Destroy(self.gameObject);
+                            FireVoidBomb(self.pickupDisplay.transform.position);
+                            return;
+                        }
+                        break;
+                }
+                self.GetComponent<PurchaseInteraction>().SetAvailable(true);
+            } else if (self.name.StartsWith("LunarCauldron") && !_位于月球 && Util.CheckRoll(GetTPChanceFromItemTier(PickupCatalog.GetPickupDef(self.CurrentPickupIndex()).itemTier))) {
                 Object.Destroy(self.gameObject);
-                EffectManager.SpawnEffect("RoR2/Base/moon/MoonExitArenaOrbEffect.prefab".Load<GameObject>(), new EffectData {
-                    origin = self.transform.position + (Vector3.up * 2),
+                EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                    origin = self.pickupDisplay.transform.position,
                     rotation = default,
                 }, true);
             }

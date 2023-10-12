@@ -1,6 +1,7 @@
 ﻿using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -8,55 +9,91 @@ namespace BtpTweak.ProjectileFountains {
 
     [RequireComponent(typeof(CharacterBody))]
     public abstract class ProjectileFountain : MonoBehaviour {
-        protected CharacterBody victimBody;
-        private readonly Dictionary<uint, FireProjectileInfo> _fountain = new();
-        private float fireTimer;
+        private readonly Dictionary<GameObject, Dictionary<ProcChainMask, FireProjectileInfo>> _fountain = new();
+        private CharacterBody _victimBody;
+        private float _fireTimer;
 
         public virtual void AddProjectile(GameObject projectilePrefab, GameObject attacker, float baseDamage, bool isCrit, ProcChainMask procChainMask) {
-            if (_fountain.TryGetValue(procChainMask.mask, out var fireProjectileInfo)) {
-                fireProjectileInfo.damage += baseDamage;
-                if (fireProjectileInfo.owner == null) { fireProjectileInfo.owner = attacker; }
-                _fountain[procChainMask.mask] = fireProjectileInfo;
+            if (_fountain.TryGetValue(attacker, out var infos)) {
+                if (infos.TryGetValue(procChainMask, out var info)) {
+                    info.damage += baseDamage;
+                    infos[procChainMask] = info;
+                } else {
+                    infos.Add(procChainMask, new FireProjectileInfo {
+                        crit = isCrit,
+                        damage = baseDamage,
+                        damageColorIndex = DamageColorIndex.Item,
+                        force = 0f,
+                        fuseOverride = 1f,
+                        owner = attacker,
+                        position = default,
+                        procChainMask = procChainMask,
+                        projectilePrefab = projectilePrefab,
+                        rotation = Random.rotationUniform,
+                        speedOverride = Random.Range(10f, 30f),
+                        target = gameObject,
+                        useFuseOverride = true,
+                        useSpeedOverride = true,
+                    });
+                }
             } else {
-                _fountain.Add(procChainMask.mask, new FireProjectileInfo {
-                    crit = isCrit,
-                    damage = baseDamage,
-                    damageColorIndex = DamageColorIndex.Item,
-                    force = 100f,
-                    fuseOverride = 3,
-                    owner = attacker,
-                    position = default,
-                    procChainMask = procChainMask,
-                    projectilePrefab = projectilePrefab,
-                    rotation = Util.QuaternionSafeLookRotation(new(UnityEngine.Random.Range(-2f, 2f), 6f, UnityEngine.Random.Range(-2f, 2f))),
-                    speedOverride = UnityEngine.Random.Range(15, 30),
-                    target = gameObject,
-                    useFuseOverride = true,
-                    useSpeedOverride = true,
+                _fountain.Add(attacker, new() {
+                    { procChainMask, new FireProjectileInfo {
+                        crit = isCrit,
+                        damage = baseDamage,
+                        damageColorIndex = DamageColorIndex.Item,
+                        force = 0f,
+                        fuseOverride = 1f ,
+                        owner = attacker,
+                        position = default,
+                        procChainMask = procChainMask,
+                        projectilePrefab = projectilePrefab,
+                        rotation = Random.rotationUniform,
+                        speedOverride = Random.Range(10f, 30f),
+                        target = gameObject,
+                        useFuseOverride = true,
+                        useSpeedOverride = true,
+                        }
+                    }
                 });
             }
         }
 
-        protected abstract void Fire(FireProjectileInfo info);
+        protected virtual void ModifyProjectile(ref FireProjectileInfo info) {
+        }
 
         private void FixedUpdate() {
-            if ((fireTimer -= Time.fixedDeltaTime) < 0) {
+            if ((_fireTimer -= Time.fixedDeltaTime) < 0) {
                 if (_fountain.Count > 0) {
-                    foreach (var f in _fountain) { Fire(f.Value); }
-                    _fountain.Clear();
-                    fireTimer = 0.5f;
+                    int allCount = 1;
+                    foreach (var kvp in _fountain) {
+                        var infos = kvp.Value;
+                        if (infos.Count > 0) {
+                            var key_Info = infos.ElementAt(Random.Range(0, infos.Count));
+                            var info = key_Info.Value;
+                            info.position = _victimBody.corePosition + _victimBody.bestFitRadius * 0.5f * Vector3.up;
+                            ModifyProjectile(ref info);
+                            ProjectileManager.instance.FireProjectile(info);
+                            infos.Remove(key_Info.Key);
+                            allCount += infos.Count;
+                        }
+                    }
+                    _fireTimer = ModConfig.喷泉喷射间隔.Value / allCount;
                 }
             }
         }
 
-        private void OnDestroy() => _fountain.Clear();
+        private void OnDestroy() {
+            foreach (var kvp in _fountain) {
+                kvp.Value.Clear();
+            }
+            _fountain.Clear();
+        }
 
         private void Start() {
-            if (!NetworkServer.active) {
-                enabled = false;
-                return;
+            if (enabled = NetworkServer.active) {
+                _victimBody = GetComponent<CharacterBody>();
             }
-            victimBody = GetComponent<CharacterBody>();
         }
     }
 }
