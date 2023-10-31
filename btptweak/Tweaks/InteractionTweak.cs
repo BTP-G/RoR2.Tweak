@@ -49,13 +49,13 @@ namespace BtpTweak.Tweaks {
 
         private float GetTPChanceFromItemTier(ItemTier itemTier) => itemTier switch {
             ItemTier.Tier1 => 5f,
-            ItemTier.Tier2 => 15f,
-            ItemTier.Tier3 => 30f,
+            ItemTier.Tier2 => 10f,
+            ItemTier.Tier3 => 25f,
             ItemTier.Lunar => 20f,
             ItemTier.Boss => 20f,
             ItemTier.VoidTier1 => 10f,
-            ItemTier.VoidTier2 => 30f,
-            ItemTier.VoidTier3 => 60f,
+            ItemTier.VoidTier2 => 20f,
+            ItemTier.VoidTier3 => 50f,
             ItemTier.VoidBoss => 40f,
             _ => 0,
         };

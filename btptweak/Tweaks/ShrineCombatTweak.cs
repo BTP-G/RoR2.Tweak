@@ -4,7 +4,7 @@ using UnityEngine;
 namespace BtpTweak.Tweaks {
 
     internal class ShrineCombatTweak : TweakBase {
-        private int 战斗祭坛物品掉落数_;
+        private float 战斗祭坛物品掉落数_;
 
         public override void AddHooks() {
             base.AddHooks();
@@ -13,7 +13,7 @@ namespace BtpTweak.Tweaks {
 
         public override void StageStartAction(Stage stage) {
             base.StageStartAction(stage);
-            战斗祭坛物品掉落数_ = Mathf.Min(Mathf.RoundToInt((Run.instance.stageClearCount + 1) * 0.51f), 5) * Run.instance.participatingPlayerCount;
+            战斗祭坛物品掉落数_ = Mathf.Min((Run.instance.stageClearCount + 1) * 0.5f, 5) * Run.instance.participatingPlayerCount;
         }
 
         private void ShrineCombatBehavior_onDefeatedServerGlobal(ShrineCombatBehavior shrine) {
@@ -26,7 +26,7 @@ namespace BtpTweak.Tweaks {
                     PickupDropletController.CreatePickupDroplet(pickupIndex, pos, velocity);
                     velocity = rotation * velocity;
                 }
-                战斗祭坛物品掉落数_ /= 2;
+                战斗祭坛物品掉落数_ *= 0.5f;
             }
         }
     }

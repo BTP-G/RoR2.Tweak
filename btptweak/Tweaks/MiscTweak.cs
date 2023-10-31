@@ -9,21 +9,39 @@ using UnityEngine.Networking;
 namespace BtpTweak.Tweaks {
 
     internal class MiscTweak : TweakBase {
-        private ItemIndex _特拉法梅的祝福;
+        private ItemDef _特拉法梅的祝福;
 
         public override void AddHooks() {
             base.AddHooks();
-            CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += TrueDeathState_OnEnter;
             On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
             On.EntityStates.StunState.PlayStunAnimation += StunState_PlayStunAnimation;
             On.RoR2.Run.BeginGameOver += Run_BeginGameOver;
+            On.RoR2.Util.CheckRoll_float_float_CharacterMaster += Util_CheckRoll_float_float_CharacterMaster;
         }
 
         public override void Load() {
             base.Load();
-            _特拉法梅的祝福 = "RoR2/DLC1/LunarWings/LunarWings.asset".Load<ItemDef>().itemIndex;
-            FadeOut.duration = 60;
+            _特拉法梅的祝福 = "RoR2/DLC1/LunarWings/LunarWings.asset".Load<ItemDef>();
+            _特拉法梅的祝福.deprecatedTier = ItemTier.Lunar;
+            _特拉法梅的祝福.tier = ItemTier.Lunar;
+            _特拉法梅的祝福.canRemove = false;
+            _特拉法梅的祝福.tags = new ItemTag[] {
+                ItemTag.CannotCopy,
+                ItemTag.CannotDuplicate,
+                ItemTag.CannotSteal,
+                ItemTag.Utility,
+                ItemTag.WorldUnique,
+            };
+            var pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(_特拉法梅的祝福.itemIndex));
+            var itemTierDef = ItemTierCatalog.GetItemTierDef(_特拉法梅的祝福.tier);
+            pickupDef.baseColor = ColorCatalog.GetColor(itemTierDef.colorIndex);
+            pickupDef.darkColor = ColorCatalog.GetColor(itemTierDef.darkColorIndex);
+            pickupDef.dropletDisplayPrefab = itemTierDef.dropletDisplayPrefab;
+            pickupDef.isLunar = _特拉法梅的祝福.tier == ItemTier.Lunar;
+            pickupDef.itemTier = _特拉法梅的祝福.tier;
+            FadeOut.duration = 60f;
+            EntityStates.BrotherMonster.SpellChannelState.maxDuration = 180f;
         }
 
         public override void RunStartAction(Run run) {
@@ -31,22 +49,19 @@ namespace BtpTweak.Tweaks {
             SetLunarWingsState(false);
         }
 
-        private void CharacterBody_onBodyStartGlobal(CharacterBody body) {
-            if (body.isPlayerControlled && body.inventory.GetItemCount(_特拉法梅的祝福) == 2) {
-                SetLunarWingsState(true);
-            }
+        public override void StageStartAction(Stage stage) {
+            base.StageStartAction(stage);
+            BulwarksHaunt.GhostWave.maxWaves = Run.instance.stageClearCount + 1;
         }
 
         private void FadeOut_OnEnter(On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.orig_OnEnter orig, FadeOut self) {
             orig(self);
             foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances) {
-                var inventory = player.master.inventory;
-                if (inventory?.GetItemCount(_特拉法梅的祝福) == 1) {
-                    if (NetworkServer.active) {
-                        inventory.GiveItem(_特拉法梅的祝福);
-                        ChatMessage.Send(player.GetDisplayName() + "已转化<style=cIsLunar>特拉法梅的祝福(过去时->完成时)</style>");
-                    }
+                if (player.master.inventory.GetItemCount(_特拉法梅的祝福) > 0) {
                     SetLunarWingsState(true);
+                    if (NetworkServer.active) {
+                        ChatMessage.Send(player.GetDisplayName().ToLunar() + "已转化<style=cIsLunar>特拉法梅的祝福(过去时->完成时)</style>");
+                    }
                 }
             }
         }
@@ -55,11 +70,8 @@ namespace BtpTweak.Tweaks {
             if (gameEndingDef == BulwarksHaunt.BulwarksHauntContent.GameEndings.BulwarksHaunt_HauntedEnding) {
                 if (NetworkServer.active) {
                     foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances) {
-                        var inventory = player.master.inventory;
-                        if (inventory?.GetItemCount(_特拉法梅的祝福) == 0) {
-                            inventory.GiveItem(_特拉法梅的祝福);
-                            ChatMessage.Send(player.GetDisplayName() + "已获得<style=cIsLunar>特拉法梅的祝福(过去时)</style>");
-                        }
+                        player.master.inventory.GiveItem(_特拉法梅的祝福);
+                        ChatMessage.Send(player.GetDisplayName() + "已获得<style=cIsLunar>特拉法梅的祝福(过去时)</style>");
                     }
                 }
                 if (Run.instance.nextStageScene) {
@@ -75,7 +87,7 @@ namespace BtpTweak.Tweaks {
         }
 
         private void SetLunarWingsState(bool enable) {
-            TPDespair.ZetAspects.Configuration.AspectEquipmentAbsorb.Value = enable;
+            TPDespair.ZetAspects.Configuration.AspectEquipmentConversion.Value = enable;
             ZetArtifactsPlugin.DropifactVoidT1.Value = enable;
             ZetArtifactsPlugin.DropifactVoidT2.Value = enable;
             ZetArtifactsPlugin.DropifactVoidT3.Value = enable;
@@ -83,7 +95,7 @@ namespace BtpTweak.Tweaks {
             ZetArtifactsPlugin.DropifactLunar.Value = enable;
             ZetArtifactsPlugin.DropifactVoidLunar.Value = enable;
             if (enable) {
-                R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·完成时".ToLunar()}：掌握对{"虚空".ToVoid()}和{"月球".ToLunar()}物品的丢弃权。重复获得{"相同象征".ToUtil()}装备可将其{"转化为物品".ToUtil()}。", "zh-CN");
+                R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·完成时".ToLunar()}：" + (ZetDropifact.Enabled ? $"掌握对{"月球".ToLunar()}和{"虚空".ToVoid()}物品的丢弃权。" : "") + $"{"右键点击象征（右下角）".ToUtil()}装备可将其{"转化为物品".ToUtil()}。", "zh-CN");
             } else {
                 R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·过去时".ToLunar()}：随着{"时间".ToUtil()}流逝已经丧失了全部力量，{"或许在某个地方可以恢复...".ToDeath()}。", "zh-CN");
             }
@@ -109,18 +121,36 @@ namespace BtpTweak.Tweaks {
             if (GlobalInfo.是否选择造物难度 && GlobalInfo.往日不再 == false) {
                 GlobalInfo.往日不再 = true;
                 if (NetworkServer.active) {
-                    ChatMessage.Send("--世界不再是你熟悉的那样！！！".ToLunar());
+                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToLunar());
                 }
             }
             if (NetworkServer.active) {
                 foreach (var player in PlayerCharacterMasterController.instances) {
                     Inventory inventory = player.master.inventory;
-                    int itemCount = inventory?.GetItemCount(RoR2Content.Items.TonicAffliction) ?? 0;
+                    int itemCount = inventory.GetItemCount(RoR2Content.Items.TonicAffliction);
                     if (itemCount > 0) {
                         inventory.RemoveItem(RoR2Content.Items.TonicAffliction, itemCount);
                         ChatMessage.Send($"已移除{player.GetDisplayName().ToLunar()}强心剂副作用！");
                     }
                 }
+            }
+        }
+
+        private bool Util_CheckRoll_float_float_CharacterMaster(On.RoR2.Util.orig_CheckRoll_float_float_CharacterMaster orig, float percentChance, float luck, CharacterMaster effectOriginMaster) {
+            if (percentChance <= 0f) {
+                return false;
+            }
+            float random = Random.Range(0f, 100f);
+            if (random <= percentChance + percentChance * (luck / (Mathf.Abs(luck) + 3))) {
+                if (random > percentChance && effectOriginMaster) {
+                    var body = effectOriginMaster.GetBody();
+                    if (body) {
+                        body.wasLucky = true;
+                    }
+                }
+                return true;
+            } else {
+                return false;
             }
         }
     }

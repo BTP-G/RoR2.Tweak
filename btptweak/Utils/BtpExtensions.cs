@@ -1,9 +1,22 @@
+using RoR2;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace BtpTweak.Utils {
 
     public static class BtpExtensions {
+
+        public static void AddPoolProcs(this ref ProcChainMask procChainMask) {
+            if (ModConfig.²âÊÔÓÃ3.Value > 100) {
+                procChainMask.AddProc(ProcType.BounceNearby);
+                procChainMask.AddProc(ProcType.ChainLightning);
+                procChainMask.AddProc(ProcType.Count);
+                procChainMask.AddProc(ProcType.LightningStrikeOnHit);
+                procChainMask.AddProc(ProcType.Meatball);
+                procChainMask.AddProc(ProcType.Missile);
+                procChainMask.AddProc(ProcType.Rings);
+            }
+        }
 
         public static T AddComponent<T>(this Component self) where T : Component => self.gameObject.AddComponent<T>();
 

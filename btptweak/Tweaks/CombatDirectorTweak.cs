@@ -27,13 +27,6 @@ namespace BtpTweak.Tweaks {
             R2API.EliteAPI.AddCustomEliteTier(eliteTierDef);
         }
 
-        public override void RemoveHooks() {
-            base.RemoveHooks();
-            On.RoR2.CombatDirector.Awake -= CombatDirector_Awake;
-            On.RoR2.CombatDirector.Spawn -= CombatDirector_Spawn;
-            On.RoR2.Run.AdvanceStage -= Run_AdvanceStage;
-        }
-
         public override void RunStartAction(Run run) {
             base.RunStartAction(run);
             TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = 40;
@@ -56,6 +49,14 @@ namespace BtpTweak.Tweaks {
             return orig(self, spawnCard, eliteDef, spawnTarget, spawnDistance, preventOverhead, valueMultiplier, placementMode);
         }
 
+        private void Run_AdvanceStage(On.RoR2.Run.orig_AdvanceStage orig, Run self, SceneDef nextScene) {
+            orig(self, nextScene);
+            int newSoftCharacterLimit = Mathf.Max(18, 40 - 4 * self.stageClearCount);
+            TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = newSoftCharacterLimit;
+            TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = newSoftCharacterLimit;
+            SetEliteForCurrentScene(nextScene.sceneDefIndex);
+        }
+
         private void SetEliteForCurrentScene(SceneIndex sceneIndex) {
             _精英转化几率 = 0;
             _特殊环境精英属性 = null;
@@ -74,15 +75,10 @@ namespace BtpTweak.Tweaks {
             } else if (sceneIndex == SceneIndexCollection.golemplains || sceneIndex == SceneIndexCollection.golemplains2) {
                 _特殊环境精英属性 = DLC1Content.Elites.Earth;
                 _精英转化几率 = 25;
+            } else if (sceneIndex == SceneIndexCollection.voidstage) {
+                _特殊环境精英属性 = DLC1Content.Elites.Void;
+                _精英转化几率 = 50;
             }
-        }
-
-        private void Run_AdvanceStage(On.RoR2.Run.orig_AdvanceStage orig, Run self, SceneDef nextScene) {
-            orig(self, nextScene);
-            int newSoftCharacterLimit = Mathf.Max(18, 40 - 4 * self.stageClearCount);
-            TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = newSoftCharacterLimit;
-            TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = newSoftCharacterLimit;
-            SetEliteForCurrentScene(nextScene.sceneDefIndex);
         }
     }
 }

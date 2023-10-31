@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using RoR2;
 using RoR2.Orbs;
 
 namespace BtpTweak.Tweaks {
@@ -10,6 +11,7 @@ namespace BtpTweak.Tweaks {
             base.AddHooks();
             IL.RoR2.Orbs.LightningOrb.Begin += LightningOrb_Begin;
             IL.RoR2.Orbs.MissileVoidOrb.Begin += MissileVoidOrb_Begin;
+            IL.RoR2.Orbs.SimpleLightningStrikeOrb.OnArrival += SimpleLightningStrikeOrb_OnArrival;
         }
 
         private void LightningOrb_Begin(ILContext il) {
@@ -31,6 +33,18 @@ namespace BtpTweak.Tweaks {
                 ilcursor.Emit(OpCodes.Ldc_R4, 150f);
             } else {
                 Main.Logger.LogError("MissileVoidOrb Hook Failed!");
+            }
+        }
+
+        private void SimpleLightningStrikeOrb_OnArrival(ILContext il) {
+            ILCursor cursor = new(il);
+            if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchStfld<BlastAttack>(x, "procCoefficient"))) {
+                --cursor.Index;
+                cursor.Remove();
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit<GenericDamageOrb>(OpCodes.Ldfld, "procCoefficient");
+            } else {
+                Main.Logger.LogError("SimpleLightningStrikeOrb ProcHook Failed!");
             }
         }
     }

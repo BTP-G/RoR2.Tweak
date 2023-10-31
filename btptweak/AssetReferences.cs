@@ -17,5 +17,9 @@ namespace BtpTweak {
         public static readonly GameObject magmaOrbProjectile = "RoR2/Base/MagmaWorm/MagmaOrbProjectile.prefab".Load<GameObject>();
         public static readonly GameObject omniRecycleEffect = "RoR2/Base/Recycle/OmniRecycleEffect.prefab".Load<GameObject>();
         public static readonly GameObject stickyBombProjectile = "RoR2/Base/StickyBomb/StickyBomb.prefab".Load<GameObject>();
+        public static readonly GameObject molotovSingleProjectile = "RoR2/DLC1/Molotov/MolotovSingleProjectile.prefab".Load<GameObject>();
+        public static readonly GameObject molotovProjectileDotZone = "RoR2/DLC1/Molotov/MolotovProjectileDotZone.prefab".Load<GameObject>();
+        public static readonly GameObject fireTornado = "RoR2/Base/ElementalRings/FireTornado.prefab".Load<GameObject>();
+        public static readonly GameObject elementalRingVoidBlackHole = LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/ElementalRingVoidBlackHole");
     }
 }

@@ -1,8 +1,10 @@
 ﻿using RoR2;
+using System.Collections.Generic;
 
 namespace BtpTweak.IndexCollections {
 
     public static class BodyIndexCollection {
+        public static readonly Dictionary<BodyIndex, BodyNameIndex> BodyIndexToNameIndex = new();
         public static BodyIndex ArbiterBody;
         public static BodyIndex Bandit2Body;
         public static BodyIndex BrotherBody;
@@ -14,6 +16,7 @@ namespace BtpTweak.IndexCollections {
         public static BodyIndex EngiBody;
         public static BodyIndex EngiTurretBody;
         public static BodyIndex EngiWalkerTurretBody;
+        public static BodyIndex EquipmentDroneBody;
         public static BodyIndex HereticBody;
         public static BodyIndex HuntressBody;
         public static BodyIndex LoaderBody;
@@ -28,6 +31,38 @@ namespace BtpTweak.IndexCollections {
         public static BodyIndex TreebotBody;
         public static BodyIndex VoidSurvivorBody;
 
+        public enum BodyNameIndex : byte {
+            None = 0,
+            ArbiterBody,
+            Bandit2Body,
+            BrotherBody,
+            BrotherHurtBody,
+            CaptainBody,
+            CHEF,
+            CommandoBody,
+            CrocoBody,
+            EngiBody,
+            EngiTurretBody,
+            EngiWalkerTurretBody,
+            HereticBody,
+            HuntressBody,
+            LoaderBody,
+            MageBody,
+            MercBody,
+            MiniVoidRaidCrabBodyPhase1,
+            MiniVoidRaidCrabBodyPhase2,
+            MiniVoidRaidCrabBodyPhase3,
+            PathfinderBody,
+            RailgunnerBody,
+            RedMistBody,
+            RobPaladinBody,
+            SniperClassicBody,
+            ToolbotBody,
+            TreebotBody,
+            VoidSurvivorBody,
+            Count,
+        }
+
         public static void LoadAllBodyIndexes() {
             ArbiterBody = BodyCatalog.FindBodyIndex("ArbiterBody");
             Bandit2Body = BodyCatalog.FindBodyIndex("Bandit2Body");
@@ -40,6 +75,7 @@ namespace BtpTweak.IndexCollections {
             EngiBody = BodyCatalog.FindBodyIndex("EngiBody");
             EngiTurretBody = BodyCatalog.FindBodyIndex("EngiTurretBody");
             EngiWalkerTurretBody = BodyCatalog.FindBodyIndex("EngiWalkerTurretBody");
+            EquipmentDroneBody = BodyCatalog.FindBodyIndex("EquipmentDroneBody");
             HereticBody = BodyCatalog.FindBodyIndex("HereticBody");
             HuntressBody = BodyCatalog.FindBodyIndex("HuntressBody");
             LoaderBody = BodyCatalog.FindBodyIndex("LoaderBody");
@@ -53,6 +89,9 @@ namespace BtpTweak.IndexCollections {
             ToolbotBody = BodyCatalog.FindBodyIndex("ToolbotBody");
             TreebotBody = BodyCatalog.FindBodyIndex("TreebotBody");
             VoidSurvivorBody = BodyCatalog.FindBodyIndex("VoidSurvivorBody");
+            for (BodyNameIndex bodyNameIndex = BodyNameIndex.None + 1; bodyNameIndex < BodyNameIndex.Count; ++bodyNameIndex) {
+                BodyIndexToNameIndex.Add(BodyCatalog.FindBodyIndex(bodyNameIndex.ToString()), bodyNameIndex);
+            }
         }
     }
 }

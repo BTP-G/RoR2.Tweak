@@ -25,15 +25,24 @@ namespace BtpTweak.Tweaks {
             if (damageReport.attackerTeamIndex == damageReport.victimTeamIndex && damageReport.victimMaster.minionOwnership.ownerMaster) {
                 return;
             }
-            float expAdjustedDropChancePercent = Util.GetExpAdjustedDropChancePercent((damageReport.victimIsChampion ? 50 : 5) + _牺牲保底概率++ + _牺牲衰减概率, damageReport.victim.gameObject);
+            float baseDropChancePercent = ModConfig.牺牲基础掉率.Value + _牺牲保底概率 - _牺牲衰减概率;
+            if (damageReport.victimIsChampion) {
+                baseDropChancePercent += ModConfig.牺牲基础掉率.Value;
+            }
+            if (damageReport.victimIsElite) {
+                baseDropChancePercent += ModConfig.牺牲基础掉率.Value * 0.5f;
+            }
+            float expAdjustedDropChancePercent = Util.GetExpAdjustedDropChancePercent(baseDropChancePercent, damageReport.victim.gameObject);
             Debug.LogFormat("Drop chance from {0} == {1}", damageReport.victimBody, expAdjustedDropChancePercent);
             if (Util.CheckRoll(expAdjustedDropChancePercent)) {
                 PickupIndex pickupIndex = SacrificeArtifactManager.dropTable.GenerateDrop(SacrificeArtifactManager.treasureRng);
                 if (pickupIndex != PickupIndex.none) {
                     PickupDropletController.CreatePickupDroplet(pickupIndex, damageReport.victimBody.corePosition, Vector3.up * 20f);
                     _牺牲保底概率 = 0;
-                    _牺牲衰减概率 -= 0.1f / Run.instance.participatingPlayerCount;
+                    _牺牲衰减概率 += ModConfig.牺牲基础掉率.Value * 0.02f / Run.instance.participatingPlayerCount;
                 }
+            } else {
+                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.2f * Run.instance.participatingPlayerCount;
             }
         }
     }

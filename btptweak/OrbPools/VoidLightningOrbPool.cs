@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using BtpTweak.Utils;
+using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,6 +27,7 @@ namespace BtpTweak.OrbPools {
         protected override void ModifyOrb(ref VoidLightningOrb orb) {
             orb.origin = transform.position;
             orb.procChainMask.AddProc(ProcType.ChainLightning);
+            orb.procChainMask.AddPoolProcs();
         }
     }
 }

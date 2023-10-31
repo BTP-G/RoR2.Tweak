@@ -39,8 +39,8 @@ namespace BtpTweak.Tweaks {
             EffectSpawnLimit.AddLimitToEffect("RoR2/Base/Thorns/RazorwireOrbEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/ChainLightningVoid/VoidLightningOrbEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/ChainLightningVoid/VoidLightningStrikeImpact.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
-            EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/MissileVoid/MissileVoidOrbEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
-            EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/MissileVoid/VoidImpactEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
+            //EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/MissileVoid/MissileVoidOrbEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
+            EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/MissileVoid/VoidImpactEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.02f);
             EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/PermanentDebuffOnHit/PermanentDebuffEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.1f);
             EffectSpawnLimit.AddLimitToEffect(EntityStates.Merc.Evis.hitEffectPrefab.GetComponent<EffectComponent>().effectIndex, 0.1f);
             EffectSpawnLimit.AddLimitToEffect(HealthComponent.AssetReferences.bearEffectPrefab.GetComponent<EffectComponent>().effectIndex, 1f);
@@ -60,7 +60,7 @@ namespace BtpTweak.Tweaks {
                 return;
             }
             if (effectPrefab && !string.IsNullOrEmpty(effectPrefab.name)) {
-                UnityEngine.Debug.LogError("Unable to SpawnEffect from prefab named '" + effectPrefab?.name + "'");
+                UnityEngine.Debug.LogError("Unable to SpawnEffect from prefab named '" + effectPrefab.name + "'");
                 return;
             }
             UnityEngine.Debug.LogError(string.Format("Unable to SpawnEffect.  Is null? {0}.  Name = '{1}'.\n{2}", effectPrefab == null, effectPrefab?.name, new StackTrace()));

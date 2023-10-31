@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using BtpTweak.Utils;
+using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,6 +28,8 @@ namespace BtpTweak.OrbPools {
             orb.origin = transform.position;
             orb.target = orb.PickNextTarget(orb.origin);
             orb.procChainMask.AddProc(ProcType.ChainLightning);
+            orb.procChainMask.AddPoolProcs();
+
         }
     }
 }

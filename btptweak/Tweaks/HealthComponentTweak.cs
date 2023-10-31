@@ -3,7 +3,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
@@ -16,9 +15,11 @@ namespace BtpTweak.Tweaks {
 
         public override void AddHooks() {
             base.AddHooks();
+            GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
             IL.RoR2.HealthComponent.TakeDamage += IL_HealthComponent_TakeDamage;
             IL.RoR2.HealthComponent.TriggerOneShotProtection += IL_HealthComponent_TriggerOneShotProtection;
-            On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            On.RoR2.HealthComponent.Heal += HealthComponent_Heal;
+            On.RoR2.HealthComponent.RechargeShield += HealthComponent_RechargeShield;
             Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
         }
 
@@ -27,25 +28,36 @@ namespace BtpTweak.Tweaks {
             _伤害阈值_ = 0.1f * Run.instance.stageClearCount * (Run.instance.ambientLevel / (Run.instance.ambientLevel + 100f));
         }
 
-        private void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
-            if (NetworkServer.active) {
-                orig(self, damageInfo);
-                if (GlobalInfo.是否选择造物难度) {
-                    CharacterBody victimBody = self.body;
-                    if (victimBody.teamComponent.teamIndex == TeamIndex.Monster && (victimBody.inventory?.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex) == 0) && self.isHealthLow) {
-                        if (PhaseCounter.instance && victimBody.bodyIndex == BodyIndexCollection.BrotherBody) {
-                            victimBody.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
-                            victimBody.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 10);
-                            victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
-                            Util.CleanseBody(self.body, true, false, false, false, true, true);
-                        } else {
-                            victimBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, 20);
-                            victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
-                            Util.CleanseBody(self.body, true, false, false, false, true, false);
-                        }
+        private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
+            if (GlobalInfo.是否选择造物难度 && damageReport.hitLowHealth && damageReport.victimTeamIndex == TeamIndex.Monster) {
+                CharacterBody victimBody = damageReport.victimBody;
+                if ((victimBody.inventory?.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex) == 0)) {
+                    if (PhaseCounter.instance && victimBody.bodyIndex == BodyIndexCollection.BrotherBody) {
+                        victimBody.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
+                        victimBody.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 10);
+                        victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                        Util.CleanseBody(victimBody, true, false, false, false, true, true);
+                    } else {
+                        victimBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, 20);
+                        victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                        Util.CleanseBody(victimBody, true, false, false, false, true, false);
                     }
                 }
             }
+        }
+
+        private float HealthComponent_Heal(On.RoR2.HealthComponent.orig_Heal orig, HealthComponent self, float amount, ProcChainMask procChainMask, bool nonRegen) {
+            if (self.body.bodyIndex == BodyIndexCollection.BrotherHurtBody) {
+                return 0f;
+            }
+            return orig(self, amount, procChainMask, nonRegen);
+        }
+
+        private void HealthComponent_RechargeShield(On.RoR2.HealthComponent.orig_RechargeShield orig, HealthComponent self, float value) {
+            if (self.body.bodyIndex == BodyIndexCollection.BrotherHurtBody) {
+                return;
+            }
+            orig(self, value);
         }
 
         private void IL_HealthComponent_TakeDamage(ILContext il) {
@@ -62,7 +74,7 @@ namespace BtpTweak.Tweaks {
                                 damage = Mathf.Min(damage, _虚灵触发伤害限制_ * healthComponent.fullHealth);
                             } else {
                                 damage = Mathf.Min(damage, _虚灵爆发伤害限制_ * healthComponent.fullHealth);
-                                Util.CleanseBody(victimBody, true, false, false, true, true, true);
+                                Util.CleanseBody(victimBody, true, false, false, false, true, true);
                             }
                         } else if (PhaseCounter.instance) {
                             BodyIndex selfIndex = victimBody.bodyIndex;
@@ -71,7 +83,7 @@ namespace BtpTweak.Tweaks {
                                     damage = Mathf.Min(damage, _老米触发伤害限制_ * healthComponent.fullCombinedHealth);
                                 } else {
                                     damage = Mathf.Min(damage, _老米爆发伤害限制_ * healthComponent.fullCombinedHealth);
-                                    Util.CleanseBody(victimBody, true, false, false, true, true, true);
+                                    Util.CleanseBody(victimBody, true, false, false, false, true, true);
                                 }
                             } else if (selfIndex == BodyIndexCollection.BrotherHurtBody) {
                                 damage = Mathf.Max(healthComponent.combinedHealth * 0.01f, Mathf.Min(healthComponent.combinedHealth * 0.99f, damage));

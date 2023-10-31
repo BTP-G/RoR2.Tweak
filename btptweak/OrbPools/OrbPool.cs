@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using RoR2.Orbs;
+﻿using RoR2.Orbs;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -26,7 +25,9 @@ namespace BtpTweak.OrbPools {
                             var keyOrb = orbs.ElementAt(Random.Range(0, orbs.Count));
                             var orb = keyOrb.Value;
                             ModifyOrb(ref orb);
-                            OrbManager.instance.AddOrb(orb);
+                            if (orb.target) {
+                                OrbManager.instance.AddOrb(orb);
+                            }
                             orbs.Remove(keyOrb.Key);
                             allCount += orbs.Count;
                         }

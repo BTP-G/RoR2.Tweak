@@ -3,7 +3,7 @@ using RoR2;
 
 namespace BtpTweak.Tweaks {
 
-    internal class FinalBossTweak : TweakBase {
+    internal class VoidRaidCrabTweak : TweakBase {
 
         public override void Load() {
             base.Load();

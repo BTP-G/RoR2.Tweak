@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using BtpTweak.Utils;
+using RoR2;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -36,13 +37,15 @@ namespace BtpTweak.MissilePools {
             }
         }
 
-        private void FireMissile(in ProcChainMask procChainMask, in MissileInfo missileInfo) => MissileUtils.FireMissile(_attackerBody.corePosition, _attackerBody, procChainMask, missileInfo.target, missileInfo.baseDamage, missileInfo.isCrit, MissilePrefab, DamageColorIndex.Item, missileInfo.isCrit);
+        private void FireMissile(in ProcChainMask procChainMask, in MissileInfo missileInfo) => MissileUtils.FireMissile(_attackerBody.corePosition, _attackerBody, procChainMask, missileInfo.target, missileInfo.baseDamage, missileInfo.isCrit, MissilePrefab, DamageColorIndex.Item, Vector3.up, 0f, missileInfo.isCrit);
 
         private void FixedUpdate() {
             if ((_missileTimer -= Time.fixedDeltaTime) < 0) {
                 if (_pool.Count > 0) {
                     var m = _pool.ElementAt(Random.Range(0, _pool.Count));
-                    FireMissile(m.Key, m.Value);
+                    var mask = m.Key;
+                    mask.AddPoolProcs();
+                    FireMissile(mask, m.Value);
                     _pool.Remove(m.Key);
                     _missileTimer = ModConfig.导弹发射间隔.Value / (1 + _pool.Count);
                 }

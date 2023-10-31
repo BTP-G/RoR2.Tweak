@@ -11,8 +11,23 @@ namespace BtpTweak.Tweaks {
 
         public override void AddHooks() {
             base.AddHooks();
-            On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+            GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;
+            On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        }
+
+        private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {
+            var victimBody = damageReport.victimBody;
+            if (!victimBody) {
+                return;
+            }
+            if (victimBody.bodyIndex == IndexCollections.BodyIndexCollection.EquipmentDroneBody) {
+                PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(victimBody.inventory.currentEquipmentIndex), victimBody.corePosition, Vector3.up * 15f);
+            }
+            var bossDropTable = victimBody.gameObject.GetComponent<DeathRewards>()?.bossDropTable;
+            if (bossDropTable && Util.CheckRoll(ModConfig.测试用1.Value, damageReport.attackerMaster)) {
+                PickupDropletController.CreatePickupDroplet(bossDropTable.GenerateDrop(Run.instance.treasureRng), victimBody.corePosition, Vector3.up * 15f);
+            }
         }
 
         private void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
@@ -23,7 +38,7 @@ namespace BtpTweak.Tweaks {
             orig(self, damageInfo, victim);
             GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = true;
             if (NetworkServer.active) {
-                if (victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[1].buffIndex) > 5 * victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[0].buffIndex)) {
+                if (victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[1].buffIndex) >= 3 * (1 + victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[0].buffIndex))) {
                     DotController.InflictDot(victim, damageInfo.attacker, DeepRot.deepRotDOT, 20f);
                 }
             }

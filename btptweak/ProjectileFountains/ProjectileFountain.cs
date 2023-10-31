@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using BtpTweak.Utils;
+using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +61,7 @@ namespace BtpTweak.ProjectileFountains {
         }
 
         protected virtual void ModifyProjectile(ref FireProjectileInfo info) {
+            info.procChainMask.AddPoolProcs();
         }
 
         private void FixedUpdate() {
