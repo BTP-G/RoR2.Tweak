@@ -8,26 +8,21 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class LoaderTweak : TweakBase {
+    internal class LoaderTweak : TweakBase<LoaderTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
-            On.EntityStates.Loader.SwingZapFist.OnExit += delegate (On.EntityStates.Loader.SwingZapFist.orig_OnExit orig, EntityStates.Loader.SwingZapFist self) {
-                EntityStates.Loader.SwingZapFist.selfKnockback = 100 * self.punchSpeed;
-                orig(self);
-            };
-            On.EntityStates.Loader.BaseSwingChargedFist.OnEnter += delegate (On.EntityStates.Loader.BaseSwingChargedFist.orig_OnEnter orig, EntityStates.Loader.BaseSwingChargedFist self) {
-                if (self is EntityStates.Loader.SwingChargedFist) {
-                    self.procCoefficient = Mathf.Lerp(0.6f, 2.7f, self.charge);
-                } else {
-                    self.procCoefficient = 2.1f;
-                }
-                orig(self);
-            };
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            On.EntityStates.Loader.SwingZapFist.OnExit += SwingZapFist_OnExit;
+            On.EntityStates.Loader.BaseSwingChargedFist.OnEnter += BaseSwingChargedFist_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.EntityStates.Loader.SwingZapFist.OnExit -= SwingZapFist_OnExit;
+            On.EntityStates.Loader.BaseSwingChargedFist.OnEnter -= BaseSwingChargedFist_OnEnter;
+        }
+
+        public void Load() {
             var loaderBody = RoR2Content.Survivors.Loader.bodyPrefab.GetComponent<CharacterBody>();
             loaderBody.baseAcceleration *= 2f;
             "RoR2/Base/Loader/LoaderPylon.prefab".Load<GameObject>().AddComponent<M551PylonStartAction>();  // 电塔
@@ -46,13 +41,23 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef.skillName, "SKILL_FIST_NAME", 2.1f);
         }
 
+        private void BaseSwingChargedFist_OnEnter(On.EntityStates.Loader.BaseSwingChargedFist.orig_OnEnter orig, EntityStates.Loader.BaseSwingChargedFist self) {
+            if (self is EntityStates.Loader.SwingChargedFist) {
+                self.procCoefficient = Mathf.Lerp(0.6f, 2.7f, self.charge);
+            } else {
+                self.procCoefficient = 2.1f;
+            }
+            orig(self);
+        }
+
+        private void SwingZapFist_OnExit(On.EntityStates.Loader.SwingZapFist.orig_OnExit orig, EntityStates.Loader.SwingZapFist self) {
+            EntityStates.Loader.SwingZapFist.selfKnockback = 100 * self.punchSpeed;
+            orig(self);
+        }
+
         [RequireComponent(typeof(ProjectileController))]
         [RequireComponent(typeof(ProjectileProximityBeamController))]
         private class M551PylonStartAction : MonoBehaviour {
-
-            private void Awake() {
-                enabled = NetworkServer.active;
-            }
 
             public void Start() {
                 var inventory = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory;
@@ -63,6 +68,10 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                     proximityBeamController.attackRange += M551Pylon.aoe * itemCount;
                     proximityBeamController.bounces += itemCount;
                 }
+            }
+
+            private void Awake() {
+                enabled = NetworkServer.active;
             }
         }
     }

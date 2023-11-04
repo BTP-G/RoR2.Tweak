@@ -2,16 +2,18 @@
 
 namespace BtpTweak.Tweaks {
 
-    internal partial class SummonTweak : TweakBase {
+    internal partial class SummonTweak : TweakBase<SummonTweak> {
         private ItemDef _weddingRing;
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             MasterSummon.onServerMasterSummonGlobal += MasterSummon_onServerMasterSummonGlobal;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            MasterSummon.onServerMasterSummonGlobal -= MasterSummon_onServerMasterSummonGlobal;
+        }
+
+        public void Load() {
             _weddingRing = ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("RuinaWeddingRing"));
         }
 

@@ -3,17 +3,21 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class Bandit2Tweak : TweakBase {
+    internal class Bandit2Tweak : TweakBase<Bandit2Tweak>{
 
-        public override void AddHooks() {
-            base.AddHooks();
-
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             On.EntityStates.Bandit2.Weapon.FireSidearmResetRevolver.ModifyBullet += FireSidearmResetRevolver_ModifyBullet;
             On.EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState.OnEnter += BaseFireSidearmRevolverState_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.EntityStates.Bandit2.Weapon.FireSidearmResetRevolver.ModifyBullet -= FireSidearmResetRevolver_ModifyBullet;
+            On.EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState.OnEnter -= BaseFireSidearmRevolverState_OnEnter;
+        }
+
+        public void Load() {
             EntityStates.Bandit2.Weapon.EnterReload.baseDuration *= 0.5f;
             EntityStates.Bandit2.Weapon.Reload.baseDuration *= 0.5f;
         }

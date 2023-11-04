@@ -1,23 +1,25 @@
 ﻿using RoR2;
 using UnityEngine;
-using static BtpTweak.IndexCollections.BodyIndexCollection;
+using static BtpTweak.RoR2Indexes.BodyIndexes;
 
 namespace BtpTweak.Tweaks {
 
-    internal class RecalculateStatsTweak : TweakBase {
+    internal class RecalculateStatsTweak : TweakBase<RecalculateStatsTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }
 
+        public override void ClearEventHandlers() {
+            R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
+        }
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
             Inventory inventory = sender.inventory;
             if (inventory) {
                 float upLevel = sender.level - 1;
                 int itemCount = inventory.GetItemCount(RoR2Content.Items.FlatHealth.itemIndex);
                 float levelMaxHealthAdd = 2.5f * itemCount;
-                if (BodyIndexToNameIndex.TryGetValue(sender.bodyIndex, out BodyNameIndex loc)) {
+                if (BodyIndexToNameIndex.TryGetValue((int)sender.bodyIndex, out BodyNameIndex loc)) {
                     switch (loc) {
                         case BodyNameIndex.ArbiterBody: {
                             float statUpPercent = 0.05f * inventory.GetItemCount(DLC1Content.Items.AttackSpeedAndMoveSpeed.itemIndex);

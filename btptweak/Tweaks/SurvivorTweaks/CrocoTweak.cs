@@ -3,21 +3,25 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class CrocoTweak : TweakBase {
+    internal class CrocoTweak : TweakBase<CrocoTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             On.EntityStates.Croco.Bite.OnEnter += Bite_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.EntityStates.Croco.Bite.OnEnter -= Bite_OnEnter;
+        }
+
+        public void Load() {
             DeepRot.scriptableObject.buffs[0].canStack = true;
         }
 
         private void Bite_OnEnter(On.EntityStates.Croco.Bite.orig_OnEnter orig, EntityStates.Croco.Bite self) {
             if (self.isAuthority) {
-                self.damageCoefficient += self.characterBody.inventory.GetItemCount(RoR2Content.Items.Tooth.itemIndex);
+                self.pushAwayForce *= 1 + self.characterBody.inventory.GetItemCount(RoR2Content.Items.Tooth.itemIndex);
             }
             orig(self);
         }

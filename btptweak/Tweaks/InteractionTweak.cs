@@ -1,4 +1,4 @@
-﻿using BtpTweak.IndexCollections;
+﻿using BtpTweak.RoR2Indexes;
 using BtpTweak.Utils;
 using EntityStates.Scrapper;
 using RoR2;
@@ -9,23 +9,24 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class InteractionTweak : TweakBase {
+    internal class InteractionTweak : TweakBase<InteractionTweak> {
         private bool _位于月球;
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             On.RoR2.ShopTerminalBehavior.DropPickup += ShopTerminalBehavior_DropPickup;
             On.RoR2.PurchaseInteraction.Awake += PurchaseInteraction_Awake;
+            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
         }
 
-        public override void StageStartAction(Stage stage) {
-            base.StageStartAction(stage);
-            var sceneIndex = stage.sceneDef.sceneDefIndex;
-            _位于月球 = sceneIndex == SceneIndexCollection.moon2 || sceneIndex == SceneIndexCollection.moon;
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.RoR2.ShopTerminalBehavior.DropPickup -= ShopTerminalBehavior_DropPickup;
+            On.RoR2.PurchaseInteraction.Awake -= PurchaseInteraction_Awake;
+            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
         }
 
-        public override void Load() {
-            base.Load();
+        public void Load() {
             WaitToBeginScrapping.duration = 0.125f;
             Scrapping.duration = 0.5f;
             ScrappingToIdle.duration = 0.125f;
@@ -45,6 +46,11 @@ namespace BtpTweak.Tweaks {
             "RoR2/Base/ShrineCleanse/iscShrineCleanseSandy.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             "RoR2/Base/ShrineCleanse/iscShrineCleanseSnowy.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             "RoR2/Base/ShrineGoldshoresAccess/iscShrineGoldshoresAccess.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+        }
+
+        public void Stage_onStageStartGlobal(Stage stage) {
+            var sceneIndex = stage.sceneDef.sceneDefIndex;
+            _位于月球 = sceneIndex == SceneIndexes.Moon2 || sceneIndex == SceneIndexes.Moon;
         }
 
         private float GetTPChanceFromItemTier(ItemTier itemTier) => itemTier switch {

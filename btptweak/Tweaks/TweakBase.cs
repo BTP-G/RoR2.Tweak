@@ -1,34 +1,24 @@
-﻿using RoR2;
-using System.Collections.Generic;
+﻿using System;
 
-namespace BtpTweak.Tweaks {
+namespace BtpTweak.Tweaks
+{
 
-    internal abstract class TweakBase {
+    public abstract class TweakBase<T> : TweakBase, IEventHandlers where T : TweakBase<T> {
 
         public TweakBase() {
-            Instances.Add(this);
+            if (Instance != null) {
+                throw new InvalidOperationException("Singleton class " + typeof(T).FullName + " was instantiated twice");
+            }
+            Instance = this as T;
         }
 
-        public static List<TweakBase> Instances { get; } = new List<TweakBase>();
+        public static T Instance { get; private set; }
 
-        public virtual void AddHooks() {
-            Main.Logger.LogMessage(GetType().Name + "已添加钩子！");
-        }
+        public abstract void ClearEventHandlers();
 
-        public virtual void Load() {
-            Main.Logger.LogMessage(GetType().Name + "已加载！");
-        }
+        public abstract void SetEventHandlers();
+    }
 
-        public virtual void RemoveHooks() {
-            Main.Logger.LogMessage(GetType().Name + "已移除钩子！");
-        }
-
-        public virtual void RunStartAction(Run run) {
-            Main.Logger.LogMessage(GetType().Name + "已调用RunStartAction。");
-        }
-
-        public virtual void StageStartAction(Stage stage) {
-            Main.Logger.LogMessage(GetType().Name + "已调用StageStartAction。");
-        }
+    public abstract class TweakBase {
     }
 }

@@ -1,13 +1,14 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using BtpTweak.IndexCollections;
-using BtpTweak.Tweaks;
+using BtpTweak.Utils;
 using ConfigurableDifficulty;
-using R2API.Utils;
+using Newtonsoft.Json.Utilities;
 using RoR2;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using UnityEngine;
 
 namespace BtpTweak {
 
@@ -35,42 +36,52 @@ namespace BtpTweak {
         public const string PluginName = "BtpTweak";
         public const string PluginVersion = "2.3.33";
 
-        public Main() {
+        private static readonly List<IEventHandlers> eventHandlers = new();
+        public static Main Instance { get; private set; }
+        public static BuffDef VoidFire { get; private set; }
+        internal new static ManualLogSource Logger { get; private set; }
+
+        private void Awake() {
             Instance = this;
             Logger = base.Logger;
+            ModConfig.InitConfig();
+            SetUpBuffs();
+            InitEventHandlers();
         }
 
-        public static Main Instance { get; private set; }
-        public new static ManualLogSource Logger { get; private set; }
+        private void InitEventHandlers() {
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.ImplementInterface(typeof(IEventHandlers)) && type.GetCustomAttribute<IncompleteAttribute>() == null)) {
+                var obj = Activator.CreateInstance(type);
+                eventHandlers.Add(obj as IEventHandlers);
+            }
+        }
 
-        protected void Awake() {
-            ModConfig.InitConfig();
-            var TweakTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.IsSubclassOf(typeof(TweakBase)));
-            TweakTypes.ForEachTry(type => Activator.CreateInstance(type));
-            RoR2Application.onLoad = (Action)Delegate.Combine(RoR2Application.onLoad, () => {
-                BodyIndexCollection.LoadAllBodyIndexes();
-                SceneIndexCollection.LoadAllSceneIndexes();
-                TweakBase.Instances.ForEach((instance) => {
-                    instance.Load();
-                    instance.AddHooks();
-                });
-                Localization.基础汉化();
-                Localization.权杖技能汉化();
-                Localization.圣骑士汉化();
-                Localization.探路者汉化();
-                Localization.象征汉化();
+        private void OnDisable() {
+            eventHandlers.ForEach(i => {
+                i.ClearEventHandlers();
+                Logger.LogMessage(i.GetType().FullName + ": has cleared event handlers.");
             });
-            Run.onRunStartGlobal += run => {
-                GlobalInfo.往日不再 = false;
-                GlobalInfo.是否选择造物难度 = run.selectedDifficulty == ConfigurableDifficultyPlugin.configurableDifficultyIndex;
-                ConfigurableDifficultyPlugin.configurableDifficultyDef.scalingValue = 2f + ConfigurableDifficultyPlugin.difficultyScaling.Value / 50f;
-                TweakBase.Instances.ForEach(instance => instance.RunStartAction(run));
-            };
-            Stage.onStageStartGlobal += stage => {
-                GlobalInfo.UpdateCurrentSceneIndex(stage.sceneDef);
-                ConfigurableDifficultyPlugin.configurableDifficultyDef.scalingValue = 2f + (ConfigurableDifficultyPlugin.difficultyScaling.Value + ModConfig.每关难度增加量.Value) / 50f;
-                TweakBase.Instances.ForEach(instance => instance.StageStartAction(stage));
-            };
+        }
+
+        private void OnEnable() {
+            eventHandlers.ForEach(i => {
+                i.SetEventHandlers();
+                Logger.LogMessage(i.GetType().FullName + ": has set event handlers.");
+            });
+        }
+
+        private void SetUpBuffs() {
+            VoidFire = ScriptableObject.CreateInstance<BuffDef>();
+            VoidFire.name = "Void Fire";
+            VoidFire.iconSprite = "RoR2/Base/Common/texBuffOnFireIcon.tif".Load<Sprite>();
+            VoidFire.buffColor = new Color(174, 108, 209);
+            VoidFire.canStack = false;
+            VoidFire.isHidden = true;
+            VoidFire.isDebuff = false;
+            VoidFire.isCooldown = false;
+            if (!R2API.ContentAddition.AddBuffDef(VoidFire)) {
+                Logger.LogError("Buff '" + VoidFire.name + "' failed to be added!");
+            }
         }
     }
 }

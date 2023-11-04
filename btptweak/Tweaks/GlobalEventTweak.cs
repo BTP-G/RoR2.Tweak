@@ -7,13 +7,38 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class GlobalEventTweak : TweakBase {
+    internal class GlobalEventTweak : TweakBase<GlobalEventTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;
+            IL.RoR2.GlobalEventManager.OnHitEnemy += IL_GlobalEventManager_OnHitEnemy;
             On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        }
+
+        public override void ClearEventHandlers() {
+            GlobalEventManager.onCharacterDeathGlobal -= GlobalEventManager_onCharacterDeathGlobal;
+            IL.RoR2.GlobalEventManager.OnCharacterDeath -= IL_GlobalEventManager_OnCharacterDeath;
+            IL.RoR2.GlobalEventManager.OnHitEnemy -= IL_GlobalEventManager_OnHitEnemy;
+            On.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
+        }
+
+        private void IL_GlobalEventManager_OnHitEnemy(ILContext il) {
+            ILCursor iLCursor = new(il);
+            if (iLCursor.TryGotoNext(x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("GoldOnHit")))) {
+                iLCursor.Emit(OpCodes.Ldarg_1);
+                iLCursor.Emit(OpCodes.Ldarg_2);
+                iLCursor.Emit(OpCodes.Ldloc_1);
+                iLCursor.EmitDelegate((DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
+                    if (attackerBody.HasBuff(GoldenCoastPlus.GoldenCoastPlus.affixGoldDef)) {
+                        if (victim.TryGetComponent<DeathRewards>(out var deathRewards)) {
+                            attackerBody.master.GiveMoney((uint)(deathRewards.goldReward * damageInfo.procCoefficient));
+                        }
+                    }
+                });
+            } else {
+                Main.Logger.LogError("AspectGold Hook Failed!");
+            }
         }
 
         private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {
@@ -21,7 +46,7 @@ namespace BtpTweak.Tweaks {
             if (!victimBody) {
                 return;
             }
-            if (victimBody.bodyIndex == IndexCollections.BodyIndexCollection.EquipmentDroneBody) {
+            if (victimBody.bodyIndex == RoR2Indexes.BodyIndexes.EquipmentDroneBody) {
                 PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(victimBody.inventory.currentEquipmentIndex), victimBody.corePosition, Vector3.up * 15f);
             }
             var bossDropTable = victimBody.gameObject.GetComponent<DeathRewards>()?.bossDropTable;

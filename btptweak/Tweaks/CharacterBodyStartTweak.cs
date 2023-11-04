@@ -1,33 +1,36 @@
-﻿using BtpTweak.IndexCollections;
+﻿using BtpTweak.RoR2Indexes;
 using RoR2;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using static BtpTweak.IndexCollections.BodyIndexCollection;
+using static BtpTweak.RoR2Indexes.BodyIndexes;
 
 namespace BtpTweak.Tweaks {
 
-    internal class CharacterBodyStartTweak : TweakBase {
-        private readonly List<string> _已获得起始物品玩家列表 = new();
-        private int _造物难度敌人珍珠;
+    internal class CharacterBodyStartTweak : TweakBase<CharacterBodyStartTweak> {
+        private int _造物难度敌人血量提升物品数量;
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
             CharacterMaster.onStartGlobal += CharacterMaster_onStartGlobal;
-            Run.onRunAmbientLevelUp += RecalculatePearlCount;
+            Run.onRunAmbientLevelUp += RecalculateBoostHpCount;
+            Run.onRunStartGlobal += Run_onRunStartGlobal;
         }
 
-        public override void RunStartAction(Run run) {
-            base.RunStartAction(run);
-            _已获得起始物品玩家列表.Clear();
-            _造物难度敌人珍珠 = 0;
+        public override void ClearEventHandlers() {
+            CharacterBody.onBodyStartGlobal -= CharacterBody_onBodyStartGlobal;
+            CharacterMaster.onStartGlobal -= CharacterMaster_onStartGlobal;
+            Run.onRunAmbientLevelUp -= RecalculateBoostHpCount;
+            Run.onRunStartGlobal -= Run_onRunStartGlobal;
+        }
+
+        public void Run_onRunStartGlobal(Run run) {
+            _造物难度敌人血量提升物品数量 = 0;
         }
 
         private void CharacterBody_onBodyStartGlobal(CharacterBody body) {
             if (NetworkServer.active) {
                 body.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 0.3f + Random.value);
-                if (GlobalInfo.CurrentSceneIndex == SceneIndexCollection.voidraid && body.teamComponent.teamIndex != TeamIndex.Void) {
+                if (RunInfo.CurrentSceneIndex == SceneIndexes.VoidRaid && body.teamComponent.teamIndex != TeamIndex.Void) {
                     body.AddBuff(TPDespair.ZetAspects.Catalog.Buff.ZetWarped.buffIndex);
                 }
                 Inventory inventory = body.inventory;
@@ -38,7 +41,7 @@ namespace BtpTweak.Tweaks {
         }
 
         private void CharacterMaster_onStartGlobal(CharacterMaster master) {
-            if (NetworkServer.active && GlobalInfo.是否选择造物难度) {
+            if (NetworkServer.active && RunInfo.是否选择造物难度) {
                 master.onBodyStart += Master_onBodyStart;
             }
         }
@@ -48,9 +51,9 @@ namespace BtpTweak.Tweaks {
             master.onBodyStart -= Master_onBodyStart;
             var inventory = body.inventory;
             if (master.teamIndex != TeamIndex.Player) {
-                inventory.GiveItem(RoR2Content.Items.Pearl.itemIndex, _造物难度敌人珍珠);
+                inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
             }
-            if (BodyIndexToNameIndex.TryGetValue(body.bodyIndex, out var nameIndex)) {
+            if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
                 switch (nameIndex) {
                     case BodyNameIndex.ArbiterBody: {
                         if (Util.CheckRoll(50)) {
@@ -180,8 +183,8 @@ namespace BtpTweak.Tweaks {
             }
         }
 
-        private void RecalculatePearlCount(Run run) {
-            _造物难度敌人珍珠 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, GlobalInfo.往日不再 ? 1 + 0.1f * run.stageClearCount : 1), 10000000));
+        private void RecalculateBoostHpCount(Run run) {
+            _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.往日不再 ? 1 + 0.1f * run.stageClearCount : 1), 10000000));
         }
     }
 }

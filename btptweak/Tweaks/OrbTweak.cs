@@ -5,13 +5,18 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Tweaks {
 
-    internal class OrbTweak : TweakBase {
+    internal class OrbTweak : TweakBase<OrbTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             IL.RoR2.Orbs.LightningOrb.Begin += LightningOrb_Begin;
             IL.RoR2.Orbs.MissileVoidOrb.Begin += MissileVoidOrb_Begin;
             IL.RoR2.Orbs.SimpleLightningStrikeOrb.OnArrival += SimpleLightningStrikeOrb_OnArrival;
+        }
+
+        public override void ClearEventHandlers() {
+            IL.RoR2.Orbs.LightningOrb.Begin -= LightningOrb_Begin;
+            IL.RoR2.Orbs.MissileVoidOrb.Begin -= MissileVoidOrb_Begin;
+            IL.RoR2.Orbs.SimpleLightningStrikeOrb.OnArrival -= SimpleLightningStrikeOrb_OnArrival;
         }
 
         private void LightningOrb_Begin(ILContext il) {
@@ -39,7 +44,7 @@ namespace BtpTweak.Tweaks {
         private void SimpleLightningStrikeOrb_OnArrival(ILContext il) {
             ILCursor cursor = new(il);
             if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchStfld<BlastAttack>(x, "procCoefficient"))) {
-                --cursor.Index;
+                cursor.Index -= 1;
                 cursor.Remove();
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit<GenericDamageOrb>(OpCodes.Ldfld, "procCoefficient");

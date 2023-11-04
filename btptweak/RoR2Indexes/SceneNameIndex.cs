@@ -1,4 +1,4 @@
-﻿namespace BtpTweak.IndexCollections {
+﻿namespace BtpTweak.RoR2Indexes {
 
     public enum SceneNameIndex : byte {
         None = 0,

@@ -3,16 +3,20 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class ShrineCombatTweak : TweakBase {
+    internal class ShrineCombatTweak : TweakBase<ShrineCombatTweak> {
         private float 战斗祭坛物品掉落数_;
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             ShrineCombatBehavior.onDefeatedServerGlobal += ShrineCombatBehavior_onDefeatedServerGlobal;
+            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
         }
 
-        public override void StageStartAction(Stage stage) {
-            base.StageStartAction(stage);
+        public override void ClearEventHandlers() {
+            ShrineCombatBehavior.onDefeatedServerGlobal -= ShrineCombatBehavior_onDefeatedServerGlobal;
+            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
+        }
+
+        public void Stage_onStageStartGlobal(Stage stage) {
             战斗祭坛物品掉落数_ = Mathf.Min((Run.instance.stageClearCount + 1) * 0.5f, 5) * Run.instance.participatingPlayerCount;
         }
 

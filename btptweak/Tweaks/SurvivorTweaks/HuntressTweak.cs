@@ -6,22 +6,25 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class HuntressTweak : TweakBase {
+    internal class HuntressTweak : TweakBase<HuntressTweak>{
 
-        public override void AddHooks() {
-            base.AddHooks();
-            //IL.RoR2.HuntressTracker.SearchForTarget += HuntressTracker_SearchForTarget;
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             IL.RoR2.HuntressTracker.FixedUpdate += HuntressTracker_FixedUpdate;
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.FireOrbArrow += FireSeekingArrow_FireOrbArrow;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            IL.RoR2.HuntressTracker.FixedUpdate -= HuntressTracker_FixedUpdate;
+            On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.FireOrbArrow -= FireSeekingArrow_FireOrbArrow;
+        }
+
+        public void Load() {
             CharacterBody huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();
             huntressBody.baseCrit = 10f;
             huntressBody.levelCrit = 1f;
         }
-
         private void FireSeekingArrow_FireOrbArrow(On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_FireOrbArrow orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
             if (NetworkServer.active && self.initialOrbTarget != null) {
                 while (self.firedArrowCount < self.maxArrowCount) {
@@ -53,18 +56,5 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 Main.Logger.LogError("HuntressTracker FixedUpdateHook Failed!");
             }
         }
-
-        //private void HuntressTracker_SearchForTarget(ILContext il) {
-        //    ILCursor cursor = new(il);
-        //    if (cursor.TryGotoNext(MoveType.Before, x => ILPatternMatchingExt.MatchStfld<BullseyeSearch>(x, "maxDistanceFilter"))) {
-        //        cursor.Emit(OpCodes.Ldarg_0);
-        //        cursor.EmitDelegate((HuntressTracker huntressTracker) => {
-        //            return ModConfig.女猎人射程每级增加距离.Value * (huntressTracker.characterBody.level - 1);
-        //        });
-        //        cursor.Emit(OpCodes.Add);
-        //    } else {
-        //        Main.Logger.LogError("HuntressTracker SearchForTargetHook Failed!");
-        //    }
-        //}
     }
 }

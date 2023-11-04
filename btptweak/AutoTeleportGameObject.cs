@@ -10,7 +10,7 @@ namespace BtpTweak {
 
         public void SetTeleportWaitingTime(float newWaitingTime) => waitingTime = newWaitingTime;
 
-        public void Start() {
+        public void Awake() {
             enabled = SceneCatalog.GetSceneDefForCurrentScene().sceneType != SceneType.Intermission;
         }
 

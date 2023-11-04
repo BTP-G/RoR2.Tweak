@@ -1,4 +1,4 @@
-﻿using BtpTweak.IndexCollections;
+﻿using BtpTweak.RoR2Indexes;
 using GrooveSaladSpikestripContent.Content;
 using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
@@ -8,24 +8,24 @@ using static RoR2.DotController;
 
 namespace BtpTweak.Tweaks {
 
-    internal class BuffAndDotTweak : TweakBase {
+    internal class BuffAndDotTweak : TweakBase<BuffAndDotTweak> {
+        // "BuffAndDotTweak";
 
-        public override void AddHooks() {
-            base.AddHooks();
-            On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
-            onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float -= CharacterBody_AddTimedBuff_BuffDef_float;
+            onDotInflictedServerGlobal -= DotController_onDotInflictedServerGlobal;
         }
 
-        public override void Load() {
-            base.Load();
+        public void Load() {
             PlatedElite.damageReductionBuff.canStack = false;
             RoR2Content.Buffs.LunarDetonationCharge.isDebuff = false;
         }
 
-        public override void RemoveHooks() {
-            base.RemoveHooks();
-            On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float -= CharacterBody_AddTimedBuff_BuffDef_float;
-            onDotInflictedServerGlobal -= DotController_onDotInflictedServerGlobal;
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
+            onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
         }
 
         private void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {
@@ -40,10 +40,10 @@ namespace BtpTweak.Tweaks {
             var victimBody = dotController.victimBody;
             var dotStackList = dotController.dotStackList;
             var lastDotStack = dotStackList.Last();
-            if (attackerBody?.bodyIndex == BodyIndexCollection.CrocoBody) {
+            if (attackerBody?.bodyIndex == BodyIndexes.CrocoBody) {
                 lastDotStack.timer *= 1 + 0.4f * attackerBody.inventory.GetItemCount(RoR2Content.Items.DeathMark.itemIndex);
             }
-            if (victimBody.bodyIndex == BodyIndexCollection.MageBody) {
+            if (victimBody.bodyIndex == BodyIndexes.MageBody) {
                 lastDotStack.damage *= 0.5f;
             }
             if (victimBody.healthComponent.shield > 0) {

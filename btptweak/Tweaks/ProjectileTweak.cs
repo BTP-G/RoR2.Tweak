@@ -5,15 +5,17 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class ProjectileTweak : TweakBase {
+    internal class ProjectileTweak : TweakBase<ProjectileTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
-            //IL.RoR2.Projectile.MissileController.FixedUpdate += MissileController_FixedUpdate;
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+        }
+
+        public void Load() {
             var daggerProjectile = LegacyResourcesAPI.Load<GameObject>("prefabs/projectiles/DaggerProjectile");
             daggerProjectile.GetComponent<ProjectileController>().procCoefficient = 0.33f;
             daggerProjectile.GetComponent<ProjectileSimple>().lifetime = 10f;
@@ -55,7 +57,7 @@ namespace BtpTweak.Tweaks {
             delayBlast1.damageType = DamageType.AOE;
             delayBlast1.falloffModel = BlastAttack.FalloffModel.SweetSpot;
             delayBlast1.inflictor = null;
-            delayBlast1.maxTimer = 0.2f;
+            delayBlast1.maxTimer = 0f;
             var delayBlast2 = GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect.GetComponent<DelayBlast>();
             delayBlast2.baseForce = 0f;
             delayBlast2.bonusForce = Vector3.zero;
@@ -63,7 +65,7 @@ namespace BtpTweak.Tweaks {
             delayBlast2.damageType = DamageType.AOE | DamageType.BleedOnHit;
             delayBlast2.falloffModel = BlastAttack.FalloffModel.SweetSpot;
             delayBlast2.inflictor = null;
-            delayBlast2.maxTimer = 0f;
+            delayBlast2.maxTimer = 0.1f;
         }
 
         private class MolotovDotZoneStartAction : MonoBehaviour {

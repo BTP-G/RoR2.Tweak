@@ -8,20 +8,32 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class MiscTweak : TweakBase {
+    internal class MiscTweak : TweakBase<MiscTweak> {
         private ItemDef _特拉法梅的祝福;
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += TrueDeathState_OnEnter;
             On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
             On.EntityStates.StunState.PlayStunAnimation += StunState_PlayStunAnimation;
             On.RoR2.Run.BeginGameOver += Run_BeginGameOver;
             On.RoR2.Util.CheckRoll_float_float_CharacterMaster += Util_CheckRoll_float_float_CharacterMaster;
+            Run.onRunStartGlobal += Run_onRunStartGlobal;
+            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
+            RoR2Application.onLoad += Load;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter -= TrueDeathState_OnEnter;
+            On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
+            On.EntityStates.StunState.PlayStunAnimation -= StunState_PlayStunAnimation;
+            On.RoR2.Run.BeginGameOver -= Run_BeginGameOver;
+            On.RoR2.Util.CheckRoll_float_float_CharacterMaster -= Util_CheckRoll_float_float_CharacterMaster;
+            Run.onRunStartGlobal -= Run_onRunStartGlobal;
+            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
+            RoR2Application.onLoad -= Load;
+        }
+
+        public void Load() {
             _特拉法梅的祝福 = "RoR2/DLC1/LunarWings/LunarWings.asset".Load<ItemDef>();
             _特拉法梅的祝福.deprecatedTier = ItemTier.Lunar;
             _特拉法梅的祝福.tier = ItemTier.Lunar;
@@ -40,17 +52,17 @@ namespace BtpTweak.Tweaks {
             pickupDef.dropletDisplayPrefab = itemTierDef.dropletDisplayPrefab;
             pickupDef.isLunar = _特拉法梅的祝福.tier == ItemTier.Lunar;
             pickupDef.itemTier = _特拉法梅的祝福.tier;
+            PickupDropletController.pickupDropletPrefab.AddComponent<AutoTeleportGameObject>().SetTeleportWaitingTime(5f);
+            GenericPickupController.pickupPrefab.AddComponent<AutoTeleportGameObject>().SetTeleportWaitingTime(100f);
             FadeOut.duration = 60f;
             EntityStates.BrotherMonster.SpellChannelState.maxDuration = 180f;
         }
 
-        public override void RunStartAction(Run run) {
-            base.RunStartAction(run);
+        public void Run_onRunStartGlobal(Run run) {
             SetLunarWingsState(false);
         }
 
-        public override void StageStartAction(Stage stage) {
-            base.StageStartAction(stage);
+        public void Stage_onStageStartGlobal(Stage stage) {
             BulwarksHaunt.GhostWave.maxWaves = Run.instance.stageClearCount + 1;
         }
 
@@ -118,12 +130,6 @@ namespace BtpTweak.Tweaks {
 
         private void TrueDeathState_OnEnter(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
-            if (GlobalInfo.是否选择造物难度 && GlobalInfo.往日不再 == false) {
-                GlobalInfo.往日不再 = true;
-                if (NetworkServer.active) {
-                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToLunar());
-                }
-            }
             if (NetworkServer.active) {
                 foreach (var player in PlayerCharacterMasterController.instances) {
                     Inventory inventory = player.master.inventory;
@@ -141,7 +147,7 @@ namespace BtpTweak.Tweaks {
                 return false;
             }
             float random = Random.Range(0f, 100f);
-            if (random <= percentChance + percentChance * (luck / (Mathf.Abs(luck) + 3))) {
+            if (random <= percentChance + percentChance * (luck / (Mathf.Abs(luck) + 3f))) {
                 if (random > percentChance && effectOriginMaster) {
                     var body = effectOriginMaster.GetBody();
                     if (body) {

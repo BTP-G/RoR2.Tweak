@@ -3,10 +3,17 @@ using RoR2;
 
 namespace BtpTweak.Tweaks {
 
-    internal class VoidRaidCrabTweak : TweakBase {
+    internal class VoidRaidCrabTweak : TweakBase<VoidRaidCrabTweak> {
 
-        public override void Load() {
-            base.Load();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+        }
+
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+        }
+
+        public void Load() {
             AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyBase.prefab".LoadComponent<CharacterBody>());
             AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyPhase1.prefab".LoadComponent<CharacterBody>());
             AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyPhase2.prefab".LoadComponent<CharacterBody>());

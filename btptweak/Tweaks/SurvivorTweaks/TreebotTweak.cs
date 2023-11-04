@@ -4,11 +4,14 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class TreebotTweak : TweakBase {
+    internal class TreebotTweak : TweakBase<TreebotTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
             IL.RoR2.HealthComponent.Heal += HealthComponent_Heal;
+        }
+
+        public override void ClearEventHandlers() {
+            IL.RoR2.HealthComponent.Heal -= HealthComponent_Heal;
         }
 
         private void HealthComponent_Heal(ILContext il) {

@@ -5,18 +5,25 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class VoidSurvivorTweak : TweakBase {
+    internal class VoidSurvivorTweak : TweakBase<VoidSurvivorTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter += FireHandBeam_OnEnter;
             On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter += ChargeMegaBlaster_OnEnter;
             On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles += FireMegaBlasterBase_FireProjectiles;
             On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.OnEnter += FireCorruptDisks_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter -= FireHandBeam_OnEnter;
+            On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter -= ChargeMegaBlaster_OnEnter;
+            On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles -= FireMegaBlasterBase_FireProjectiles;
+            On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.OnEnter -= FireCorruptDisks_OnEnter;
+        }
+
+        public void Load() {
             var gameObject = "RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterBigProjectileCorrupted.prefab".Load<GameObject>();
             var projectileSimple = gameObject.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40f;

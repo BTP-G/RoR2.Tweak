@@ -8,15 +8,19 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class EliteTweak : TweakBase {
+    internal class EliteTweak : TweakBase<EliteTweak> {
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             IL.RoR2.CharacterBody.UpdateAffixPoison += CharacterBody_UpdateAffixPoison;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            IL.RoR2.CharacterBody.UpdateAffixPoison -= CharacterBody_UpdateAffixPoison;
+        }
+
+        public void Load() {
             LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/LightningStake").GetComponent<ProjectileImpactExplosion>().blastRadius = 10f;
         }
 

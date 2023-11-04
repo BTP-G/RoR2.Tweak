@@ -1,4 +1,4 @@
-﻿using BtpTweak.IndexCollections;
+﻿using BtpTweak.RoR2Indexes;
 using BtpTweak.Utils;
 using EntityStates;
 using EntityStates.GlobalSkills.LunarNeedle;
@@ -12,10 +12,10 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class HereticTweak : TweakBase {
+    internal class HereticTweak : TweakBase<HereticTweak>{
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             IL.RoR2.LunarDetonatorPassiveAttachment.DamageListener.OnDamageDealtServer += DamageListener_OnDamageDealtServer;
             On.EntityStates.GhostUtilitySkillState.FixedUpdate += GhostUtilitySkillState_FixedUpdate;
             On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter += Detonate_OnEnter;
@@ -23,8 +23,16 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += Squawk_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            IL.RoR2.LunarDetonatorPassiveAttachment.DamageListener.OnDamageDealtServer -= DamageListener_OnDamageDealtServer;
+            On.EntityStates.GhostUtilitySkillState.FixedUpdate -= GhostUtilitySkillState_FixedUpdate;
+            On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter -= Detonate_OnEnter;
+            On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter -= FireLunarNeedle_OnEnter;
+            On.EntityStates.Heretic.Weapon.Squawk.OnEnter -= Squawk_OnEnter;
+        }
+
+        public void Load() {
             "RoR2/Base/Heretic/HereticDefaultAbility.asset".Load<SkillDef>().baseRechargeInterval = 40;
             var lunarSecondaryProjectile = "RoR2/Base/LunarSkillReplacements/LunarSecondaryProjectile.prefab".Load<GameObject>();
             lunarSecondaryProjectile.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
@@ -34,14 +42,13 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             directionalTargetFinder.lookRange = 30f;
             FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSimple>().lifetime *= 2;
         }
-
         private void DamageListener_OnDamageDealtServer(ILContext il) {
             ILCursor cursor = new(il);
             if (cursor.TryGotoNext(x => x.MatchLdcR4(100f))) {
                 cursor.Remove();
                 cursor.Emit(OpCodes.Ldarg_1);
                 cursor.EmitDelegate((DamageReport damageReport) => {
-                    if (damageReport.attackerBodyIndex == BodyIndexCollection.HereticBody) {
+                    if (damageReport.attackerBodyIndex == BodyIndexes.HereticBody) {
                         return 1000f;
                     } else {
                         return 100f;
@@ -53,7 +60,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         private void Detonate_OnEnter(On.EntityStates.GlobalSkills.LunarDetonator.Detonate.orig_OnEnter orig, EntityStates.GlobalSkills.LunarDetonator.Detonate self) {
-            if (self.characterBody.bodyIndex == BodyIndexCollection.HereticBody) {
+            if (self.characterBody.bodyIndex == BodyIndexes.HereticBody) {
                 EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f + 0.6f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
             } else {
                 EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f;
@@ -62,7 +69,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         private void FireLunarNeedle_OnEnter(On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.orig_OnEnter orig, FireLunarNeedle self) {
-            if (self.characterBody.bodyIndex == BodyIndexCollection.HereticBody) {
+            if (self.characterBody.bodyIndex == BodyIndexes.HereticBody) {
                 FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 1800f;
             } else {
                 FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 180f;
@@ -72,7 +79,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         private void GhostUtilitySkillState_FixedUpdate(On.EntityStates.GhostUtilitySkillState.orig_FixedUpdate orig, GhostUtilitySkillState self) {
             orig(self);
-            if (self.isAuthority && self.characterBody.bodyIndex == BodyIndexCollection.HereticBody && self.inputBank.skill3.justReleased && self.fixedAge > 1f) {
+            if (self.isAuthority && self.characterBody.bodyIndex == BodyIndexes.HereticBody && self.inputBank.skill3.justReleased && self.fixedAge > 1f) {
                 self.outer.SetNextStateToMain();
             }
         }
@@ -93,15 +100,15 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         [RequireComponent(typeof(ProjectileController))]
         private class LunarSecondaryProjectileStartAction : MonoBehaviour {
 
-            private void Awake() {
-                enabled = NetworkServer.active;
-            }
-
             public void Start() {
                 Inventory inventory = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory;
                 if (inventory) {
                     GetComponent<ProjectileExplosion>().blastRadius *= 1 + 0.5f * inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
                 }
+            }
+
+            private void Awake() {
+                enabled = NetworkServer.active;
             }
         }
     }

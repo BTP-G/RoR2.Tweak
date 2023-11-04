@@ -1,21 +1,29 @@
 ﻿using BtpTweak.Utils;
 using EntityStates.Merc;
+using RoR2;
 using RoR2.Skills;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class MercTweak : TweakBase {
+    internal class MercTweak : TweakBase<MercTweak>{
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             On.EntityStates.Merc.Evis.OnEnter += Evis_OnEnter;
             On.EntityStates.Merc.Weapon.GroundLight2.OnEnter += GroundLight2_OnEnter;
             On.EntityStates.Merc.Weapon.ThrowEvisProjectile.OnEnter += ThrowEvisProjectile_OnEnter;
             On.EntityStates.Merc.WhirlwindBase.OnEnter += WhirlwindBase_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.EntityStates.Merc.Evis.OnEnter -= Evis_OnEnter;
+            On.EntityStates.Merc.Weapon.GroundLight2.OnEnter -= GroundLight2_OnEnter;
+            On.EntityStates.Merc.Weapon.ThrowEvisProjectile.OnEnter -= ThrowEvisProjectile_OnEnter;
+            On.EntityStates.Merc.WhirlwindBase.OnEnter -= WhirlwindBase_OnEnter;
+        }
+
+        public void Load() {
             "RoR2/Base/Merc/MercBodyEvis.asset".Load<SkillDef>().keywordTokens = new string[] { "KEYWORD_FLEETING" };
             "RoR2/Base/Merc/MercBodyEvisProjectile.asset".Load<SkillDef>().keywordTokens = new string[] { "KEYWORD_FLEETING" };
         }

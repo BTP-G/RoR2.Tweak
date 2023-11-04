@@ -10,10 +10,17 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class MageTweak : TweakBase {
+    internal class MageTweak : TweakBase<MageTweak> {
 
-        public override void Load() {
-            base.Load();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+        }
+
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+        }
+
+        public void Load() {
             SteppedSkillDef mageFireFirebolt = "RoR2/Base/Mage/MageBodyFireFirebolt.asset".Load<SteppedSkillDef>();
             mageFireFirebolt.baseRechargeInterval = 0;
             mageFireFirebolt.baseMaxStock = 1;
@@ -34,7 +41,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             "RoR2/Base/Mage/MageBodyIceBomb.asset".Load<SkillDef>().mustKeyPress = false;
             "RoR2/Base/Mage/MageBodyNovaBomb.asset".Load<SkillDef>().mustKeyPress = false;
         }
-
         [RequireComponent(typeof(ProjectileController))]
         private class IceExplosion : MonoBehaviour {
 
@@ -68,15 +74,15 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         [RequireComponent(typeof(ProjectileProximityBeamController))]
         private class MageLightningBombStartAction : MonoBehaviour {
 
-            private void Awake() {
-                enabled = NetworkServer.active;
-            }
-
             public void Start() {
                 var inventory = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory;
                 if (inventory) {
                     GetComponent<ProjectileProximityBeamController>().attackRange += 3 * inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
                 }
+            }
+
+            private void Awake() {
+                enabled = NetworkServer.active;
             }
         }
 

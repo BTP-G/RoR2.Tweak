@@ -9,10 +9,10 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class CaptainTweak : TweakBase {
+    internal class CaptainTweak : TweakBase<CaptainTweak>{
 
-        public override void AddHooks() {
-            base.AddHooks();
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             On.EntityStates.Captain.Weapon.CallAirstrikeAlt.OnExit += CallAirstrikeAlt_OnExit;
             On.EntityStates.Captain.Weapon.CallAirstrikeBase.ModifyProjectile += CallAirstrikeBase_ModifyProjectile;
             On.EntityStates.Captain.Weapon.FireCaptainShotgun.ModifyBullet += FireCaptainShotgun_ModifyBullet;
@@ -20,8 +20,16 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             On.EntityStates.CaptainSupplyDrop.HealZoneMainState.OnEnter += HealZoneMainState_OnEnter;
         }
 
-        public override void Load() {
-            base.Load();
+        public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.EntityStates.Captain.Weapon.CallAirstrikeAlt.OnExit -= CallAirstrikeAlt_OnExit;
+            On.EntityStates.Captain.Weapon.CallAirstrikeBase.ModifyProjectile -= CallAirstrikeBase_ModifyProjectile;
+            On.EntityStates.Captain.Weapon.FireCaptainShotgun.ModifyBullet -= FireCaptainShotgun_ModifyBullet;
+            On.EntityStates.CaptainSupplyDrop.BaseCaptainSupplyDropState.OnEnter -= BaseCaptainSupplyDropState_OnEnter;
+            On.EntityStates.CaptainSupplyDrop.HealZoneMainState.OnEnter -= HealZoneMainState_OnEnter;
+        }
+
+        public void Load() {
             GameObject captainTazer = "RoR2/Base/Captain/CaptainTazer.prefab".Load<GameObject>();
             captainTazer.AddComponent<ChainLightning>();
             captainTazer.GetComponent<ProjectileSimple>().lifetime = 6f;
@@ -38,7 +46,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             RoR2Content.Survivors.Captain.bodyPrefab.GetComponent<CharacterBody>().baseMoveSpeed = 8;
             foreach (var sceneDef in SceneCatalog.allSceneDefs) { sceneDef.blockOrbitalSkills = false; }
         }
-
         private void BaseCaptainSupplyDropState_OnEnter(On.EntityStates.CaptainSupplyDrop.BaseCaptainSupplyDropState.orig_OnEnter orig, EntityStates.CaptainSupplyDrop.BaseCaptainSupplyDropState self) {
             orig(self);
             if (self is EntityStates.CaptainSupplyDrop.EquipmentRestockMainState) {
