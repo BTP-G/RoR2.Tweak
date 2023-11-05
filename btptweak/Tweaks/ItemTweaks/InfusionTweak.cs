@@ -37,7 +37,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             OrbManager.instance.AddOrb(infusionOrb);
                         }
                         var ownerBody = damageReport.attackerOwnerMaster?.GetBody();
-                        if (ownerBody && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount)) {
+                        if (ownerBody?.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount)) {
                             InfusionOrb infusionOrb = new() {
                                 origin = pos,
                                 target = ownerBody.mainHurtBox,

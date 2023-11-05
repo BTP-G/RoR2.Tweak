@@ -1,11 +1,13 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Merc;
+using HG;
 using RoR2;
 using RoR2.Skills;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class MercTweak : TweakBase<MercTweak>{
+    internal class MercTweak : TweakBase<MercTweak> {
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
@@ -24,8 +26,8 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         public void Load() {
-            "RoR2/Base/Merc/MercBodyEvis.asset".Load<SkillDef>().keywordTokens = new string[] { "KEYWORD_FLEETING" };
-            "RoR2/Base/Merc/MercBodyEvisProjectile.asset".Load<SkillDef>().keywordTokens = new string[] { "KEYWORD_FLEETING" };
+            ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyEvis.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");
+            ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyEvisProjectile.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");
         }
 
         private void Evis_OnEnter(On.EntityStates.Merc.Evis.orig_OnEnter orig, EntityStates.Merc.Evis self) {

@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
@@ -9,7 +10,7 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class CaptainTweak : TweakBase<CaptainTweak>{
+    internal class CaptainTweak : TweakBase<CaptainTweak> {
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
@@ -30,22 +31,25 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         public void Load() {
-            GameObject captainTazer = "RoR2/Base/Captain/CaptainTazer.prefab".Load<GameObject>();
+            GameObject captainTazer = GameObjectPaths.CaptainTazer31.Load<GameObject>();
             captainTazer.AddComponent<ChainLightning>();
             captainTazer.GetComponent<ProjectileSimple>().lifetime = 6f;
             ProjectileImpactExplosion impactExplosion = captainTazer.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.lifetimeAfterImpact = 6f;
             impactExplosion.lifetime = 6f;
-            SkillDef prepAirstrikeAlt = "RoR2/Base/Captain/PrepAirstrikeAlt.asset".Load<SkillDef>();
+            SkillDef prepAirstrikeAlt = CaptainOrbitalSkillDefPaths.PrepAirstrikeAlt.Load<SkillDef>();
             prepAirstrikeAlt.baseRechargeInterval = 10;
             prepAirstrikeAlt.baseMaxStock = 4;
             prepAirstrikeAlt.requiredStock = 4;
             prepAirstrikeAlt.stockToConsume = 4;
-            "RoR2/Base/Captain/PrepSupplyDrop.asset".Load<SkillDef>().baseRechargeInterval = 0.5f;
+            CaptainSupplyDropSkillDefPaths.PrepSupplyDrop.Load<SkillDef>().baseRechargeInterval = 0.5f;
             EntityStates.CaptainSupplyDrop.ShockZoneMainState.shockRadius = 20;
             RoR2Content.Survivors.Captain.bodyPrefab.GetComponent<CharacterBody>().baseMoveSpeed = 8;
-            foreach (var sceneDef in SceneCatalog.allSceneDefs) { sceneDef.blockOrbitalSkills = false; }
+            foreach (var sceneDef in SceneCatalog.allSceneDefs) {
+                sceneDef.blockOrbitalSkills = false;
+            }
         }
+
         private void BaseCaptainSupplyDropState_OnEnter(On.EntityStates.CaptainSupplyDrop.BaseCaptainSupplyDropState.orig_OnEnter orig, EntityStates.CaptainSupplyDrop.BaseCaptainSupplyDropState self) {
             orig(self);
             if (self is EntityStates.CaptainSupplyDrop.EquipmentRestockMainState) {

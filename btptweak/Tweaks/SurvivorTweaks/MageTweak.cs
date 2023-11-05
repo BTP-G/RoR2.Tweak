@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
@@ -21,14 +22,14 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         public void Load() {
-            SteppedSkillDef mageFireFirebolt = "RoR2/Base/Mage/MageBodyFireFirebolt.asset".Load<SteppedSkillDef>();
+            SteppedSkillDef mageFireFirebolt = SteppedSkillDefPaths.MageBodyFireFirebolt.Load<SteppedSkillDef>();
             mageFireFirebolt.baseRechargeInterval = 0;
             mageFireFirebolt.baseMaxStock = 1;
-            SteppedSkillDef mageFireLightningBolt = "RoR2/Base/Mage/MageBodyFireLightningBolt.asset".Load<SteppedSkillDef>();
+            SteppedSkillDef mageFireLightningBolt = SteppedSkillDefPaths.MageBodyFireLightningBolt.Load<SteppedSkillDef>();
             mageFireLightningBolt.baseRechargeInterval = 0;
             mageFireLightningBolt.baseMaxStock = 1;
-            "RoR2/Base/Mage/MageIceBombProjectile.prefab".Load<GameObject>().AddComponent<IceExplosion>();
-            GameObject mageLightningBomb = "RoR2/Base/Mage/MageLightningBombProjectile.prefab".Load<GameObject>();
+            GameObjectPaths.MageIceBombProjectile.Load<GameObject>().AddComponent<IceExplosion>();
+            GameObject mageLightningBomb = GameObjectPaths.MageLightningBombProjectile.Load<GameObject>();
             mageLightningBomb.AddComponent<MageLightningBombStartAction>();
             mageLightningBomb.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
             ProjectileProximityBeamController mageProximityBeamController = mageLightningBomb.GetComponent<ProjectileProximityBeamController>();
@@ -38,9 +39,10 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             mageProximityBeamController.damageCoefficient = 0.8f * mageProximityBeamController.attackInterval;
             mageProximityBeamController.listClearInterval = 0;
             mageProximityBeamController.procCoefficient = 0.3f;
-            "RoR2/Base/Mage/MageBodyIceBomb.asset".Load<SkillDef>().mustKeyPress = false;
-            "RoR2/Base/Mage/MageBodyNovaBomb.asset".Load<SkillDef>().mustKeyPress = false;
+            SkillDefPaths.MageBodyIceBomb.Load<SkillDef>().mustKeyPress = false;
+            SkillDefPaths.MageBodyNovaBomb.Load<SkillDef>().mustKeyPress = false;
         }
+
         [RequireComponent(typeof(ProjectileController))]
         private class IceExplosion : MonoBehaviour {
 

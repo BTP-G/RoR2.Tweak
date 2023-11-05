@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 
 namespace BtpTweak.Tweaks {
@@ -14,10 +15,10 @@ namespace BtpTweak.Tweaks {
         }
 
         public void Load() {
-            AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyBase.prefab".LoadComponent<CharacterBody>());
-            AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyPhase1.prefab".LoadComponent<CharacterBody>());
-            AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyPhase2.prefab".LoadComponent<CharacterBody>());
-            AdjustVoidRaidCrabBodyStats("RoR2/DLC1/VoidRaidCrab/MiniVoidRaidCrabBodyPhase3.prefab".LoadComponent<CharacterBody>());
+            AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyBase.LoadComponent<CharacterBody>());
+            AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyPhase1.LoadComponent<CharacterBody>());
+            AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyPhase2.LoadComponent<CharacterBody>());
+            AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyPhase3.LoadComponent<CharacterBody>());
         }
 
         private void AdjustVoidRaidCrabBodyStats(CharacterBody body) {

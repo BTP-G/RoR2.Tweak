@@ -1,4 +1,6 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
@@ -21,7 +23,7 @@ namespace BtpTweak.Tweaks {
         }
 
         public void Load() {
-            LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/LightningStake").GetComponent<ProjectileImpactExplosion>().blastRadius = 10f;
+            GameObjectPaths.LightningStake.LoadComponent<ProjectileImpactExplosion>().blastRadius = 10f;
         }
 
         private void CharacterBody_UpdateAffixPoison(ILContext il) {

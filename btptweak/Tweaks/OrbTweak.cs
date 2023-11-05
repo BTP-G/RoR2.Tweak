@@ -8,34 +8,20 @@ namespace BtpTweak.Tweaks {
     internal class OrbTweak : TweakBase<OrbTweak> {
 
         public override void SetEventHandlers() {
-            IL.RoR2.Orbs.LightningOrb.Begin += LightningOrb_Begin;
             IL.RoR2.Orbs.MissileVoidOrb.Begin += MissileVoidOrb_Begin;
             IL.RoR2.Orbs.SimpleLightningStrikeOrb.OnArrival += SimpleLightningStrikeOrb_OnArrival;
         }
 
         public override void ClearEventHandlers() {
-            IL.RoR2.Orbs.LightningOrb.Begin -= LightningOrb_Begin;
             IL.RoR2.Orbs.MissileVoidOrb.Begin -= MissileVoidOrb_Begin;
             IL.RoR2.Orbs.SimpleLightningStrikeOrb.OnArrival -= SimpleLightningStrikeOrb_OnArrival;
-        }
-
-        private void LightningOrb_Begin(ILContext il) {
-            ILCursor iLCursor = new(il);
-            if (iLCursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchLdstr(x, "Prefabs/Effects/OrbEffects/RazorwireOrbEffect"))) {
-                iLCursor.Emit(OpCodes.Ldarg_0);
-                iLCursor.EmitDelegate((LightningOrb lightningOrb) => {
-                    lightningOrb.procCoefficient = 0.2f;
-                });
-            } else {
-                Main.Logger.LogError("Razorwire ProcHook Failed!");
-            }
         }
 
         private void MissileVoidOrb_Begin(ILContext il) {
             ILCursor ilcursor = new(il);
             if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdcR4(x, 75f))) {
-                ilcursor.Remove();
-                ilcursor.Emit(OpCodes.Ldc_R4, 150f);
+                ilcursor.Emit(OpCodes.Pop);
+                ilcursor.Emit(OpCodes.Ldc_R4, 160f);
             } else {
                 Main.Logger.LogError("MissileVoidOrb Hook Failed!");
             }
@@ -44,8 +30,7 @@ namespace BtpTweak.Tweaks {
         private void SimpleLightningStrikeOrb_OnArrival(ILContext il) {
             ILCursor cursor = new(il);
             if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchStfld<BlastAttack>(x, "procCoefficient"))) {
-                cursor.Index -= 1;
-                cursor.Remove();
+                cursor.Emit(OpCodes.Pop);
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit<GenericDamageOrb>(OpCodes.Ldfld, "procCoefficient");
             } else {

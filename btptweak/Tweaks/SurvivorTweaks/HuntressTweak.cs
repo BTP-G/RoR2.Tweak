@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class HuntressTweak : TweakBase<HuntressTweak>{
+    internal class HuntressTweak : TweakBase<HuntressTweak> {
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
@@ -25,6 +25,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             huntressBody.baseCrit = 10f;
             huntressBody.levelCrit = 1f;
         }
+
         private void FireSeekingArrow_FireOrbArrow(On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.orig_FireOrbArrow orig, EntityStates.Huntress.HuntressWeapon.FireSeekingArrow self) {
             if (NetworkServer.active && self.initialOrbTarget != null) {
                 while (self.firedArrowCount < self.maxArrowCount) {

@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
@@ -24,11 +25,11 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         public void Load() {
-            var gameObject = "RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterBigProjectileCorrupted.prefab".Load<GameObject>();
+            var gameObject = GameObjectPaths.VoidSurvivorMegaBlasterBigGhostCorrupted.Load<GameObject>();
             var projectileSimple = gameObject.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40f;
             projectileSimple.lifetime = 6.6f;
-            projectileSimple.lifetimeExpiredEffect = "RoR2/DLC1/VoidSurvivor/VoidSurvivorMegaBlasterExplosionCorrupted.prefab".Load<GameObject>();
+            projectileSimple.lifetimeExpiredEffect = GameObjectPaths.VoidSurvivorMegaBlasterExplosionCorrupted.Load<GameObject>();
             gameObject.GetComponent<ProjectileImpactExplosion>().blastRadius = 25f; ;
             var radialForce = gameObject.AddComponent<RadialForce>();
             radialForce.radius = 25f;

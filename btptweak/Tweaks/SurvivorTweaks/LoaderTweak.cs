@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using HIFULoaderTweaks.Skills;
 using RoR2;
 using RoR2.Projectile;
@@ -25,17 +26,17 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         public void Load() {
             var loaderBody = RoR2Content.Survivors.Loader.bodyPrefab.GetComponent<CharacterBody>();
             loaderBody.baseAcceleration *= 2f;
-            "RoR2/Base/Loader/LoaderPylon.prefab".Load<GameObject>().AddComponent<M551PylonStartAction>();  // 电塔
-            var loaderHook = "RoR2/Base/Loader/LoaderHook.prefab".Load<GameObject>();  // 抓钩1
+            GameObjectPaths.LoaderPylon.Load<GameObject>().AddComponent<M551PylonStartAction>();  // 电塔
+            var loaderHook = GameObjectPaths.LoaderHook.Load<GameObject>();  // 抓钩1
             loaderHook.GetComponent<ProjectileSimple>().desiredForwardSpeed *= 2f;
             loaderHook.GetComponent<ProjectileGrappleController>().maxTravelDistance *= 2f;
-            var loaderYankHook = "RoR2/Base/Loader/LoaderYankHook.prefab".Load<GameObject>();  // 抓钩2
+            var loaderYankHook = GameObjectPaths.LoaderYankHook.Load<GameObject>();  // 抓钩2
             loaderYankHook.GetComponent<ProjectileSimple>().desiredForwardSpeed *= 2f;
             loaderYankHook.GetComponent<ProjectileGrappleController>().maxTravelDistance *= 2f;
             //====== 雷冲
-            var steppedSkillDef = "RoR2/Base/Loader/ChargeZapFist.asset".Load<SteppedSkillDef>();
+            var steppedSkillDef = SteppedSkillDefPaths.ChargeZapFist.Load<SteppedSkillDef>();
             steppedSkillDef.baseRechargeInterval = 3f;
-            var proximityBeamController = "RoR2/Base/Loader/LoaderZapCone.prefab".LoadComponent<ProjectileProximityBeamController>();
+            var proximityBeamController = GameObjectPaths.LoaderZapCone.LoadComponent<ProjectileProximityBeamController>();
             proximityBeamController.attackRange *= 2;
             proximityBeamController.bounces = 1;
             BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef.skillName, "SKILL_FIST_NAME", 2.1f);

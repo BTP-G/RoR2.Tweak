@@ -6,10 +6,12 @@ namespace BtpTweak.Tweaks {
         private ItemDef _weddingRing;
 
         public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             MasterSummon.onServerMasterSummonGlobal += MasterSummon_onServerMasterSummonGlobal;
         }
 
         public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
             MasterSummon.onServerMasterSummonGlobal -= MasterSummon_onServerMasterSummonGlobal;
         }
 

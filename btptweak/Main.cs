@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using ConfigurableDifficulty;
 using Newtonsoft.Json.Utilities;
 using RoR2;
@@ -36,7 +37,7 @@ namespace BtpTweak {
         public const string PluginName = "BtpTweak";
         public const string PluginVersion = "2.3.33";
 
-        private static readonly List<IEventHandlers> eventHandlers = new();
+        private readonly List<IEventHandlers> eventHandlers = new();
         public static Main Instance { get; private set; }
         public static BuffDef VoidFire { get; private set; }
         internal new static ManualLogSource Logger { get; private set; }
@@ -73,7 +74,7 @@ namespace BtpTweak {
         private void SetUpBuffs() {
             VoidFire = ScriptableObject.CreateInstance<BuffDef>();
             VoidFire.name = "Void Fire";
-            VoidFire.iconSprite = "RoR2/Base/Common/texBuffOnFireIcon.tif".Load<Sprite>();
+            VoidFire.iconSprite = Texture2DPaths.texBuffOnFireIcon.Load<Sprite>();
             VoidFire.buffColor = new Color(174, 108, 209);
             VoidFire.canStack = false;
             VoidFire.isHidden = true;

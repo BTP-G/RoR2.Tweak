@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
@@ -42,7 +43,7 @@ namespace BtpTweak.Tweaks {
             AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>().overlapProcCoefficient = 0.1f;
             AssetReferences.fireTornado.GetComponent<ProjectileSimple>().lifetime = 3f;
             AssetReferences.molotovProjectileDotZone.AddComponent<MolotovDotZoneStartAction>();
-            "RoR2/Base/DeathProjectile/DeathProjectile.prefab".LoadComponent<ProjectileController>().procCoefficient = 0;
+            GameObjectPaths.DeathProjectile18.LoadComponent<ProjectileController>().procCoefficient = 0;
             var delayBlast0 = GlobalEventManager.CommonAssets.explodeOnDeathPrefab.GetComponent<DelayBlast>();
             delayBlast0.baseForce = 1000f;
             delayBlast0.bonusForce = Vector3.up * 1000f;

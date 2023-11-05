@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
@@ -16,15 +17,15 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
         }
 
         public void Load() {
-            var sawmerang = "RoR2/Base/Saw/Sawmerang.prefab".Load<GameObject>();
+            var sawmerang = GameObjectPaths.Sawmerang.Load<GameObject>();
             var boomerangProjectile = sawmerang.GetComponent<BoomerangProjectile>();
             boomerangProjectile.transitionDuration *= 5f;
             boomerangProjectile.travelSpeed = 36f;
-            FireballVehicle fireballVehicle = "RoR2/Base/FireBallDash/FireballVehicle.prefab".LoadComponent<FireballVehicle>();
+            FireballVehicle fireballVehicle = GameObjectPaths.FireballVehicle.LoadComponent<FireballVehicle>();
             fireballVehicle.duration = 6;
             fireballVehicle.overlapResetFrequency = 3f;
             EntityStates.GoldGat.GoldGatFire.maxFireFrequency *= 2;
-            GameObject beamSphere = "RoR2/Base/BFG/BeamSphere.prefab".Load<GameObject>();
+            GameObject beamSphere = GameObjectPaths.BeamSphere.Load<GameObject>();
             ProjectileProximityBeamController proximityBeamController = beamSphere.GetComponent<ProjectileProximityBeamController>();
             proximityBeamController.attackRange = 66.6f;
             proximityBeamController.damageCoefficient = 6.66f;

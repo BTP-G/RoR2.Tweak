@@ -1,5 +1,6 @@
 ﻿using BtpTweak.RoR2Indexes;
 using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Scrapper;
 using RoR2;
 using RoR2.EntityLogic;
@@ -31,21 +32,21 @@ namespace BtpTweak.Tweaks {
             Scrapping.duration = 0.5f;
             ScrappingToIdle.duration = 0.125f;
             EntityStates.Duplicator.Duplicating.initialDelayDuration = 0;
-            var purchaseInteraction = "RoR2/Base/LunarCauldrons/LunarCauldron, RedToWhite Variant.prefab".LoadComponent<PurchaseInteraction>();
+            var purchaseInteraction = GameObjectPaths.LunarCauldronRedToWhiteVariant.LoadComponent<PurchaseInteraction>();
             purchaseInteraction.costType = CostTypeIndex.GreenItem;
             purchaseInteraction.Networkcost = purchaseInteraction.cost = 2;
-            "RoR2/Base/Duplicator/Duplicator.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
-            "RoR2/Base/DuplicatorLarge/DuplicatorLarge.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
-            "RoR2/Base/DuplicatorMilitary/DuplicatorMilitary.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
-            "RoR2/Base/DuplicatorWild/DuplicatorWild.prefab".Load<GameObject>().RemoveComponent<DelayedEvent>();
-            "RoR2/Base/Scrapper/iscScrapper.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
-            "RoR2/Base/ShrineBlood/iscShrineBlood.asset".Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
-            "RoR2/Base/ShrineBlood/iscShrineBloodSandy.asset".Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
-            "RoR2/Base/ShrineBlood/iscShrineBloodSnowy.asset".Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
-            "RoR2/Base/ShrineCleanse/iscShrineCleanse.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
-            "RoR2/Base/ShrineCleanse/iscShrineCleanseSandy.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
-            "RoR2/Base/ShrineCleanse/iscShrineCleanseSnowy.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
-            "RoR2/Base/ShrineGoldshoresAccess/iscShrineGoldshoresAccess.asset".Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            GameObjectPaths.Duplicator.Load<GameObject>().RemoveComponent<DelayedEvent>();
+            GameObjectPaths.DuplicatorLarge.Load<GameObject>().RemoveComponent<DelayedEvent>();
+            GameObjectPaths.DuplicatorMilitary.Load<GameObject>().RemoveComponent<DelayedEvent>();
+            GameObjectPaths.DuplicatorWild.Load<GameObject>().RemoveComponent<DelayedEvent>();
+            InteractableSpawnCardPaths.iscScrapper.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            InteractableSpawnCardPaths.iscShrineBlood.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            InteractableSpawnCardPaths.iscShrineBloodSandy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            InteractableSpawnCardPaths.iscShrineBloodSnowy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            InteractableSpawnCardPaths.iscShrineCleanse.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            InteractableSpawnCardPaths.iscShrineCleanseSandy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            InteractableSpawnCardPaths.iscShrineCleanseSnowy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            InteractableSpawnCardPaths.iscShrineGoldshoresAccess.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
         }
 
         public void Stage_onStageStartGlobal(Stage stage) {
@@ -95,7 +96,7 @@ namespace BtpTweak.Tweaks {
                     case ItemTier.Lunar:
                         if (!_位于月球 && Util.CheckRoll(20)) {
                             Object.Destroy(self.gameObject);
-                            EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                            EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                                 origin = self.pickupDisplay.transform.position,
                                 rotation = default,
                             }, true);
@@ -138,7 +139,7 @@ namespace BtpTweak.Tweaks {
                 self.GetComponent<PurchaseInteraction>().SetAvailable(true);
             } else if (self.name.StartsWith("LunarCauldron") && !_位于月球 && Util.CheckRoll(GetTPChanceFromItemTier(PickupCatalog.GetPickupDef(self.CurrentPickupIndex()).itemTier))) {
                 Object.Destroy(self.gameObject);
-                EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                     origin = self.pickupDisplay.transform.position,
                     rotation = default,
                 }, true);

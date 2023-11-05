@@ -14,25 +14,23 @@ namespace BtpTweak.Tweaks {
         private float _虚灵触发伤害限制_;
 
         public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+            GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
             IL.RoR2.HealthComponent.TakeDamage += IL_HealthComponent_TakeDamage;
             IL.RoR2.HealthComponent.TriggerOneShotProtection += IL_HealthComponent_TriggerOneShotProtection;
             On.RoR2.HealthComponent.Heal += HealthComponent_Heal;
             On.RoR2.HealthComponent.RechargeShield += HealthComponent_RechargeShield;
+            Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
+            Stage.onStageStartGlobal += StageStartAction;
         }
 
         public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
+            GlobalEventManager.onServerDamageDealt -= GlobalEventManager_onServerDamageDealt;
             IL.RoR2.HealthComponent.TakeDamage -= IL_HealthComponent_TakeDamage;
             IL.RoR2.HealthComponent.TriggerOneShotProtection -= IL_HealthComponent_TriggerOneShotProtection;
             On.RoR2.HealthComponent.Heal -= HealthComponent_Heal;
             On.RoR2.HealthComponent.RechargeShield -= HealthComponent_RechargeShield;
-        }
-
-        public void Load() {
-            GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
-            Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
-            Stage.onStageStartGlobal += StageStartAction;
+            Run.onRunAmbientLevelUp -= Run_onRunAmbientLevelUp;
+            Stage.onStageStartGlobal -= StageStartAction;
         }
 
         public void StageStartAction(Stage stage) {

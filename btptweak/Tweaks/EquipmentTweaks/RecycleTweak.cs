@@ -53,7 +53,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                 case ItemTier.Lunar:
                     if (!SceneCatalog.GetSceneDefForCurrentScene().cachedName.StartsWith("moon") && Util.CheckRoll(15)) {
                         Object.Destroy(pickupController.gameObject);
-                        EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                        EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                             origin = pickupController.pickupDisplay.transform.position,
                             rotation = default,
                         }, true);
@@ -91,7 +91,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                     if (newPickupIndex.pickupDef.equipmentIndex != EquipmentIndex.None && newPickupIndex.pickupDef.isLunar) {
                         if (!SceneCatalog.GetSceneDefForCurrentScene().cachedName.StartsWith("moon") && Util.CheckRoll(15)) {
                             Object.Destroy(pickupController.gameObject);
-                            EffectManager.SpawnEffect(AssetReferences.lunarBlink, new EffectData {
+                            EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                                 origin = pickupController.pickupDisplay.transform.position,
                                 rotation = default,
                             }, true);

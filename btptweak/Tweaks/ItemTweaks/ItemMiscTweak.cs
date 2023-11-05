@@ -22,8 +22,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     R2API.ItemAPI.ApplyTagToItem(itemTag, itemDef);
                 }
             }
-            LegacyResourcesAPI.Load<GameObject>("Prefabs/Projectiles/ElementalRingVoidBlackHole").AddComponent<ElementalRingVoidBlackHoleAction>();
-            "RoR2/Base/BonusGoldPackOnKill/BonusMoneyPack.prefab".LoadComponentInChildren<GravitatePickup>().maxSpeed = 50;
+            AssetReferences.elementalRingVoidBlackHole.AddComponent<ElementalRingVoidBlackHoleAction>();
+            AssetReferences.bonusMoneyPack.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.CaptainDefenseMatrix);
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.NovaOnHeal);
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.ShockNearby);

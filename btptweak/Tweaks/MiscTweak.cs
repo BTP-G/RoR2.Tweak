@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Missions.LunarScavengerEncounter;
 using R2API.Utils;
 using RoR2;
@@ -34,7 +35,7 @@ namespace BtpTweak.Tweaks {
         }
 
         public void Load() {
-            _特拉法梅的祝福 = "RoR2/DLC1/LunarWings/LunarWings.asset".Load<ItemDef>();
+            _特拉法梅的祝福 = ItemDefPaths.LunarWings.Load<ItemDef>();
             _特拉法梅的祝福.deprecatedTier = ItemTier.Lunar;
             _特拉法梅的祝福.tier = ItemTier.Lunar;
             _特拉法梅的祝福.canRemove = false;
@@ -68,7 +69,7 @@ namespace BtpTweak.Tweaks {
 
         private void FadeOut_OnEnter(On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.orig_OnEnter orig, FadeOut self) {
             orig(self);
-            foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances) {
+            foreach (var player in PlayerCharacterMasterController.instances) {
                 if (player.master.inventory.GetItemCount(_特拉法梅的祝福) > 0) {
                     SetLunarWingsState(true);
                     if (NetworkServer.active) {
@@ -81,7 +82,7 @@ namespace BtpTweak.Tweaks {
         private void Run_BeginGameOver(On.RoR2.Run.orig_BeginGameOver orig, Run self, GameEndingDef gameEndingDef) {
             if (gameEndingDef == BulwarksHaunt.BulwarksHauntContent.GameEndings.BulwarksHaunt_HauntedEnding) {
                 if (NetworkServer.active) {
-                    foreach (PlayerCharacterMasterController player in PlayerCharacterMasterController.instances) {
+                    foreach (var player in PlayerCharacterMasterController.instances) {
                         player.master.inventory.GiveItem(_特拉法梅的祝福);
                         ChatMessage.Send(player.GetDisplayName() + "已获得<style=cIsLunar>特拉法梅的祝福(过去时)</style>");
                     }
