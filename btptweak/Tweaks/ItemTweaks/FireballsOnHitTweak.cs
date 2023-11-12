@@ -8,7 +8,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class FireballsOnHitTweak : TweakBase<FireballsOnHitTweak> {
         public const int BasePercentChance = 10;
-        public const int DamageCoefficient = 3;
+        public const int DamageCoefficient = 1;
 
         public override void ClearEventHandlers() {
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;

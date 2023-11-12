@@ -13,9 +13,11 @@ namespace BtpTweak.OrbPools {
 
         public abstract void AddOrb(GameObject attacker, T key, T2 orb);
 
+        protected abstract void ModifyOrb(ref T2 orb);
+
         private void Awake() => enabled = NetworkServer.active;
 
-        private void FixedUpdate() {
+        private async void FixedUpdate() {  // 待完善 -------------------------------------
             if ((_orbTimer -= Time.fixedDeltaTime) < 0) {
                 if (Pool.Count > 0) {
                     int allCount = 1;
@@ -25,19 +27,17 @@ namespace BtpTweak.OrbPools {
                             var keyOrb = orbs.ElementAt(Random.Range(0, orbs.Count));
                             var orb = keyOrb.Value;
                             ModifyOrb(ref orb);
+                            orbs.Remove(keyOrb.Key);
+                            allCount += orbs.Count;
                             if (orb.target) {
                                 OrbManager.instance.AddOrb(orb);
                             }
-                            orbs.Remove(keyOrb.Key);
-                            allCount += orbs.Count;
                         }
                     }
                     _orbTimer = OrbInterval / allCount;
                 }
             }
         }
-
-        protected abstract void ModifyOrb(ref T2 orb);
 
         private void OnDestroy() {
             foreach (var kvp in Pool) {

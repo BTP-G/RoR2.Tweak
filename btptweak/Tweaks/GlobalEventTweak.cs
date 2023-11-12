@@ -50,7 +50,7 @@ namespace BtpTweak.Tweaks {
                 PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(victimBody.inventory.currentEquipmentIndex), victimBody.corePosition, Vector3.up * 15f);
             }
             var bossDropTable = victimBody.gameObject.GetComponent<DeathRewards>()?.bossDropTable;
-            if (bossDropTable && Util.CheckRoll(ModConfig.测试用1.Value, damageReport.attackerMaster)) {
+            if (bossDropTable && Util.CheckRoll(ModConfig.Boss物品掉率.Value, damageReport.attackerMaster)) {
                 PickupDropletController.CreatePickupDroplet(bossDropTable.GenerateDrop(Run.instance.treasureRng), victimBody.corePosition, Vector3.up * 15f);
             }
         }

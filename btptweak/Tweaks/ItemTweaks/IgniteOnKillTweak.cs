@@ -5,8 +5,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class IgniteOnKillTweak : TweakBase<IgniteOnKillTweak> {
         public const float ExplosionBaseDamageCoefficient = 1.5f;
         public const float IgniteDamageCoefficient = 0.75f;
-        public const float BaseRadius = 12;
-        public const float StackRadius = 4;
+        public const int BaseRadius = 12;
+        public const int StackRadius = 4;
 
         public override void SetEventHandlers() {
             On.RoR2.GlobalEventManager.ProcIgniteOnKill += GlobalEventManager_ProcIgniteOnKill;
@@ -28,7 +28,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 falloffModel = BlastAttack.FalloffModel.Linear,
                 position = damageReport.damageInfo.position,
                 procCoefficient = damageReport.damageInfo.procCoefficient,
-                radius = 8 + 4 * igniteOnKillCount + 0.4f * victimBody.bestFitRadius,
+                radius = BaseRadius + StackRadius * (igniteOnKillCount - 1) + 0.4f * victimBody.bestFitRadius,
                 teamIndex = attackerTeamIndex,
             };
             EffectManager.SpawnEffect(GlobalEventManager.CommonAssets.igniteOnKillExplosionEffectPrefab, new EffectData {

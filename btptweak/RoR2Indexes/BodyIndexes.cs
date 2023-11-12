@@ -1,8 +1,7 @@
 ﻿using RoR2;
 using System.Collections.Generic;
 
-namespace BtpTweak.RoR2Indexes
-{
+namespace BtpTweak.RoR2Indexes {
 
     public sealed class BodyIndexes : IEventHandlers {
         private static BodyIndex _arbiterBody = BodyIndex.None;
@@ -31,7 +30,7 @@ namespace BtpTweak.RoR2Indexes
         private static BodyIndex _treebotBody = BodyIndex.None;
         private static BodyIndex _voidSurvivorBody = BodyIndex.None;
 
-        public enum BodyNameIndex : byte {
+        internal enum BodyNameIndex : byte {
             None = 0,
             ArbiterBody,
             Bandit2Body,
@@ -316,6 +315,7 @@ namespace BtpTweak.RoR2Indexes
         internal static Dictionary<int, BodyNameIndex> BodyIndexToNameIndex { get; } = new();
 
         public void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
         }
 
         public void SetEventHandlers() {
@@ -323,7 +323,6 @@ namespace BtpTweak.RoR2Indexes
         }
 
         private void Load() {
-            RoR2Application.onLoad -= Load;
             BodyIndexToNameIndex.Clear();
             for (BodyNameIndex bodyNameIndex = BodyNameIndex.None + 1; bodyNameIndex < BodyNameIndex.Count; ++bodyNameIndex) {
                 BodyIndexToNameIndex.Add((int)BodyCatalog.FindBodyIndex(bodyNameIndex.ToString()), bodyNameIndex);

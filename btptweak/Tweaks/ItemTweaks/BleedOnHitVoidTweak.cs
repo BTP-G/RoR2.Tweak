@@ -7,6 +7,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BleedOnHitVoidTweak : TweakBase<BleedOnHitVoidTweak> {
         public const int PercnetChance = 10;
+        public const float DamageCoefficient = 0.44f;
 
         public override void ClearEventHandlers() {
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
@@ -27,7 +28,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
                     if (Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
                         DotController.InflictDot(victim, attackerBody.gameObject, DotController.DotIndex.Fracture, 3,
-                            Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, 0.44f)
+                            Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, DamageCoefficient)
                             * (damageInfo.crit ? attackerBody.critMultiplier : 1f)
                             / (attackerBody.damage * 4));
                     }

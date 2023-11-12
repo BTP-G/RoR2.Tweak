@@ -9,10 +9,10 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class RingsTweak : TweakBase<RingsTweak> {
-        public const float FireRingDamageCoefficient = 3;
-        public const float IceRingDamageCoefficient = 3;
-        public const float IceRingSlow80BuffDuration = 3;
-        public const float VoidRingDamageCoefficient = 1;
+        public const int FireRingDamageCoefficient = 3;
+        public const int IceRingDamageCoefficient = 3;
+        public const int IceRingSlow80BuffDuration = 3;
+        public const int VoidRingDamageCoefficient = 1;
 
         public override void ClearEventHandlers() {
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;

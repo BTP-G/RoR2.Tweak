@@ -67,6 +67,25 @@ namespace BtpTweak.Tweaks {
             BulwarksHaunt.GhostWave.maxWaves = Run.instance.stageClearCount + 1;
         }
 
+        internal static void SetLunarWingsState(bool enable) {
+            if (TPDespair.ZetAspects.Configuration.AspectEquipmentConversion == null
+                || ZetArtifactsPlugin.DropifactVoidT1 == null) {
+                return;
+            }
+            TPDespair.ZetAspects.Configuration.AspectEquipmentConversion.Value = enable;
+            ZetArtifactsPlugin.DropifactVoidT1.Value = enable;
+            ZetArtifactsPlugin.DropifactVoidT2.Value = enable;
+            ZetArtifactsPlugin.DropifactVoidT3.Value = enable;
+            ZetArtifactsPlugin.DropifactVoid.Value = enable;
+            ZetArtifactsPlugin.DropifactLunar.Value = enable;
+            ZetArtifactsPlugin.DropifactVoidLunar.Value = enable;
+            if (enable) {
+                R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·完成时".ToLunar()}：" + (ZetDropifact.Enabled ? $"掌握对{"月球".ToLunar()}和{"虚空".ToVoid()}物品的丢弃权。" : "") + $"{"右键点击象征（右下角）".ToUtil()}装备可将其{"转化为物品".ToUtil()}。", "zh-CN");
+            } else {
+                R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·过去时".ToLunar()}：随着{"时间".ToUtil()}流逝已经丧失了全部力量，{"或许在某个地方可以恢复...".ToDeath()}。", "zh-CN");
+            }
+        }
+
         private void FadeOut_OnEnter(On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.orig_OnEnter orig, FadeOut self) {
             orig(self);
             foreach (var player in PlayerCharacterMasterController.instances) {
@@ -97,21 +116,6 @@ namespace BtpTweak.Tweaks {
                 return;
             }
             orig(self, gameEndingDef);
-        }
-
-        private void SetLunarWingsState(bool enable) {
-            TPDespair.ZetAspects.Configuration.AspectEquipmentConversion.Value = enable;
-            ZetArtifactsPlugin.DropifactVoidT1.Value = enable;
-            ZetArtifactsPlugin.DropifactVoidT2.Value = enable;
-            ZetArtifactsPlugin.DropifactVoidT3.Value = enable;
-            ZetArtifactsPlugin.DropifactVoid.Value = enable;
-            ZetArtifactsPlugin.DropifactLunar.Value = enable;
-            ZetArtifactsPlugin.DropifactVoidLunar.Value = enable;
-            if (enable) {
-                R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·完成时".ToLunar()}：" + (ZetDropifact.Enabled ? $"掌握对{"月球".ToLunar()}和{"虚空".ToVoid()}物品的丢弃权。" : "") + $"{"右键点击象征（右下角）".ToUtil()}装备可将其{"转化为物品".ToUtil()}。", "zh-CN");
-            } else {
-                R2API.LanguageAPI.AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·过去时".ToLunar()}：随着{"时间".ToUtil()}流逝已经丧失了全部力量，{"或许在某个地方可以恢复...".ToDeath()}。", "zh-CN");
-            }
         }
 
         private void StunState_PlayStunAnimation(On.EntityStates.StunState.orig_PlayStunAnimation orig, EntityStates.StunState self) {

@@ -8,7 +8,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ExplodeOnDeathVoidTweak : TweakBase<ExplodeOnDeathVoidTweak> {
         public const float BaseDamageCoefficient = 0.5f;
-        public const float BaseRadius = 10f;
+        public const int BaseRadius = 12;
+        public const int StackRadius = 3;
 
         public override void ClearEventHandlers() {
             IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
@@ -35,15 +36,15 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         float combinedHealth = healthComponent.combinedHealth;
                         float fullCombinedHealth = healthComponent.fullCombinedHealth;
                         float combinedHealthFraction = fullCombinedHealth < combinedHealth ? 0 : combinedHealth / fullCombinedHealth;
-                        GameObject explodeOnDeathVoidExplosion = UnityEngine.Object.Instantiate(HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab, victimBody.corePosition, Quaternion.identity);
+                        GameObject explodeOnDeathVoidExplosion = Object.Instantiate(HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab, victimBody.corePosition, Quaternion.identity);
                         explodeOnDeathVoidExplosion.GetComponent<TeamFilter>().teamIndex = attacterBody.teamComponent.teamIndex;
                         DelayBlast delayBlast = explodeOnDeathVoidExplosion.GetComponent<DelayBlast>();
                         delayBlast.attacker = damageInfo.attacker;
-                        delayBlast.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient * combinedHealthFraction) + attacterBody.damage * itemCount;
+                        delayBlast.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, combinedHealthFraction * (itemCount / (itemCount + 1)));
                         delayBlast.crit = damageInfo.crit;
                         delayBlast.position = damageInfo.position;
                         delayBlast.procCoefficient = combinedHealthFraction * damageInfo.procCoefficient;
-                        delayBlast.radius = BaseRadius + combinedHealthFraction * victimBody.bestFitRadius;
+                        delayBlast.radius = combinedHealthFraction * (BaseRadius + StackRadius * (itemCount - 1) + victimBody.bestFitRadius);
                         NetworkServer.Spawn(explodeOnDeathVoidExplosion);
                         victimBody.AddBuff(Main.VoidFire);
                         InflictDotInfo inflictDotInfo = new() {

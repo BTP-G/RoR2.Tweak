@@ -7,7 +7,7 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BounceNearbyTweak : TweakBase<BounceNearbyTweak> {
-        public const float BaseDamageCoefficient = 1f;
+        public const float BaseDamageCoefficient = 1;
         public const float BasePercentChance = 33f;
         public const float StackPercentChance = 16.5f;
 
@@ -21,7 +21,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
             ILCursor ilcursor = new(il);
-
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("BounceNearby")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {

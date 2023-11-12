@@ -26,7 +26,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc, 4);
                 ilcursor.Emit(OpCodes.Ldarg_2);
-                ilcursor.EmitDelegate(delegate (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) {
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.Count) && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
                         (victim.GetComponent<StickyBombFountain>() ?? victim.AddComponent<StickyBombFountain>()).AddProjectile(
                             AssetReferences.stickyBombProjectile,

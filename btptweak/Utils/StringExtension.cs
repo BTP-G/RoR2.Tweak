@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace BtpTweak.Utils {
@@ -17,13 +18,13 @@ namespace BtpTweak.Utils {
 
         public static string ToDmg(this object str) => "<style=cIsDamage>" + str + "</style>";
 
-        public static string ToDmgPct(this float damage) => "<style=cIsDamage>" + damage.ToPercent() + "</style>";
+        public static string ToDmgPct(this float damage) => "<style=cIsDamage>" + damage.ToPct() + "</style>";
 
         public static string ToFire(this string str) => "<color=#f25d25>" + str + "</color>";
 
         public static string ToHealing(this object str) => "<style=cIsHealing>" + str + "</style>";
 
-        public static string ToHealPct(this float value) => "<style=cIsHealing>" + value.ToPercent() + "</style>";
+        public static string ToHealPct(this float value) => "<style=cIsHealing>" + value.ToPct() + "</style>";
 
         public static string ToHealth(this object str) => "<style=cIsHealth>" + str + "</style>";
 
@@ -33,34 +34,9 @@ namespace BtpTweak.Utils {
 
         public static string ToLunar(this string str) => "<style=cIsLunar>" + str + "</style>";
 
-        public static string ToPctWithStack(this float value) {
-            string pctStr = value.ToPercent();
-            return pctStr + pctStr.ToStack("（每层+_）");
-        }
+        public static string ToStk(this object str) => "<style=cStack>" + str + "</style>";
 
-        public static string ToValueWithStack(this float value) {
-            return value + value.ToStack("（每层+_）");
-        }
-
-        public static string ToStdWithStack(this float baseValue, float stackValue) {
-            return baseValue + stackValue.ToStack("（每层+_）");
-        }
-
-        public static string ToStdPctWithStack(this float baseValue, float stackValue) {
-            return baseValue.ToPercent() + stackValue.ToPercent().ToStack("（每层+_）");
-        }
-
-        public static string ToPercent(this float value) => 100 * value + "%";
-
-        public static string ToPoison(this string str) => "<color=#014421>" + str + "</color>";
-
-        public static string ToRed(this string str) => "<color=red>" + str + "</color>";
-
-        public static string ToScepterDescription(this string desc) => "\n<color=#d299ff>权杖：" + desc + "</color>";
-
-        public static string ToStack(this object str) => "<style=cStack>" + str + "</style>";
-
-        public static string ToStack(this object str, string prefix_suffix) {
+        public static string ToStk(this object str, string prefix_suffix) {
             var content = str.ToString();
             if (content == "0") {
                 return string.Empty;
@@ -69,12 +45,39 @@ namespace BtpTweak.Utils {
             return "<style=cStack>" + p_s.ElementAtOrDefault(0) + content + p_s.ElementAtOrDefault(1) + "</style>";
         }
 
-        public static string ToStackPct(this float value, string prefix_suffix = "（每层+_%）") {
-            if (value == 0) {
+        public static string ToStkPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            if ((dynamic)value == 0) {
                 return string.Empty;
             }
-            return value.ToPercent().ToStack(prefix_suffix);
+            return value.ToPct().ToStk("（每层+_）");
         }
+
+        public static string ToBaseAndStk<T>(this T baseValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return baseValue + baseValue.ToStk("（每层+_）");
+        }
+
+        public static string ToBaseWithStk<T>(this T baseValue, T stackValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return baseValue + stackValue.ToStk("（每层+_）");
+        }
+
+        public static string ToBaseAndStkPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            string pctStr = value.ToPct();
+            return pctStr + pctStr.ToStk("（每层+_）");
+        }
+
+        public static string ToBaseWithStkPct<T>(this T baseValue, T stackValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return baseValue.ToPct() + stackValue.ToPct().ToStk("（每层+_）");
+        }
+
+        public static string ToPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return 100 * (dynamic)value + "%";
+        }
+
+        public static string ToPoison(this string str) => "<color=#014421>" + str + "</color>";
+
+        public static string ToRed(this string str) => "<color=red>" + str + "</color>";
+
+        public static string ToScepterDesc(this string desc) => "\n<color=#d299ff>权杖：" + desc + "</color>";
 
         public static string ToUtil(this object str) => "<style=cIsUtility>" + str + "</style>";
 

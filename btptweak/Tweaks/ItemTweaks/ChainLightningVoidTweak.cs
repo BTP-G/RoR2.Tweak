@@ -7,10 +7,10 @@ using RoR2.Orbs;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak> {
-        public const float BasePercentChance = 25f;
-        public const float DamageCoefficient = 25f;
-        public const int BaseTotalStrikes = 3;
-        public const int StackTotalStrikes = 1;
+        public const int BasePercentChance = 25;
+        public const int StackPercentChance = 5;
+        public const float BaseDamageCoefficient = 0.4f;
+        public const int TotalStrikes = 3;
 
         public override void ClearEventHandlers() {
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
@@ -29,12 +29,12 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc, 4);
                 ilcursor.Emit(OpCodes.Ldloc, 2);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) => {
-                    if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.ChainLightning) && victimBody.mainHurtBox && Util.CheckRoll(100f * (itemCount / (itemCount + 3f)) * damageInfo.procCoefficient, attackerMaster)) {
+                    if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.ChainLightning) && victimBody.mainHurtBox && Util.CheckRoll((BasePercentChance + StackPercentChance * (itemCount - 1)) * damageInfo.procCoefficient, attackerMaster)) {
                         var voidLightningOrb = new VoidLightningOrb() {
                             origin = damageInfo.position,
-                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, 0.4f),
+                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient),
                             isCrit = damageInfo.crit,
-                            totalStrikes = 2 + itemCount,
+                            totalStrikes = TotalStrikes,
                             teamIndex = attackerMaster.teamIndex,
                             attacker = damageInfo.attacker,
                             procChainMask = damageInfo.procChainMask,

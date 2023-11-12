@@ -18,6 +18,10 @@ namespace BtpTweak.ProjectileFountains {
             if (info.crit) {
                 info.procChainMask.AddProc(ProcType.Meatball);
             }
+            ProjectileManager.instance.FireProjectile(info);
+            info.rotation = Random.rotationUniform;
+            ProjectileManager.instance.FireProjectile(info);
+            info.rotation = Random.rotationUniform;
         }
     }
 }

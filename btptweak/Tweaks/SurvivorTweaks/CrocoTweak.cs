@@ -7,23 +7,25 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
-            On.EntityStates.Croco.Bite.OnEnter += Bite_OnEnter;
+            On.EntityStates.Croco.Bite.OnMeleeHitAuthority += Bite_OnMeleeHitAuthority;
         }
 
         public override void ClearEventHandlers() {
             RoR2Application.onLoad -= Load;
-            On.EntityStates.Croco.Bite.OnEnter -= Bite_OnEnter;
+            On.EntityStates.Croco.Bite.OnMeleeHitAuthority -= Bite_OnMeleeHitAuthority;
         }
 
         public void Load() {
             DeepRot.scriptableObject.buffs[0].canStack = true;
         }
 
-        private void Bite_OnEnter(On.EntityStates.Croco.Bite.orig_OnEnter orig, EntityStates.Croco.Bite self) {
-            if (self.isAuthority) {
-                self.pushAwayForce *= 1 + self.characterBody.inventory.GetItemCount(RoR2Content.Items.Tooth.itemIndex);
-            }
+        private void Bite_OnMeleeHitAuthority(On.EntityStates.Croco.Bite.orig_OnMeleeHitAuthority orig, EntityStates.Croco.Bite self) {
             orig(self);
+            var body = self.characterBody;
+            var itemCount = body.inventory.GetItemCount(RoR2Content.Items.Tooth.itemIndex);
+            if (itemCount > 0) {
+                body.AddTimedBuffAuthority(RoR2Content.Buffs.CrocoRegen.buffIndex, 0.1f * itemCount);
+            }
         }
     }
 }

@@ -38,14 +38,12 @@ namespace BtpTweak {
         public const string PluginVersion = "2.3.33";
 
         private readonly List<IEventHandlers> eventHandlers = new();
-        public static Main Instance { get; private set; }
         public static BuffDef VoidFire { get; private set; }
         internal new static ManualLogSource Logger { get; private set; }
 
         private void Awake() {
-            Instance = this;
             Logger = base.Logger;
-            ModConfig.InitConfig();
+            ModConfig.InitConfig(Config);
             SetUpBuffs();
             InitEventHandlers();
         }

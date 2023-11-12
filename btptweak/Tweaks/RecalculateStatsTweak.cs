@@ -13,6 +13,7 @@ namespace BtpTweak.Tweaks {
         public override void ClearEventHandlers() {
             R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
         }
+
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
             Inventory inventory = sender.inventory;
             if (inventory) {
@@ -84,6 +85,7 @@ namespace BtpTweak.Tweaks {
                 itemCount = inventory.GetItemCount(RoR2Content.Items.Knurl.itemIndex);
                 levelMaxHealthAdd += 0.25f * (sender.levelMaxHealth + levelMaxHealthAdd) * itemCount;
                 args.baseHealthAdd += levelMaxHealthAdd * upLevel;
+                args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 itemCount = inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
                 if (itemCount > 0 && sender.master) {
                     args.regenMultAdd += 0.5f * itemCount + 0.01f * (sender.master.money / 1000000);

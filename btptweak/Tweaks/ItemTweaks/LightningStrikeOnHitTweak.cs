@@ -30,7 +30,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         (victimBody.GetComponent<SimpleLightningStrikeOrbPool>() ?? victimBody.gameObject.AddComponent<SimpleLightningStrikeOrbPool>()).AddOrb(damageInfo.attacker, damageInfo.procChainMask, new() {
                             attacker = damageInfo.attacker,
                             damageColorIndex = DamageColorIndex.Item,
-                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, 3 * itemCount),
+                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount),
                             isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
                             procCoefficient = 0.5f,

@@ -1,6 +1,7 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using HIFULoaderTweaks.Skills;
+using R2API;
 using RoR2;
 using RoR2.Projectile;
 using RoR2.Skills;
@@ -40,6 +41,12 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             proximityBeamController.attackRange *= 2;
             proximityBeamController.bounces = 1;
             BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef.skillName, "SKILL_FIST_NAME", 2.1f);
+            // 充能铁手套
+            var steppedSkillDef2 = SteppedSkillDefPaths.ChargeFist.Load<SteppedSkillDef>();
+            LanguageAPI.Add("SKILL_FIST_MINCHARGE_NAME", $"拳击(无充能)");
+            LanguageAPI.Add("SKILL_FIST_MAXCHARGE_NAME", $"拳击(满充能)");
+            BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef2.skillName, "SKILL_FIST_MINCHARGE_NAME", 0.6f);
+            BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef2.skillName, "SKILL_FIST_MAXCHARGE_NAME", 2.7f);
         }
 
         private void BaseSwingChargedFist_OnEnter(On.EntityStates.Loader.BaseSwingChargedFist.orig_OnEnter orig, EntityStates.Loader.BaseSwingChargedFist self) {

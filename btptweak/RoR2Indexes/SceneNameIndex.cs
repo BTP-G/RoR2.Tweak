@@ -1,6 +1,6 @@
 ﻿namespace BtpTweak.RoR2Indexes {
 
-    public enum SceneNameIndex : byte {
+    internal enum SceneNameIndex : byte {
         None = 0,
         BulwarksHaunt_GhostWave,
         FBLScene,

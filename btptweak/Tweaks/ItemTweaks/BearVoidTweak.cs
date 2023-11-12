@@ -6,7 +6,7 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BearVoidTweak : TweakBase<BearVoidTweak> {
-        public const float BasePercentChance = 50f;
+        public const int BasePercentChance = 50;
 
         public override void ClearEventHandlers() {
             IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
@@ -31,7 +31,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     if (body.HasBuff(DLC1Content.Buffs.EliteVoid.buffIndex) || Util.CheckRoll(BasePercentChance)) {
                         EffectManager.SpawnEffect(HealthComponent.AssetReferences.bearVoidEffectPrefab, new EffectData() {
                             origin = damageInfo.position,
-                            rotation = Util.QuaternionSafeLookRotation(damageInfo.force != Vector3.zero ? damageInfo.force : UnityEngine.Random.onUnitSphere)
+                            rotation = Util.QuaternionSafeLookRotation(damageInfo.force != Vector3.zero ? damageInfo.force : Random.onUnitSphere)
                         }, true);
                         damageInfo.rejected = true;
                     }

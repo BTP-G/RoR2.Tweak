@@ -5,6 +5,7 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class LunarSunTweak : TweakBase<LunarSunTweak> {
+        public const float DamageCoefficient = 3.6f;
 
         public override void SetEventHandlers() {
             On.RoR2.LunarSunBehavior.FixedUpdate += LunarSunBehavior_FixedUpdate;
@@ -14,14 +15,14 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             On.RoR2.LunarSunBehavior.FixedUpdate -= LunarSunBehavior_FixedUpdate;
         }
 
-        private void LunarSunBehavior_FixedUpdate(On.RoR2.LunarSunBehavior.orig_FixedUpdate orig, RoR2.LunarSunBehavior self) {
+        private void LunarSunBehavior_FixedUpdate(On.RoR2.LunarSunBehavior.orig_FixedUpdate orig, LunarSunBehavior self) {
             self.projectileTimer += Time.fixedDeltaTime;
             if (!self.body.master.IsDeployableLimited(DeployableSlot.LunarSunBomb) && self.projectileTimer > 3f / self.stack) {
                 self.projectileTimer = 0f;
                 FireProjectileInfo fireProjectileInfo = new() {
                     projectilePrefab = self.projectilePrefab,
                     crit = self.body.RollCrit(),
-                    damage = self.body.damage * 3.6f,
+                    damage = self.body.damage * DamageCoefficient,
                     damageColorIndex = DamageColorIndex.Item,
                     force = 0f,
                     owner = self.gameObject,

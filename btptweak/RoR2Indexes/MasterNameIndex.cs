@@ -1,6 +1,6 @@
 ﻿namespace BtpTweak.RoR2Indexes {
 
-    public enum MasterNameIndex : byte {
+    internal enum MasterNameIndex : byte {
         None = 0,
         BeetleGuardAllyMaster,
         Drone1Master,

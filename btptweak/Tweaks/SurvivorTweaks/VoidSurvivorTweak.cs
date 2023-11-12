@@ -25,7 +25,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         public void Load() {
-            var gameObject = GameObjectPaths.VoidSurvivorMegaBlasterBigGhostCorrupted.Load<GameObject>();
+            var gameObject = GameObjectPaths.VoidSurvivorMegaBlasterBigProjectileCorrupted.Load<GameObject>();
             var projectileSimple = gameObject.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40f;
             projectileSimple.lifetime = 6.6f;

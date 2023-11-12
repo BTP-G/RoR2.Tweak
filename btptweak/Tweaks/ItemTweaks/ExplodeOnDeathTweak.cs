@@ -7,8 +7,9 @@ using UnityEngine.Networking;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ExplodeOnDeathTweak : TweakBase<ExplodeOnDeathTweak> {
-        public const int DamageCoefficient = 3;
-        public const float BaseRadius = 12;
+        public const float DamageCoefficient = 2.4f;
+        public const int BaseRadius = 12;
+        public const int StackRadius = 4;
 
         public override void SetEventHandlers() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
@@ -35,7 +36,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         delayBlast.crit = damageReport.attackerBody.RollCrit();
                         delayBlast.position = damageReport.damageInfo.position;
                         delayBlast.procCoefficient = damageReport.damageInfo.procCoefficient;
-                        delayBlast.radius = BaseRadius + 1.2f * victimBody.bestFitRadius;
+                        delayBlast.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.2f * victimBody.bestFitRadius;
                         NetworkServer.Spawn(explodeOnDeath);
                     }
                 });

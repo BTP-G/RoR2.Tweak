@@ -1,6 +1,7 @@
 ﻿using BtpTweak.Utils;
 using RoR2;
 using RoR2.Projectile;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace BtpTweak.ProjectileFountains {
     [RequireComponent(typeof(CharacterBody))]
     public abstract class ProjectileFountain : MonoBehaviour {
         private readonly Dictionary<GameObject, Dictionary<ProcChainMask, FireProjectileInfo>> _fountain = new();
+        private readonly ConcurrentDictionary<GameObject, Dictionary<ProcChainMask, FireProjectileInfo>> _fountain2 = new();
         private CharacterBody _victimBody;
         private float _fireTimer;
 

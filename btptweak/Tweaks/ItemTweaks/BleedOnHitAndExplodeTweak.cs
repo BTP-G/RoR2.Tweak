@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BleedOnHitAndExplodeTweak : TweakBase<BleedOnHitAndExplodeTweak> {
-        public const float BaseRadius = 16f;
+        public const int BaseRadius = 16;
         public const int DamageCoefficient = 4;
 
         public override void ClearEventHandlers() {
@@ -28,7 +28,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody victimBody) => {
                     if (itemCount > 0 && (victimBody.HasBuff(RoR2Content.Buffs.Bleeding.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.SuperBleed.buffIndex))) {
                         Util.PlaySound("Play_bleedOnCritAndExplode_explode", victimBody.gameObject);
-                        GameObject bleedExplode = UnityEngine.Object.Instantiate(GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect, victimBody.corePosition, Quaternion.identity);
+                        GameObject bleedExplode = Object.Instantiate(GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect, victimBody.corePosition, Quaternion.identity);
                         bleedExplode.GetComponent<TeamFilter>().teamIndex = damageReport.attackerTeamIndex;
                         DelayBlast delayBlast = bleedExplode.GetComponent<DelayBlast>();
                         delayBlast.attacker = damageReport.attacker;

@@ -5,7 +5,7 @@ namespace BtpTweak.Utils {
     public static class MiscExtensions {
 
         public static void AddPoolProcs(this ref ProcChainMask procChainMask) {
-            if (ModConfig.²âÊÔÓÃ3.Value > 100) {
+            if (ModConfig.ÖÐ¶Ï´¥·¢Á´.Value) {
                 procChainMask.AddProc(ProcType.BounceNearby);
                 procChainMask.AddProc(ProcType.ChainLightning);
                 procChainMask.AddProc(ProcType.Count);

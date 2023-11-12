@@ -9,10 +9,12 @@ namespace BtpTweak.Tweaks {
     internal class ProjectileTweak : TweakBase<ProjectileTweak> {
 
         public override void SetEventHandlers() {
+            On.RoR2.Projectile.MissileController.FixedUpdate += MissileController_FixedUpdate;
             RoR2Application.onLoad += Load;
         }
 
         public override void ClearEventHandlers() {
+            On.RoR2.Projectile.MissileController.FixedUpdate -= MissileController_FixedUpdate;
             RoR2Application.onLoad -= Load;
         }
 
@@ -26,8 +28,13 @@ namespace BtpTweak.Tweaks {
             AssetReferences.stickyBombProjectile.GetComponent<ProjectileController>().procCoefficient = 1f;
             AssetReferences.stickyBombProjectile.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
             AssetReferences.stickyBombProjectile.RemoveComponent<LoopSound>();
-            AssetReferences.fireMeatBallProjectile.GetComponent<ProjectileController>().procCoefficient = 1f;
-            AssetReferences.fireMeatBallProjectile.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.5f;
+            var projectileController = AssetReferences.fireMeatBallProjectile.GetComponent<ProjectileController>();
+            projectileController.procCoefficient = 1f;
+            var projectileImpactExplosion = AssetReferences.fireMeatBallProjectile.GetComponent<ProjectileImpactExplosion>();
+            projectileImpactExplosion.blastProcCoefficient = 0.5f;
+            projectileImpactExplosion.blastRadius = 10;
+            GlobalEventManager.CommonAssets.missilePrefab.GetComponent<QuaternionPID>().gain *= 100;
+            AssetReferences.fireworkPrefab.GetComponent<QuaternionPID>().gain *= 100;
             var missileController = GlobalEventManager.CommonAssets.missilePrefab.GetComponent<MissileController>();
             //missileController.maxVelocity *= 2f;
             //missileController.acceleration *= 10f;
@@ -58,7 +65,7 @@ namespace BtpTweak.Tweaks {
             delayBlast1.damageType = DamageType.AOE;
             delayBlast1.falloffModel = BlastAttack.FalloffModel.SweetSpot;
             delayBlast1.inflictor = null;
-            delayBlast1.maxTimer = 0f;
+            delayBlast1.maxTimer = 0.2f;
             var delayBlast2 = GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect.GetComponent<DelayBlast>();
             delayBlast2.baseForce = 0f;
             delayBlast2.bonusForce = Vector3.zero;
@@ -67,6 +74,11 @@ namespace BtpTweak.Tweaks {
             delayBlast2.falloffModel = BlastAttack.FalloffModel.SweetSpot;
             delayBlast2.inflictor = null;
             delayBlast2.maxTimer = 0.1f;
+        }
+
+        private void MissileController_FixedUpdate(On.RoR2.Projectile.MissileController.orig_FixedUpdate orig, MissileController self) {
+            self.torquePID.timer = self.timer + Time.fixedDeltaTime;
+            orig(self);
         }
 
         private class MolotovDotZoneStartAction : MonoBehaviour {

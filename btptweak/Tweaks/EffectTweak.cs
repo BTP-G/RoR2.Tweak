@@ -1,4 +1,5 @@
-﻿using BtpTweak.Utils;
+﻿using BepInEx;
+using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using System.Collections.Generic;
@@ -56,9 +57,12 @@ namespace BtpTweak.Tweaks {
         private void EffectManager_SpawnEffect_GameObject_EffectData_bool(On.RoR2.EffectManager.orig_SpawnEffect_GameObject_EffectData_bool orig, GameObject effectPrefab, EffectData effectData, bool transmit) {
             EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(effectPrefab);
             if (effectIndex != EffectIndex.Invalid) {
+                if (ModConfig.关闭所有特效.Value) {
+                    return;
+                }
                 if (!EffectSpawnLimit.IsSkipThisSpawn(effectIndex)) {
                     EffectManager.SpawnEffect(effectIndex, effectData, transmit);
-                    if (ModConfig.是否开启特效生成日志.Value) {
+                    if (ModConfig.开启特效生成日志.Value) {
                         Main.Logger.LogMessage("EffectName(特效名称) == " + effectPrefab?.name + ", EffectIndex(特效ID) == " + effectIndex);
                     }
                 }
@@ -72,12 +76,12 @@ namespace BtpTweak.Tweaks {
         }
 
         public class EffectSpawnLimit {
-            private static readonly Dictionary<EffectIndex, EffectSpawnLimit> _EffectIndexToEffectSpawnLimit = new();
-            private float LastSpawnTime_;
-            private float spawnInterval;
-
+            private static readonly Dictionary<int, EffectSpawnLimit> _effectIndexToEffectSpawnLimit = new();
+            private float _lastSpawnTime;
+            private float _spawnInterval;
+             
             private EffectSpawnLimit(float interval) {
-                spawnInterval = interval;
+                _spawnInterval = interval;
             }
 
             public static void AddLimitToEffect(EffectIndex effectIndex, float interval) {
@@ -85,29 +89,52 @@ namespace BtpTweak.Tweaks {
                     Main.Logger.LogWarning($"EffectSpawnLimit：effectIndex(ID) Invalid!");
                     return;
                 }
-                if (_EffectIndexToEffectSpawnLimit.TryGetValue(effectIndex, out var spawnLimit)) {
+                if (_effectIndexToEffectSpawnLimit.TryGetValue((int)effectIndex, out var spawnLimit)) {
                     if (interval < 0) {
-                        Main.Logger.LogInfo($"EffectSpawnLimit：remove {EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} spawn interval");
-                        _EffectIndexToEffectSpawnLimit.Remove(effectIndex);
+                        Main.Logger.LogInfo($"EffectSpawnLimit：已移除 {EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 间隔");
+                        _effectIndexToEffectSpawnLimit.Remove((int)effectIndex);
                     } else {
-                        Main.Logger.LogInfo($"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 间隔被覆盖 old interval == {spawnLimit.spawnInterval} to new interval == {interval}");
-                        spawnLimit.spawnInterval = interval;
+                        Main.Logger.LogInfo($"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 修改间隔: {spawnLimit._spawnInterval}s -> {interval}s");
+                        spawnLimit._spawnInterval = interval;
                     }
                 } else if (interval >= 0) {
-                    _EffectIndexToEffectSpawnLimit.Add(effectIndex, new(interval));
-                    Main.Logger.LogInfo($"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 添加生成间隔 interval == {interval}");
+                    _effectIndexToEffectSpawnLimit.Add((int)effectIndex, new(interval));
+                    Main.Logger.LogInfo($"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 添加间隔: {interval}s");
                 }
             }
 
-            public static bool IsSkipThisSpawn(EffectIndex effectIndex) {
-                if (ModConfig.关闭所有特效.Value) {
-                    return true;
+            /// <summary>一次性给多个特效分别添加指定的生成间隔(单位:s), 间隔小于0则移除间隔。</summary>
+            /// <param name="id_interval_s">字符串格式为: "特效ID:间隔;特效ID2:间隔2;..."</param>
+            public static void AddAddLimitToEffects(string id_interval_s) {
+                if (id_interval_s.IsNullOrWhiteSpace()) {
+                    return;
                 }
-                if (_EffectIndexToEffectSpawnLimit.TryGetValue(effectIndex, out var spawnLimit)) {
-                    if ((Time.fixedTime - spawnLimit.LastSpawnTime_) < spawnLimit.spawnInterval) {
+                foreach (string text in id_interval_s.Trim().Split(';')) {
+                    string[] Index_Interval = text.Split(':');
+                    if (Index_Interval.Length != 2) {
+                        Main.Logger.LogWarning($"{text}特效ID:间隔 格式错误！");
+                        continue;
+                    }
+                    if (int.TryParse(Index_Interval[0].Trim(), out int index)) {
+                        if (float.TryParse(Index_Interval[1].Trim(), out float interval)) {
+                            AddLimitToEffect((EffectIndex)index, interval);
+                        } else {
+                            Main.Logger.LogWarning($"特效ID {Index_Interval[0]} 所设置的间隔 {Index_Interval[1]} 无效！");
+                            continue;
+                        }
+                    } else {
+                        Main.Logger.LogWarning($"特效ID {Index_Interval[0]} 无效！");
+                        continue;
+                    }
+                }
+            }
+
+            internal static bool IsSkipThisSpawn(EffectIndex effectIndex) {
+                if (_effectIndexToEffectSpawnLimit.TryGetValue((int)effectIndex, out var spawnLimit)) {
+                    if ((Time.fixedTime - spawnLimit._lastSpawnTime) < spawnLimit._spawnInterval) {
                         return true;
                     }
-                    spawnLimit.LastSpawnTime_ = Time.fixedTime;
+                    spawnLimit._lastSpawnTime = Time.fixedTime;
                 }
                 return false;
             }
