@@ -30,10 +30,8 @@ namespace BtpTweak.Tweaks {
                 iLCursor.Emit(OpCodes.Ldarg_2);
                 iLCursor.Emit(OpCodes.Ldloc_1);
                 iLCursor.EmitDelegate((DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
-                    if (attackerBody.HasBuff(GoldenCoastPlus.GoldenCoastPlus.affixGoldDef)) {
-                        if (victim.TryGetComponent<DeathRewards>(out var deathRewards)) {
-                            attackerBody.master.GiveMoney((uint)(deathRewards.goldReward * damageInfo.procCoefficient));
-                        }
+                    if (attackerBody.HasBuff(GoldenCoastPlus.GoldenCoastPlus.affixGoldDef) && victim.TryGetComponent<DeathRewards>(out var deathRewards)) {
+                        attackerBody.master.GiveMoney((uint)(deathRewards.goldReward * damageInfo.procCoefficient));
                     }
                 });
             } else {

@@ -1,21 +1,42 @@
 ﻿using BtpTweak.MissilePools;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using RoR2.Projectile;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class MissileTweak : TweakBase<MissileTweak> {
         public const float BasePercnetChance = 10f;
-        public const int DamageCoefficient = 2;
+        public const float DamageCoefficient = 1.5f;
 
         public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            On.RoR2.Projectile.MissileController.FixedUpdate += MissileController_FixedUpdate;
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
         public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
+            On.RoR2.Projectile.MissileController.FixedUpdate -= MissileController_FixedUpdate;
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
+        }
+
+        private void Load() {
+            GlobalEventManager.CommonAssets.missilePrefab.GetComponent<ProjectileController>().procCoefficient = 0.5f;
+            GlobalEventManager.CommonAssets.missilePrefab.GetComponent<QuaternionPID>().gain *= 100;
+            var missileController = GlobalEventManager.CommonAssets.missilePrefab.GetComponent<MissileController>();
+            missileController.acceleration *= 2f;
+            missileController.delayTimer *= 0.5f;
+            missileController.maxSeekDistance = float.MaxValue;
+            missileController.turbulence = 0;
+        }
+
+        private void MissileController_FixedUpdate(On.RoR2.Projectile.MissileController.orig_FixedUpdate orig, MissileController self) {
+            self.torquePID.timer = self.timer + Time.fixedDeltaTime;
+            orig(self);
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -27,25 +48,23 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.Emit(OpCodes.Ldloc, 4);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterMaster attackerMaster) => {
-                    if (itemCount > 0 && Util.CheckRoll(100f * (itemCount / (itemCount + 3f)) * damageInfo.procCoefficient, attackerMaster)) {
-                        (damageInfo.attacker.GetComponent<AtgMissileMK_1Pool>() ?? damageInfo.attacker.AddComponent<AtgMissileMK_1Pool>()).AddMissile(
-                            Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount),
-                            damageInfo.crit,
-                            victim,
-                            damageInfo.procChainMask);
-                    }
-                    int fireworkCount = attackerMaster.inventory.GetItemCount(RoR2Content.Items.Firework);
-                    if (fireworkCount > 0 && Util.CheckRoll(FireworkTweak.PercentChance * fireworkCount * damageInfo.procCoefficient, attackerMaster)) {
-                        (damageInfo.attacker.GetComponent<FireworkPool>() ?? damageInfo.attacker.AddComponent<FireworkPool>()).AddMissile(
-                            Util.OnHitProcDamage(damageInfo.damage, 0, FireworkTweak.BaseDamageCoefficent),
-                            damageInfo.crit,
-                            victim,
-                            damageInfo.procChainMask);
+                    if (itemCount > 0 && Util.CheckRoll(100f * (itemCount / (itemCount + 9f)) * damageInfo.procCoefficient, attackerMaster)) {
+                        var attacker = damageInfo.attacker;
+                        var missileInfo = new MissilePool.MissileInfo {
+                            missilePrefab = GlobalEventManager.CommonAssets.missilePrefab,
+                            procChainMask = damageInfo.procChainMask,
+                            isCrit = damageInfo.crit,
+                            target = victim,
+                        };
+                        missileInfo.procChainMask.AddGreenProcs();
+                        (attacker.GetComponent<MissilePool>()
+                        ?? attacker.AddComponent<MissilePool>()).AddMissile(missileInfo,
+                                                                            Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Missile & Firework :: FireHook Failed!");
+                Main.Logger.LogError("Missile :: FireHook Failed!");
             }
         }
     }

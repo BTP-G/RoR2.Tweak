@@ -1,26 +1,32 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.Tweaks.ItemTweaks;
 using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace BtpTweak.OrbPools {
 
-    internal class LightningOrbPool : OrbPool<ProcChainMask, LightningOrb> {
+    internal class LightningOrbPool : OrbPool<SimpleOrbInfo, LightningOrb> {
+        private List<HealthComponent> _healthComponent;
         protected override float OrbInterval => 0.2f;
+        private List<HealthComponent> HealthComponent => _healthComponent ??= new() { GetComponent<HealthComponent>() };
 
-        public override void AddOrb(GameObject attacker, ProcChainMask key, LightningOrb orb) {
-            if (!orb.isCrit) {
-                key.AddProc(ProcType.ChainLightning);
-            }
-            if (Pool.TryGetValue(attacker, out var pool)) {
-                if (pool.TryGetValue(key, out var lightningOrb)) {
-                    lightningOrb.damageValue += orb.damageValue;
-                } else {
-                    pool.Add(key, orb);
-                }
+        public void AddOrb(in SimpleOrbInfo lightningOrbInfo, float damageValue, int stack, TeamIndex teamIndex) {
+            if (Pool.TryGetValue(lightningOrbInfo, out var lightningOrb)) {
+                lightningOrb.damageValue += damageValue;
             } else {
-                Pool.Add(attacker, new Dictionary<ProcChainMask, LightningOrb>() { { key, orb } });
+                Pool.Add(lightningOrbInfo, new() {
+                    attacker = lightningOrbInfo.attacker,
+                    bouncedObjects = HealthComponent,
+                    bouncesRemaining = ChainLightningTweak.Bounces,
+                    damageColorIndex = DamageColorIndex.Item,
+                    damageValue = damageValue,
+                    isCrit = lightningOrbInfo.isCrit,
+                    lightningType = LightningOrb.LightningType.Ukulele,
+                    procChainMask = lightningOrbInfo.procChainMask,
+                    procCoefficient = 0.2f,
+                    range = ChainLightningTweak.BaseRadius + ChainLightningTweak.StackRadius * (stack - 1),
+                    teamIndex = teamIndex,
+                });
             }
         }
 
@@ -28,8 +34,6 @@ namespace BtpTweak.OrbPools {
             orb.origin = transform.position;
             orb.target = orb.PickNextTarget(orb.origin);
             orb.procChainMask.AddProc(ProcType.ChainLightning);
-            orb.procChainMask.AddPoolProcs();
-
         }
     }
 }

@@ -11,12 +11,24 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int BaseRadius = 12;
         public const int StackRadius = 3;
 
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+        }
+
         public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
             IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
         }
 
-        public override void SetEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+        private void Load() {
+            var delayBlast = HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab.GetComponent<DelayBlast>();
+            delayBlast.baseForce = 666f;
+            delayBlast.damageColorIndex = DamageColorIndex.Void;
+            delayBlast.damageType = DamageType.AOE;
+            delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
+            delayBlast.inflictor = null;
+            delayBlast.maxTimer = 0.2f;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {

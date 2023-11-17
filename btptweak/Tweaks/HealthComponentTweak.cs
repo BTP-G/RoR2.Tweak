@@ -75,7 +75,7 @@ namespace BtpTweak.Tweaks {
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldarg, 1);
                 ilcursor.Emit(OpCodes.Ldloc, 6);
-                ilcursor.EmitDelegate((System.Func<HealthComponent, DamageInfo, float, float>)delegate (HealthComponent healthComponent, DamageInfo damageInfo, float damage) {
+                ilcursor.EmitDelegate(delegate (HealthComponent healthComponent, DamageInfo damageInfo, float damage) {
                     if (RunInfo.是否选择造物难度) {
                         CharacterBody victimBody = healthComponent.body;
                         if (RunInfo.CurrentSceneIndex == SceneIndexes.VoidRaid && victimBody.isBoss) {  // 虚灵
@@ -86,7 +86,7 @@ namespace BtpTweak.Tweaks {
                                 Util.CleanseBody(victimBody, true, false, false, false, true, true);
                             }
                         } else if (PhaseCounter.instance) {
-                            RoR2.BodyIndex selfIndex = victimBody.bodyIndex;
+                            BodyIndex selfIndex = victimBody.bodyIndex;
                             if (selfIndex == BodyIndexes.BrotherBody) {  // 米斯历克斯
                                 if (damage < _伤害阈值_ * healthComponent.fullCombinedHealth && damageInfo.procCoefficient <= 1f) {
                                     damage = Mathf.Min(damage, _老米触发伤害限制_ * healthComponent.fullCombinedHealth);
@@ -111,9 +111,9 @@ namespace BtpTweak.Tweaks {
 
         private void IL_HealthComponent_TriggerOneShotProtection(ILContext il) {
             ILCursor ilcursor = new(il);
-            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdcR4(x, 0.1f))) {
-                ilcursor.Remove();
-                ilcursor.Emit(OpCodes.Ldc_R4, 0.75f);
+            if (ilcursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchLdcR4(x, 0.1f))) {
+                ilcursor.Emit(OpCodes.Pop);
+                ilcursor.Emit(OpCodes.Ldc_R4, 0.5f);
             } else {
                 Main.Logger.LogError("ospTimer Hook Error");
             }

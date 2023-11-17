@@ -3,45 +3,44 @@ using HG;
 using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace BtpTweak.OrbPools {
 
-    internal class BounceOrbPool : OrbPool<ProcChainMask, BounceOrb> {
+    internal class BounceOrbPool : OrbPool<SimpleOrbInfo, BounceOrb> {
+        private List<HealthComponent> _healthComponent;
         protected override float OrbInterval => 0.33f;
+        private List<HealthComponent> HealthComponent => _healthComponent ??= new List<HealthComponent> { GetComponent<HealthComponent>() };
 
-        public override void AddOrb(GameObject attacker, ProcChainMask key, BounceOrb orb) {
-            if (!orb.isCrit) {
-                key.AddProc(ProcType.BounceNearby);
-            }
-            if (Pool.TryGetValue(attacker, out var pool)) {
-                if (pool.TryGetValue(key, out var lightningOrb)) {
-                    lightningOrb.damageValue += orb.damageValue;
-                } else {
-                    pool.Add(key, orb);
-                }
+        public void AddOrb(in SimpleOrbInfo simpleOrbInfo, float damageValue, TeamIndex teamIndex) {
+            if (Pool.TryGetValue(simpleOrbInfo, out var bounceOrb)) {
+                bounceOrb.damageValue += damageValue;
             } else {
-                Pool.Add(attacker, new Dictionary<ProcChainMask, BounceOrb>() { { key, orb } });
+                Pool.Add(simpleOrbInfo, new() {
+                    attacker = simpleOrbInfo.attacker,
+                    damageColorIndex = DamageColorIndex.Item,
+                    damageValue = damageValue,
+                    isCrit = simpleOrbInfo.isCrit,
+                    procChainMask = simpleOrbInfo.procChainMask,
+                    procCoefficient = 0.33f,
+                    teamIndex = teamIndex,
+                });
             }
         }
 
         protected override void ModifyOrb(ref BounceOrb orb) {
-            BullseyeSearch search = new();
-            List<HurtBox> list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
-            List<HealthComponent> list2 = CollectionPool<HealthComponent, List<HealthComponent>>.RentCollection();
-            var victimBody = GetComponent<CharacterBody>();
-            if (victimBody && victimBody.healthComponent) {
-                list2.Add(victimBody.healthComponent);
+            orb.procChainMask.AddProc(ProcType.BounceNearby);
+            var search = new BullseyeSearch();
+            var list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
+            var list2 = CollectionPool<HealthComponent, List<HealthComponent>>.RentCollection();
+            if (HealthComponent.Count > 0) {
+                list2.AddRange(HealthComponent);
             }
             BounceOrb.SearchForTargets(search, orb.teamIndex, transform.position, 33f, 6, list, list2);
             CollectionPool<HealthComponent, List<HealthComponent>>.ReturnCollection(list2);
-            orb.procChainMask.AddProc(ProcType.BounceNearby);
-            orb.procChainMask.AddPoolProcs();
-
             for (int i = 0, count = list.Count; i < count; ++i) {
-                HurtBox target = list[i];
+                var target = list[i];
                 if (target) {
-                    BounceOrb bounceOrb = new() {
+                    var bounceOrb = new BounceOrb() {
                         origin = transform.position,
                         damageValue = orb.damageValue,
                         isCrit = orb.isCrit,
@@ -50,7 +49,7 @@ namespace BtpTweak.OrbPools {
                         procChainMask = orb.procChainMask,
                         procCoefficient = 0.33f,
                         damageColorIndex = DamageColorIndex.Item,
-                        bouncedObjects = new() { victimBody?.healthComponent },
+                        bouncedObjects = HealthComponent,
                         target = target
                     };
                     OrbManager.instance.AddOrb(bounceOrb);

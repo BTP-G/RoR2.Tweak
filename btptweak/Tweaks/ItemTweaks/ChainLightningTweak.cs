@@ -1,9 +1,8 @@
 ﻿using BtpTweak.OrbPools;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using RoR2.Orbs;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
@@ -11,7 +10,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class ChainLightningTweak : TweakBase<ChainLightningTweak> {
         public const int BasePercentChance = 25;
         public const int StackPercentChance = 5;
-        public const float BaseDamageCoefficient = 0.6f;
+        public const float DamageCoefficient = 0.6f;
         public const int BaseRadius = 18;
         public const int StackRadius = 3;
         public const int Bounces = 3;
@@ -34,19 +33,17 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.EmitDelegate(delegate (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.ChainLightning) && Util.CheckRoll((BasePercentChance + StackPercentChance * (itemCount - 1)) * damageInfo.procCoefficient, attackerMaster)) {
-                        (victim.GetComponent<LightningOrbPool>() ?? victim.AddComponent<LightningOrbPool>()).AddOrb(damageInfo.attacker, damageInfo.procChainMask, new() {
-                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient),
-                            isCrit = damageInfo.crit,
-                            bouncesRemaining = Bounces,
-                            teamIndex = attackerMaster.teamIndex,
+                        var simpleOrbInfo = new SimpleOrbInfo {
                             attacker = damageInfo.attacker,
-                            bouncedObjects = new List<HealthComponent> { victim.GetComponent<HealthComponent>() },
+                            isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
-                            procCoefficient = 0.2f,
-                            lightningType = LightningOrb.LightningType.Ukulele,
-                            damageColorIndex = DamageColorIndex.Item,
-                            range = BaseRadius + StackRadius * (itemCount - 1)
-                        });
+                        };
+                        simpleOrbInfo.procChainMask.AddGreenProcs();
+                        (victim.GetComponent<LightningOrbPool>()
+                        ?? victim.AddComponent<LightningOrbPool>()).AddOrb(simpleOrbInfo,
+                                                                           Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount),
+                                                                           itemCount,
+                                                                           attackerMaster.teamIndex);
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

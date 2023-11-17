@@ -1,21 +1,31 @@
 ﻿using BtpTweak.ProjectileFountains;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using RoR2.Projectile;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class StickyBombTweak : TweakBase<StickyBombTweak> {
         public const int PercnetChance = 5;
-        public const int BaseDamageCoefficient = 1;
+        public const float BaseDamageCoefficient = 0.8f;
+
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        }
 
         public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
         }
 
-        public override void SetEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        private void Load() {
+            AssetReferences.stickyBombProjectile.GetComponent<ProjectileController>().procCoefficient = 1f;
+            AssetReferences.stickyBombProjectile.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
+            AssetReferences.stickyBombProjectile.RemoveComponent<LoopSound>();
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -28,12 +38,16 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.Count) && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
-                        (victim.GetComponent<StickyBombFountain>() ?? victim.AddComponent<StickyBombFountain>()).AddProjectile(
-                            AssetReferences.stickyBombProjectile,
-                            damageInfo.attacker,
-                            Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient),
-                            damageInfo.crit,
-                            damageInfo.procChainMask);
+                        var procChainMask = damageInfo.procChainMask;
+                        procChainMask.AddWhiteProcs();
+                        (victim.GetComponent<StickyBombFountain>()
+                        ?? victim.AddComponent<StickyBombFountain>()).AddProjectile(
+                             new ProjectileFountain.SimpleProjectileInfo {
+                                 attacker = damageInfo.attacker,
+                                 procChainMask = procChainMask,
+                                 isCrit = damageInfo.crit,
+                             },
+                             Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

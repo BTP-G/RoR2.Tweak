@@ -7,13 +7,14 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class InfusionTweak : TweakBase<InfusionTweak> {
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnCharacterDeath -= GlobalEventManager_OnCharacterDeath;
-        }
+        public const float 基础生命值占比 = 0.1f;
 
         public override void SetEventHandlers() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
+        }
+
+        public override void ClearEventHandlers() {
+            IL.RoR2.GlobalEventManager.OnCharacterDeath -= GlobalEventManager_OnCharacterDeath;
         }
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {
@@ -28,7 +29,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody attackerBody, Inventory inventory, Vector3 pos) => {
                     int teamItemCount = Util.GetItemCountForTeam(damageReport.attackerTeamIndex, RoR2Content.Items.Infusion.itemIndex, true, false);
                     if (teamItemCount > 0) {
-                        if (inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.levelMaxHealth * teamItemCount)) {
+                        if (inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount)) {
                             InfusionOrb infusionOrb = new() {
                                 origin = pos,
                                 target = attackerBody.mainHurtBox,

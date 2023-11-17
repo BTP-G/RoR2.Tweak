@@ -29,15 +29,17 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc, 2);
                 ilcursor.EmitDelegate(delegate (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.BounceNearby) && Util.CheckRoll((16.5f + StackPercentChance * itemCount) * damageInfo.procCoefficient, attackerMaster)) {
-                        (victimBody.GetComponent<BounceOrbPool>() ?? victimBody.AddComponent<BounceOrbPool>()).AddOrb(damageInfo.attacker, damageInfo.procChainMask, new() {
-                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient),
-                            isCrit = damageInfo.crit,
-                            teamIndex = attackerMaster.teamIndex,
+                        var simpleOrbInfo = new SimpleOrbInfo {
                             attacker = damageInfo.attacker,
+                            isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
-                            procCoefficient = 0.33f,
-                            damageColorIndex = DamageColorIndex.Item,
-                        });
+                        };
+                        simpleOrbInfo.procChainMask.AddRedProcs();
+                        (victimBody.GetComponent<BounceOrbPool>()
+                        ?? victimBody.AddComponent<BounceOrbPool>()).AddOrb(
+                            simpleOrbInfo,
+                            BaseDamageCoefficient * damageInfo.damage,
+                            attackerMaster.teamIndex);
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

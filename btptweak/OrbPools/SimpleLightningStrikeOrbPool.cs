@@ -1,32 +1,29 @@
-﻿using BtpTweak.Utils;
-using RoR2;
+﻿using RoR2;
 using RoR2.Orbs;
-using System.Collections.Generic;
-using UnityEngine;
 
 namespace BtpTweak.OrbPools {
 
-    internal class SimpleLightningStrikeOrbPool : OrbPool<ProcChainMask, SimpleLightningStrikeOrb> {
+    internal class SimpleLightningStrikeOrbPool : OrbPool<SimpleOrbInfo, SimpleLightningStrikeOrb> {
         protected override float OrbInterval => 0.5f;
 
-        public override void AddOrb(GameObject attacker, ProcChainMask key, SimpleLightningStrikeOrb orb) {
-            if (!orb.isCrit) {
-                key.AddProc(ProcType.LightningStrikeOnHit);
-            }
-            if (Pool.TryGetValue(attacker, out var pool)) {
-                if (pool.TryGetValue(key, out var lightningStrikeOrb)) {
-                    lightningStrikeOrb.damageValue += orb.damageValue;
-                } else {
-                    pool.Add(key, orb);
-                }
+        public void AddOrb(in SimpleOrbInfo simpleOrbInfo, float damageValue) {
+            if (Pool.TryGetValue(simpleOrbInfo, out var simpleLightningStrikeOrb)) {
+                simpleLightningStrikeOrb.damageValue += damageValue;
             } else {
-                Pool.Add(attacker, new Dictionary<ProcChainMask, SimpleLightningStrikeOrb>() { { key, orb } });
+                Pool.Add(simpleOrbInfo, new() {
+                    attacker = simpleOrbInfo.attacker,
+                    damageColorIndex = DamageColorIndex.Item,
+                    damageValue = damageValue,
+                    isCrit = simpleOrbInfo.isCrit,
+                    procChainMask = simpleOrbInfo.procChainMask,
+                    procCoefficient = 0.5f,
+                    target = simpleOrbInfo.target,
+                });
             }
         }
 
         protected override void ModifyOrb(ref SimpleLightningStrikeOrb orb) {
             orb.procChainMask.AddProc(ProcType.LightningStrikeOnHit);
-            orb.procChainMask.AddPoolProcs();
         }
     }
 }

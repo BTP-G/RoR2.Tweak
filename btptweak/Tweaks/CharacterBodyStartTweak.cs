@@ -51,6 +51,7 @@ namespace BtpTweak.Tweaks {
             master.onBodyStart -= Master_onBodyStart;
             var inventory = body.inventory;
             if (master.teamIndex != TeamIndex.Player) {
+                body.baseArmor = body.level;
                 inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
             }
             if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {

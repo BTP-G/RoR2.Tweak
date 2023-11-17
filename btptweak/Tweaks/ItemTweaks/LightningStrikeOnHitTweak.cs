@@ -1,4 +1,5 @@
 ﻿using BtpTweak.OrbPools;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -27,15 +28,15 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc, 2);
                 ilcursor.EmitDelegate(delegate (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.LightningStrikeOnHit) && victimBody.mainHurtBox && Util.CheckRoll(100f * (itemCount / (itemCount + 9f)) * damageInfo.procCoefficient, attackerMaster)) {
-                        (victimBody.GetComponent<SimpleLightningStrikeOrbPool>() ?? victimBody.gameObject.AddComponent<SimpleLightningStrikeOrbPool>()).AddOrb(damageInfo.attacker, damageInfo.procChainMask, new() {
+                        var simpleOrbInfo = new SimpleOrbInfo {
                             attacker = damageInfo.attacker,
-                            damageColorIndex = DamageColorIndex.Item,
-                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount),
                             isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
-                            procCoefficient = 0.5f,
-                            target = victimBody.mainHurtBox,
-                        });
+                        };
+                        simpleOrbInfo.procChainMask.AddYellowProcs();
+                        (victimBody.GetComponent<SimpleLightningStrikeOrbPool>()
+                        ?? victimBody.AddComponent<SimpleLightningStrikeOrbPool>()).AddOrb(simpleOrbInfo,
+                                                                                           DamageCoefficient * damageInfo.damage * itemCount);
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

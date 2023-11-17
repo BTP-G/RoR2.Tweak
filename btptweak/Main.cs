@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using BtpTweak.Tweaks;
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using ConfigurableDifficulty;
@@ -35,7 +36,7 @@ namespace BtpTweak {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "2.3.33";
+        public const string PluginVersion = "2.3.4";
 
         private readonly List<IEventHandlers> eventHandlers = new();
         public static BuffDef VoidFire { get; private set; }
@@ -55,17 +56,17 @@ namespace BtpTweak {
             }
         }
 
-        private void OnDisable() {
-            eventHandlers.ForEach(i => {
-                i.ClearEventHandlers();
-                Logger.LogMessage(i.GetType().FullName + ": has cleared event handlers.");
-            });
-        }
-
         private void OnEnable() {
             eventHandlers.ForEach(i => {
                 i.SetEventHandlers();
                 Logger.LogMessage(i.GetType().FullName + ": has set event handlers.");
+            });
+        }
+
+        private void OnDisable() {
+            eventHandlers.ForEach(i => {
+                i.ClearEventHandlers();
+                Logger.LogMessage(i.GetType().FullName + ": has cleared event handlers.");
             });
         }
 

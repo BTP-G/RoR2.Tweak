@@ -12,11 +12,24 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int StackRadius = 4;
 
         public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
         public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
             IL.RoR2.GlobalEventManager.OnCharacterDeath -= GlobalEventManager_OnCharacterDeath;
+        }
+
+        private void Load() {
+            var delayBlast = GlobalEventManager.CommonAssets.explodeOnDeathPrefab.GetComponent<DelayBlast>();
+            delayBlast.baseForce = 1000f;
+            delayBlast.bonusForce = Vector3.up * 1000f;
+            delayBlast.damageColorIndex = DamageColorIndex.Item;
+            delayBlast.damageType = DamageType.AOE;
+            delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
+            delayBlast.inflictor = null;
+            delayBlast.maxTimer = 0.5f;
         }
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {

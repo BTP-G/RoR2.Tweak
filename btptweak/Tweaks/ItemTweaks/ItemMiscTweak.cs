@@ -29,6 +29,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.ShockNearby);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, DLC1Content.Items.MinorConstructOnKill);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.BeetleGland);
+            TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.Behemoth);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.ExecuteLowHealthElite);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.RoboBallBuddy);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.ShockNearby);

@@ -32,6 +32,7 @@ namespace BtpTweak.Tweaks {
             Run.onRunStartGlobal -= Run_onRunStartGlobal;
             Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
             RoR2Application.onLoad -= Load;
+            SetLunarWingsState(false);
         }
 
         public void Load() {

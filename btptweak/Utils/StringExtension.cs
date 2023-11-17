@@ -16,13 +16,35 @@ namespace BtpTweak.Utils {
 
         public static string ToDeath(this string str) => "<style=cDeath>" + str + "</style>";
 
-        public static string ToDmg(this object str) => "<style=cIsDamage>" + str + "</style>";
+        public static string ToDmg(this object obj, string prefix_suffix = "") {
+            if (obj == null) {
+                return string.Empty;
+            }
+            var str = obj.ToString();
+            if (str == "0" || str == "0%") {
+                return string.Empty;
+            }
+            var p_s = prefix_suffix.Split('_');
+            return "<style=cIsDamage>" + p_s.ElementAtOrDefault(0) + str + p_s.ElementAtOrDefault(1) + "</style>";
+        }
 
-        public static string ToDmgPct(this float damage) => "<style=cIsDamage>" + damage.ToPct() + "</style>";
+        public static string ToDmgPct<T>(this T damage) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return "<style=cIsDamage>" + damage.ToPct() + "</style>";
+        }
 
         public static string ToFire(this string str) => "<color=#f25d25>" + str + "</color>";
 
-        public static string ToHealing(this object str) => "<style=cIsHealing>" + str + "</style>";
+        public static string ToHealing(this object obj, string prefix_suffix = "") {
+            if (obj == null) {
+                return string.Empty;
+            }
+            var str = obj.ToString();
+            if (str == "0" || str == "0%") {
+                return string.Empty;
+            }
+            var p_s = prefix_suffix.Split('_');
+            return "<style=cIsHealing>" + p_s.ElementAtOrDefault(0) + str + p_s.ElementAtOrDefault(1) + "</style>";
+        }
 
         public static string ToHealPct(this float value) => "<style=cIsHealing>" + value.ToPct() + "</style>";
 
@@ -36,20 +58,20 @@ namespace BtpTweak.Utils {
 
         public static string ToStk(this object str) => "<style=cStack>" + str + "</style>";
 
-        public static string ToStk(this object str, string prefix_suffix) {
-            var content = str.ToString();
-            if (content == "0") {
+        public static string ToStk(this object obj, string prefix_suffix) {
+            if (obj == null) {
+                return string.Empty;
+            }
+            var str = obj.ToString();
+            if (str == "0" || str == "0%") {
                 return string.Empty;
             }
             var p_s = prefix_suffix.Split('_');
-            return "<style=cStack>" + p_s.ElementAtOrDefault(0) + content + p_s.ElementAtOrDefault(1) + "</style>";
+            return "<style=cStack>" + p_s.ElementAtOrDefault(0) + str + p_s.ElementAtOrDefault(1) + "</style>";
         }
 
-        public static string ToStkPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            if ((dynamic)value == 0) {
-                return string.Empty;
-            }
-            return value.ToPct().ToStk("（每层+_）");
+        public static string ToStkPct<T>(this T value, string prefix_suffix = "（每层+_）") where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return value.ToPct().ToStk(prefix_suffix);
         }
 
         public static string ToBaseAndStk<T>(this T baseValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
@@ -61,7 +83,7 @@ namespace BtpTweak.Utils {
         }
 
         public static string ToBaseAndStkPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            string pctStr = value.ToPct();
+            var pctStr = value.ToPct();
             return pctStr + pctStr.ToStk("（每层+_）");
         }
 
@@ -70,7 +92,11 @@ namespace BtpTweak.Utils {
         }
 
         public static string ToPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            return 100 * (dynamic)value + "%";
+            if (float.TryParse(value.ToString(), out var result)) {
+                return 100 * result + "%";
+            } else {
+                return string.Empty;
+            }
         }
 
         public static string ToPoison(this string str) => "<color=#014421>" + str + "</color>";

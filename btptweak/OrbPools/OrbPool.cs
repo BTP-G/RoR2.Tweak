@@ -1,49 +1,43 @@
-﻿using RoR2.Orbs;
+﻿using RoR2;
+using RoR2.Orbs;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BtpTweak.OrbPools {
 
-    public abstract class OrbPool<T, T2> : MonoBehaviour where T2 : Orb {
+    public struct SimpleOrbInfo {
+        public GameObject attacker;
+        public HurtBox target;
+        public ProcChainMask procChainMask;
+        public bool isCrit;
+    }
+
+    public abstract class OrbPool<TKey, TOrb> : MonoBehaviour where TOrb : Orb {
         private float _orbTimer;
         protected abstract float OrbInterval { get; }
-        protected Dictionary<GameObject, Dictionary<T, T2>> Pool { get; set; } = new();
+        protected Dictionary<TKey, TOrb> Pool { get; } = new();
 
-        public abstract void AddOrb(GameObject attacker, T key, T2 orb);
-
-        protected abstract void ModifyOrb(ref T2 orb);
+        protected abstract void ModifyOrb(ref TOrb orb);
 
         private void Awake() => enabled = NetworkServer.active;
 
-        private async void FixedUpdate() {  // 待完善 -------------------------------------
+        private void FixedUpdate() {
             if ((_orbTimer -= Time.fixedDeltaTime) < 0) {
                 if (Pool.Count > 0) {
-                    int allCount = 1;
                     foreach (var kvp in Pool) {
-                        var orbs = kvp.Value;
-                        if (orbs.Count > 0) {
-                            var keyOrb = orbs.ElementAt(Random.Range(0, orbs.Count));
-                            var orb = keyOrb.Value;
-                            ModifyOrb(ref orb);
-                            orbs.Remove(keyOrb.Key);
-                            allCount += orbs.Count;
-                            if (orb.target) {
-                                OrbManager.instance.AddOrb(orb);
-                            }
+                        var orb = kvp.Value;
+                        ModifyOrb(ref orb);
+                        if (orb.target) {
+                            OrbManager.instance.AddOrb(orb);
                         }
                     }
-                    _orbTimer = OrbInterval / allCount;
+                    Pool.Clear();
+                    _orbTimer = OrbInterval;
                 }
             }
         }
 
-        private void OnDestroy() {
-            foreach (var kvp in Pool) {
-                kvp.Value.Clear();
-            }
-            Pool.Clear();
-        }
+        private void OnDestroy() => Pool.Clear();
     }
 }

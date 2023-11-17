@@ -128,13 +128,14 @@
     <Reference Include="ZetAspects">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\William758-ZetAspects\ZetAspects.dll</HintPath>
     </Reference>
-    <Reference Include="ZetItemTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\William758-ZetItemTweaks\ZetItemTweaks.dll</HintPath>
-    </Reference>
     <Reference Include="Zio">
       <HintPath>libs\Zio.dll</HintPath>
       <Private>false</Private>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pools\" />
   </ItemGroup>
 
 </Project>

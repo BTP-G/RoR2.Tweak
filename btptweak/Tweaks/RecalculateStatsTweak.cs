@@ -19,7 +19,7 @@ namespace BtpTweak.Tweaks {
             if (inventory) {
                 float upLevel = sender.level - 1;
                 int itemCount = inventory.GetItemCount(RoR2Content.Items.FlatHealth.itemIndex);
-                float levelMaxHealthAdd = 2.5f * itemCount;
+                float levelMaxHealthAdd = sender.levelMaxHealth / 9f * itemCount;
                 if (BodyIndexToNameIndex.TryGetValue((int)sender.bodyIndex, out BodyNameIndex loc)) {
                     switch (loc) {
                         case BodyNameIndex.ArbiterBody: {
@@ -57,9 +57,9 @@ namespace BtpTweak.Tweaks {
                         }
                         case BodyNameIndex.HereticBody: {
                             args.cooldownReductionAdd += 2 * inventory.GetItemCount(RoR2Content.Items.LunarPrimaryReplacement.itemIndex);
-                            args.attackSpeedMultAdd += 0.5f * inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
-                            args.moveSpeedMultAdd += 0.5f * inventory.GetItemCount(RoR2Content.Items.LunarUtilityReplacement.itemIndex);
-                            args.healthMultAdd += 0.5f * inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
+                            args.attackSpeedMultAdd += 0.1f * inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
+                            args.moveSpeedMultAdd += 0.1f * inventory.GetItemCount(RoR2Content.Items.LunarUtilityReplacement.itemIndex);
+                            args.healthMultAdd += 0.1f * inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
                             break;
                         }
                         case BodyNameIndex.HuntressBody: { break; }
@@ -83,16 +83,12 @@ namespace BtpTweak.Tweaks {
                     }
                 }
                 itemCount = inventory.GetItemCount(RoR2Content.Items.Knurl.itemIndex);
-                levelMaxHealthAdd += 0.25f * (sender.levelMaxHealth + levelMaxHealthAdd) * itemCount;
+                float regenFraction = 0.016f * itemCount;
+                levelMaxHealthAdd += sender.levelMaxHealth * 0.5f * itemCount;
                 args.baseHealthAdd += levelMaxHealthAdd * upLevel;
                 args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
-                itemCount = inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
-                if (itemCount > 0 && sender.master) {
-                    args.regenMultAdd += 0.5f * itemCount + 0.01f * (sender.master.money / 1000000);
-                }
-                if (sender.HasBuff(RoR2Content.Buffs.AffixLunar.buffIndex)) {
-                    args.baseRegenAdd += 0.01f * (1 + inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex)) * sender.maxShield;
-                }
+                args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
+                args.baseRegenAdd += 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
                 if (sender.HasBuff(RoR2Content.Buffs.Warbanner.buffIndex)) {
                     args.armorAdd += 30f;
                 }
@@ -100,10 +96,27 @@ namespace BtpTweak.Tweaks {
                     args.critDamageMultAdd += (sender.crit - 100f) * 0.01f;
                 }
                 if (sender.HasBuff(RoR2Content.Buffs.TeamWarCry.buffIndex)) {
-                    itemCount = inventory.GetItemCount(RoR2Content.Items.WarCryOnMultiKill.itemIndex);
+                    itemCount = inventory.GetItemCount(RoR2Content.Items.EnergizedOnEquipmentUse.itemIndex);
                     args.attackSpeedMultAdd += 0.5f * itemCount;
                     args.moveSpeedMultAdd += 0.25f * itemCount;
                 }
+                var warCryBuffCount = sender.GetBuffCount(RoR2Content.Buffs.WarCryBuff.buffIndex);
+                if (warCryBuffCount > 0) {
+                    args.attackSpeedMultAdd += 0.1f * warCryBuffCount;
+                    args.moveSpeedMultAdd += 0.2f * warCryBuffCount;
+                }
+                itemCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
+                if (itemCount > 0) {
+                    if (sender.barrierTempEffectInstance?.enabled == true) {
+                        args.armorAdd += 60 * itemCount;
+                    } else {
+                        args.armorAdd += 30 * itemCount;
+                    }
+                }
+                if (sender.outOfDanger) {
+                    regenFraction += 0.016f * inventory.GetItemCount(RoR2Content.Items.HealWhileSafe.itemIndex);
+                }
+                args.baseRegenAdd += regenFraction * sender.maxHealth;
             }
         }
     }

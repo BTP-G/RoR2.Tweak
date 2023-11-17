@@ -9,7 +9,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak> {
         public const int BasePercentChance = 25;
         public const int StackPercentChance = 5;
-        public const float BaseDamageCoefficient = 0.4f;
+        public const float DamageCoefficient = 0.3f;
         public const int TotalStrikes = 3;
 
         public override void ClearEventHandlers() {
@@ -32,7 +32,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.ChainLightning) && victimBody.mainHurtBox && Util.CheckRoll((BasePercentChance + StackPercentChance * (itemCount - 1)) * damageInfo.procCoefficient, attackerMaster)) {
                         var voidLightningOrb = new VoidLightningOrb() {
                             origin = damageInfo.position,
-                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient),
+                            damageValue = Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount),
                             isCrit = damageInfo.crit,
                             totalStrikes = TotalStrikes,
                             teamIndex = attackerMaster.teamIndex,
@@ -43,8 +43,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             secondsPerStrike = 0.1f,
                             target = victimBody.mainHurtBox
                         };
+                        voidLightningOrb.procChainMask.AddWhiteProcs();
                         voidLightningOrb.procChainMask.AddProc(ProcType.ChainLightning);
-                        voidLightningOrb.procChainMask.AddPoolProcs();
                         OrbManager.instance.AddOrb(voidLightningOrb);
                     }
                 });

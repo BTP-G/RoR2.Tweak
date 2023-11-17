@@ -14,12 +14,19 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int IceRingSlow80BuffDuration = 3;
         public const int VoidRingDamageCoefficient = 1;
 
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        }
+
         public override void ClearEventHandlers() {
+            RoR2Application.onLoad -= Load;
             IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
         }
 
-        public override void SetEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        private void Load() {
+            AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>().overlapProcCoefficient = 0.1f;
+            AssetReferences.fireTornado.GetComponent<ProjectileSimple>().lifetime = 3f;
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -49,7 +56,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         }
                         ProcChainMask ringProcChainMask = damageInfo.procChainMask;
                         ringProcChainMask.AddProc(ProcType.Rings);
-                        ringProcChainMask.AddPoolProcs();
+                        ringProcChainMask.AddWhiteProcs();
                         if (iceRingCount > 0) {
                             var blastAttack = new BlastAttack() {
                                 attacker = damageInfo.attacker,
@@ -112,7 +119,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             projectilePrefab = AssetReferences.elementalRingVoidBlackHole,
                         };
                         fireProjectileInfo.procChainMask.AddProc(ProcType.Rings);
-                        fireProjectileInfo.procChainMask.AddPoolProcs();
+                        fireProjectileInfo.procChainMask.AddWhiteProcs();
                         ProjectileManager.instance.FireProjectile(fireProjectileInfo);
                     }
                 });

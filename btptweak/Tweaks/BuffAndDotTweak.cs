@@ -9,7 +9,12 @@ using static RoR2.DotController;
 namespace BtpTweak.Tweaks {
 
     internal class BuffAndDotTweak : TweakBase<BuffAndDotTweak> {
-        // "BuffAndDotTweak";
+
+        public override void SetEventHandlers() {
+            RoR2Application.onLoad += Load;
+            On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
+            onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
+        }
 
         public override void ClearEventHandlers() {
             RoR2Application.onLoad -= Load;
@@ -20,12 +25,7 @@ namespace BtpTweak.Tweaks {
         public void Load() {
             PlatedElite.damageReductionBuff.canStack = false;
             RoR2Content.Buffs.LunarDetonationCharge.isDebuff = false;
-        }
-
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-            On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
-            onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
+            RoR2Content.Buffs.WarCryBuff.canStack = true;
         }
 
         private void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {

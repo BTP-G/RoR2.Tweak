@@ -21,5 +21,7 @@ namespace BtpTweak {
         public static readonly GameObject moonExitArenaOrbEffect = GameObjectPaths.MoonExitArenaOrbEffect.Load<GameObject>();
         public static readonly GameObject omniRecycleEffect = GameObjectPaths.OmniRecycleEffect.Load<GameObject>();
         public static readonly GameObject stickyBombProjectile = GameObjectPaths.StickyBomb1.Load<GameObject>();
+        public static readonly GameObject omniExplosionVFXQuick = GameObjectPaths.OmniExplosionVFXQuick.Load<GameObject>();
+        public static readonly GameObject fireworkLauncher = GameObjectPaths.FireworkLauncher.Load<GameObject>();
     }
 }

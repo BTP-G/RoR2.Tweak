@@ -22,7 +22,7 @@ namespace BtpTweak.Tweaks {
             IL.RoR2.CharacterBody.UpdateAffixPoison -= CharacterBody_UpdateAffixPoison;
         }
 
-        public void Load() {
+        private void Load() {
             GameObjectPaths.LightningStake.LoadComponent<ProjectileImpactExplosion>().blastRadius = 10f;
         }
 

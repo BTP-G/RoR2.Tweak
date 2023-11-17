@@ -30,7 +30,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyEvisProjectile.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");
         }
 
-        private void Evis_OnEnter(On.EntityStates.Merc.Evis.orig_OnEnter orig, EntityStates.Merc.Evis self) {
+        private void Evis_OnEnter(On.EntityStates.Merc.Evis.orig_OnEnter orig, Evis self) {
             orig(self);
             Evis.damageCoefficient *= self.attackSpeedStat;
         }
@@ -45,7 +45,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             self.damageCoefficient *= self.attackSpeedStat;
         }
 
-        private void WhirlwindBase_OnEnter(On.EntityStates.Merc.WhirlwindBase.orig_OnEnter orig, EntityStates.Merc.WhirlwindBase self) {
+        private void WhirlwindBase_OnEnter(On.EntityStates.Merc.WhirlwindBase.orig_OnEnter orig, WhirlwindBase self) {
             orig(self);
             self.moveSpeedStat = 7f;
         }

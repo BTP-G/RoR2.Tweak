@@ -36,8 +36,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         damageInfo.rejected = true;
                     }
                     body.RemoveBuff(DLC1Content.Buffs.BearVoidReady.buffIndex);
-                    int itemCount = body.inventory.GetItemCount(DLC1Content.Items.BearVoid);
-                    body.AddTimedBuff(DLC1Content.Buffs.BearVoidCooldown, 15f * Mathf.Pow(0.9f, itemCount));
+                    body.AddTimedBuff(DLC1Content.Buffs.BearVoidCooldown,
+                        15f * Mathf.Pow(0.9f, body.inventory.GetItemCount(DLC1Content.Items.BearVoid)));
                 });
             } else {
                 Main.Logger.LogError("BearVoid Hook Failed!");
