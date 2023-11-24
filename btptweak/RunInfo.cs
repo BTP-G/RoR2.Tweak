@@ -2,28 +2,27 @@
 using ConfigurableDifficulty;
 using R2API.Utils;
 using RoR2;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BtpTweak {
 
-    public sealed class RunInfo : IEventHandlers {
+    public static class RunInfo {
+
+        static RunInfo() {
+            Run.onRunStartGlobal += UpdateInfo;
+            UpdateInfo(Run.instance);
+            Stage.onStageStartGlobal += UpdateInfo;
+            UpdateInfo(Stage.instance);
+            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += UpdateInfo;
+            Debug.Log($"class {typeof(RunInfo).FullName} has been initialized.");
+        }
+
         public static SceneIndex CurrentSceneIndex { get; private set; }
         public static bool 是否选择造物难度 { get; private set; }
         public static bool 往日不再 { get; private set; }
 
-        public void SetEventHandlers() {
-            Run.onRunStartGlobal += UpdateInfo;
-            Stage.onStageStartGlobal += UpdateInfo;
-            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += UpdateInfo;
-        }
-
-        public void ClearEventHandlers() {
-            Run.onRunStartGlobal -= UpdateInfo;
-            Stage.onStageStartGlobal -= UpdateInfo;
-            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter -= UpdateInfo;
-        }
-
-        private void UpdateInfo(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
+        private static void UpdateInfo(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
             if (是否选择造物难度 && !往日不再) {
                 往日不再 = true;
@@ -33,13 +32,13 @@ namespace BtpTweak {
             }
         }
 
-        private void UpdateInfo(Run run) {
+        private static void UpdateInfo(Run run) {
             往日不再 = false;
-            是否选择造物难度 = run.selectedDifficulty == ConfigurableDifficultyPlugin.configurableDifficultyIndex;
+            是否选择造物难度 = run?.selectedDifficulty == ConfigurableDifficultyPlugin.configurableDifficultyIndex;
         }
 
-        private void UpdateInfo(Stage currentStage) {
-            CurrentSceneIndex = currentStage.sceneDef.sceneDefIndex;
+        private static void UpdateInfo(Stage currentStage) {
+            CurrentSceneIndex = currentStage?.sceneDef.sceneDefIndex ?? SceneIndex.Invalid;
         }
     }
 }

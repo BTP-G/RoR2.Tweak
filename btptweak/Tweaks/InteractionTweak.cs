@@ -15,16 +15,17 @@ namespace BtpTweak.Tweaks {
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
+            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
             On.RoR2.ShopTerminalBehavior.DropPickup += ShopTerminalBehavior_DropPickup;
             On.RoR2.PurchaseInteraction.Awake += PurchaseInteraction_Awake;
-            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
+            On.RoR2.ShrineBloodBehavior.AddShrineStack += ShrineBloodBehavior_AddShrineStack;
         }
 
         public override void ClearEventHandlers() {
             RoR2Application.onLoad -= Load;
+            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
             On.RoR2.ShopTerminalBehavior.DropPickup -= ShopTerminalBehavior_DropPickup;
             On.RoR2.PurchaseInteraction.Awake -= PurchaseInteraction_Awake;
-            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
         }
 
         public void Load() {
@@ -40,18 +41,59 @@ namespace BtpTweak.Tweaks {
             GameObjectPaths.DuplicatorMilitary.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorWild.Load<GameObject>().RemoveComponent<DelayedEvent>();
             InteractableSpawnCardPaths.iscScrapper.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
-            InteractableSpawnCardPaths.iscShrineBlood.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
-            InteractableSpawnCardPaths.iscShrineBloodSandy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
-            InteractableSpawnCardPaths.iscShrineBloodSnowy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            InteractableSpawnCardPaths.iscShrineGoldshoresAccess.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineCleanse.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineCleanseSandy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineCleanseSnowy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
-            InteractableSpawnCardPaths.iscShrineGoldshoresAccess.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
+            InteractableSpawnCardPaths.iscShrineChance.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
+            InteractableSpawnCardPaths.iscShrineChanceSandy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
+            InteractableSpawnCardPaths.iscShrineChanceSnowy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
+            InteractableSpawnCardPaths.iscBarrel1.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = true;
+            var card = InteractableSpawnCardPaths.iscLunarChest.Load<InteractableSpawnCard>();
+            card.skipSpawnWhenSacrificeArtifactEnabled = false;
+            card.weightScalarWhenSacrificeArtifactEnabled *= 0.5f;
+            card = InteractableSpawnCardPaths.iscVoidChest.Load<InteractableSpawnCard>();
+            card.skipSpawnWhenSacrificeArtifactEnabled = false;
+            card.weightScalarWhenSacrificeArtifactEnabled *= 0.5f;
         }
 
         public void Stage_onStageStartGlobal(Stage stage) {
             var sceneIndex = stage.sceneDef.sceneDefIndex;
             _位于月球 = sceneIndex == SceneIndexes.Moon2 || sceneIndex == SceneIndexes.Moon;
+        }
+
+        private void ShrineBloodBehavior_AddShrineStack(On.RoR2.ShrineBloodBehavior.orig_AddShrineStack orig, ShrineBloodBehavior self, Interactor interactor) {
+            if (!NetworkServer.active) {
+                Debug.LogWarning("[Server] function 'System.Void RoR2.ShrineBloodBehavior::AddShrineStack(RoR2.Interactor)' called on client");
+                return;
+            }
+            self.waitingForRefresh = true;
+            CharacterBody component = interactor.GetComponent<CharacterBody>();
+            if (component) {
+                uint amount = (uint)(component.healthComponent.fullCombinedHealth * self.purchaseInteraction.cost / 100f * self.goldToPaidHpRatio);
+                if (component.master) {
+                    component.master.GiveMoney(amount);
+                    Chat.SendBroadcastChat(new Chat.SubjectFormatChatMessage {
+                        subjectAsCharacterBody = component,
+                        baseToken = "SHRINE_BLOOD_USE_MESSAGE",
+                        paramTokens = new string[]
+                        {
+                            amount.ToString()
+                        }
+                    });
+                }
+            }
+            EffectManager.SpawnEffect(LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/ShrineUseEffect"), new EffectData {
+                origin = self.transform.position,
+                rotation = Quaternion.identity,
+                scale = 1f,
+                color = Color.red
+            }, true);
+            self.purchaseCount++;
+            self.refreshTimer = 2f;
+            if (self.purchaseCount >= self.maxPurchaseCount) {
+                self.symbolTransform.gameObject.SetActive(false);
+            }
         }
 
         private float GetTPChanceFromItemTier(ItemTier itemTier) => itemTier switch {

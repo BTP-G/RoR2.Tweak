@@ -1,4 +1,6 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Audio;
@@ -16,6 +18,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public override void ClearEventHandlers() {
             IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
         }
+
         private void HealthComponent_TakeDamage(ILContext il) {
             ILCursor ilcursor = new(il);
             if (ilcursor.TryGotoNext(MoveType.After,
@@ -26,7 +29,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc, 6);
                 ilcursor.EmitDelegate((int itemCount, HealthComponent healthComponent, float damage) => {
                     healthComponent.Heal(itemCount * (damage * HealFractionFromDamage + HealAmount), default, true);
-                    EntitySoundManager.EmitSoundServer(LegacyResourcesAPI.Load<NetworkSoundEventDef>("NetworkSoundEventDefs/nseParentEggHeal").index, healthComponent.gameObject);
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {

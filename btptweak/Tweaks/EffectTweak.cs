@@ -1,10 +1,14 @@
 ﻿using BepInEx;
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RoR2;
+using RoR2.Projectile;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
@@ -12,12 +16,16 @@ namespace BtpTweak.Tweaks {
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
+            On.RoR2.CharacterBody.OnClientBuffsChanged += CharacterBody_OnClientBuffsChanged;
             On.RoR2.EffectManager.SpawnEffect_GameObject_EffectData_bool += EffectManager_SpawnEffect_GameObject_EffectData_bool;
+            IL.EntityStates.TitanMonster.DeathState.OnEnter += DeathState_OnEnter;
         }
 
         public override void ClearEventHandlers() {
             RoR2Application.onLoad -= Load;
+            On.RoR2.CharacterBody.OnClientBuffsChanged -= CharacterBody_OnClientBuffsChanged;
             On.RoR2.EffectManager.SpawnEffect_GameObject_EffectData_bool -= EffectManager_SpawnEffect_GameObject_EffectData_bool;
+            IL.EntityStates.TitanMonster.DeathState.OnEnter -= DeathState_OnEnter;
         }
 
         public void Load() {
@@ -25,6 +33,10 @@ namespace BtpTweak.Tweaks {
             Object.Destroy(GameObjectPaths.LightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
             Object.Destroy(AssetReferences.affixWhiteExplosion.transform.Find("Flash, Blue").gameObject);
             Object.Destroy(AssetReferences.affixWhiteExplosion.transform.Find("Flash, White").gameObject);
+            Object.Destroy(GameObjectPaths.TitanRechargeRocksEffect.LoadComponent<EffectComponent>());
+            Object.Destroy(GameObjectPaths.ClayBossPreDeath.LoadComponent<EffectComponent>());
+            Object.Destroy(GameObjectPaths.RoboBallBossPreDeath.LoadComponent<EffectComponent>());
+            GameObjectPaths.EvisProjectile.LoadComponent<ProjectileImpactExplosion>().impactEffect = null;
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.CleanseEffect.LoadComponent<EffectComponent>().effectIndex, 1f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.CloverEffect.LoadComponent<EffectComponent>().effectIndex, 0.5f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.ChainLightningOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.05f);
@@ -45,31 +57,48 @@ namespace BtpTweak.Tweaks {
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.RazorwireOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.VoidLightningOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.VoidLightningStrikeImpact.LoadComponent<EffectComponent>().effectIndex, 0.01f);
-            //EffectSpawnLimit.AddLimitToEffect("RoR2/DLC1/MissileVoid/MissileVoidOrbEffect.prefab".LoadComponent<EffectComponent>().effectIndex, 0.01f);
+            //EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.MissileVoidOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.VoidImpactEffect.LoadComponent<EffectComponent>().effectIndex, 0.02f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.PermanentDebuffEffect.LoadComponent<EffectComponent>().effectIndex, 0.1f);
             EffectSpawnLimit.AddLimitToEffect(EntityStates.Merc.Evis.hitEffectPrefab.GetComponent<EffectComponent>().effectIndex, 0.1f);
             EffectSpawnLimit.AddLimitToEffect(HealthComponent.AssetReferences.bearEffectPrefab.GetComponent<EffectComponent>().effectIndex, 1f);
             EffectSpawnLimit.AddLimitToEffect(HealthComponent.AssetReferences.bearVoidEffectPrefab.GetComponent<EffectComponent>().effectIndex, 1f);
-            GrooveSaladSpikestripContent.SpikestripVisuals.temporaryVFXCollection.RemoveAll((temporaryVFX) => temporaryVFX.tempEffectPrefab.name == "VoidFogMildEffect");
+        }
+
+        private void DeathState_OnEnter(ILContext il) {
+            var cur = new ILCursor(il);
+            if (cur.TryGotoNext(c => c.MatchLdfld<EntityStates.TitanMonster.DeathState>("centerTransform"),
+                                c => c.MatchCallvirt<Transform>("set_parent"))) {
+                cur.Index += 1;
+                cur.Emit(OpCodes.Pop);
+                cur.Emit(OpCodes.Ldarg_0);
+                cur.EmitDelegate((EntityStates.TitanMonster.DeathState deathState) => deathState.transform);
+            }
+        }
+
+        private void CharacterBody_OnClientBuffsChanged(On.RoR2.CharacterBody.orig_OnClientBuffsChanged orig, CharacterBody self) {
+            if (!NetworkClient.active) {
+                UnityEngine.Debug.LogWarning("[Client] function 'System.Void RoR2.CharacterBody::OnClientBuffsChanged()' called on server");
+                return;
+            }
         }
 
         private void EffectManager_SpawnEffect_GameObject_EffectData_bool(On.RoR2.EffectManager.orig_SpawnEffect_GameObject_EffectData_bool orig, GameObject effectPrefab, EffectData effectData, bool transmit) {
-            EffectIndex effectIndex = EffectCatalog.FindEffectIndexFromPrefab(effectPrefab);
+            var effectIndex = EffectCatalog.FindEffectIndexFromPrefab(effectPrefab);
             if (effectIndex != EffectIndex.Invalid) {
                 if (ModConfig.关闭所有特效.Value) {
                     return;
                 }
-                if (!EffectSpawnLimit.IsSkipThisSpawn(effectIndex)) {
+                if (EffectSpawnLimit.TrySpawnEffect(effectIndex)) {
                     EffectManager.SpawnEffect(effectIndex, effectData, transmit);
                     if (ModConfig.开启特效生成日志.Value) {
-                        Main.Logger.LogMessage("EffectName(特效名称) == " + effectPrefab?.name + ", EffectIndex(特效ID) == " + effectIndex);
+                        Main.Logger.LogMessage("EffectName == " + effectPrefab?.name + ", EffectIndex(ID) == " + effectIndex);
                     }
                 }
                 return;
             }
             if (effectPrefab && !string.IsNullOrEmpty(effectPrefab.name)) {
-                UnityEngine.Debug.LogError("Unable to SpawnEffect from prefab named '" + effectPrefab.name + "'");
+                UnityEngine.Debug.LogWarning("Unable to SpawnEffect from prefab named '" + effectPrefab.name + "'");
                 return;
             }
             UnityEngine.Debug.LogError(string.Format("Unable to SpawnEffect.  Is null? {0}.  Name = '{1}'.\n{2}", effectPrefab == null, effectPrefab?.name, new StackTrace()));
@@ -79,7 +108,7 @@ namespace BtpTweak.Tweaks {
             private static readonly Dictionary<int, EffectSpawnLimit> _effectIndexToEffectSpawnLimit = new();
             private float _lastSpawnTime;
             private float _spawnInterval;
-             
+
             private EffectSpawnLimit(float interval) {
                 _spawnInterval = interval;
             }
@@ -129,14 +158,14 @@ namespace BtpTweak.Tweaks {
                 }
             }
 
-            internal static bool IsSkipThisSpawn(EffectIndex effectIndex) {
+            internal static bool TrySpawnEffect(EffectIndex effectIndex) {
                 if (_effectIndexToEffectSpawnLimit.TryGetValue((int)effectIndex, out var spawnLimit)) {
-                    if ((Time.fixedTime - spawnLimit._lastSpawnTime) < spawnLimit._spawnInterval) {
-                        return true;
+                    if ((Time.time - spawnLimit._lastSpawnTime) < spawnLimit._spawnInterval) {
+                        return false;
                     }
-                    spawnLimit._lastSpawnTime = Time.fixedTime;
+                    spawnLimit._lastSpawnTime = Time.time;
                 }
-                return false;
+                return true;
             }
         }
     }

@@ -20,9 +20,9 @@ namespace BtpTweak.Tweaks {
         }
 
         private void MasterSummon_onServerMasterSummonGlobal(MasterSummon.MasterSummonReport summonReport) {
-            Inventory summonInvertory = summonReport.summonMasterInstance?.inventory;
+            var summonInvertory = summonReport.summonMasterInstance?.inventory;
             if (summonInvertory) {
-                Inventory leaderInventory = summonReport.leaderMasterInstance?.inventory;
+                var leaderInventory = summonReport.leaderMasterInstance?.inventory;
                 if (leaderInventory) {
                     summonInvertory.GiveItem(_weddingRing, leaderInventory.GetItemCount(_weddingRing) - summonInvertory.GetItemCount(_weddingRing));
                 }

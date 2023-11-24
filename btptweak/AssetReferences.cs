@@ -1,5 +1,6 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using RoR2;
 using UnityEngine;
 
 namespace BtpTweak {
@@ -23,5 +24,6 @@ namespace BtpTweak {
         public static readonly GameObject stickyBombProjectile = GameObjectPaths.StickyBomb1.Load<GameObject>();
         public static readonly GameObject omniExplosionVFXQuick = GameObjectPaths.OmniExplosionVFXQuick.Load<GameObject>();
         public static readonly GameObject fireworkLauncher = GameObjectPaths.FireworkLauncher.Load<GameObject>();
+        
     }
 }

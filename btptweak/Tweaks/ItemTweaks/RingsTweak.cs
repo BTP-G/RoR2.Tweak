@@ -54,9 +54,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, i);
                             }
                         }
-                        ProcChainMask ringProcChainMask = damageInfo.procChainMask;
+                        var ringProcChainMask = damageInfo.procChainMask;
                         ringProcChainMask.AddProc(ProcType.Rings);
-                        ringProcChainMask.AddWhiteProcs();
+                        ringProcChainMask.AddGreenProcs();
                         if (iceRingCount > 0) {
                             var blastAttack = new BlastAttack() {
                                 attacker = damageInfo.attacker,
@@ -119,7 +119,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             projectilePrefab = AssetReferences.elementalRingVoidBlackHole,
                         };
                         fireProjectileInfo.procChainMask.AddProc(ProcType.Rings);
-                        fireProjectileInfo.procChainMask.AddWhiteProcs();
+                        fireProjectileInfo.procChainMask.AddGreenProcs();
                         ProjectileManager.instance.FireProjectile(fireProjectileInfo);
                     }
                 });

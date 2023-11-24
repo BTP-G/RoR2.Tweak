@@ -8,7 +8,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ThornsTweak : TweakBase<ThornsTweak> {
         public const int Radius = 10;
-        public const float DamageCoefficient = 1f;
+        public const float BaseDamageCoefficient = 1.5f;
 
         public override void SetEventHandlers() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;

@@ -1,48 +1,33 @@
 ﻿using RoR2;
+using RoR2.Items;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class TPHealingNovaTweak : TweakBase<TPHealingNovaTweak> {
-        public const float RegenBuffDuration = 1f;
+        public const float HealFraction = 0.02f;
 
         public override void SetEventHandlers() {
-            On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.OnEnter += TeleporterHealNovaGeneratorMain_OnEnter;
             On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.Pulse += TeleporterHealNovaGeneratorMain_Pulse;
         }
 
         public override void ClearEventHandlers() {
-            On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.OnEnter -= TeleporterHealNovaGeneratorMain_OnEnter;
             On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.Pulse -= TeleporterHealNovaGeneratorMain_Pulse;
         }
 
         private void TeleporterHealNovaGeneratorMain_Pulse(On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.orig_Pulse orig, EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain self) {
             orig(self);
-            var holdoutZone = self.holdoutZone;
-            if (holdoutZone.buffWard) {
-                holdoutZone.buffWard.buffDuration = Util.GetItemCountForTeam(self.teamIndex, RoR2Content.Items.TPHealingNova.itemIndex, false, false);
-            } else {
-                var buffWard = holdoutZone.buffWard = self.gameObject.GetComponent<BuffWard>() ?? self.gameObject.AddComponent<BuffWard>();
-                buffWard.buffDef = RoR2Content.Buffs.CrocoRegen;
-                buffWard.buffDuration = RegenBuffDuration * Util.GetItemCountForTeam(holdoutZone.chargingTeam, RoR2Content.Items.TPHealingNova.itemIndex, false, false);
-                buffWard.interval = 1f;
-                buffWard.requireGrounded = false;
-                buffWard.shape = BuffWard.BuffWardShape.Sphere;
-                buffWard.animateRadius = false;
-                buffWard.expires = false;
-            }
-        }
-
-        private void TeleporterHealNovaGeneratorMain_OnEnter(On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.orig_OnEnter orig, EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain self) {
-            orig(self);
-            var holdoutZone = self.holdoutZone;
-            var buffWard = holdoutZone.buffWard = self.gameObject.GetComponent<BuffWard>() ?? self.gameObject.AddComponent<BuffWard>();
-            buffWard.buffDef = RoR2Content.Buffs.CrocoRegen;
-            buffWard.buffDuration = RegenBuffDuration * Util.GetItemCountForTeam(holdoutZone.chargingTeam, RoR2Content.Items.TPHealingNova.itemIndex, false, false);
-            buffWard.interval = 1f;
-            buffWard.requireGrounded = false;
-            buffWard.shape = BuffWard.BuffWardShape.Sphere;
-            buffWard.animateRadius = false;
-            buffWard.expires = false;
+            var transform = self.outer.transform;
+            var TPHealingWard = Object.Instantiate(MushroomBodyBehavior.mushroomWardPrefab, transform.position, transform.rotation, transform);
+            TPHealingWard.GetComponent<TeamFilter>().teamIndex = self.teamIndex;
+            var healingWard = TPHealingWard.GetComponent<HealingWard>();
+            healingWard.floorWard = false;
+            healingWard.interval = 1f;
+            healingWard.healFraction = HealFraction * healingWard.interval;
+            healingWard.healPoints = 0f;
+            healingWard.Networkradius = self.holdoutZone.currentRadius;
+            NetworkServer.Spawn(TPHealingWard);
         }
     }
 }

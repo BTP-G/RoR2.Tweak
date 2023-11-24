@@ -1,8 +1,6 @@
-﻿namespace BtpTweak
-{
+﻿namespace BtpTweak {
 
-    internal interface IEventHandlers
-    {
+    internal interface IEventHandlers {
 
         void SetEventHandlers();
 

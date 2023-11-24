@@ -3,7 +3,7 @@
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class HealOnCritTweak : TweakBase<HealOnCritTweak> {
-        public const int RegenDuration = 1;
+        public const float RegenDuration = 0.1f;
 
         public override void SetEventHandlers() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
@@ -22,8 +22,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 return;
             }
             var itemCount = attackerBody.inventory?.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex) ?? 0;
-            while (itemCount-- > 0) {
-                attackerBody.AddTimedBuff(RoR2Content.Buffs.CrocoRegen, RegenDuration);
+            if (itemCount > 0) {
+                attackerBody.AddTimedBuff(RoR2Content.Buffs.CrocoRegen, RegenDuration * itemCount);
             }
         }
     }

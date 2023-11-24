@@ -39,7 +39,7 @@ namespace BtpTweak.Tweaks {
         public void Run_onRunStartGlobal(Run run) {
             TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = 40;
             TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = 40;
-            UpdateEliteFromScene(SceneCatalog.GetSceneDefForCurrentScene().sceneDefIndex);
+            HandleSceneSpecialElite(SceneCatalog.GetSceneDefForCurrentScene().sceneDefIndex);
         }
 
         private void CombatDirector_Awake(On.RoR2.CombatDirector.orig_Awake orig, CombatDirector self) {
@@ -62,10 +62,10 @@ namespace BtpTweak.Tweaks {
             int newSoftCharacterLimit = Mathf.Max(18, 40 - 4 * self.stageClearCount);
             TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = newSoftCharacterLimit;
             TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = newSoftCharacterLimit;
-            UpdateEliteFromScene(nextScene.sceneDefIndex);
+            HandleSceneSpecialElite(nextScene.sceneDefIndex);
         }
 
-        private void UpdateEliteFromScene(SceneIndex sceneIndex) {
+        private void HandleSceneSpecialElite(SceneIndex sceneIndex) {
             _精英转化几率 = 0;
             _特殊环境精英属性 = null;
             if (sceneIndex == SceneIndexes.GoldShores) {

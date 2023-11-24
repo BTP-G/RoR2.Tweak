@@ -7,16 +7,15 @@ using UnityEngine;
 namespace BtpTweak.Tweaks {
 
     internal class HealthComponentTweak : TweakBase<HealthComponentTweak> {
-        private float _老米爆发伤害限制_;
-        private float _老米触发伤害限制_;
-        private float _伤害阈值_;
-        private float _虚灵爆发伤害限制_;
-        private float _虚灵触发伤害限制_;
+        private float _老米爆发伤害限制;
+        private float _老米触发伤害限制;
+        private float _伤害阈值;
+        private float _虚灵爆发伤害限制;
+        private float _虚灵触发伤害限制;
 
         public override void SetEventHandlers() {
             GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
             IL.RoR2.HealthComponent.TakeDamage += IL_HealthComponent_TakeDamage;
-            IL.RoR2.HealthComponent.TriggerOneShotProtection += IL_HealthComponent_TriggerOneShotProtection;
             On.RoR2.HealthComponent.Heal += HealthComponent_Heal;
             On.RoR2.HealthComponent.RechargeShield += HealthComponent_RechargeShield;
             Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
@@ -26,7 +25,6 @@ namespace BtpTweak.Tweaks {
         public override void ClearEventHandlers() {
             GlobalEventManager.onServerDamageDealt -= GlobalEventManager_onServerDamageDealt;
             IL.RoR2.HealthComponent.TakeDamage -= IL_HealthComponent_TakeDamage;
-            IL.RoR2.HealthComponent.TriggerOneShotProtection -= IL_HealthComponent_TriggerOneShotProtection;
             On.RoR2.HealthComponent.Heal -= HealthComponent_Heal;
             On.RoR2.HealthComponent.RechargeShield -= HealthComponent_RechargeShield;
             Run.onRunAmbientLevelUp -= Run_onRunAmbientLevelUp;
@@ -34,7 +32,7 @@ namespace BtpTweak.Tweaks {
         }
 
         public void StageStartAction(Stage stage) {
-            _伤害阈值_ = 0.1f * Run.instance.stageClearCount * (Run.instance.ambientLevel / (Run.instance.ambientLevel + 100f));
+            _伤害阈值 = 0.1f * Run.instance.stageClearCount * (Run.instance.ambientLevel / (Run.instance.ambientLevel + 100f));
         }
 
         private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
@@ -79,19 +77,19 @@ namespace BtpTweak.Tweaks {
                     if (RunInfo.是否选择造物难度) {
                         CharacterBody victimBody = healthComponent.body;
                         if (RunInfo.CurrentSceneIndex == SceneIndexes.VoidRaid && victimBody.isBoss) {  // 虚灵
-                            if (damage < _伤害阈值_ * healthComponent.fullHealth && damageInfo.procCoefficient <= 1f) {
-                                damage = Mathf.Min(damage, _虚灵触发伤害限制_ * healthComponent.fullHealth);
+                            if (damage < _伤害阈值 * healthComponent.fullHealth && damageInfo.procCoefficient <= 1f) {
+                                damage = Mathf.Min(damage, _虚灵触发伤害限制 * healthComponent.fullHealth);
                             } else {
-                                damage = Mathf.Min(damage, _虚灵爆发伤害限制_ * healthComponent.fullHealth);
+                                damage = Mathf.Min(damage, _虚灵爆发伤害限制 * healthComponent.fullHealth);
                                 Util.CleanseBody(victimBody, true, false, false, false, true, true);
                             }
                         } else if (PhaseCounter.instance) {
                             BodyIndex selfIndex = victimBody.bodyIndex;
                             if (selfIndex == BodyIndexes.BrotherBody) {  // 米斯历克斯
-                                if (damage < _伤害阈值_ * healthComponent.fullCombinedHealth && damageInfo.procCoefficient <= 1f) {
-                                    damage = Mathf.Min(damage, _老米触发伤害限制_ * healthComponent.fullCombinedHealth);
+                                if (damage < _伤害阈值 * healthComponent.fullCombinedHealth && damageInfo.procCoefficient <= 1f) {
+                                    damage = Mathf.Min(damage, _老米触发伤害限制 * healthComponent.fullCombinedHealth);
                                 } else {
-                                    damage = Mathf.Min(damage, _老米爆发伤害限制_ * healthComponent.fullCombinedHealth);
+                                    damage = Mathf.Min(damage, _老米爆发伤害限制 * healthComponent.fullCombinedHealth);
                                     Util.CleanseBody(victimBody, true, false, false, false, true, true);
                                 }
                             } else if (selfIndex == BodyIndexes.BrotherHurtBody) {
@@ -109,24 +107,14 @@ namespace BtpTweak.Tweaks {
             }
         }
 
-        private void IL_HealthComponent_TriggerOneShotProtection(ILContext il) {
-            ILCursor ilcursor = new(il);
-            if (ilcursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchLdcR4(x, 0.1f))) {
-                ilcursor.Emit(OpCodes.Pop);
-                ilcursor.Emit(OpCodes.Ldc_R4, 0.5f);
-            } else {
-                Main.Logger.LogError("ospTimer Hook Error");
-            }
-        }
-
         private void Run_onRunAmbientLevelUp(Run run) {
             int stageCount = run.stageClearCount + 1;
             float 爆发 = Mathf.Max(0.01f, 1f - 0.1f * stageCount * (run.ambientLevel / (run.ambientLevel + 99f + TeamManager.instance.GetTeamLevel(TeamIndex.Player))));
-            _老米爆发伤害限制_ = 爆发;
-            _虚灵爆发伤害限制_ = 爆发 * 0.5f;
+            _老米爆发伤害限制 = 爆发;
+            _虚灵爆发伤害限制 = 爆发 * 0.5f;
             float 触发 = 爆发 * 0.001f;
-            _老米触发伤害限制_ = 触发;
-            _虚灵触发伤害限制_ = 触发 * 0.5f;
+            _老米触发伤害限制 = 触发;
+            _虚灵触发伤害限制 = 触发 * 0.5f;
         }
     }
 }

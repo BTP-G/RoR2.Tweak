@@ -2,7 +2,6 @@
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
-using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
@@ -24,25 +23,23 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc, 15);
-                ilcursor.Emit(OpCodes.Ldloc, 17);
-                ilcursor.Emit(OpCodes.Ldloc, 6);
-                ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody attackerBody, Inventory inventory, Vector3 pos) => {
+                ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody attackerBody) => {
                     int teamItemCount = Util.GetItemCountForTeam(damageReport.attackerTeamIndex, RoR2Content.Items.Infusion.itemIndex, true, false);
                     if (teamItemCount > 0) {
-                        if (inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount)) {
+                        if (attackerBody.inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount)) {
                             InfusionOrb infusionOrb = new() {
-                                origin = pos,
+                                origin = damageReport.damageInfo.position,
                                 target = attackerBody.mainHurtBox,
-                                maxHpValue = teamItemCount
+                                maxHpValue = teamItemCount,
                             };
                             OrbManager.instance.AddOrb(infusionOrb);
                         }
                         var ownerBody = damageReport.attackerOwnerMaster?.GetBody();
                         if (ownerBody?.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount)) {
                             InfusionOrb infusionOrb = new() {
-                                origin = pos,
+                                origin = damageReport.damageInfo.position,
                                 target = ownerBody.mainHurtBox,
-                                maxHpValue = teamItemCount
+                                maxHpValue = teamItemCount,
                             };
                             OrbManager.instance.AddOrb(infusionOrb);
                         }

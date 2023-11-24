@@ -1,6 +1,8 @@
-﻿namespace BtpTweak.Tweaks {
+﻿using System;
 
-    [Incomplete]
+namespace BtpTweak.Tweaks {
+
+    [Obsolete]
     internal class OrbTweak : TweakBase<OrbTweak> {
 
         public override void SetEventHandlers() {

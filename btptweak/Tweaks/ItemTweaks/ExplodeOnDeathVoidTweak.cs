@@ -23,7 +23,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private void Load() {
             var delayBlast = HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab.GetComponent<DelayBlast>();
-            delayBlast.baseForce = 666f;
+            delayBlast.baseForce = 0f;
             delayBlast.damageColorIndex = DamageColorIndex.Void;
             delayBlast.damageType = DamageType.AOE;
             delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
@@ -47,19 +47,19 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         }
                         float combinedHealth = healthComponent.combinedHealth;
                         float fullCombinedHealth = healthComponent.fullCombinedHealth;
-                        float combinedHealthFraction = fullCombinedHealth < combinedHealth ? 0 : combinedHealth / fullCombinedHealth;
+                        float combinedHealthFraction = combinedHealth > fullCombinedHealth ? 1f : combinedHealth / fullCombinedHealth;
                         GameObject explodeOnDeathVoidExplosion = Object.Instantiate(HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab, victimBody.corePosition, Quaternion.identity);
                         explodeOnDeathVoidExplosion.GetComponent<TeamFilter>().teamIndex = attacterBody.teamComponent.teamIndex;
                         DelayBlast delayBlast = explodeOnDeathVoidExplosion.GetComponent<DelayBlast>();
                         delayBlast.attacker = damageInfo.attacker;
-                        delayBlast.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, combinedHealthFraction * (itemCount / (itemCount + 1)));
+                        delayBlast.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, combinedHealthFraction * (itemCount / (itemCount + 1f)));
                         delayBlast.crit = damageInfo.crit;
                         delayBlast.position = damageInfo.position;
                         delayBlast.procCoefficient = combinedHealthFraction * damageInfo.procCoefficient;
                         delayBlast.radius = combinedHealthFraction * (BaseRadius + StackRadius * (itemCount - 1) + victimBody.bestFitRadius);
                         NetworkServer.Spawn(explodeOnDeathVoidExplosion);
                         victimBody.AddBuff(Main.VoidFire);
-                        InflictDotInfo inflictDotInfo = new() {
+                        var inflictDotInfo = new InflictDotInfo {
                             attackerObject = damageInfo.attacker,
                             damageMultiplier = 1f,
                             dotIndex = DotController.DotIndex.PercentBurn,

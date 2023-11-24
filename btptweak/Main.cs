@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
-using BtpTweak.Tweaks;
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using ConfigurableDifficulty;
@@ -50,7 +49,7 @@ namespace BtpTweak {
         }
 
         private void InitEventHandlers() {
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.ImplementInterface(typeof(IEventHandlers)) && type.GetCustomAttribute<IncompleteAttribute>() == null)) {
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(type => !type.IsAbstract && type.ImplementInterface(typeof(IEventHandlers)) && type.GetCustomAttribute<ObsoleteAttribute>() == null)) {
                 var obj = Activator.CreateInstance(type);
                 eventHandlers.Add(obj as IEventHandlers);
             }
@@ -58,15 +57,23 @@ namespace BtpTweak {
 
         private void OnEnable() {
             eventHandlers.ForEach(i => {
-                i.SetEventHandlers();
-                Logger.LogMessage(i.GetType().FullName + ": has set event handlers.");
+                try {
+                    i.SetEventHandlers();
+                    Logger.LogMessage(i.GetType().FullName + ": has set event handlers.");
+                } catch (Exception e) {
+                    Debug.LogException(e);
+                }
             });
         }
 
         private void OnDisable() {
             eventHandlers.ForEach(i => {
-                i.ClearEventHandlers();
-                Logger.LogMessage(i.GetType().FullName + ": has cleared event handlers.");
+                try {
+                    i.ClearEventHandlers();
+                    Logger.LogMessage(i.GetType().FullName + ": has cleared event handlers.");
+                } catch (Exception e) {
+                    Debug.LogException(e);
+                }
             });
         }
 

@@ -33,7 +33,7 @@ namespace BtpTweak.Tweaks {
                 if (RunInfo.CurrentSceneIndex == SceneIndexes.VoidRaid && body.teamComponent.teamIndex != TeamIndex.Void) {
                     body.AddBuff(TPDespair.ZetAspects.Catalog.Buff.ZetWarped.buffIndex);
                 }
-                Inventory inventory = body.inventory;
+                var inventory = body.inventory;
                 if (inventory) {
                     body.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex));
                 }

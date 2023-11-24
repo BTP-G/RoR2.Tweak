@@ -89,6 +89,7 @@ namespace BtpTweak.Tweaks {
                 args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
                 args.baseRegenAdd += 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
+                args.armorAdd += 50 * inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
                 if (sender.HasBuff(RoR2Content.Buffs.Warbanner.buffIndex)) {
                     args.armorAdd += 30f;
                 }
@@ -104,14 +105,6 @@ namespace BtpTweak.Tweaks {
                 if (warCryBuffCount > 0) {
                     args.attackSpeedMultAdd += 0.1f * warCryBuffCount;
                     args.moveSpeedMultAdd += 0.2f * warCryBuffCount;
-                }
-                itemCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
-                if (itemCount > 0) {
-                    if (sender.barrierTempEffectInstance?.enabled == true) {
-                        args.armorAdd += 60 * itemCount;
-                    } else {
-                        args.armorAdd += 30 * itemCount;
-                    }
                 }
                 if (sender.outOfDanger) {
                     regenFraction += 0.016f * inventory.GetItemCount(RoR2Content.Items.HealWhileSafe.itemIndex);
