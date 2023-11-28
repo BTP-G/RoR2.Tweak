@@ -1,0 +1,69 @@
+﻿using BtpTweak.Utils;
+using R2API.Utils;
+using RoR2;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace BtpTweak.Tweaks {
+
+    internal class ShrineBloodTweak : TweakBase<ShrineBloodTweak> {
+
+        public override void SetEventHandlers() {
+            On.RoR2.ShrineBloodBehavior.AddShrineStack += ShrineBloodBehavior_AddShrineStack;
+            TeleporterInteraction.onTeleporterBeginChargingGlobal += TeleporterInteraction_onTeleporterBeginChargingGlobal;
+        }
+
+        public override void ClearEventHandlers() {
+            On.RoR2.ShrineBloodBehavior.AddShrineStack -= ShrineBloodBehavior_AddShrineStack;
+            TeleporterInteraction.onTeleporterBeginChargingGlobal -= TeleporterInteraction_onTeleporterBeginChargingGlobal;
+        }
+
+        private void ShrineBloodBehavior_AddShrineStack(On.RoR2.ShrineBloodBehavior.orig_AddShrineStack orig, ShrineBloodBehavior self, Interactor interactor) {
+            if (!NetworkServer.active) {
+                Debug.LogWarning("[Server] function 'System.Void RoR2.ShrineBloodBehavior::AddShrineStack(RoR2.Interactor)' called on client");
+                return;
+            }
+            self.waitingForRefresh = true;
+            self.refreshTimer = 2f;
+            if (++self.purchaseCount >= self.maxPurchaseCount) {
+                self.symbolTransform.gameObject.SetActive(false);
+            }
+            EffectManager.SpawnEffect(AssetReferences.shrineUseEffect, new EffectData {
+                origin = self.transform.position,
+                rotation = Quaternion.identity,
+                scale = 1f,
+                color = Color.red
+            }, true);
+            var rng = new Xoroshiro128Plus(Run.instance.treasureRng.nextUlong);
+            PickupIndex pickupIndex;
+            var random = Random.Range(0, 26);
+            if (random < 15) {
+                pickupIndex = rng.NextElementUniform(Run.instance.availableTier1DropList);
+            } else if (random < 20) {
+                pickupIndex = rng.NextElementUniform(Run.instance.availableTier2DropList);
+            } else if (random < 25) {
+                pickupIndex = rng.NextElementUniform(Run.instance.availableEquipmentDropList);
+            } else {
+                pickupIndex = rng.NextElementUniform(Run.instance.availableTier3DropList);
+            }
+            PickupDropletController.CreatePickupDroplet(pickupIndex, interactor.transform.position, Vector3.up * 30f);
+            var body = interactor.GetComponent<CharacterBody>();
+            if (body) {
+                for (int i = 0; i < random; ++i) {
+                    body.AddBuff(RoR2Content.Buffs.PermanentCurse.buffIndex);
+                }
+                ChatMessage.Send($"{body.GetColoredUserName()}感觉到一阵疼痛，获得了奖励和{random}层诅咒。".ToDeath());
+            }
+        }
+
+        private void TeleporterInteraction_onTeleporterBeginChargingGlobal(TeleporterInteraction teleporterInteraction) {
+            InstanceTracker.GetInstancesList<PurchaseInteraction>()?.ForEach(interaction => {
+                if (interaction.TryGetComponent<ShrineBloodBehavior>(out var shrineBlood)) {
+                    shrineBlood.maxPurchaseCount = 0;
+                    shrineBlood.symbolTransform.gameObject.SetActive(false);
+                    interaction.SetAvailable(false);
+                }
+            });
+        }
+    }
+}

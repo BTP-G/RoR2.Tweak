@@ -1,11 +1,13 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ArmorReductionOnHitTweak : TweakBase<ArmorReductionOnHitTweak> {
+        public const float 基础破甲率 = 0.5f;
+        public const float 半数 = 1f;
 
         public override void SetEventHandlers() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
@@ -26,7 +28,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 cursor.EmitDelegate((float armor, HealthComponent healthComponent, CharacterBody attackerBody) => {
                     if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && attackerBody) {
                         var itemCount = attackerBody.inventory?.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex) ?? 0f;
-                        armor -= Mathf.Abs(armor * itemCount / (itemCount + 1f));
+                        armor -= BtpUtils.简单逼近(itemCount, 半数, armor > 0 ? armor : -armor);
                     }
                     return armor;
                 });

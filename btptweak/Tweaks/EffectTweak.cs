@@ -57,7 +57,7 @@ namespace BtpTweak.Tweaks {
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.RazorwireOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.VoidLightningOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.VoidLightningStrikeImpact.LoadComponent<EffectComponent>().effectIndex, 0.01f);
-            //EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.MissileVoidOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
+            EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.MissileVoidOrbEffect.LoadComponent<EffectComponent>().effectIndex, 0.01f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.VoidImpactEffect.LoadComponent<EffectComponent>().effectIndex, 0.02f);
             EffectSpawnLimit.AddLimitToEffect(GameObjectPaths.PermanentDebuffEffect.LoadComponent<EffectComponent>().effectIndex, 0.1f);
             EffectSpawnLimit.AddLimitToEffect(EntityStates.Merc.Evis.hitEffectPrefab.GetComponent<EffectComponent>().effectIndex, 0.1f);

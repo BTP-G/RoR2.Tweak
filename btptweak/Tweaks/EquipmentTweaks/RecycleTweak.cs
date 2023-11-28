@@ -1,5 +1,6 @@
-﻿using RoR2;
-using RoR2.Projectile;
+﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
+using RoR2;
 using System.Linq;
 using UnityEngine;
 
@@ -22,15 +23,13 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                 self.InvalidateCurrentTarget();
                 return false;
             }
-            PickupIndex initialPickupIndex = pickupController.pickupIndex;
+            var initialPickupIndex = pickupController.pickupIndex;
             self.subcooldownTimer = 0.2f;
-            PickupIndex[] array = (from pickupIndex in PickupTransmutationManager.GetAvailableGroupFromPickupIndex(pickupController.pickupIndex)
-                                   where pickupIndex != initialPickupIndex
-                                   select pickupIndex).ToArray();
-            if (array == null || array.Length == 0) {
+            var pickupIndices = PickupTransmutationManager.GetAvailableGroupFromPickupIndex(pickupController.pickupIndex).Where(p => p != initialPickupIndex).ToList();
+            if (pickupIndices == null || pickupIndices.Count == 0) {
                 return false;
             }
-            PickupIndex newPickupIndex = Run.instance.treasureRng.NextElementUniform(array);
+            PickupIndex newPickupIndex = Run.instance.treasureRng.NextElementUniform(pickupIndices);
             switch (newPickupIndex.pickupDef.itemTier) {
                 case ItemTier.Tier1:
                     if (Util.CheckRoll(5)) {
@@ -51,7 +50,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                     break;
 
                 case ItemTier.Lunar:
-                    if (!SceneCatalog.GetSceneDefForCurrentScene().cachedName.StartsWith("moon") && Util.CheckRoll(15)) {
+                    if (RunInfo.CurrentSceneIndex != SceneIndexes.Moon2 && RunInfo.CurrentSceneIndex != SceneIndexes.Moon && Util.CheckRoll(15f)) {
                         Object.Destroy(pickupController.gameObject);
                         EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                             origin = pickupController.pickupDisplay.transform.position,
@@ -73,23 +72,14 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                 case ItemTier.VoidBoss:
                     if (Util.CheckRoll(Mathf.Pow((float)newPickupIndex.pickupDef.itemTier, 1.5f))) {
                         Object.Destroy(pickupController.gameObject);
-                        CharacterBody body = self.characterBody;
-                        FireProjectileInfo fireProjectileInfo = new() {
-                            projectilePrefab = EntityStates.NullifierMonster.DeathState.deathBombProjectile,
-                            position = pickupController.pickupDisplay.transform.position,
-                            rotation = Quaternion.identity,
-                            owner = body.gameObject,
-                            damage = body.damage,
-                            crit = body.RollCrit()
-                        };
-                        ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+                        BtpUtils.SpawnVoidDeathBomb(pickupController.pickupDisplay.transform.position);
                         return true;
                     }
                     break;
 
                 case ItemTier.NoTier:
                     if (newPickupIndex.pickupDef.equipmentIndex != EquipmentIndex.None && newPickupIndex.pickupDef.isLunar) {
-                        if (!SceneCatalog.GetSceneDefForCurrentScene().cachedName.StartsWith("moon") && Util.CheckRoll(15)) {
+                        if (RunInfo.CurrentSceneIndex != SceneIndexes.Moon2 && RunInfo.CurrentSceneIndex != SceneIndexes.Moon && Util.CheckRoll(15f)) {
                             Object.Destroy(pickupController.gameObject);
                             EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                                 origin = pickupController.pickupDisplay.transform.position,

@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ExplodeOnDeathVoidTweak : TweakBase<ExplodeOnDeathVoidTweak> {
         public const float BaseDamageCoefficient = 0.5f;
+        public const float 半数 = 1f;
         public const int BaseRadius = 12;
         public const int StackRadius = 3;
 
@@ -52,7 +54,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         explodeOnDeathVoidExplosion.GetComponent<TeamFilter>().teamIndex = attacterBody.teamComponent.teamIndex;
                         DelayBlast delayBlast = explodeOnDeathVoidExplosion.GetComponent<DelayBlast>();
                         delayBlast.attacker = damageInfo.attacker;
-                        delayBlast.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, combinedHealthFraction * (itemCount / (itemCount + 1f)));
+                        delayBlast.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, BtpUtils.简单逼近(itemCount, 半数, combinedHealthFraction));
                         delayBlast.crit = damageInfo.crit;
                         delayBlast.position = damageInfo.position;
                         delayBlast.procCoefficient = combinedHealthFraction * damageInfo.procCoefficient;

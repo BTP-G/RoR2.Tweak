@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using HG;
+﻿using HG;
 using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
@@ -7,9 +6,8 @@ using System.Collections.Generic;
 namespace BtpTweak.OrbPools {
 
     internal class BounceOrbPool : OrbPool<SimpleOrbInfo, BounceOrb> {
-        private List<HealthComponent> _healthComponent;
+        private HealthComponent _healthComponent;
         protected override float OrbInterval => 0.33f;
-        private List<HealthComponent> HealthComponent => _healthComponent ??= new List<HealthComponent> { GetComponent<HealthComponent>() };
 
         public void AddOrb(in SimpleOrbInfo simpleOrbInfo, float damageValue, TeamIndex teamIndex) {
             if (Pool.TryGetValue(simpleOrbInfo, out var bounceOrb)) {
@@ -32,15 +30,15 @@ namespace BtpTweak.OrbPools {
             var search = new BullseyeSearch();
             var list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
             var list2 = CollectionPool<HealthComponent, List<HealthComponent>>.RentCollection();
-            if (HealthComponent.Count > 0) {
-                list2.AddRange(HealthComponent);
+            if (_healthComponent) {
+                list2.Add(_healthComponent);
             }
             BounceOrb.SearchForTargets(search, orb.teamIndex, transform.position, 33f, 6, list, list2);
             CollectionPool<HealthComponent, List<HealthComponent>>.ReturnCollection(list2);
             for (int i = 0, count = list.Count; i < count; ++i) {
                 var target = list[i];
                 if (target) {
-                    var bounceOrb = new BounceOrb() {
+                    OrbManager.instance.AddOrb(new BounceOrb() {
                         origin = transform.position,
                         damageValue = orb.damageValue,
                         isCrit = orb.isCrit,
@@ -49,13 +47,16 @@ namespace BtpTweak.OrbPools {
                         procChainMask = orb.procChainMask,
                         procCoefficient = 0.33f,
                         damageColorIndex = DamageColorIndex.Item,
-                        bouncedObjects = HealthComponent,
+                        bouncedObjects = new() { _healthComponent },
                         target = target
-                    };
-                    OrbManager.instance.AddOrb(bounceOrb);
+                    });
                 }
             }
             CollectionPool<HurtBox, List<HurtBox>>.ReturnCollection(list);
+        }
+
+        private void Awake() {
+            _healthComponent = GetComponent<HealthComponent>();
         }
     }
 }

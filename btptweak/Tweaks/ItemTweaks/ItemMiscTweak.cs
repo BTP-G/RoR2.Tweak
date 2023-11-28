@@ -66,7 +66,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.CaptainDefenseMatrix);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.ExtraLife);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.Infusion);
-            RoR2Content.Items.Firework.tags = new ItemTag[] { ItemTag.Damage };
             RoR2Content.Items.FlatHealth.tags = new ItemTag[] { ItemTag.Healing };
         }
 

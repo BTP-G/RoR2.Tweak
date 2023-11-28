@@ -38,16 +38,15 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.Count) && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
-                        var procChainMask = damageInfo.procChainMask;
-                        procChainMask.AddWhiteProcs();
+                        var simpleProjectileInfo = new ProjectileFountain.SimpleProjectileInfo {
+                            attacker = damageInfo.attacker,
+                            procChainMask = damageInfo.procChainMask,
+                            isCrit = damageInfo.crit,
+                        };
+                        simpleProjectileInfo.procChainMask.AddWhiteProcs();
                         (victim.GetComponent<StickyBombFountain>()
-                        ?? victim.AddComponent<StickyBombFountain>()).AddProjectile(
-                             new ProjectileFountain.SimpleProjectileInfo {
-                                 attacker = damageInfo.attacker,
-                                 procChainMask = procChainMask,
-                                 isCrit = damageInfo.crit,
-                             },
-                             Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
+                        ?? victim.AddComponent<StickyBombFountain>()).AddProjectile(simpleProjectileInfo,
+                                                                                    Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

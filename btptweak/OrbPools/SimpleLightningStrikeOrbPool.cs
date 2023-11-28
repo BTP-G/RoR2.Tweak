@@ -9,6 +9,9 @@ namespace BtpTweak.OrbPools {
         public void AddOrb(in SimpleOrbInfo simpleOrbInfo, float damageValue) {
             if (Pool.TryGetValue(simpleOrbInfo, out var simpleLightningStrikeOrb)) {
                 simpleLightningStrikeOrb.damageValue += damageValue;
+                if (!simpleLightningStrikeOrb.target) {
+                    simpleLightningStrikeOrb.target = simpleOrbInfo.target;
+                }
             } else {
                 Pool.Add(simpleOrbInfo, new() {
                     attacker = simpleOrbInfo.attacker,

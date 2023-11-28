@@ -44,6 +44,7 @@ namespace BtpTweak {
         private void Awake() {
             Logger = base.Logger;
             ModConfig.InitConfig(Config);
+            Localizer.Init();
             SetUpBuffs();
             InitEventHandlers();
         }

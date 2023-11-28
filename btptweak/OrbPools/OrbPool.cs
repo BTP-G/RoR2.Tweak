@@ -1,5 +1,6 @@
 ﻿using RoR2;
 using RoR2.Orbs;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;

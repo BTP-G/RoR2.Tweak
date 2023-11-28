@@ -2,26 +2,24 @@
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
-using System;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    [Obsolete]
     internal class FireworkTweak : TweakBase<FireworkTweak> {
         public const int BaseDamageCoefficient = 1;
         public const int FireCount = 6;
 
         public override void SetEventHandlers() {
             RoR2Application.onLoad += Load;
-            EquipmentSlot.onServerEquipmentActivated += EquipmentSlot_onServerEquipmentActivated;
-            IL.RoR2.GlobalEventManager.OnInteractionBegin += GlobalEventManager_OnInteractionBegin;
+            //EquipmentSlot.onServerEquipmentActivated += EquipmentSlot_onServerEquipmentActivated;
+            //IL.RoR2.GlobalEventManager.OnInteractionBegin += GlobalEventManager_OnInteractionBegin;
         }
 
         public override void ClearEventHandlers() {
             RoR2Application.onLoad -= Load;
-            EquipmentSlot.onServerEquipmentActivated -= EquipmentSlot_onServerEquipmentActivated;
-            IL.RoR2.GlobalEventManager.OnInteractionBegin -= GlobalEventManager_OnInteractionBegin;
+            //EquipmentSlot.onServerEquipmentActivated -= EquipmentSlot_onServerEquipmentActivated;
+            //IL.RoR2.GlobalEventManager.OnInteractionBegin -= GlobalEventManager_OnInteractionBegin;
         }
 
         private void EquipmentSlot_onServerEquipmentActivated(EquipmentSlot equipmentSlot, EquipmentIndex equipmentIndex) {
@@ -35,7 +33,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 if (fireworkLauncher) {
                     fireworkLauncher.remaining += FireCount * itemCount;
                 } else {
-                    fireworkLauncher = UnityEngine.Object.Instantiate(AssetReferences.fireworkLauncher, body.corePosition, Quaternion.identity).GetComponent<FireworkLauncher>();
+                    fireworkLauncher = Object.Instantiate(AssetReferences.fireworkLauncher, body.corePosition, Quaternion.identity).GetComponent<FireworkLauncher>();
                     fireworkLauncher.transform.parent = body.gameObject.transform;
                     fireworkLauncher.owner = body.gameObject;
                     fireworkLauncher.launchInterval = 0.125f;

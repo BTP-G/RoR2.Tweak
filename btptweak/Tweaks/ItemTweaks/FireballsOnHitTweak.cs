@@ -4,12 +4,15 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
+using System.Threading.Tasks;
 using UnityEngine;
+using static BtpTweak.ProjectileFountains.ProjectileFountain;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class FireballsOnHitTweak : TweakBase<FireballsOnHitTweak> {
         public const int BasePercentChance = 10;
+        public const float 半数 = 9;
         public const float DamageCoefficient = 0.7f;
 
         public override void SetEventHandlers() {
@@ -38,19 +41,29 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc, 4);
                 ilcursor.Emit(OpCodes.Ldarg_2);
-                ilcursor.EmitDelegate(delegate (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) {
-                    if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.Meatball) && Util.CheckRoll(100f * (itemCount / (itemCount + 9f)) * damageInfo.procCoefficient, attackerMaster)) {
-                        var simpleProjectileInfo = new ProjectileFountain.SimpleProjectileInfo {
-                            attacker = damageInfo.attacker,
-                            procChainMask = damageInfo.procChainMask,
-                            isCrit = damageInfo.crit,
-                        };
-                        simpleProjectileInfo.procChainMask.AddYellowProcs();
+                ilcursor.EmitDelegate(async (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
+                    if (itemCount == 0) {
+                        return;
+                    }
+                    var simpleProjectileInfo = default(SimpleProjectileInfo);
+                    var result = 0f;
+                    await Task.Run(() => {
+                        if (!damageInfo.procChainMask.HasProc(ProcType.Meatball) && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerMaster)) {
+                            simpleProjectileInfo = new SimpleProjectileInfo {
+                                attacker = damageInfo.attacker,
+                                procChainMask = damageInfo.procChainMask,
+                                isCrit = damageInfo.crit,
+                            };
+                            simpleProjectileInfo.procChainMask.AddYellowProcs();
+                            result = Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount);
+                        }
+                    });
+                    if (result > 0f) {
                         (victim.GetComponent<FireFountain>()
-                        ?? victim.AddComponent<FireFountain>()).AddProjectile(simpleProjectileInfo,
-                                                                              Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
+                        ?? victim.AddComponent<FireFountain>()).AddProjectile(simpleProjectileInfo, result);
                     }
                 });
+                ilcursor.Emit(OpCodes.Pop);
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("FireballsOnHit :: Hook Failed!");
