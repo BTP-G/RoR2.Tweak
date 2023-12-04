@@ -36,7 +36,7 @@ namespace BtpTweak {
             开启战斗日志 = ConfigOptions.ConfigurableValue.CreateBool(Main.PluginGUID, Main.PluginName, config, "日志", "是否开启战斗日志", false, "原版默认不开启，仅供测试用。", onChanged: (newValue) => CombatDirector.cvDirectorCombatEnableInternalLogs.value = newValue);
             开启特效生成日志 = ConfigOptions.ConfigurableValue.CreateBool(Main.PluginGUID, Main.PluginName, config, "日志", "是否开启特效生成日志", false, "用于获取特效的ID。");
             Boss物品掉率 = ConfigOptions.ConfigurableValue.CreateFloat(Main.PluginGUID, Main.PluginName, config, "测试", "Boss物品掉率", 2.5f, 0, 1000f, "具有特殊奖励的敌人死亡时, 掉落该物品的概率, 不受其他因素影响。");
-            启用阶梯触发链 = ConfigOptions.ConfigurableValue.CreateBool(Main.PluginGUID, Main.PluginName, config, "测试", "启用阶梯触发链", false, "开启后，物品只能触发比自己低品质的物品。");
+            启用阶梯触发链 = ConfigOptions.ConfigurableValue.CreateBool(Main.PluginGUID, Main.PluginName, config, "测试", "启用阶梯触发链", false, "开启后，某些物品只能触发比自己低品质的物品。（目前受影响的物品：黏弹 < Atg-MK1导弹 = 等离子虾 = 尤克里里 = 聚合鲁特琴 = 冰火双环 < 感应肉钩 < 雷火双钻）");
             测试用 = ConfigOptions.ConfigurableValue.CreateFloat(Main.PluginGUID, Main.PluginName, config, "测试", "测试用", 0, 0, 1000);
         }
     }

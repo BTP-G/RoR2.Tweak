@@ -1,4 +1,5 @@
-﻿using HG;
+﻿using BtpTweak.Tweaks.ItemTweaks;
+using HG;
 using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace BtpTweak.OrbPools {
             if (_healthComponent) {
                 list2.Add(_healthComponent);
             }
-            BounceOrb.SearchForTargets(search, orb.teamIndex, transform.position, 33f, 6, list, list2);
+            BounceOrb.SearchForTargets(search, orb.teamIndex, transform.position, BounceNearbyTweak.BaseRadius, BounceNearbyTweak.BaseMaxTargets, list, list2);
             CollectionPool<HealthComponent, List<HealthComponent>>.ReturnCollection(list2);
             for (int i = 0, count = list.Count; i < count; ++i) {
                 var target = list[i];

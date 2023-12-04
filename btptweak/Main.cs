@@ -60,7 +60,7 @@ namespace BtpTweak {
             eventHandlers.ForEach(i => {
                 try {
                     i.SetEventHandlers();
-                    Logger.LogMessage(i.GetType().FullName + ": has set event handlers.");
+                    Logger.LogMessage(i.GetType().FullName + " :: has set event handlers.");
                 } catch (Exception e) {
                     Debug.LogException(e);
                 }
@@ -71,7 +71,7 @@ namespace BtpTweak {
             eventHandlers.ForEach(i => {
                 try {
                     i.ClearEventHandlers();
-                    Logger.LogMessage(i.GetType().FullName + ": has cleared event handlers.");
+                    Logger.LogMessage(i.GetType().FullName + " :: has cleared event handlers.");
                 } catch (Exception e) {
                     Debug.LogException(e);
                 }

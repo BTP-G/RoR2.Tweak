@@ -3,7 +3,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
-using System.Threading.Tasks;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
@@ -38,43 +37,33 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc, 1);
                 ilcursor.Emit(OpCodes.Ldloc, 2);
-                ilcursor.EmitDelegate(async (int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
-                    MissileVoidOrb[] missileVoidOrbs = null;
-                    await Task.Run(() => {
-                        if (itemCount < 1 || !victimBody.mainHurtBox) {
-                            return;
-                        }
-                        var shieldFraction = attackerBody.healthComponent.shield / attackerBody.healthComponent.fullShield;
-                        if (!Util.CheckRoll(100f * shieldFraction, attackerBody.master)) {
-                            return;
-                        }
-                        var itemMoreMissileCount = attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile);
-                        var damageValue = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, shieldFraction * DamageCoefficient * itemCount) * shieldFraction * (itemMoreMissileCount > 1 ? 0.5f * (1 + itemMoreMissileCount) : 1);
-                        var procChainMask = damageInfo.procChainMask;
-                        procChainMask.AddGreenProcs();
-                        procChainMask.AddProc(ProcType.Missile);
-                        missileVoidOrbs = new MissileVoidOrb[(itemMoreMissileCount > 0 ? 3 : 1)];
-                        for (int i = 0; i < missileVoidOrbs.Length; ++i) {
-                            missileVoidOrbs[i] = new MissileVoidOrb() {
-                                origin = attackerBody.aimOrigin,
-                                damageValue = damageValue,
-                                isCrit = damageInfo.crit,
-                                teamIndex = attackerBody.teamComponent.teamIndex,
-                                attacker = damageInfo.attacker,
-                                procChainMask = procChainMask,
-                                procCoefficient = 0.2f,
-                                damageColorIndex = DamageColorIndex.Void,
-                                target = victimBody.mainHurtBox
-                            };
-                        }
-                    });
-                    if (missileVoidOrbs != null) {
-                        for (int i = 0; i < missileVoidOrbs.Length; ++i) {
-                            OrbManager.instance.AddOrb(missileVoidOrbs[i]);
-                        }
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
+                    if (itemCount < 1 || !victimBody.mainHurtBox) {
+                        return;
+                    }
+                    var shieldFraction = attackerBody.healthComponent.shield / attackerBody.healthComponent.fullShield;
+                    if (!Util.CheckRoll(100f * shieldFraction, attackerBody.master)) {
+                        return;
+                    }
+                    var itemMoreMissileCount = attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile);
+                    var damageValue = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, shieldFraction * DamageCoefficient * itemCount) * shieldFraction * (itemMoreMissileCount > 1 ? 0.5f * (1 + itemMoreMissileCount) : 1);
+                    var procChainMask = damageInfo.procChainMask;
+                    procChainMask.AddGreenProcs();
+                    procChainMask.AddProc(ProcType.Missile);
+                    for (int i = itemMoreMissileCount > 0 ? 3 : 1; i > 0; --i) {
+                        OrbManager.instance.AddOrb(new MissileVoidOrb() {
+                            origin = attackerBody.aimOrigin,
+                            damageValue = damageValue,
+                            isCrit = damageInfo.crit,
+                            teamIndex = attackerBody.teamComponent.teamIndex,
+                            attacker = damageInfo.attacker,
+                            procChainMask = procChainMask,
+                            procCoefficient = 0.2f,
+                            damageColorIndex = DamageColorIndex.Void,
+                            target = victimBody.mainHurtBox
+                        });
                     }
                 });
-                ilcursor.Emit(OpCodes.Pop);
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("MissileVoid :: Hook Failed!");

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class RandomlyLunarTweak : TweakBase<RandomlyLunarTweak> {
+        public const int UsageCount = 1;
         private int _rerolledCount;
 
         public override void SetEventHandlers() {
@@ -31,8 +32,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     ++_rerolledCount;
                 }
                 int itemCountGlobal = Util.GetItemCountGlobal(DLC1Content.Items.RandomlyLunar.itemIndex, false);
-                self.Networkcost = _rerolledCount + 1 + _rerolledCount * 3 * itemCountGlobal;
-                if (_rerolledCount >= 9 + 3 * itemCountGlobal) {
+                self.Networkcost = _rerolledCount + 1 + _rerolledCount * UsageCount * itemCountGlobal;
+                if (_rerolledCount >= 9 + UsageCount * itemCountGlobal) {
                     newAvailable = false;
                 }
             }
@@ -76,7 +77,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private PickupIndex RandomlyLunarUtils_CheckForLunarReplacement(On.RoR2.Items.RandomlyLunarUtils.orig_CheckForLunarReplacement orig, PickupIndex pickupIndex, Xoroshiro128Plus rng) {
             if (RunInfo.CurrentSceneIndex == SceneIndexes.Arena) {
-                PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
+                var pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
                 if (pickupDef != null && Util.CheckRoll(5)) {
                     switch (pickupDef.itemTier) {
                         case ItemTier.Tier1: {

@@ -40,13 +40,16 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc, 1);
                 ilcursor.Emit(OpCodes.Ldloc, 5);
                 ilcursor.EmitDelegate((bool hasRingsProc, DamageInfo damageInfo, CharacterBody attackerBody, Inventory inventory) => {
-                    if (hasRingsProc || damageInfo.damage < 4f * attackerBody.damage) {
+                    if (hasRingsProc) {
                         return;
                     }
                     if (attackerBody.HasBuff(RoR2Content.Buffs.ElementalRingsReady.buffIndex)) {
-                        attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady);
                         int iceRingCount = inventory.GetItemCount(RoR2Content.Items.IceRing.itemIndex);
                         int fireRingCount = inventory.GetItemCount(RoR2Content.Items.FireRing.itemIndex);
+                        if (damageInfo.damage < (3 + (iceRingCount > fireRingCount ? iceRingCount : fireRingCount)) * attackerBody.damage) {
+                            return;
+                        }
+                        attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady);
                         if (attackerBody.bodyIndex == BodyIndexes.MageBody) {
                             attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, 1f);
                         } else {
@@ -58,13 +61,13 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         ringProcChainMask.AddProc(ProcType.Rings);
                         ringProcChainMask.AddGreenProcs();
                         if (iceRingCount > 0) {
-                            var blastAttack = new BlastAttack() {
+                            var blastAttack = new BlastAttack {
                                 attacker = damageInfo.attacker,
                                 baseDamage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, IceRingDamageCoefficient * iceRingCount),
                                 canRejectForce = true,
                                 crit = damageInfo.crit,
                                 damageColorIndex = DamageColorIndex.Item,
-                                damageType = DamageType.AOE | DamageType.Freeze2s,
+                                damageType = DamageType.AOE,
                                 falloffModel = BlastAttack.FalloffModel.SweetSpot,
                                 position = damageInfo.position,
                                 procChainMask = ringProcChainMask,
@@ -99,8 +102,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             });
                         }
                     } else if (attackerBody.HasBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex)) {
-                        attackerBody.RemoveBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex);
+                        if (damageInfo.damage < 4 * attackerBody.damage) {
+                            return;
+                        }
                         int voidRingCount = inventory.GetItemCount(DLC1Content.Items.ElementalRingVoid.itemIndex);
+                        attackerBody.RemoveBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex);
                         if (attackerBody.bodyIndex == BodyIndexes.VoidSurvivorBody) {
                             attackerBody.AddTimedBuff(DLC1Content.Buffs.ElementalRingVoidCooldown, 2f);
                         } else {

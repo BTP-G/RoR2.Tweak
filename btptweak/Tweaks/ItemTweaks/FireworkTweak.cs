@@ -61,7 +61,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 cursor.Emit(OpCodes.Pop);
                 cursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Firework :: DisableOriginalActionHook Failed!");
+                Main.Logger.LogError("Firework :: Hook Failed!");
             }
         }
     }

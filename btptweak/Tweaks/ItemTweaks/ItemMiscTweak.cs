@@ -1,4 +1,5 @@
-﻿using BtpTweak.Utils;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
@@ -67,6 +68,16 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.ExtraLife);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.Infusion);
             RoR2Content.Items.FlatHealth.tags = new ItemTag[] { ItemTag.Healing };
+        }
+
+        private void GlobalEventManager_OnHitEnemy(ILContext il) {
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.After, c => c.MatchLdloc(4), c => c.MatchCall<CharacterMaster>("get_inventory"), c => c.MatchStloc(5))) {
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.Emit(OpCodes.Ldloc, 5);
+                cursor.EmitDelegate((DamageInfo damageInfo, Inventory attackerInventory) => {
+                });
+            }
         }
 
         [RequireComponent(typeof(ProjectileExplosion))]

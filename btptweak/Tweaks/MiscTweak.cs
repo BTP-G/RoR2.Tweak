@@ -1,4 +1,5 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Missions.LunarScavengerEncounter;
 using R2API.Utils;
@@ -16,7 +17,8 @@ namespace BtpTweak.Tweaks {
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += TrueDeathState_OnEnter;
             On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
             On.EntityStates.StunState.PlayStunAnimation += StunState_PlayStunAnimation;
-            On.RoR2.Run.BeginGameOver += Run_BeginGameOver;
+            On.EntityStates.BaseState.RollCrit += BaseState_RollCrit;
+            On.RoR2.CharacterBody.RollCrit += CharacterBody_RollCrit;
             On.RoR2.Util.CheckRoll_float_float_CharacterMaster += Util_CheckRoll_float_float_CharacterMaster;
             Run.onRunStartGlobal += Run_onRunStartGlobal;
             Stage.onStageStartGlobal += Stage_onStageStartGlobal;
@@ -27,7 +29,8 @@ namespace BtpTweak.Tweaks {
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter -= TrueDeathState_OnEnter;
             On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
             On.EntityStates.StunState.PlayStunAnimation -= StunState_PlayStunAnimation;
-            On.RoR2.Run.BeginGameOver -= Run_BeginGameOver;
+            On.EntityStates.BaseState.RollCrit -= BaseState_RollCrit;
+            On.RoR2.CharacterBody.RollCrit -= CharacterBody_RollCrit;
             On.RoR2.Util.CheckRoll_float_float_CharacterMaster -= Util_CheckRoll_float_float_CharacterMaster;
             Run.onRunStartGlobal -= Run_onRunStartGlobal;
             Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
@@ -87,6 +90,14 @@ namespace BtpTweak.Tweaks {
             }
         }
 
+        private bool CharacterBody_RollCrit(On.RoR2.CharacterBody.orig_RollCrit orig, CharacterBody self) {
+            return Util.CheckRoll(self.crit, self.master);
+        }
+
+        private bool BaseState_RollCrit(On.EntityStates.BaseState.orig_RollCrit orig, EntityStates.BaseState self) {
+            return self.outer.commonComponents.characterBody?.RollCrit() ?? false;
+        }
+
         private void FadeOut_OnEnter(On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.orig_OnEnter orig, FadeOut self) {
             orig(self);
             foreach (var player in PlayerCharacterMasterController.instances) {
@@ -97,26 +108,6 @@ namespace BtpTweak.Tweaks {
                     }
                 }
             }
-        }
-
-        private void Run_BeginGameOver(On.RoR2.Run.orig_BeginGameOver orig, Run self, GameEndingDef gameEndingDef) {
-            if (gameEndingDef == BulwarksHaunt.BulwarksHauntContent.GameEndings.BulwarksHaunt_HauntedEnding) {
-                if (NetworkServer.active) {
-                    foreach (var player in PlayerCharacterMasterController.instances) {
-                        player.master.inventory.GiveItem(_特拉法梅的祝福);
-                        ChatMessage.Send(player.GetDisplayName() + "已获得<style=cIsLunar>特拉法梅的祝福(过去时)</style>");
-                    }
-                }
-                if (Run.instance.nextStageScene) {
-                    Run.instance.AdvanceStage(Run.instance.nextStageScene);
-                } else if (Stage.instance.nextStage) {
-                    Run.instance.AdvanceStage(Stage.instance.nextStage);
-                } else {
-                    Run.instance.AdvanceStage(self.runRNG.NextElementUniform(SceneCatalog.allStageSceneDefs));
-                }
-                return;
-            }
-            orig(self, gameEndingDef);
         }
 
         private void StunState_PlayStunAnimation(On.EntityStates.StunState.orig_PlayStunAnimation orig, EntityStates.StunState self) {
@@ -137,13 +128,22 @@ namespace BtpTweak.Tweaks {
         private void TrueDeathState_OnEnter(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
             if (NetworkServer.active) {
+                var flag = false;
                 foreach (var player in PlayerCharacterMasterController.instances) {
-                    Inventory inventory = player.master.inventory;
+                    var inventory = player.master.inventory;
                     int itemCount = inventory.GetItemCount(RoR2Content.Items.TonicAffliction);
                     if (itemCount > 0) {
                         inventory.RemoveItem(RoR2Content.Items.TonicAffliction, itemCount);
                         ChatMessage.Send($"已移除{player.GetDisplayName().ToLunar()}强心剂副作用！");
                     }
+                    if (RunInfo.CurrentSceneIndex == SceneIndexes.BulwarksHaunt_GhostWave) {
+                        inventory.GiveItem(_特拉法梅的祝福);
+                        ChatMessage.Send(player.GetDisplayName() + "已获得<style=cIsLunar>特拉法梅的祝福(过去时)</style>");
+                        flag = true;
+                    }
+                }
+                if (flag) {
+                    BtpUtils.SpawnLunarPortal(self.transform.position);
                 }
             }
         }

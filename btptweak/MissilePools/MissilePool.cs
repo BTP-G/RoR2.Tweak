@@ -40,8 +40,8 @@ namespace BtpTweak.MissilePools {
         private void FixedUpdate() {
             if ((_missileTimer -= Time.fixedDeltaTime) < 0) {
                 if (_pool.Count > 0) {
-                    foreach (var kvp in _pool) {
-                        FireMissile(kvp.Value);
+                    foreach (var missile in _pool.Values) {
+                        FireMissile(missile);
                     }
                     _pool.Clear();
                     _missileTimer = ModConfig.导弹发射间隔.Value;

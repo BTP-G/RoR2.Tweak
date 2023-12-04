@@ -3,7 +3,6 @@ using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System.Threading.Tasks;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
@@ -29,30 +28,21 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 cursor.Index += 2;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldloc, 11);
-                cursor.EmitDelegate(async (float damageDealt, HealthComponent healthComponent, DamageReport damageReport) => {
+                cursor.EmitDelegate((float damageDealt, HealthComponent healthComponent, DamageReport damageReport) => {
                     if (healthComponent.itemCounts.thorns > 0 && damageDealt > 0) {
-                        var simpleOrbInfo = default(SimpleOrbInfo);
-                        var result = false;
-                        await Task.Run(() => {
-                            var damageInfo = damageReport.damageInfo;
-                            if (!damageInfo.procChainMask.HasProc(ProcType.Thorns)) {
-                                simpleOrbInfo = new SimpleOrbInfo {
-                                    attacker = healthComponent.gameObject,
-                                    target = damageReport.attackerBody?.mainHurtBox,
-                                    procChainMask = damageInfo.procChainMask,
-                                    isCrit = damageInfo.crit,
-                                };
-                                simpleOrbInfo.procChainMask.AddGreenProcs();
-                            }
-                            result = true;
-                        });
-                        if (result) {
+                        var damageInfo = damageReport.damageInfo;
+                        if (!damageInfo.procChainMask.HasProc(ProcType.Thorns)) {
+                            var simpleOrbInfo = new SimpleOrbInfo {
+                                attacker = healthComponent.gameObject,
+                                target = damageReport.attackerBody?.mainHurtBox,
+                                procChainMask = damageInfo.procChainMask,
+                                isCrit = damageInfo.crit,
+                            };
                             (healthComponent.GetComponent<ThornsOrbPool>()
                             ?? healthComponent.AddComponent<ThornsOrbPool>()).AddOrb(simpleOrbInfo, damageReport);
                         }
                     }
                 });
-                cursor.Emit(OpCodes.Pop);
                 cursor.Emit(OpCodes.Ldc_R4, 0f);
             } else {
                 Main.Logger.LogError("Thorns :: Hook Failed!");

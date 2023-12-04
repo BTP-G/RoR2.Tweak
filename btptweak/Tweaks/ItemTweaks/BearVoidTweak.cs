@@ -26,7 +26,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.RemoveRange(45);
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldarg, 1);
-                ilcursor.EmitDelegate(delegate (HealthComponent healthComponent, DamageInfo damageInfo) {
+                ilcursor.EmitDelegate((HealthComponent healthComponent, DamageInfo damageInfo) => {
                     var body = healthComponent.body;
                     if (body.HasBuff(DLC1Content.Buffs.EliteVoid.buffIndex) || Util.CheckRoll(BasePercentChance)) {
                         EffectManager.SpawnEffect(HealthComponent.AssetReferences.bearVoidEffectPrefab, new EffectData() {

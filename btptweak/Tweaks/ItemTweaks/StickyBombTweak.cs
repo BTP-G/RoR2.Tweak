@@ -5,6 +5,7 @@ using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
+using static BtpTweak.ProjectileFountains.ProjectileFountain;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
@@ -38,7 +39,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.Count) && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
-                        var simpleProjectileInfo = new ProjectileFountain.SimpleProjectileInfo {
+                        var simpleProjectileInfo = new SimpleProjectileInfo {
                             attacker = damageInfo.attacker,
                             procChainMask = damageInfo.procChainMask,
                             isCrit = damageInfo.crit,

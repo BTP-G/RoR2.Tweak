@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BonusGoldPackOnKillTweak : TweakBase<BonusGoldPackOnKillTweak> {
-        public const float DropChance = 0.05f;
+        public const int DropPercentChance = 5;
         public const int StackMoney = 5;
 
         public override void SetEventHandlers() {
@@ -27,7 +27,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc, 18);
                 ilcursor.Emit(OpCodes.Ldloc, 6);
                 ilcursor.EmitDelegate((int itemCount, CharacterBody attacterBody, TeamIndex attacterTeamindex, Vector3 pos) => {
-                    if (itemCount > 0 && Util.CheckRoll(DropChance * itemCount, attacterBody.master)) {
+                    if (itemCount > 0 && Util.CheckRoll(DropPercentChance * itemCount, attacterBody.master)) {
                         var bonusMoneyPack = Object.Instantiate(AssetReferences.bonusMoneyPack, pos, Random.rotation);
                         var gravitatePickup = bonusMoneyPack.GetComponentInChildren<GravitatePickup>();
                         if (gravitatePickup) {

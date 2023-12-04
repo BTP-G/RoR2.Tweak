@@ -89,7 +89,7 @@ namespace BtpTweak.Tweaks {
                 args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
                 args.baseRegenAdd += 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
-                args.armorAdd += 50 * inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
+                args.armorAdd += (50 + upLevel) * inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
                 if (sender.HasBuff(RoR2Content.Buffs.Warbanner.buffIndex)) {
                     args.armorAdd += 30f;
                 }

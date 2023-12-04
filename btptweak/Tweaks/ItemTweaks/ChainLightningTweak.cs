@@ -3,7 +3,6 @@ using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
@@ -32,32 +31,21 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc, 4);
                 ilcursor.Emit(OpCodes.Ldarg_2);
-                ilcursor.EmitDelegate(async (int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
-                    if (itemCount == 0) {
-                        return;
-                    }
-                    var simpleOrbInfo = default(SimpleOrbInfo);
-                    var result = 0f;
-                    await Task.Run(() => {
-                        if (!damageInfo.procChainMask.HasProc(ProcType.ChainLightning) && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerMaster)) {
-                            simpleOrbInfo = new SimpleOrbInfo {
-                                attacker = damageInfo.attacker,
-                                isCrit = damageInfo.crit,
-                                procChainMask = damageInfo.procChainMask,
-                            };
-                            simpleOrbInfo.procChainMask.AddGreenProcs();
-                            result = Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount);
-                        }
-                    });
-                    if (result > 0) {
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
+                    if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.ChainLightning) && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerMaster)) {
+                        var simpleOrbInfo = new SimpleOrbInfo {
+                            attacker = damageInfo.attacker,
+                            isCrit = damageInfo.crit,
+                            procChainMask = damageInfo.procChainMask,
+                        };
+                        simpleOrbInfo.procChainMask.AddGreenProcs();
                         (victim.GetComponent<LightningOrbPool>()
                         ?? victim.AddComponent<LightningOrbPool>()).AddOrb(simpleOrbInfo,
-                                                                           result,
+                                                                           Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount),
                                                                            itemCount,
                                                                            attackerMaster.teamIndex);
                     }
                 });
-                ilcursor.Emit(OpCodes.Pop);
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("ChainLightning :: Hook Failed!");

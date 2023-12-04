@@ -26,7 +26,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.Emit(OpCodes.Ldloc, 1);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
-                    if (Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
+                    if (itemCount > 0 && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
                         DotController.InflictDot(victim, attackerBody.gameObject, DotController.DotIndex.Fracture, 3,
                             Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, DamageCoefficient)
                             * (damageInfo.crit ? attackerBody.critMultiplier : 1f)

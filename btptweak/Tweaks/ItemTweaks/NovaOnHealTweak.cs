@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
@@ -7,9 +8,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class NovaOnHealTweak : TweakBase<NovaOnHealTweak> {
         public const float BaseDamageCoefficient = 1;
-        public const float Interval = 0.666f;
+        public const float Interval = 0.2f;
         public const float BaseRadius = 66.6f;
-        public const float ThresholdFraction = 0.0666f;
+        public const float BaseThresholdFraction = 0.1f;
+        public const float 半数 = 9f;
 
         public override void SetEventHandlers() {
             IL.RoR2.HealthComponent.ServerFixedUpdate += HealthComponent_ServerFixedUpdate;
@@ -30,7 +32,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 iLCursor.EmitDelegate((float devilOrbTimer, HealthComponent healthComponent) => {
                     if (devilOrbTimer <= 0) {
                         healthComponent.devilOrbTimer = Interval;
-                        var damageValue = healthComponent.fullCombinedHealth * ThresholdFraction;
+                        var damageValue = BtpUtils.简单逼近(healthComponent.itemCounts.novaOnHeal, 9f, healthComponent.fullCombinedHealth);
                         if (healthComponent.devilOrbHealPool >= damageValue) {
                             healthComponent.devilOrbHealPool -= damageValue;
                             var body = healthComponent.body;
@@ -41,7 +43,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 effectType = DevilOrb.EffectType.Skull,
                                 origin = body.aimOriginTransform.position,
                                 procChainMask = default,
-                                procCoefficient = 0.666f,
+                                procCoefficient = 0.5f,
                                 scale = 1,
                                 teamIndex = body.teamComponent.teamIndex,
                                 isCrit = body.RollCrit(),

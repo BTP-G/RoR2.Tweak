@@ -1,4 +1,5 @@
 ﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -32,11 +33,11 @@ namespace BtpTweak.Tweaks {
         }
 
         public void StageStartAction(Stage stage) {
-            _伤害阈值 = 0.1f * Run.instance.stageClearCount * (Run.instance.ambientLevel / (Run.instance.ambientLevel + 100f));
+            _伤害阈值 = BtpUtils.简单逼近(Run.instance.ambientLevel, Run.instance.ambientLevel + 99f + TeamManager.instance.GetTeamLevel(TeamIndex.Player), 0.1f * Run.instance.stageClearCount);
         }
 
         private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
-            if (RunInfo.是否选择造物难度 && damageReport.hitLowHealth && damageReport.victimTeamIndex == TeamIndex.Monster) {
+            if (RunInfo.是否选择造物难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex == TeamIndex.Monster) {
                 CharacterBody victimBody = damageReport.victimBody;
                 if (victimBody.inventory?.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex) == 0) {
                     if (PhaseCounter.instance && victimBody.bodyIndex == BodyIndexes.BrotherBody) {
@@ -73,7 +74,7 @@ namespace BtpTweak.Tweaks {
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldarg, 1);
                 ilcursor.Emit(OpCodes.Ldloc, 6);
-                ilcursor.EmitDelegate(delegate (HealthComponent healthComponent, DamageInfo damageInfo, float damage) {
+                ilcursor.EmitDelegate((HealthComponent healthComponent, DamageInfo damageInfo, float damage) => {
                     if (RunInfo.是否选择造物难度) {
                         CharacterBody victimBody = healthComponent.body;
                         if (RunInfo.CurrentSceneIndex == SceneIndexes.VoidRaid && victimBody.isBoss) {  // 虚灵
@@ -84,15 +85,14 @@ namespace BtpTweak.Tweaks {
                                 Util.CleanseBody(victimBody, true, false, false, false, true, true);
                             }
                         } else if (PhaseCounter.instance) {
-                            BodyIndex selfIndex = victimBody.bodyIndex;
-                            if (selfIndex == BodyIndexes.BrotherBody) {  // 米斯历克斯
+                            if (victimBody.bodyIndex == BodyIndexes.BrotherBody) {  // 米斯历克斯
                                 if (damage < _伤害阈值 * healthComponent.fullCombinedHealth && damageInfo.procCoefficient <= 1f) {
                                     damage = Mathf.Min(damage, _老米触发伤害限制 * healthComponent.fullCombinedHealth);
                                 } else {
                                     damage = Mathf.Min(damage, _老米爆发伤害限制 * healthComponent.fullCombinedHealth);
                                     Util.CleanseBody(victimBody, true, false, false, false, true, true);
                                 }
-                            } else if (selfIndex == BodyIndexes.BrotherHurtBody) {
+                            } else if (victimBody.bodyIndex == BodyIndexes.BrotherHurtBody) {
                                 damage = Mathf.Max(healthComponent.combinedHealth * 0.01f, Mathf.Min(healthComponent.combinedHealth * 0.99f, damage));
                                 Util.CleanseBody(victimBody, true, true, true, true, true, true);
                                 victimBody.AddTimedBuff(RoR2Content.Buffs.Immune, healthComponent.combinedHealthFraction);
@@ -109,7 +109,7 @@ namespace BtpTweak.Tweaks {
 
         private void Run_onRunAmbientLevelUp(Run run) {
             int stageCount = run.stageClearCount + 1;
-            float 爆发 = Mathf.Max(0.01f, 1f - 0.1f * stageCount * (run.ambientLevel / (run.ambientLevel + 99f + TeamManager.instance.GetTeamLevel(TeamIndex.Player))));
+            float 爆发 = Mathf.Max(0.01f, BtpUtils.简单逼近(run.ambientLevel, run.ambientLevel + 99f + TeamManager.instance.GetTeamLevel(TeamIndex.Player), 1f - 0.1f * stageCount));
             _老米爆发伤害限制 = 爆发;
             _虚灵爆发伤害限制 = 爆发 * 0.5f;
             float 触发 = 爆发 * 0.001f;

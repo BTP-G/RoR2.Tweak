@@ -1,8 +1,6 @@
-﻿using BtpTweak.Utils;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
@@ -26,13 +24,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc_0);
-                ilcursor.EmitDelegate(async (int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
-                    if (itemCount == 0) {
-                        return;
-                    }
-                    BlastAttack blastAttack = null;
-                    await Task.Run(() => {
-                        blastAttack = new BlastAttack {
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
+                    if (itemCount > 0) {
+                        var blastAttack = new BlastAttack {
                             attacker = damageInfo.attacker,
                             baseDamage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, BaseDamageCoefficient),
                             baseForce = 0,
@@ -48,8 +42,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             teamIndex = attackerBody.teamComponent.teamIndex,
                         };
                         blastAttack.procChainMask.AddProc(ProcType.Behemoth);
-                    });
-                    if (blastAttack != null) {
                         blastAttack.Fire();
                         EffectManager.SpawnEffect(AssetReferences.omniExplosionVFXQuick, new EffectData {
                             origin = damageInfo.position,
@@ -58,7 +50,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         }, true);
                     }
                 });
-                ilcursor.Emit(OpCodes.Pop);
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("Behemoth :: Hook Failed!");

@@ -28,8 +28,8 @@ namespace BtpTweak.Utils {
             return "<style=cIsDamage>" + p_s.ElementAtOrDefault(0) + str + p_s.ElementAtOrDefault(1) + "</style>";
         }
 
-        public static string ToDmgPct<T>(this T damage) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            return "<style=cIsDamage>" + damage.ToPct() + "</style>";
+        public static string ToDmgPct<T>(this T damage, string prefix_suffix = "") where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return damage.ToPct().ToDmg(prefix_suffix);
         }
 
         public static string ToFire(this string str) => "<color=#f25d25>" + str + "</color>";
