@@ -1,26 +1,58 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.RoR2Indexes;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class GlobalEventTweak : TweakBase<GlobalEventTweak> {
+    internal class GlobalEventTweak : TweakBase<GlobalEventTweak>, IOnModLoadBehavior {
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
+            GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;
             IL.RoR2.GlobalEventManager.OnHitEnemy += IL_GlobalEventManager_OnHitEnemy;
             On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        public override void ClearEventHandlers() {
-            GlobalEventManager.onCharacterDeathGlobal -= GlobalEventManager_onCharacterDeathGlobal;
-            IL.RoR2.GlobalEventManager.OnCharacterDeath -= IL_GlobalEventManager_OnCharacterDeath;
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= IL_GlobalEventManager_OnHitEnemy;
-            On.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
+        private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
+            if (RunInfo.是否选择造物难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex == TeamIndex.Monster) {
+                var victimBody = damageReport.victimBody;
+                if (!victimBody.inventory || victimBody.inventory.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex) > 0) {
+                    return;
+                }
+                if (PhaseCounter.instance && victimBody.bodyIndex == BodyIndexes.Brother) {
+                    victimBody.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
+                    victimBody.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 20);
+                    victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                    Util.CleanseBody(victimBody, true, false, false, false, true, true);
+                } else {
+                    victimBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, 20);
+                    victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                    Util.CleanseBody(victimBody, true, false, false, false, true, false);
+                }
+            }
+        }
+
+        private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {
+            var victimBody = damageReport.victimBody;
+            if (victimBody.bodyIndex == RoR2Indexes.BodyIndexes.EquipmentDrone) {
+                PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(victimBody.inventory.currentEquipmentIndex), victimBody.corePosition, Vector3.up * 15f);
+            }
+            if (victimBody.TryGetComponent<DeathRewards>(out var deathRewards) && deathRewards.bossDropTable && Util.CheckRoll(ModConfig.Boss物品掉率.Value, damageReport.attackerMaster)) {
+                PickupDropletController.CreatePickupDroplet(deathRewards.bossDropTable.GenerateDrop(Run.instance.treasureRng), victimBody.corePosition, Vector3.up * 15f);
+            }
+        }
+
+        private void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
+            if (victim.TryGetComponent<CharacterBody>(out var victimBody) && !victimBody.master) {
+                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = false;
+                orig(self, damageInfo, victim);
+                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = true;
+            } else {
+                orig(self, damageInfo, victim);
+            }
         }
 
         private void IL_GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -36,34 +68,6 @@ namespace BtpTweak.Tweaks {
                 });
             } else {
                 Main.Logger.LogError("AspectGold Hook Failed!");
-            }
-        }
-
-        private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {
-            var victimBody = damageReport.victimBody;
-            if (!victimBody) {
-                return;
-            }
-            if (victimBody.bodyIndex == RoR2Indexes.BodyIndexes.EquipmentDroneBody) {
-                PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(victimBody.inventory.currentEquipmentIndex), victimBody.corePosition, Vector3.up * 15f);
-            }
-            var bossDropTable = victimBody.gameObject.GetComponent<DeathRewards>()?.bossDropTable;
-            if (bossDropTable && Util.CheckRoll(ModConfig.Boss物品掉率.Value, damageReport.attackerMaster)) {
-                PickupDropletController.CreatePickupDroplet(bossDropTable.GenerateDrop(Run.instance.treasureRng), victimBody.corePosition, Vector3.up * 15f);
-            }
-        }
-
-        private void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
-            CharacterBody victimBody = victim.GetComponent<CharacterBody>();
-            if (victimBody?.master == null) {
-                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = false;
-            }
-            orig(self, damageInfo, victim);
-            GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = true;
-            if (NetworkServer.active) {
-                if (victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[1].buffIndex) >= 3 * (1 + victimBody.GetBuffCount(DeepRot.scriptableObject.buffs[0].buffIndex))) {
-                    DotController.InflictDot(victim, damageInfo.attacker, DeepRot.deepRotDOT, 20f);
-                }
             }
         }
 

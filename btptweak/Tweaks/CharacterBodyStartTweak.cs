@@ -1,4 +1,6 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates;
+using EntityStates;
+using EntityStates.BrotherMonster;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -6,21 +8,14 @@ using static BtpTweak.RoR2Indexes.BodyIndexes;
 
 namespace BtpTweak.Tweaks {
 
-    internal class CharacterBodyStartTweak : TweakBase<CharacterBodyStartTweak> {
+    internal class CharacterBodyStartTweak : TweakBase<CharacterBodyStartTweak>, IOnModLoadBehavior {
         private int _造物难度敌人血量提升物品数量;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
             CharacterMaster.onStartGlobal += CharacterMaster_onStartGlobal;
             Run.onRunAmbientLevelUp += RecalculateBoostHpCount;
             Run.onRunStartGlobal += Run_onRunStartGlobal;
-        }
-
-        public override void ClearEventHandlers() {
-            CharacterBody.onBodyStartGlobal -= CharacterBody_onBodyStartGlobal;
-            CharacterMaster.onStartGlobal -= CharacterMaster_onStartGlobal;
-            Run.onRunAmbientLevelUp -= RecalculateBoostHpCount;
-            Run.onRunStartGlobal -= Run_onRunStartGlobal;
         }
 
         public void Run_onRunStartGlobal(Run run) {
@@ -30,7 +25,7 @@ namespace BtpTweak.Tweaks {
         private void CharacterBody_onBodyStartGlobal(CharacterBody body) {
             if (NetworkServer.active) {
                 body.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 0.3f + Random.value);
-                if (RunInfo.CurrentSceneIndex == SceneIndexes.VoidRaid && body.teamComponent.teamIndex != TeamIndex.Void) {
+                if (RunInfo.位于天文馆 && body.teamComponent.teamIndex != TeamIndex.Void) {
                     body.AddBuff(TPDespair.ZetAspects.Catalog.Buff.ZetWarped.buffIndex);
                 }
                 var inventory = body.inventory;
@@ -42,14 +37,14 @@ namespace BtpTweak.Tweaks {
 
         private void CharacterMaster_onStartGlobal(CharacterMaster master) {
             if (NetworkServer.active && RunInfo.是否选择造物难度) {
-                master.onBodyStart += Master_onBodyStart;
+                master.onBodyStart += 造物难度_onBodyStart;
             }
         }
 
-        private void Master_onBodyStart(CharacterBody body) {
+        private void 造物难度_onBodyStart(CharacterBody body) {
             var master = body.master;
             var inventory = body.inventory;
-            master.onBodyStart -= Master_onBodyStart;
+            master.onBodyStart -= 造物难度_onBodyStart;
             if (master.teamIndex != TeamIndex.Player) {
                 body.baseArmor += body.level;
                 inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
@@ -57,7 +52,7 @@ namespace BtpTweak.Tweaks {
             if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
                 switch (nameIndex) {
                     case BodyNameIndex.ArbiterBody: {
-                        if (Util.CheckRoll(50)) {
+                        if (Random.value > 0.5f) {
                             inventory.GiveItem(DLC1Content.Items.AttackSpeedAndMoveSpeed.itemIndex);
                             inventory.GiveItem(RoR2Content.Items.SprintBonus.itemIndex, 2);
                         } else {
@@ -67,9 +62,8 @@ namespace BtpTweak.Tweaks {
                         break;
                     }
                     case BodyNameIndex.Bandit2Body: {
-                        inventory.GiveItem(RoR2Content.Items.BleedOnHit.itemIndex);
+                        inventory.GiveItem(RoR2Content.Items.BleedOnHit.itemIndex, 2);
                         inventory.GiveItem(DLC1Content.Items.GoldOnHurt.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.PrimarySkillShuriken.itemIndex);
                         break;
                     }
                     case BodyNameIndex.CaptainBody: {
@@ -77,8 +71,6 @@ namespace BtpTweak.Tweaks {
                         break;
                     }
                     case BodyNameIndex.CHEF: {
-                        inventory.GiveItem(RoR2Content.Items.FlatHealth.itemIndex);
-                        inventory.GiveItem(RoR2Content.Items.Mushroom.itemIndex);
                         inventory.SetEquipmentIndex(RoR2Content.Equipment.Fruit.equipmentIndex);
                         break;
                     }
@@ -114,13 +106,8 @@ namespace BtpTweak.Tweaks {
                         break;
                     }
                     case BodyNameIndex.MageBody: {
-                        var skillLocator = body.skillLocator;
-                        if (skillLocator.primary.skillDef.skillName == "FireFirebolt") {
-                            inventory.GiveItem(RoR2Content.Items.FireRing.itemIndex);
-                        } else if (skillLocator.secondary.skillDef.skillName == "IceBomb") {
+                        if (Random.value > 0.5f || body.skillLocator.secondary.skillDef.skillName == "IceBomb") {
                             inventory.GiveItem(RoR2Content.Items.IceRing.itemIndex);
-                        } else if (skillLocator.secondary.skillDef.skillName == "NovaBomb") {
-                            inventory.GiveItem(RoR2Content.Items.ChainLightning.itemIndex);
                         } else {
                             inventory.GiveItem(RoR2Content.Items.FireRing.itemIndex);
                         }
@@ -163,8 +150,32 @@ namespace BtpTweak.Tweaks {
                         inventory.GiveItem(DLC1Content.Items.ElementalRingVoid.itemIndex);
                         break;
                     }
-                    case BodyNameIndex.BrotherBody: {
-                        inventory.GiveItem(RoR2Content.Items.TeleportWhenOob);
+                    case BodyNameIndex.BrotherBody:
+                    case BodyNameIndex.BrotherHurtBody: {
+                        switch (PhaseCounter.instance?.phase) {  // Give Mithrix the Scourge items
+                            case 1: {
+                                inventory.GiveItem(BtpContent.Items.MoonscourgeAccursedItem);
+                                body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
+                                break;
+                            }
+                            case 2: {
+                                inventory.GiveItem(BtpContent.Items.StormscourgeAccursedItem);
+                                body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
+                                break;
+                            }
+                            case 3: {
+                                inventory.GiveItem(BtpContent.Items.HelscourgeAccursedItemDef);
+                                body.baseAcceleration *= Run.instance.participatingPlayerCount;
+                                body.AddBuff(RoR2Content.Buffs.LunarShell.buffIndex);
+                                body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
+                                break;
+                            }
+                            case 4: {
+                                break;
+                            }
+                        }
+                        inventory.GiveItem(RoR2Content.Items.TeleportWhenOob.itemIndex);
+                        body.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 3f);
                         break;
                     }
                     case BodyNameIndex.MiniVoidRaidCrabBodyPhase1:

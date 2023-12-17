@@ -4,18 +4,14 @@ using static BtpTweak.RoR2Indexes.BodyIndexes;
 
 namespace BtpTweak.Tweaks {
 
-    internal class RecalculateStatsTweak : TweakBase<RecalculateStatsTweak> {
+    internal class RecalculateStatsTweak : TweakBase<RecalculateStatsTweak>, IOnModLoadBehavior {
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }
 
-        public override void ClearEventHandlers() {
-            R2API.RecalculateStatsAPI.GetStatCoefficients -= RecalculateStatsAPI_GetStatCoefficients;
-        }
-
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
-            Inventory inventory = sender.inventory;
+            var inventory = sender.inventory;
             if (inventory) {
                 float upLevel = sender.level - 1;
                 int itemCount = inventory.GetItemCount(RoR2Content.Items.FlatHealth.itemIndex);
@@ -31,8 +27,8 @@ namespace BtpTweak.Tweaks {
                         case BodyNameIndex.Bandit2Body: { break; }
                         case BodyNameIndex.CaptainBody: {
                             itemCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnKill.itemIndex);
-                            args.baseShieldAdd += 15 * itemCount;
-                            args.shieldMultAdd += 0.25f * itemCount;
+                            args.baseShieldAdd += 10 * itemCount;
+                            args.shieldMultAdd += 0.1f * itemCount;
                             break;
                         }
                         case BodyNameIndex.CHEF: {
@@ -80,6 +76,7 @@ namespace BtpTweak.Tweaks {
                             break;
                         }
                         case BodyNameIndex.VoidSurvivorBody: { break; }
+                        case BodyNameIndex.BrotherHurtBody: { break; }
                     }
                 }
                 itemCount = inventory.GetItemCount(RoR2Content.Items.Knurl.itemIndex);
@@ -89,7 +86,7 @@ namespace BtpTweak.Tweaks {
                 args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
                 args.baseRegenAdd += 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
-                args.armorAdd += (50 + upLevel) * inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
+                args.armorAdd += (50 + upLevel) * inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex) - 10 * sender.GetBuffCount(RoR2Content.Buffs.BeetleJuice.buffIndex);
                 if (sender.HasBuff(RoR2Content.Buffs.Warbanner.buffIndex)) {
                     args.armorAdd += 30f;
                 }
@@ -110,6 +107,9 @@ namespace BtpTweak.Tweaks {
                     regenFraction += 0.016f * inventory.GetItemCount(RoR2Content.Items.HealWhileSafe.itemIndex);
                 }
                 args.baseRegenAdd += regenFraction * sender.maxHealth;
+                if (sender.healthComponent.barrier > sender.maxBarrier) {
+                    sender.healthComponent.Networkbarrier = sender.maxBarrier;
+                }
             }
         }
     }

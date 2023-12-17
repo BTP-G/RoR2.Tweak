@@ -4,15 +4,11 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class CritGlassesVoidTweak : TweakBase<CritGlassesVoidTweak> {
+    internal class CritGlassesVoidTweak : TweakBase<CritGlassesVoidTweak>, IOnModLoadBehavior {
         public const float PercentChance = 1f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {

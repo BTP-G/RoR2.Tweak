@@ -5,15 +5,11 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class TPHealingNovaTweak : TweakBase<TPHealingNovaTweak> {
+    internal class TPHealingNovaTweak : TweakBase<TPHealingNovaTweak>, IOnModLoadBehavior {
         public const float HealFraction = 0.02f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.Pulse += TeleporterHealNovaGeneratorMain_Pulse;
-        }
-
-        public override void ClearEventHandlers() {
-            On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.Pulse -= TeleporterHealNovaGeneratorMain_Pulse;
         }
 
         private void TeleporterHealNovaGeneratorMain_Pulse(On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.orig_Pulse orig, EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain self) {

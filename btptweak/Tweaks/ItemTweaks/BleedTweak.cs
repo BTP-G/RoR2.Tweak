@@ -1,20 +1,15 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BleedTweak : TweakBase<BleedTweak> {
+    internal class BleedTweak : TweakBase<BleedTweak>, IOnModLoadBehavior {
         public const int LifeSteal_SeedStackBleedChance = 10;
         public const int LifeStealBaseBleedChance = 10;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

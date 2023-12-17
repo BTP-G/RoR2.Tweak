@@ -6,25 +6,15 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class VoidSurvivorTweak : TweakBase<VoidSurvivorTweak> {
+    internal class VoidSurvivorTweak : TweakBase<VoidSurvivorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-            On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter += FireHandBeam_OnEnter;
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter += ChargeMegaBlaster_OnEnter;
             On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles += FireMegaBlasterBase_FireProjectiles;
             On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.OnEnter += FireCorruptDisks_OnEnter;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.OnEnter -= FireHandBeam_OnEnter;
-            On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter -= ChargeMegaBlaster_OnEnter;
-            On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles -= FireMegaBlasterBase_FireProjectiles;
-            On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.OnEnter -= FireCorruptDisks_OnEnter;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var gameObject = GameObjectPaths.VoidSurvivorMegaBlasterBigProjectileCorrupted.Load<GameObject>();
             var projectileSimple = gameObject.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40f;
@@ -47,11 +37,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         private void FireCorruptDisks_OnEnter(On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireCorruptDisks self) {
             self.damageCoefficient = 25;
             self.selfKnockbackForce = 0;
-            orig(self);
-        }
-
-        private void FireHandBeam_OnEnter(On.EntityStates.VoidSurvivor.Weapon.FireHandBeam.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireHandBeam self) {
-            self.damageCoefficient = 2.4f;
             orig(self);
         }
 

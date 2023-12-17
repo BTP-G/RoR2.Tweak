@@ -5,17 +5,15 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BehemothTweak : TweakBase<BehemothTweak> {
+    internal class BehemothTweak : TweakBase<BehemothTweak>, IOnModLoadBehavior {
         public const int Radius = 3;
         public const float BaseDamageCoefficient = 0.6f;
 
-        public override void SetEventHandlers() {
+        public   void OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitAll += GlobalEventManager_OnHitAll;
         }
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitAll -= GlobalEventManager_OnHitAll;
-        }
+        
 
         private void GlobalEventManager_OnHitAll(ILContext il) {
             var ilcursor = new ILCursor(il);

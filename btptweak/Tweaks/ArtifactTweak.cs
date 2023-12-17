@@ -4,16 +4,11 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class ArtifactTweak : TweakBase<ArtifactTweak> {
+    internal class ArtifactTweak : TweakBase<ArtifactTweak>, IOnModLoadBehavior {
         private float _牺牲保底概率;
         private float _牺牲衰减概率;
 
-        public override void ClearEventHandlers() {
-            On.RoR2.Artifacts.SacrificeArtifactManager.OnServerCharacterDeath -= SacrificeArtifactManager_OnServerCharacterDeath;
-            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Artifacts.SacrificeArtifactManager.OnServerCharacterDeath += SacrificeArtifactManager_OnServerCharacterDeath;
             Stage.onStageStartGlobal += Stage_onStageStartGlobal;
         }
@@ -38,11 +33,27 @@ namespace BtpTweak.Tweaks {
                 var pickupIndex = SacrificeArtifactManager.dropTable.GenerateDrop(SacrificeArtifactManager.treasureRng);
                 if (pickupIndex != PickupIndex.none) {
                     PickupDropletController.CreatePickupDroplet(pickupIndex, damageReport.victimBody.corePosition, new Vector3(0, 20f, 0));
-                    _牺牲保底概率 = 0;
-                    _牺牲衰减概率 += ModConfig.牺牲基础掉率.Value * 0.05f / Run.instance.participatingPlayerCount;
+                    var itemScore = 0f;
+                    switch (PickupCatalog.GetPickupDef(pickupIndex).itemTier) {
+                        case ItemTier.Tier1:
+                            itemScore = 0.01f;
+                            break;
+
+                        case ItemTier.Tier2:
+                            itemScore = 0.04f;
+                            break;
+
+                        case ItemTier.Tier3:
+                            itemScore = 0.2f;
+                            break;
+                    }
+                    if (itemScore > 0f) {
+                        _牺牲保底概率 = 0;
+                        _牺牲衰减概率 += ModConfig.牺牲基础掉率.Value * itemScore / Run.instance.participatingPlayerCount;
+                    }
                 }
             } else {
-                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.05f * Run.instance.participatingPlayerCount;
+                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.04f * Run.instance.participatingPlayerCount;
             }
         }
 

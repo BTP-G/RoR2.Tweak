@@ -6,19 +6,15 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class NovaOnHealTweak : TweakBase<NovaOnHealTweak> {
+    internal class NovaOnHealTweak : TweakBase<NovaOnHealTweak>, IOnModLoadBehavior {
         public const float BaseDamageCoefficient = 1;
-        public const float Interval = 0.2f;
+        public const float Interval = 0.1f;
         public const float BaseRadius = 66.6f;
         public const float BaseThresholdFraction = 0.1f;
         public const float 半数 = 9f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.ServerFixedUpdate += HealthComponent_ServerFixedUpdate;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.ServerFixedUpdate -= HealthComponent_ServerFixedUpdate;
         }
 
         private void HealthComponent_ServerFixedUpdate(ILContext il) {
@@ -32,7 +28,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 iLCursor.EmitDelegate((float devilOrbTimer, HealthComponent healthComponent) => {
                     if (devilOrbTimer <= 0) {
                         healthComponent.devilOrbTimer = Interval;
-                        var damageValue = BtpUtils.简单逼近(healthComponent.itemCounts.novaOnHeal, 9f, healthComponent.fullCombinedHealth);
+                        var novaOnHealCount = healthComponent.itemCounts.novaOnHeal;
+                        var damageValue = BtpUtils.简单逼近(novaOnHealCount > 0 ? novaOnHealCount : 1, 9f, healthComponent.fullCombinedHealth);
                         if (healthComponent.devilOrbHealPool >= damageValue) {
                             healthComponent.devilOrbHealPool -= damageValue;
                             var body = healthComponent.body;
@@ -46,12 +43,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 procCoefficient = 0.5f,
                                 scale = 1,
                                 teamIndex = body.teamComponent.teamIndex,
-                                isCrit = body.RollCrit(),
                             };
-                            var hurtBox = devilOrb.PickNextTarget(devilOrb.origin, BaseRadius);
-                            if (hurtBox) {
+                            if (devilOrb.target = devilOrb.PickNextTarget(devilOrb.origin, BaseRadius)) {
                                 devilOrb.procChainMask.AddProc(ProcType.HealNova);
-                                devilOrb.target = hurtBox;
+                                devilOrb.isCrit = body.RollCrit();
                                 OrbManager.instance.AddOrb(devilOrb);
                             }
                         }

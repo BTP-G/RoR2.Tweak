@@ -1,18 +1,13 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BtpTweak.Utils;
 using RoR2;
 using System.Linq;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.EquipmentTweaks {
 
-    internal class RecycleTweak : TweakBase<RecycleTweak> {
+    internal class RecycleTweak : TweakBase<RecycleTweak>, IOnModLoadBehavior {
 
-        public override void ClearEventHandlers() {
-            On.RoR2.EquipmentSlot.FireRecycle -= EquipmentSlot_FireRecycle;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.EquipmentSlot.FireRecycle += EquipmentSlot_FireRecycle;
         }
 
@@ -50,7 +45,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                     break;
 
                 case ItemTier.Lunar:
-                    if (RunInfo.CurrentSceneIndex != SceneIndexes.Moon2 && RunInfo.CurrentSceneIndex != SceneIndexes.Moon && Util.CheckRoll(15f)) {
+                    if (!RunInfo.位于月球 && Util.CheckRoll(15f)) {
                         Object.Destroy(pickupController.gameObject);
                         EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                             origin = pickupController.pickupDisplay.transform.position,
@@ -79,7 +74,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
 
                 case ItemTier.NoTier:
                     if (newPickupIndex.pickupDef.equipmentIndex != EquipmentIndex.None && newPickupIndex.pickupDef.isLunar) {
-                        if (RunInfo.CurrentSceneIndex != SceneIndexes.Moon2 && RunInfo.CurrentSceneIndex != SceneIndexes.Moon && Util.CheckRoll(15f)) {
+                        if (!RunInfo.位于月球 && Util.CheckRoll(15f)) {
                             Object.Destroy(pickupController.gameObject);
                             EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                                 origin = pickupController.pickupDisplay.transform.position,

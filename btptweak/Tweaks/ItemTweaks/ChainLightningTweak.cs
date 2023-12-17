@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ChainLightningTweak : TweakBase<ChainLightningTweak> {
+    internal class ChainLightningTweak : TweakBase<ChainLightningTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 0.6f;
         public const float 半数 = 4;
         public const int BasePercentChance = 20;
@@ -15,11 +15,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int Bounces = 2;
         public const int StackRadius = 3;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

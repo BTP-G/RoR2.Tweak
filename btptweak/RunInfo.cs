@@ -1,4 +1,5 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using ConfigurableDifficulty;
 using R2API.Utils;
 using RoR2;
@@ -8,21 +9,22 @@ using UnityEngine.Networking;
 namespace BtpTweak {
 
     public static class RunInfo {
-
-        static RunInfo() {
-            Run.onRunStartGlobal += UpdateInfo;
-            UpdateInfo(Run.instance);
-            Stage.onStageStartGlobal += UpdateInfo;
-            UpdateInfo(Stage.instance);
-            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += UpdateInfo;
-            Debug.Log($"class {typeof(RunInfo).FullName} has been initialized.");
-        }
-
-        public static SceneIndex CurrentSceneIndex { get; private set; }
+        public static bool 位于月球 { get; private set; }
+        public static bool 位于隔间 { get; private set; }
+        public static bool 位于天文馆 { get; private set; }
+        public static bool 位于时之墓 { get; private set; }
+        public static bool 位于月球商店 { get; private set; }
         public static bool 是否选择造物难度 { get; private set; }
         public static bool 往日不再 { get; private set; }
 
-        private static void UpdateInfo(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
+        [RuntimeInitializeOnLoadMethod]
+        private static void Init() {
+            Run.onRunStartGlobal += OnRunStart;
+            SceneCatalog.onMostRecentSceneDefChanged += OnMostRecentSceneDefChanged;
+            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += OnBrotherTrueDeath;
+        }
+
+        private static void OnBrotherTrueDeath(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
             if (是否选择造物难度 && !往日不再) {
                 往日不再 = true;
@@ -32,13 +34,18 @@ namespace BtpTweak {
             }
         }
 
-        private static void UpdateInfo(Run run) {
+        private static void OnRunStart(Run run) {
             往日不再 = false;
-            是否选择造物难度 = run?.selectedDifficulty == ConfigurableDifficultyPlugin.configurableDifficultyIndex;
+            是否选择造物难度 = run.selectedDifficulty == ConfigurableDifficultyPlugin.configurableDifficultyIndex;
         }
 
-        private static void UpdateInfo(Stage currentStage) {
-            CurrentSceneIndex = currentStage?.sceneDef.sceneDefIndex ?? SceneIndex.Invalid;
+        private static void OnMostRecentSceneDefChanged(SceneDef mostRecentSceneDef) {
+            var mostRecentSceneIndex = mostRecentSceneDef.sceneDefIndex;
+            位于月球 = mostRecentSceneIndex == SceneIndexes.Moon || mostRecentSceneIndex == SceneIndexes.Moon2;
+            位于隔间 = mostRecentSceneIndex == SceneIndexes.Arena;
+            位于天文馆 = mostRecentSceneIndex == SceneIndexes.VoidRaid;
+            位于时之墓 = mostRecentSceneIndex == SceneIndexes.BulwarksHaunt_GhostWave;
+            位于月球商店 = mostRecentSceneIndex == SceneIndexes.Bazaar;
         }
     }
 }

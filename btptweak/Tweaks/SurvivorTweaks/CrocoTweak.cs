@@ -3,19 +3,13 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class CrocoTweak : TweakBase<CrocoTweak> {
+    internal class CrocoTweak : TweakBase<CrocoTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.Croco.Bite.OnMeleeHitAuthority += Bite_OnMeleeHitAuthority;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            On.EntityStates.Croco.Bite.OnMeleeHitAuthority -= Bite_OnMeleeHitAuthority;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             DeepRot.scriptableObject.buffs[0].canStack = true;
         }
 

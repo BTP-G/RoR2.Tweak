@@ -5,13 +5,10 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class AutoCastEquipmentTweak : TweakBase<AutoCastEquipmentTweak> {
+    internal class AutoCastEquipmentTweak : TweakBase<AutoCastEquipmentTweak>, IOnModLoadBehavior {
         public const float 强制冷却时间 = 0.15f;
-        public override void ClearEventHandlers() {
-            IL.RoR2.Inventory.UpdateEquipment -= IL_Inventory_UpdateEquipment;
-        }
-
-        public override void SetEventHandlers() {
+         
+        public   void OnModLoad() {
             IL.RoR2.Inventory.UpdateEquipment += IL_Inventory_UpdateEquipment;
         }
 

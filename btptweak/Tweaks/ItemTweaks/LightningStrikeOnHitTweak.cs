@@ -6,16 +6,12 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class LightningStrikeOnHitTweak : TweakBase<LightningStrikeOnHitTweak> {
+    internal class LightningStrikeOnHitTweak : TweakBase<LightningStrikeOnHitTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 10;
         public const float 半数 = 9f;
         public const int DamageCoefficient = 3;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

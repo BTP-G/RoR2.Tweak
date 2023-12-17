@@ -2,19 +2,17 @@
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class IgniteOnKillTweak : TweakBase<IgniteOnKillTweak> {
+    internal class IgniteOnKillTweak : TweakBase<IgniteOnKillTweak>, IOnModLoadBehavior {
         public const float ExplosionBaseDamageCoefficient = 1.5f;
         public const float IgniteDamageCoefficient = 0.75f;
         public const int BaseRadius = 12;
         public const int StackRadius = 4;
 
-        public override void SetEventHandlers() {
+        public   void OnModLoad() {
             On.RoR2.GlobalEventManager.ProcIgniteOnKill += GlobalEventManager_ProcIgniteOnKill;
         }
 
-        public override void ClearEventHandlers() {
-            On.RoR2.GlobalEventManager.ProcIgniteOnKill -= GlobalEventManager_ProcIgniteOnKill;
-        }
+        
 
         private void GlobalEventManager_ProcIgniteOnKill(On.RoR2.GlobalEventManager.orig_ProcIgniteOnKill orig, DamageReport damageReport, int igniteOnKillCount, CharacterBody victimBody, TeamIndex attackerTeamIndex) {
             var attackerBody = damageReport.attackerBody;

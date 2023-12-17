@@ -10,20 +10,26 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class EliteTweak : TweakBase<EliteTweak> {
+    internal class EliteTweak : TweakBase<EliteTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        private readonly List<HealthComponent> SearchedObjects = [];
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        private readonly BullseyeSearch search = new() {
+            searchDirection = Vector3.zero,
+            filterByLoS = false,
+            sortMode = BullseyeSearch.SortMode.Distance,
+        };
+
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.CharacterBody.UpdateAffixPoison += CharacterBody_UpdateAffixPoison;
+            Stage.onStageStartGlobal += AspectsDropCountReset;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.RoR2.CharacterBody.UpdateAffixPoison -= CharacterBody_UpdateAffixPoison;
-        }
-
-        private void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             GameObjectPaths.LightningStake.LoadComponent<ProjectileImpactExplosion>().blastRadius = 10f;
+        }
+
+        private void AspectsDropCountReset(Stage stage) {
+            TPDespair.ZetAspects.DropHooks.runDropCount = 0;
         }
 
         private void CharacterBody_UpdateAffixPoison(ILContext il) {
@@ -35,22 +41,17 @@ namespace BtpTweak.Tweaks {
                     iLCursor.Emit(OpCodes.Ldarg_0);
                     iLCursor.EmitDelegate((CharacterBody body) => {
                         if (NetworkServer.active) {
-                            List<HealthComponent> list = new();
-                            Collider[] array = Physics.OverlapSphere(body.corePosition, 20 * body.bestFitRadius, LayerIndex.entityPrecise.mask);
-                            for (int i = 0; i < array.Length; ++i) {
-                                HealthComponent healthComponent = array[i].GetComponent<HurtBox>()?.healthComponent;
-                                if (!healthComponent || list.Contains(healthComponent)) {
+                            search.searchOrigin = body.corePosition;
+                            search.teamMaskFilter = TeamMask.allButNeutral;
+                            search.teamMaskFilter.RemoveTeam(body.teamComponent.teamIndex);
+                            search.RefreshCandidates();
+                            SearchedObjects.Clear();
+                            foreach (var hurtBox in search.GetResults()) {
+                                if (SearchedObjects.Contains(hurtBox.healthComponent)) {
                                     continue;
                                 }
-                                var victimBody = healthComponent.body;
-                                if (!victimBody) {
-                                    continue;
-                                }
-                                list.Add(healthComponent);
-                                if (victimBody.teamComponent.teamIndex == body.teamComponent.teamIndex) {
-                                    continue;
-                                }
-                                victimBody.AddTimedBuff(RoR2Content.Buffs.HealingDisabled, 4);
+                                SearchedObjects.Add(hurtBox.healthComponent);
+                                hurtBox.healthComponent.body.AddTimedBuff(RoR2Content.Buffs.HealingDisabled, 4);
                             }
                         }
                     });

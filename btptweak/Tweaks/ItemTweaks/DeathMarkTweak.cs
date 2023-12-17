@@ -4,17 +4,15 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class DeathMarkTweak : TweakBase<DeathMarkTweak> {
+    internal class DeathMarkTweak : TweakBase<DeathMarkTweak>, IOnModLoadBehavior {
         public const float BaseDamageCoefficient = 0.4f;
         public const float StackDamageCoefficient = 0.08f;
 
-        public override void SetEventHandlers() {
+        public   void OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
-        }
+        
 
         private void HealthComponent_TakeDamage(ILContext il) {
             var c = new ILCursor(il);

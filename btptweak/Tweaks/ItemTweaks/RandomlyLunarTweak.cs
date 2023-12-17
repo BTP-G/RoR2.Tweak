@@ -1,25 +1,17 @@
-﻿using BtpTweak.RoR2Indexes;
-using RoR2;
+﻿using RoR2;
 using System.Collections.Generic;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class RandomlyLunarTweak : TweakBase<RandomlyLunarTweak> {
+    internal class RandomlyLunarTweak : TweakBase<RandomlyLunarTweak>, IOnModLoadBehavior {
         public const int UsageCount = 1;
         private int _rerolledCount;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Items.RandomlyLunarUtils.CheckForLunarReplacement += RandomlyLunarUtils_CheckForLunarReplacement;
             On.RoR2.Items.RandomlyLunarUtils.CheckForLunarReplacementUniqueArray += RandomlyLunarUtils_CheckForLunarReplacementUniqueArray;
             On.RoR2.PurchaseInteraction.SetAvailable += PurchaseInteraction_SetAvailable;
             Stage.onStageStartGlobal += Stage_onStageStartGlobal;
-        }
-
-        public override void ClearEventHandlers() {
-            On.RoR2.Items.RandomlyLunarUtils.CheckForLunarReplacement -= RandomlyLunarUtils_CheckForLunarReplacement;
-            On.RoR2.Items.RandomlyLunarUtils.CheckForLunarReplacementUniqueArray -= RandomlyLunarUtils_CheckForLunarReplacementUniqueArray;
-            On.RoR2.PurchaseInteraction.SetAvailable -= PurchaseInteraction_SetAvailable;
-            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
         }
 
         public void Stage_onStageStartGlobal(Stage stage) {
@@ -41,7 +33,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void RandomlyLunarUtils_CheckForLunarReplacementUniqueArray(On.RoR2.Items.RandomlyLunarUtils.orig_CheckForLunarReplacementUniqueArray orig, PickupIndex[] pickupIndices, Xoroshiro128Plus rng) {
-            if (RunInfo.CurrentSceneIndex == SceneIndexes.Arena) {
+            if (RunInfo.位于隔间) {
                 List<PickupIndex> list = null;
                 for (int i = 0; i < pickupIndices.Length; ++i) {
                     PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndices[i]);
@@ -76,7 +68,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private PickupIndex RandomlyLunarUtils_CheckForLunarReplacement(On.RoR2.Items.RandomlyLunarUtils.orig_CheckForLunarReplacement orig, PickupIndex pickupIndex, Xoroshiro128Plus rng) {
-            if (RunInfo.CurrentSceneIndex == SceneIndexes.Arena) {
+            if (RunInfo.位于隔间) {
                 var pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
                 if (pickupDef != null && Util.CheckRoll(5)) {
                     switch (pickupDef.itemTier) {

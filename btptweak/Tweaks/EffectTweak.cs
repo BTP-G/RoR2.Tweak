@@ -12,23 +12,15 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class EffectTweak : TweakBase<EffectTweak> {
+    internal class EffectTweak : TweakBase<EffectTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.CharacterBody.OnClientBuffsChanged += CharacterBody_OnClientBuffsChanged;
             On.RoR2.EffectManager.SpawnEffect_GameObject_EffectData_bool += EffectManager_SpawnEffect_GameObject_EffectData_bool;
             IL.EntityStates.TitanMonster.DeathState.OnEnter += DeathState_OnEnter;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            On.RoR2.CharacterBody.OnClientBuffsChanged -= CharacterBody_OnClientBuffsChanged;
-            On.RoR2.EffectManager.SpawnEffect_GameObject_EffectData_bool -= EffectManager_SpawnEffect_GameObject_EffectData_bool;
-            IL.EntityStates.TitanMonster.DeathState.OnEnter -= DeathState_OnEnter;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             Object.Destroy(GameObjectPaths.SimpleLightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
             Object.Destroy(GameObjectPaths.LightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
             Object.Destroy(AssetReferences.affixWhiteExplosion.transform.Find("Flash, Blue").gameObject);

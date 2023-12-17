@@ -6,20 +6,19 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class FireworkTweak : TweakBase<FireworkTweak> {
+    internal class FireworkTweak : TweakBase<FireworkTweak>, IOnRoR2LoadedBehavior {
         public const int BaseDamageCoefficient = 1;
         public const int FireCount = 6;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-            //EquipmentSlot.onServerEquipmentActivated += EquipmentSlot_onServerEquipmentActivated;
-            //IL.RoR2.GlobalEventManager.OnInteractionBegin += GlobalEventManager_OnInteractionBegin;
-        }
-
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            //EquipmentSlot.onServerEquipmentActivated -= EquipmentSlot_onServerEquipmentActivated;
-            //IL.RoR2.GlobalEventManager.OnInteractionBegin -= GlobalEventManager_OnInteractionBegin;
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            AssetReferences.fireworkPrefab.GetComponent<ProjectileController>().procCoefficient = 1f;
+            AssetReferences.fireworkPrefab.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
+            AssetReferences.fireworkPrefab.GetComponent<QuaternionPID>().gain *= 100;
+            var missileController = AssetReferences.fireworkPrefab.GetComponent<MissileController>();
+            missileController.acceleration *= 2f;
+            missileController.delayTimer *= 0.5f;
+            missileController.maxSeekDistance = float.MaxValue;
+            missileController.turbulence = 0;
         }
 
         private void EquipmentSlot_onServerEquipmentActivated(EquipmentSlot equipmentSlot, EquipmentIndex equipmentIndex) {
@@ -40,17 +39,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     fireworkLauncher.remaining = FireCount * itemCount;
                 }
             }
-        }
-
-        private void Load() {
-            AssetReferences.fireworkPrefab.GetComponent<ProjectileController>().procCoefficient = 1f;
-            AssetReferences.fireworkPrefab.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
-            AssetReferences.fireworkPrefab.GetComponent<QuaternionPID>().gain *= 100;
-            var missileController = AssetReferences.fireworkPrefab.GetComponent<MissileController>();
-            missileController.acceleration *= 2f;
-            missileController.delayTimer *= 0.5f;
-            missileController.maxSeekDistance = float.MaxValue;
-            missileController.turbulence = 0;
         }
 
         private void GlobalEventManager_OnInteractionBegin(ILContext il) {

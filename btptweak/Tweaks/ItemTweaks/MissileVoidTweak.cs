@@ -6,17 +6,12 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class MissileVoidTweak : TweakBase<MissileVoidTweak> {
+    internal class MissileVoidTweak : TweakBase<MissileVoidTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 0.6f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.Orbs.MissileVoidOrb.Begin += MissileVoidOrb_Begin;
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.Orbs.MissileVoidOrb.Begin -= MissileVoidOrb_Begin;
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
         }
 
         private void MissileVoidOrb_Begin(ILContext il) {

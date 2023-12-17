@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
 using System.Linq;
@@ -7,27 +6,18 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class HuntressTweak : TweakBase<HuntressTweak> {
+    internal class HuntressTweak : TweakBase<HuntressTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float 基础射程 = 60f;
         public const float 猎人的鱼叉叠加射程 = 10f;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HuntressTracker.FixedUpdate += HuntressTracker_FixedUpdate;
             On.RoR2.HuntressTracker.Start += HuntressTracker_Start;
             On.RoR2.HuntressTracker.SearchForTarget += HuntressTracker_SearchForTarget;
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.FireOrbArrow += FireSeekingArrow_FireOrbArrow;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.RoR2.HuntressTracker.FixedUpdate -= HuntressTracker_FixedUpdate;
-            On.RoR2.HuntressTracker.Start -= HuntressTracker_Start;
-            On.RoR2.HuntressTracker.SearchForTarget -= HuntressTracker_SearchForTarget;
-            On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.FireOrbArrow -= FireSeekingArrow_FireOrbArrow;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             CharacterBody huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();
             huntressBody.baseCrit = 5f;
             huntressBody.levelCrit = 1f;

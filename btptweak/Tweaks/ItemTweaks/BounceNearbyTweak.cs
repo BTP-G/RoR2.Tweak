@@ -6,18 +6,14 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BounceNearbyTweak : TweakBase<BounceNearbyTweak> {
+    internal class BounceNearbyTweak : TweakBase<BounceNearbyTweak>, IOnModLoadBehavior {
         public const float BaseDamageCoefficient = 1;
         public const float BasePercentChance = 33f;
         public const float BaseRadius = 33f;
         public const float StackPercentChance = 16.5f;
         public const int BaseMaxTargets = 6;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

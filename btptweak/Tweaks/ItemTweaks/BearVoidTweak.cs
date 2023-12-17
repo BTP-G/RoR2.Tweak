@@ -5,14 +5,11 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BearVoidTweak : TweakBase<BearVoidTweak> {
+    internal class BearVoidTweak : TweakBase<BearVoidTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 50;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
-        }
-
-        public override void SetEventHandlers() {
+       
+        public   void OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
 

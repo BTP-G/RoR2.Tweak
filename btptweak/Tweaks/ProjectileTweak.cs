@@ -1,45 +1,53 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using EntityStates.BrotherMonster;
+using EntityStates.BrotherMonster.Weapon;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class ProjectileTweak : TweakBase<ProjectileTweak> {
+    internal class ProjectileTweak : TweakBase<ProjectileTweak>, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-        }
-
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var daggerProjectile = GameObjectPaths.DaggerProjectile.Load<GameObject>();
             daggerProjectile.GetComponent<ProjectileController>().procCoefficient = 0.33f;
             daggerProjectile.GetComponent<ProjectileSimple>().lifetime = 10f;
-            AssetReferences.molotovProjectileDotZone.AddComponent<MolotovDotZoneStartAction>();
             GameObjectPaths.DeathProjectile18.LoadComponent<ProjectileController>().procCoefficient = 0;
+            WeaponSlam.pillarProjectilePrefab.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
+            WeaponSlam.pillarProjectilePrefab.AddComponent<BrotherPillarProjectileAwakeAction>();
+            EditLunarMissile();
+            EditLunarShards();
         }
 
-        private class MolotovDotZoneStartAction : MonoBehaviour {
-            private float radiusScale = 1;
-            private float timer = 0;
+        private void EditLunarMissile() {
+            var lunarMissilePrefab = GameObjectPaths.LunarMissileProjectile.Load<GameObject>();
+            var lunarMissileSteer = lunarMissilePrefab.GetComponent<ProjectileSteerTowardTarget>();
+            lunarMissileSteer.rotationSpeed = 150f;
+            lunarMissilePrefab.GetComponent<ProjectileDamage>().damageType |= DamageType.BypassArmor;
+            var lunarMissileTargetFinder = lunarMissilePrefab.GetComponent<ProjectileDirectionalTargetFinder>();
+            lunarMissileTargetFinder.lookRange = 60f;
+            lunarMissileTargetFinder.lookCone = 120f;
+            lunarMissileTargetFinder.allowTargetLoss = false;
+        }
 
-            private void Start() {
-                int itemCount = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.IgniteOnKill) ?? 0;
-                if (itemCount > 0) {
-                    radiusScale += 0.5f * itemCount;
-                    GetComponent<ProjectileDotZone>().lifetime *= radiusScale;
+        private void EditLunarShards() {
+            var lunarShardSteer = FireLunarShards.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>();
+            lunarShardSteer.rotationSpeed = 60f;  // vanilla 20
+            FireLunarShards.projectilePrefab.GetComponent<ProjectileDamage>().damageType |= DamageType.BleedOnHit;
+            var lunarShardTargetFinder = FireLunarShards.projectilePrefab.GetComponent<ProjectileDirectionalTargetFinder>();
+            lunarShardTargetFinder.lookRange = 90f;  // vanilla 80
+            lunarShardTargetFinder.lookCone = 90f;
+            lunarShardTargetFinder.allowTargetLoss = true;
+        }
+
+        private class BrotherPillarProjectileAwakeAction : MonoBehaviour {
+
+            private void Awake() {
+                if (PhaseCounter.instance && PhaseCounter.instance.phase < 4) {
+                    transform.localScale = Vector3.one * (PhaseCounter.instance.phase + 1);
                 }
-            }
-
-            private void Update() {
-                timer += Time.deltaTime;
-                float currentRadius = 0.5f + radiusScale * timer / (timer + radiusScale);
-                transform.localScale = new Vector3(currentRadius, currentRadius, currentRadius);
             }
         }
     }

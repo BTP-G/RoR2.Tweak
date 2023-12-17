@@ -9,21 +9,15 @@ using static BtpTweak.ProjectileFountains.ProjectileFountain;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class StickyBombTweak : TweakBase<StickyBombTweak> {
+    internal class StickyBombTweak : TweakBase<StickyBombTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int PercnetChance = 5;
-        public const float BaseDamageCoefficient = 0.8f;
+        public const float BaseDamageCoefficient = 1f;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        private void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             AssetReferences.stickyBombProjectile.GetComponent<ProjectileController>().procCoefficient = 1f;
             AssetReferences.stickyBombProjectile.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
             AssetReferences.stickyBombProjectile.RemoveComponent<LoopSound>();

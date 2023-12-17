@@ -1,5 +1,4 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Scrapper;
 using MonoMod.Cil;
@@ -9,27 +8,20 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class InteractionTweak : TweakBase<InteractionTweak> {
+    internal class InteractionTweak : TweakBase<InteractionTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float origInitialDelayDuration = 1.5f;
+        public const float origTimeBetweenStartAndDropDroplet = 1.333f;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
+            GlobalEventManager.OnInteractionsGlobal += GlobalEventManager_OnInteractionsGlobal;
+            On.RoR2.PurchaseInteraction.Awake += PurchaseInteraction_Awake;
             IL.EntityStates.Duplicator.Duplicating.DropDroplet += Duplicating_DropDroplet;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.EntityStates.Duplicator.Duplicating.DropDroplet -= Duplicating_DropDroplet;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             WaitToBeginScrapping.duration = 0.125f;
             Scrapping.duration = 0.5f;
             ScrappingToIdle.duration = 0.125f;
-            EntityStates.Duplicator.Duplicating.initialDelayDuration = 0;
-            var gameObject = GameObjectPaths.LunarCauldronRedToWhiteVariant.Load<GameObject>().AddComponent<LunarCauldronRedToWhiteAwakeAction>().gameObject;
-            var purchaseInteraction = gameObject.GetComponent<PurchaseInteraction>();
-            purchaseInteraction.costType = CostTypeIndex.GreenItem;
-            purchaseInteraction.Networkcost = purchaseInteraction.cost = 2;
             GameObjectPaths.Duplicator.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorLarge.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorMilitary.Load<GameObject>().RemoveComponent<DelayedEvent>();
@@ -44,6 +36,53 @@ namespace BtpTweak.Tweaks {
             InteractableSpawnCardPaths.iscShrineChanceSnowy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
         }
 
+        private void PurchaseInteraction_Awake(On.RoR2.PurchaseInteraction.orig_Awake orig, PurchaseInteraction self) {
+            orig(self);
+            if (self.name.StartsWith("LunarCauldron, RedToWhite Variant")) {
+                self.costType = CostTypeIndex.GreenItem;
+                self.Networkcost = 2;
+            }
+        }
+
+        private void GlobalEventManager_OnInteractionsGlobal(Interactor interactor, IInteractable interactable, GameObject interaction) {
+            if (interaction.TryGetComponent<PurchaseInteraction>(out var purchaseInteraction)) {
+                switch (purchaseInteraction.costType) {
+                    case CostTypeIndex.WhiteItem:
+                        if (interactor.TryGetComponent<CharacterBody>(out var characterBody) && characterBody.inventory) {
+                            var count = characterBody.inventory.GetItemCount(RoR2Content.Items.ScrapWhite.itemIndex);
+                            EntityStates.Duplicator.Duplicating.initialDelayDuration = count > 0f ? 0 : origInitialDelayDuration;
+                            EntityStates.Duplicator.Duplicating.timeBetweenStartAndDropDroplet = origTimeBetweenStartAndDropDroplet / (count + 1);
+                        }
+                        break;
+
+                    case CostTypeIndex.GreenItem:
+                        if (interactor.TryGetComponent(out characterBody) && characterBody.inventory) {
+                            var count = characterBody.inventory.GetItemCount(RoR2Content.Items.ScrapGreen.itemIndex)
+                                + characterBody.inventory.GetItemCount(DLC1Content.Items.RegeneratingScrap.itemIndex);
+                            EntityStates.Duplicator.Duplicating.initialDelayDuration = count > 0f ? 0 : origInitialDelayDuration;
+                            EntityStates.Duplicator.Duplicating.timeBetweenStartAndDropDroplet = origTimeBetweenStartAndDropDroplet / (count + 1);
+                        }
+                        break;
+
+                    case CostTypeIndex.RedItem:
+                        if (interactor.TryGetComponent(out characterBody) && characterBody.inventory) {
+                            var count = characterBody.inventory.GetItemCount(RoR2Content.Items.ScrapRed.itemIndex);
+                            EntityStates.Duplicator.Duplicating.initialDelayDuration = count > 0f ? 0 : origInitialDelayDuration;
+                            EntityStates.Duplicator.Duplicating.timeBetweenStartAndDropDroplet = origTimeBetweenStartAndDropDroplet / (count + 1);
+                        }
+                        break;
+
+                    case CostTypeIndex.BossItem:
+                        if (interactor.TryGetComponent(out characterBody) && characterBody.inventory) {
+                            var count = characterBody.inventory.GetItemCount(RoR2Content.Items.ScrapYellow.itemIndex);
+                            EntityStates.Duplicator.Duplicating.initialDelayDuration = count > 0 ? 0f : origInitialDelayDuration;
+                            EntityStates.Duplicator.Duplicating.timeBetweenStartAndDropDroplet = origTimeBetweenStartAndDropDroplet / (count + 1);
+                        }
+                        break;
+                }
+            }
+        }
+
         private void Duplicating_DropDroplet(ILContext il) {
             var curscor = new ILCursor(il);
             if (curscor.TryGotoNext(c => c.MatchCallvirt<ShopTerminalBehavior>("DropPickup"))) {
@@ -52,9 +91,7 @@ namespace BtpTweak.Tweaks {
                     var itemTier = PickupCatalog.GetPickupDef(shopTerminal.CurrentPickupIndex()).itemTier;
                     switch (itemTier) {
                         case ItemTier.Lunar:
-                            if (RunInfo.CurrentSceneIndex != SceneIndexes.Moon
-                            && RunInfo.CurrentSceneIndex != SceneIndexes.Moon2
-                            && Util.CheckRoll(GetPercentChance(itemTier))) {
+                            if (!RunInfo.位于月球 && RollItemDuplicatorDestroy(itemTier)) {
                                 Object.Destroy(shopTerminal.gameObject);
                                 EffectManager.SpawnEffect(AssetReferences.moonExitArenaOrbEffect, new EffectData {
                                     origin = shopTerminal.pickupDisplay.transform.position,
@@ -66,7 +103,7 @@ namespace BtpTweak.Tweaks {
                         case ItemTier.VoidTier2:
                         case ItemTier.VoidTier3:
                         case ItemTier.VoidBoss:
-                            if (Util.CheckRoll(GetPercentChance(itemTier))) {
+                            if (RollItemDuplicatorDestroy(itemTier)) {
                                 Object.Destroy(shopTerminal.gameObject);
                                 BtpUtils.SpawnVoidDeathBomb(shopTerminal.pickupDisplay.transform.position);
                             }
@@ -79,26 +116,15 @@ namespace BtpTweak.Tweaks {
             }
         }
 
-        private float GetPercentChance(ItemTier itemTier) => itemTier switch {
-            ItemTier.Tier1 => 5f,
-            ItemTier.Tier2 => 10f,
-            ItemTier.Tier3 => 20f,
-            ItemTier.Lunar => 20f,
-            ItemTier.Boss => 20f,
-            ItemTier.VoidTier1 => 10f,
-            ItemTier.VoidTier2 => 20f,
-            ItemTier.VoidTier3 => 40f,
-            ItemTier.VoidBoss => 20f,
-            _ => 0,
-        };
-
-        private class LunarCauldronRedToWhiteAwakeAction : MonoBehaviour {
-
-            private void Awake() {
-                var purchaseInteraction = GetComponent<PurchaseInteraction>();
-                purchaseInteraction.costType = CostTypeIndex.GreenItem;
-                purchaseInteraction.Networkcost = purchaseInteraction.cost = 2;
-            }
+        private bool RollItemDuplicatorDestroy(ItemTier itemTier) {
+            return Util.CheckRoll(itemTier switch {
+                ItemTier.Lunar => 20f,
+                ItemTier.VoidTier1 => 10f,
+                ItemTier.VoidTier2 => 20f,
+                ItemTier.VoidTier3 => 40f,
+                ItemTier.VoidBoss => 20f,
+                _ => 0f,
+            });
         }
     }
 }

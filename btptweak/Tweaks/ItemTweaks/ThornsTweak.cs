@@ -6,16 +6,14 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ThornsTweak : TweakBase<ThornsTweak> {
-        public const int Radius = 10;
-        public const float BaseDamageCoefficient = 1.5f;
+    internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior {
+        public const int BaseRadius = 20;
+        public const int StackRadius = 10;
+        public const float BaseDamageCoefficient = 2f;
+        public const float StackDamageCoefficient = 1f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {

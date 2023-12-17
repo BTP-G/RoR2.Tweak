@@ -5,13 +5,10 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.EquipmentTweaks {
 
-    internal class FireballVehicleTweak : TweakBase<FireballVehicleTweak> {
+    internal class FireballVehicleTweak : TweakBase<FireballVehicleTweak>, IOnModLoadBehavior {
         public const float FireBallsDamageCoeffcient = 5f;
-        public override void ClearEventHandlers() {
-            On.RoR2.FireballVehicle.FixedUpdate -= FireballVehicle_FixedUpdate;
-        }
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.FireballVehicle.FixedUpdate += FireballVehicle_FixedUpdate;
         }
 

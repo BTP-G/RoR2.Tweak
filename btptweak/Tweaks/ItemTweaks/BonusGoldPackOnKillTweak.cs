@@ -6,16 +6,12 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BonusGoldPackOnKillTweak : TweakBase<BonusGoldPackOnKillTweak> {
+    internal class BonusGoldPackOnKillTweak : TweakBase<BonusGoldPackOnKillTweak>, IOnModLoadBehavior {
         public const int DropPercentChance = 5;
         public const int StackMoney = 5;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnCharacterDeath -= GlobalEventManager_OnCharacterDeath;
         }
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {

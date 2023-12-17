@@ -4,15 +4,11 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class LunarSunTweak : TweakBase<LunarSunTweak> {
+    internal class LunarSunTweak : TweakBase<LunarSunTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 3.6f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.LunarSunBehavior.FixedUpdate += LunarSunBehavior_FixedUpdate;
-        }
-
-        public override void ClearEventHandlers() {
-            On.RoR2.LunarSunBehavior.FixedUpdate -= LunarSunBehavior_FixedUpdate;
         }
 
         private void LunarSunBehavior_FixedUpdate(On.RoR2.LunarSunBehavior.orig_FixedUpdate orig, LunarSunBehavior self) {

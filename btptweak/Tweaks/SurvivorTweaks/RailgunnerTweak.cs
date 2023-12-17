@@ -11,10 +11,9 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class RailgunnerTweak : TweakBase<RailgunnerTweak> {
+    internal class RailgunnerTweak : TweakBase<RailgunnerTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             IL.EntityStates.Railgunner.Reload.Reloading.OnEnter += Reloading_OnEnter;
             IL.EntityStates.Railgunner.Weapon.BaseFireSnipe.ModifyBullet += BaseFireSnipe_ModifyBullet;
             On.EntityStates.Railgunner.Reload.Boosted.OnEnter += Boosted_OnEnter;
@@ -22,16 +21,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             On.EntityStates.Railgunner.Scope.BaseWindUp.OnEnter += BaseWindUp_OnEnter;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.EntityStates.Railgunner.Reload.Reloading.OnEnter -= Reloading_OnEnter;
-            IL.EntityStates.Railgunner.Weapon.BaseFireSnipe.ModifyBullet -= BaseFireSnipe_ModifyBullet;
-            On.EntityStates.Railgunner.Reload.Boosted.OnEnter -= Boosted_OnEnter;
-            On.EntityStates.Railgunner.Reload.Waiting.FixedUpdate -= Waiting_FixedUpdate;
-            On.EntityStates.Railgunner.Scope.BaseWindUp.OnEnter -= BaseWindUp_OnEnter;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<SlowDownProjectiles>().slowDownCoefficient = 0.01f;
             RoR2ResourcesPaths.RailgunnerBodyFireSnipeHeavy.Load<RailgunSkillDef>().mustKeyPress = false;
             LanguageAPI.Add("KEYWORD_ACTIVERELOAD_ALT", $"<style=cKeywordName>手动上弹</style><style=cSub>按{ModConfig.ReloadKey.Value.MainKey.ToUtil()}键给你的磁轨炮上弹。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。");

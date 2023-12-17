@@ -6,17 +6,13 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak> {
+    internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 20;
         public const float 半数 = 4;
         public const float DamageCoefficient = 0.3f;
         public const int TotalStrikes = 3;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

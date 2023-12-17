@@ -4,42 +4,32 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class CombatDirectorTweak : TweakBase<CombatDirectorTweak> {
+    internal class CombatDirectorTweak : TweakBase<CombatDirectorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private float _精英转化几率;
         private EliteDef _特殊环境精英属性;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.CombatDirector.Awake += CombatDirector_Awake;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
             On.RoR2.CombatDirector.Spawn += CombatDirector_Spawn;
             On.RoR2.Run.AdvanceStage += Run_AdvanceStage;
+            SceneCatalog.onMostRecentSceneDefChanged += 更新当前环境的敌人精英属性;
             Run.onRunStartGlobal += Run_onRunStartGlobal;
-            RoR2Application.onLoad += Load;
         }
 
-        public override void ClearEventHandlers() {
-            On.RoR2.CombatDirector.Awake -= CombatDirector_Awake;
-            On.RoR2.CombatDirector.SetNextSpawnAsBoss -= CombatDirector_SetNextSpawnAsBoss;
-            On.RoR2.CombatDirector.Spawn -= CombatDirector_Spawn;
-            On.RoR2.Run.AdvanceStage -= Run_AdvanceStage;
-            Run.onRunStartGlobal -= Run_onRunStartGlobal;
-            RoR2Application.onLoad -= Load;
-        }
-
-        public void Load() {
-            CombatDirector.EliteTierDef eliteTierDef = new() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            R2API.EliteAPI.AddCustomEliteTier(new CombatDirector.EliteTierDef() {
                 costMultiplier = CombatDirector.baseEliteCostMultiplier,
                 eliteTypes = EliteCatalog.eliteDefs,
                 isAvailable = (SpawnCard.EliteRules rules) => Run.instance.loopClearCount > 1 && rules == SpawnCard.EliteRules.Default,
                 canSelectWithoutAvailableEliteDef = false
-            };
-            R2API.EliteAPI.AddCustomEliteTier(eliteTierDef);
+            });
+            TeamCatalog.GetTeamDef(TeamIndex.Player).softCharacterLimit = 40;
         }
 
         public void Run_onRunStartGlobal(Run run) {
             TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = 40;
             TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = 40;
-            HandleSceneSpecialElite(SceneCatalog.GetSceneDefForCurrentScene().sceneDefIndex);
         }
 
         private void CombatDirector_Awake(On.RoR2.CombatDirector.orig_Awake orig, CombatDirector self) {
@@ -62,10 +52,10 @@ namespace BtpTweak.Tweaks {
             int newSoftCharacterLimit = Mathf.Max(18, 40 - 4 * self.stageClearCount);
             TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = newSoftCharacterLimit;
             TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = newSoftCharacterLimit;
-            HandleSceneSpecialElite(nextScene.sceneDefIndex);
         }
 
-        private void HandleSceneSpecialElite(SceneIndex sceneIndex) {
+        private void 更新当前环境的敌人精英属性(SceneDef newSceneDef) {
+            var sceneIndex = newSceneDef.sceneDefIndex;
             _精英转化几率 = 0;
             _特殊环境精英属性 = null;
             if (sceneIndex == SceneIndexes.GoldShores) {
@@ -85,7 +75,7 @@ namespace BtpTweak.Tweaks {
                 _精英转化几率 = 25;
             } else if (sceneIndex == SceneIndexes.VoidStage) {
                 _特殊环境精英属性 = DLC1Content.Elites.Void;
-                _精英转化几率 = 50;
+                _精英转化几率 = 100;
             }
         }
     }

@@ -2,15 +2,11 @@
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class HealOnCritTweak : TweakBase<HealOnCritTweak> {
+    internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior {
         public const float RegenDuration = 0.1f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
-        }
-
-        public override void ClearEventHandlers() {
-            GlobalEventManager.onCharacterDeathGlobal -= GlobalEventManager_onCharacterDeathGlobal;
         }
 
         private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {

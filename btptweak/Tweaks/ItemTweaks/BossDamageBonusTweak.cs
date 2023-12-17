@@ -4,13 +4,9 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BossDamageBonusTweak : TweakBase<BossDamageBonusTweak> {
+    internal class BossDamageBonusTweak : TweakBase<BossDamageBonusTweak>, IOnModLoadBehavior {
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
 

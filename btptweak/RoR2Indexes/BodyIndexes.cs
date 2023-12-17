@@ -6,18 +6,6 @@ namespace BtpTweak.RoR2Indexes {
 
     public static class BodyIndexes {
 
-        static BodyIndexes() {
-            for (BodyNameIndex bodyNameIndex = BodyNameIndex.None + 1; bodyNameIndex < BodyNameIndex.Count; ++bodyNameIndex) {
-                var bodyIndex = BodyCatalog.FindBodyIndex(bodyNameIndex.ToString());
-                if (bodyIndex == BodyIndex.None) {
-                    Debug.LogWarning(bodyNameIndex.ToString() + " not found!");
-                } else {
-                    BodyIndexToNameIndex.Add((int)bodyIndex, bodyNameIndex);
-                }
-            }
-            Debug.Log($"class {typeof(BodyIndexes).FullName} has been initialized. 已成功添加{BodyIndexToNameIndex.Count}个映射。");
-        }
-
         internal enum BodyNameIndex : byte {
             None = 0,
             ArbiterBody,
@@ -50,31 +38,80 @@ namespace BtpTweak.RoR2Indexes {
             Count,
         }
 
-        public static BodyIndex ArbiterBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.ArbiterBody.ToString());
-        public static BodyIndex Bandit2Body { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.Bandit2Body.ToString());
-        public static BodyIndex BrotherBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.BrotherBody.ToString());
-        public static BodyIndex BrotherHurtBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.BrotherHurtBody.ToString());
-        public static BodyIndex CaptainBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.CaptainBody.ToString());
-        public static BodyIndex Chef { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.CHEF.ToString());
-        public static BodyIndex CommandoBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.CommandoBody.ToString());
-        public static BodyIndex CrocoBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.CrocoBody.ToString());
-        public static BodyIndex EngiBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.EngiBody.ToString());
-        public static BodyIndex EngiTurretBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.EngiTurretBody.ToString());
-        public static BodyIndex EngiWalkerTurretBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.EngiWalkerTurretBody.ToString());
-        public static BodyIndex EquipmentDroneBody { get; } = BodyCatalog.FindBodyIndex("EquipmentDroneBody");
-        public static BodyIndex HereticBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.HereticBody.ToString());
-        public static BodyIndex HuntressBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.HuntressBody.ToString());
-        public static BodyIndex LoaderBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.LoaderBody.ToString());
-        public static BodyIndex MageBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.MageBody.ToString());
-        public static BodyIndex MercBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.MercBody.ToString());
-        public static BodyIndex PathfinderBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.PathfinderBody.ToString());
-        public static BodyIndex RailgunnerBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.RailgunnerBody.ToString());
-        public static BodyIndex RedMistBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.RedMistBody.ToString());
-        public static BodyIndex RobPaladinBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.RobPaladinBody.ToString());
-        public static BodyIndex SniperClassicBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.SniperClassicBody.ToString());
-        public static BodyIndex ToolbotBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.ToolbotBody.ToString());
-        public static BodyIndex TreebotBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.TreebotBody.ToString());
-        public static BodyIndex VoidSurvivorBody { get; } = BodyCatalog.FindBodyIndex(BodyNameIndex.VoidSurvivorBody.ToString());
-        internal static Dictionary<int, BodyNameIndex> BodyIndexToNameIndex { get; } = new();
+        public static BodyIndex Arbiter { get; private set; }
+        public static BodyIndex Bandit2 { get; private set; }
+        public static BodyIndex Brother { get; private set; }
+        public static BodyIndex BrotherHurt { get; private set; }
+        public static BodyIndex Captain { get; private set; }
+        public static BodyIndex Chef { get; private set; }
+        public static BodyIndex Commando { get; private set; }
+        public static BodyIndex Croco { get; private set; }
+        public static BodyIndex Engi { get; private set; }
+        public static BodyIndex EngiTurret { get; private set; }
+        public static BodyIndex EngiWalkerTurret { get; private set; }
+        public static BodyIndex EquipmentDrone { get; private set; }
+        public static BodyIndex Heretic { get; private set; }
+        public static BodyIndex Huntress { get; private set; }
+        public static BodyIndex Loader { get; private set; }
+        public static BodyIndex Mage { get; private set; }
+        public static BodyIndex Merc { get; private set; }
+        public static BodyIndex Pathfinder { get; private set; }
+        public static BodyIndex Railgunner { get; private set; }
+        public static BodyIndex RedMist { get; private set; }
+        public static BodyIndex RobPaladin { get; private set; }
+        public static BodyIndex SniperClassic { get; private set; }
+        public static BodyIndex Toolbot { get; private set; }
+        public static BodyIndex Treebot { get; private set; }
+        public static BodyIndex VoidSurvivor { get; private set; }
+        public static BodyIndex MiniVoidRaidCrabBodyPhase1 { get; private set; }
+        public static BodyIndex MiniVoidRaidCrabBodyPhase2 { get; private set; }
+        public static BodyIndex MiniVoidRaidCrabBodyPhase3 { get; private set; }
+        internal static Dictionary<int, BodyNameIndex> BodyIndexToNameIndex { get; } = [];
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void Init() {
+            On.RoR2.BodyCatalog.SetBodyPrefabs += BodyCatalog_SetBodyPrefabs;
+        }
+
+        private static void BodyCatalog_SetBodyPrefabs(On.RoR2.BodyCatalog.orig_SetBodyPrefabs orig, GameObject[] newBodyPrefabs) {
+            orig(newBodyPrefabs);
+            for (BodyNameIndex bodyNameIndex = BodyNameIndex.None + 1; bodyNameIndex < BodyNameIndex.Count; ++bodyNameIndex) {
+                var bodyIndex = BodyCatalog.FindBodyIndex(bodyNameIndex.ToString());
+                if (bodyIndex == BodyIndex.None) {
+                    Debug.LogWarning(bodyNameIndex.ToString() + " not found!");
+                } else {
+                    BodyIndexToNameIndex.Add((int)bodyIndex, bodyNameIndex);
+                }
+            }
+            Debug.Log($"class {typeof(BodyIndexes).FullName} has been initialized. 已成功添加{BodyIndexToNameIndex.Count}个映射。");
+            Arbiter = BodyCatalog.FindBodyIndex("ArbiterBody");
+            Bandit2 = BodyCatalog.FindBodyIndex("Bandit2Body");
+            Brother = BodyCatalog.FindBodyIndex("BrotherBody");
+            BrotherHurt = BodyCatalog.FindBodyIndex("BrotherHurtBody");
+            Captain = BodyCatalog.FindBodyIndex("CaptainBody");
+            Chef = BodyCatalog.FindBodyIndex("CHEF");
+            Commando = BodyCatalog.FindBodyIndex("CommandoBody");
+            Croco = BodyCatalog.FindBodyIndex("CrocoBody");
+            Engi = BodyCatalog.FindBodyIndex("EngiBody");
+            EngiTurret = BodyCatalog.FindBodyIndex("EngiTurretBody");
+            EngiWalkerTurret = BodyCatalog.FindBodyIndex("EngiWalkerTurretBody");
+            EquipmentDrone = BodyCatalog.FindBodyIndex("EquipmentDroneBody");
+            Heretic = BodyCatalog.FindBodyIndex("HereticBody");
+            Huntress = BodyCatalog.FindBodyIndex("HuntressBody");
+            Loader = BodyCatalog.FindBodyIndex("LoaderBody");
+            Mage = BodyCatalog.FindBodyIndex("MageBody");
+            Merc = BodyCatalog.FindBodyIndex("MercBody");
+            Pathfinder = BodyCatalog.FindBodyIndex("PathfinderBody");
+            Railgunner = BodyCatalog.FindBodyIndex("RailgunnerBody");
+            RedMist = BodyCatalog.FindBodyIndex("RedMistBody");
+            RobPaladin = BodyCatalog.FindBodyIndex("RobPaladinBody");
+            SniperClassic = BodyCatalog.FindBodyIndex("SniperClassicBody");
+            Toolbot = BodyCatalog.FindBodyIndex("ToolbotBody");
+            Treebot = BodyCatalog.FindBodyIndex("TreebotBody");
+            VoidSurvivor = BodyCatalog.FindBodyIndex("VoidSurvivorBody");
+            MiniVoidRaidCrabBodyPhase1 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase1");
+            MiniVoidRaidCrabBodyPhase2 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase2");
+            MiniVoidRaidCrabBodyPhase3 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase3");
+        }
     }
 }

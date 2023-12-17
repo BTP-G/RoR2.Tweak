@@ -6,16 +6,11 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class ShrineBloodTweak : TweakBase<ShrineBloodTweak> {
+    internal class ShrineBloodTweak : TweakBase<ShrineBloodTweak>, IOnModLoadBehavior {
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.ShrineBloodBehavior.AddShrineStack += ShrineBloodBehavior_AddShrineStack;
             TeleporterInteraction.onTeleporterBeginChargingGlobal += TeleporterInteraction_onTeleporterBeginChargingGlobal;
-        }
-
-        public override void ClearEventHandlers() {
-            On.RoR2.ShrineBloodBehavior.AddShrineStack -= ShrineBloodBehavior_AddShrineStack;
-            TeleporterInteraction.onTeleporterBeginChargingGlobal -= TeleporterInteraction_onTeleporterBeginChargingGlobal;
         }
 
         private void ShrineBloodBehavior_AddShrineStack(On.RoR2.ShrineBloodBehavior.orig_AddShrineStack orig, ShrineBloodBehavior self, Interactor interactor) {

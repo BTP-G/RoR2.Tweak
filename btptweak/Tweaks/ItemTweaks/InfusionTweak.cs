@@ -5,16 +5,14 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class InfusionTweak : TweakBase<InfusionTweak> {
+    internal class InfusionTweak : TweakBase<InfusionTweak>, IOnModLoadBehavior {
         public const float 基础生命值占比 = 0.1f;
-
-        public override void SetEventHandlers() {
+        
+        public   void OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.GlobalEventManager.OnCharacterDeath -= GlobalEventManager_OnCharacterDeath;
-        }
+         
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {
             ILCursor ilcursor = new(il);
@@ -26,8 +24,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody attackerBody) => {
                     int teamItemCount = Util.GetItemCountForTeam(damageReport.attackerTeamIndex, RoR2Content.Items.Infusion.itemIndex, true, false);
                     if (teamItemCount > 0) {
-                        if (attackerBody.inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount)) {
-                            InfusionOrb infusionOrb = new() {
+                        if (attackerBody.inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount + ModConfig.测试用.Value)) {
+                            var infusionOrb = new InfusionOrb() {
                                 origin = damageReport.damageInfo.position,
                                 target = attackerBody.mainHurtBox,
                                 maxHpValue = teamItemCount,
@@ -35,8 +33,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             OrbManager.instance.AddOrb(infusionOrb);
                         }
                         var ownerBody = damageReport.attackerOwnerMaster?.GetBody();
-                        if (ownerBody?.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount)) {
-                            InfusionOrb infusionOrb = new() {
+                        if (ownerBody?.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount + ModConfig.测试用.Value)) {
+                            var infusionOrb = new InfusionOrb() {
                                 origin = damageReport.damageInfo.position,
                                 target = ownerBody.mainHurtBox,
                                 maxHpValue = teamItemCount,

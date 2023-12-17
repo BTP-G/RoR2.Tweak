@@ -1,22 +1,15 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using RoR2.Audio;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ParentEggTweak : TweakBase<ParentEggTweak> {
+    internal class ParentEggTweak : TweakBase<ParentEggTweak>, IOnModLoadBehavior {
         public const float HealFractionFromDamage = 0.01f;
         public const float HealAmount = 20f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {

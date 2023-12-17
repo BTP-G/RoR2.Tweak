@@ -3,14 +3,10 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks {
 
-    internal class ShrineCombatTweak : TweakBase<ShrineCombatTweak> {
+    internal class ShrineCombatTweak : TweakBase<ShrineCombatTweak>, IOnModLoadBehavior {
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             ShrineCombatBehavior.onDefeatedServerGlobal += ShrineCombatBehavior_onDefeatedServerGlobal;
-        }
-
-        public override void ClearEventHandlers() {
-            ShrineCombatBehavior.onDefeatedServerGlobal -= ShrineCombatBehavior_onDefeatedServerGlobal;
         }
 
         private void ShrineCombatBehavior_onDefeatedServerGlobal(ShrineCombatBehavior shrine) {

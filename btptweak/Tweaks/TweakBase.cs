@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace BtpTweak.Tweaks
-{
+namespace BtpTweak.Tweaks {
 
-    public abstract class TweakBase<T> : TweakBase, IEventHandlers where T : TweakBase<T> {
+    internal abstract class TweakBase<T> : TweakBase where T : TweakBase<T> {
 
         public TweakBase() {
             if (Instance != null) {
@@ -13,12 +12,8 @@ namespace BtpTweak.Tweaks
         }
 
         public static T Instance { get; private set; }
-
-        public abstract void ClearEventHandlers();
-
-        public abstract void SetEventHandlers();
     }
 
-    public abstract class TweakBase {
-    }
+    /// <summary>此类的非抽象派生类将在Mod加载时自动实例化，请保留无参构造方法！</summary>
+    internal abstract class TweakBase { }
 }

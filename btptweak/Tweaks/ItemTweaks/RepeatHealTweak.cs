@@ -4,14 +4,11 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class RepeatHealTweak : TweakBase<RepeatHealTweak> {
+    [System.Obsolete]
+    internal class RepeatHealTweak : TweakBase<RepeatHealTweak>, IOnModLoadBehavior {
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.Heal += HealthComponent_Heal;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.Heal -= HealthComponent_Heal;
         }
 
         private void HealthComponent_Heal(ILContext il) {

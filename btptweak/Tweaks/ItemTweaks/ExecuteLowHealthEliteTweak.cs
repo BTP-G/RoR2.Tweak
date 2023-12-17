@@ -4,14 +4,10 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ExecuteLowHealthEliteTweak : TweakBase<ExecuteLowHealthEliteTweak> {
+    internal class ExecuteLowHealthEliteTweak : TweakBase<ExecuteLowHealthEliteTweak>, IOnModLoadBehavior {
         public const float BaseExecuteEliteHealthFraction = 10f;
 
-        public override void ClearEventHandlers() {
-            IL.RoR2.CharacterBody.OnInventoryChanged -= CharacterBody_OnInventoryChanged;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.CharacterBody.OnInventoryChanged += CharacterBody_OnInventoryChanged;
         }
 

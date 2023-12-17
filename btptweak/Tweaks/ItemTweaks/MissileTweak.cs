@@ -9,24 +9,17 @@ using static BtpTweak.MissilePools.MissilePool;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class MissileTweak : TweakBase<MissileTweak> {
+    internal class MissileTweak : TweakBase<MissileTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BasePercnetChance = 10f;
         public const float 半数 = 9;
         public const float DamageCoefficient = 1.5f;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Projectile.MissileController.FixedUpdate += MissileController_FixedUpdate;
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            On.RoR2.Projectile.MissileController.FixedUpdate -= MissileController_FixedUpdate;
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        private void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             GlobalEventManager.CommonAssets.missilePrefab.GetComponent<ProjectileController>().procCoefficient = 0.5f;
             GlobalEventManager.CommonAssets.missilePrefab.GetComponent<QuaternionPID>().gain *= 100;
             var missileController = GlobalEventManager.CommonAssets.missilePrefab.GetComponent<MissileController>();

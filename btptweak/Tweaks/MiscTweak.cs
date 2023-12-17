@@ -1,5 +1,4 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Missions.LunarScavengerEncounter;
 using R2API.Utils;
@@ -10,10 +9,10 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks {
 
-    internal class MiscTweak : TweakBase<MiscTweak> {
+    internal class MiscTweak : TweakBase<MiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private ItemDef _特拉法梅的祝福;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += TrueDeathState_OnEnter;
             On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
             On.EntityStates.StunState.PlayStunAnimation += StunState_PlayStunAnimation;
@@ -22,34 +21,20 @@ namespace BtpTweak.Tweaks {
             On.RoR2.Util.CheckRoll_float_float_CharacterMaster += Util_CheckRoll_float_float_CharacterMaster;
             Run.onRunStartGlobal += Run_onRunStartGlobal;
             Stage.onStageStartGlobal += Stage_onStageStartGlobal;
-            RoR2Application.onLoad += Load;
         }
 
-        public override void ClearEventHandlers() {
-            On.EntityStates.BrotherMonster.TrueDeathState.OnEnter -= TrueDeathState_OnEnter;
-            On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
-            On.EntityStates.StunState.PlayStunAnimation -= StunState_PlayStunAnimation;
-            On.EntityStates.BaseState.RollCrit -= BaseState_RollCrit;
-            On.RoR2.CharacterBody.RollCrit -= CharacterBody_RollCrit;
-            On.RoR2.Util.CheckRoll_float_float_CharacterMaster -= Util_CheckRoll_float_float_CharacterMaster;
-            Run.onRunStartGlobal -= Run_onRunStartGlobal;
-            Stage.onStageStartGlobal -= Stage_onStageStartGlobal;
-            RoR2Application.onLoad -= Load;
-            SetLunarWingsState(false);
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             _特拉法梅的祝福 = ItemDefPaths.LunarWings.Load<ItemDef>();
             _特拉法梅的祝福.deprecatedTier = ItemTier.Lunar;
             _特拉法梅的祝福.tier = ItemTier.Lunar;
             _特拉法梅的祝福.canRemove = false;
-            _特拉法梅的祝福.tags = new ItemTag[] {
+            _特拉法梅的祝福.tags = [
                 ItemTag.CannotCopy,
                 ItemTag.CannotDuplicate,
                 ItemTag.CannotSteal,
                 ItemTag.Utility,
                 ItemTag.WorldUnique,
-            };
+            ];
             var pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(_特拉法梅的祝福.itemIndex));
             var itemTierDef = ItemTierCatalog.GetItemTierDef(_特拉法梅的祝福.tier);
             pickupDef.baseColor = ColorCatalog.GetColor(itemTierDef.colorIndex);
@@ -136,7 +121,7 @@ namespace BtpTweak.Tweaks {
                         inventory.RemoveItem(RoR2Content.Items.TonicAffliction, itemCount);
                         ChatMessage.Send($"已移除{player.GetDisplayName().ToLunar()}强心剂副作用！");
                     }
-                    if (RunInfo.CurrentSceneIndex == SceneIndexes.BulwarksHaunt_GhostWave) {
+                    if (RunInfo.位于时之墓) {
                         inventory.GiveItem(_特拉法梅的祝福);
                         ChatMessage.Send(player.GetDisplayName() + "已获得<style=cIsLunar>特拉法梅的祝福(过去时)</style>");
                         flag = true;
@@ -149,21 +134,19 @@ namespace BtpTweak.Tweaks {
         }
 
         private bool Util_CheckRoll_float_float_CharacterMaster(On.RoR2.Util.orig_CheckRoll_float_float_CharacterMaster orig, float percentChance, float luck, CharacterMaster effectOriginMaster) {
-            if (percentChance <= 0f) {
-                return false;
-            }
-            float random = Random.Range(0f, 100f);
-            if (random <= percentChance + percentChance * (luck / (Mathf.Abs(luck) + 3f))) {
-                if (random > percentChance && effectOriginMaster) {
-                    var body = effectOriginMaster.GetBody();
-                    if (body) {
-                        body.wasLucky = true;
+            if (percentChance > 0f) {
+                float random = Random.Range(0f, 100f);
+                if (random <= percentChance + percentChance * (luck / (luck > 0 ? 3f + luck : 3f - luck))) {
+                    if (random > percentChance && effectOriginMaster) {
+                        var body = effectOriginMaster.GetBody();
+                        if (body) {
+                            body.wasLucky = true;
+                        }
                     }
+                    return true;
                 }
-                return true;
-            } else {
-                return false;
             }
+            return false;
         }
     }
 }

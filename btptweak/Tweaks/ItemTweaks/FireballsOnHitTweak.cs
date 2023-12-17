@@ -9,22 +9,16 @@ using static BtpTweak.ProjectileFountains.ProjectileFountain;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class FireballsOnHitTweak : TweakBase<FireballsOnHitTweak> {
+    internal class FireballsOnHitTweak : TweakBase<FireballsOnHitTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BasePercentChance = 10;
         public const float 半数 = 9;
         public const float DamageCoefficient = 0.7f;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        private void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var projectileController = AssetReferences.fireMeatBallProjectile.GetComponent<ProjectileController>();
             projectileController.procCoefficient = 1f;
             var projectileImpactExplosion = AssetReferences.fireMeatBallProjectile.GetComponent<ProjectileImpactExplosion>();

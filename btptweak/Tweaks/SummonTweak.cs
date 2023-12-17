@@ -2,20 +2,14 @@
 
 namespace BtpTweak.Tweaks {
 
-    internal partial class SummonTweak : TweakBase<SummonTweak> {
+    internal partial class SummonTweak : TweakBase<SummonTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private ItemDef _weddingRing;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             MasterSummon.onServerMasterSummonGlobal += MasterSummon_onServerMasterSummonGlobal;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            MasterSummon.onServerMasterSummonGlobal -= MasterSummon_onServerMasterSummonGlobal;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             _weddingRing = ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("RuinaWeddingRing"));
         }
 

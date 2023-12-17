@@ -5,14 +5,10 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.EquipmentTweaks {
 
-    internal class GoldGatTweak : TweakBase<GoldGatTweak> {
+    internal class GoldGatTweak : TweakBase<GoldGatTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 1f;
 
-        public override void ClearEventHandlers() {
-            IL.EntityStates.GoldGat.GoldGatFire.FireBullet -= GoldGatFire_FireBullet;
-        }
-
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.EntityStates.GoldGat.GoldGatFire.FireBullet += GoldGatFire_FireBullet;
         }
 

@@ -6,17 +6,9 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.EquipmentTweaks {
 
-    internal class EquipmentMiscTweak : TweakBase<EquipmentMiscTweak> {
+    internal class EquipmentMiscTweak : TweakBase<EquipmentMiscTweak>, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-        }
-
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var sawmerang = GameObjectPaths.Sawmerang.Load<GameObject>();
             var boomerangProjectile = sawmerang.GetComponent<BoomerangProjectile>();
             boomerangProjectile.transitionDuration *= 5f;

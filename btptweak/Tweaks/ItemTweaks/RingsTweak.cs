@@ -8,23 +8,17 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class RingsTweak : TweakBase<RingsTweak> {
+    internal class RingsTweak : TweakBase<RingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int FireRingDamageCoefficient = 3;
         public const int IceRingDamageCoefficient = 3;
         public const int IceRingSlow80BuffDuration = 3;
         public const int VoidRingDamageCoefficient = 1;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.RoR2.GlobalEventManager.OnHitEnemy -= GlobalEventManager_OnHitEnemy;
-        }
-
-        private void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>().overlapProcCoefficient = 0.1f;
             AssetReferences.fireTornado.GetComponent<ProjectileSimple>().lifetime = 3f;
         }
@@ -50,7 +44,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             return;
                         }
                         attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady);
-                        if (attackerBody.bodyIndex == BodyIndexes.MageBody) {
+                        if (attackerBody.bodyIndex == BodyIndexes.Mage) {
                             attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, 1f);
                         } else {
                             for (int i = Mathf.Max(1, 10 - (iceRingCount > fireRingCount ? fireRingCount : iceRingCount)); i > 0; --i) {
@@ -107,7 +101,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         }
                         int voidRingCount = inventory.GetItemCount(DLC1Content.Items.ElementalRingVoid.itemIndex);
                         attackerBody.RemoveBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex);
-                        if (attackerBody.bodyIndex == BodyIndexes.VoidSurvivorBody) {
+                        if (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor) {
                             attackerBody.AddTimedBuff(DLC1Content.Buffs.ElementalRingVoidCooldown, 2f);
                         } else {
                             for (int i = Mathf.Max(2, 20 - voidRingCount); i > 0; --i) {

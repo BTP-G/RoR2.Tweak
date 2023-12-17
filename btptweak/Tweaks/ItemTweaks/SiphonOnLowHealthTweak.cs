@@ -1,24 +1,20 @@
 ﻿namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class SiphonOnLowHealthTweak : TweakBase<SiphonOnLowHealthTweak> {
-        public const int DamageCoefficient = 1;
+    internal class SiphonOnLowHealthTweak : TweakBase<SiphonOnLowHealthTweak>, IOnModLoadBehavior {
+        public const float DamageCoefficient = 1.5f;
         public const int BaseRadius = 15;
         public const int StackRadius = 5;
         public const int MaxTargets = 1;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Items.SiphonOnLowHealthItemBodyBehavior.FixedUpdate += SiphonOnLowHealthItemBodyBehavior_FixedUpdate;
-        }
-
-        public override void ClearEventHandlers() {
-            On.RoR2.Items.SiphonOnLowHealthItemBodyBehavior.FixedUpdate -= SiphonOnLowHealthItemBodyBehavior_FixedUpdate;
         }
 
         private void SiphonOnLowHealthItemBodyBehavior_FixedUpdate(On.RoR2.Items.SiphonOnLowHealthItemBodyBehavior.orig_FixedUpdate orig, RoR2.Items.SiphonOnLowHealthItemBodyBehavior self) {
             if (self.siphonNearbyController.NetworkmaxTargets != self.stack) {
                 self.siphonNearbyController.NetworkmaxTargets = self.stack;
                 self.siphonNearbyController.Networkradius = BaseRadius + StackRadius * (self.stack - 1);
-                self.siphonNearbyController.damagePerSecondCoefficient = self.stack;
+                self.siphonNearbyController.damagePerSecondCoefficient = DamageCoefficient * self.stack;
             }
         }
     }

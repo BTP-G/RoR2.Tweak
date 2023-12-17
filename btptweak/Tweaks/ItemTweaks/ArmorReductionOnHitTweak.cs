@@ -5,16 +5,12 @@ using RoR2;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ArmorReductionOnHitTweak : TweakBase<ArmorReductionOnHitTweak> {
+    internal class ArmorReductionOnHitTweak : TweakBase<ArmorReductionOnHitTweak>, IOnModLoadBehavior {
         public const float 基础破甲率 = 0.5f;
         public const float 半数 = 1f;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {

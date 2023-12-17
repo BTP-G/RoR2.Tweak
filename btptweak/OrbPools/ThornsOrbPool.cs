@@ -11,8 +11,9 @@ namespace BtpTweak.OrbPools {
         protected override float OrbInterval => 0.1f;
 
         public void AddOrb(in SimpleOrbInfo simpleOrbInfo, DamageReport damageReport) {
+            var thornCount = _healthComponent.itemCounts.thorns;
             if (Pool.TryGetValue(simpleOrbInfo, out var lightningOrb)) {
-                lightningOrb.damageValue += ThornsTweak.BaseDamageCoefficient * damageReport.damageDealt;
+                lightningOrb.damageValue += (ThornsTweak.BaseDamageCoefficient + ThornsTweak.StackDamageCoefficient * (thornCount - 1)) * damageReport.damageDealt;
                 lightningOrb.damageType |= damageReport.damageInfo.damageType;
                 if (!lightningOrb.target && damageReport.attackerTeamIndex != lightningOrb.teamIndex) {
                     lightningOrb.target = damageReport.attackerBody?.mainHurtBox;
@@ -21,15 +22,15 @@ namespace BtpTweak.OrbPools {
                 lightningOrb = new() {
                     attacker = simpleOrbInfo.attacker,
                     bouncedObjects = new(),
-                    bouncesRemaining = _healthComponent.itemCounts.thorns - 1,
+                    bouncesRemaining = 0,
                     damageCoefficientPerBounce = 1f,
                     damageColorIndex = DamageColorIndex.Item,
                     damageType = damageReport.damageInfo.damageType,
-                    damageValue = ThornsTweak.BaseDamageCoefficient * damageReport.damageDealt,
+                    damageValue = (ThornsTweak.BaseDamageCoefficient + ThornsTweak.StackDamageCoefficient * (thornCount - 1)) * damageReport.damageDealt,
                     isCrit = simpleOrbInfo.isCrit,
                     lightningType = LightningOrb.LightningType.RazorWire,
                     procCoefficient = _healthComponent.itemCounts.invadingDoppelganger > 0 ? 0 : 0.5f,
-                    range = ThornsTweak.Radius * _healthComponent.itemCounts.thorns,
+                    range = ThornsTweak.BaseRadius + ThornsTweak.StackRadius * (thornCount - 1),
                     teamIndex = _healthComponent.body.teamComponent.teamIndex,
                 };
                 if (damageReport.attackerTeamIndex != lightningOrb.teamIndex) {

@@ -3,8 +3,6 @@
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
     [Obsolete]
-    internal abstract class CommandoTweak : TweakBase<CommandoTweak> {
-
-        
+    internal class CommandoTweak : TweakBase<CommandoTweak> {
     }
 }

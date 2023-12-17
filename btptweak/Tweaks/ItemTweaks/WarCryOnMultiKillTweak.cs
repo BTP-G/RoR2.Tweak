@@ -6,17 +6,12 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class WarCryOnMultiKillTweak : TweakBase<WarCryOnMultiKillTweak> {
+    internal class WarCryOnMultiKillTweak : TweakBase<WarCryOnMultiKillTweak>, IOnModLoadBehavior {
         public const int MaxBuffCount = 3;
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
             On.RoR2.CharacterBody.AddMultiKill += CharacterBody_AddMultiKill;
-        }
-
-        public override void ClearEventHandlers() {
-            IL.RoR2.CharacterBody.RecalculateStats -= CharacterBody_RecalculateStats;
-            On.RoR2.CharacterBody.AddMultiKill -= CharacterBody_AddMultiKill;
         }
 
         [Server]

@@ -5,16 +5,11 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class ToolbotTweak : TweakBase<ToolbotTweak> {
+    internal class ToolbotTweak : TweakBase<ToolbotTweak>, IOnModLoadBehavior {
 
-        public override void SetEventHandlers() {
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.Toolbot.BaseNailgunState.FireBullet += BaseNailgunState_FireBullet;
             On.EntityStates.Toolbot.AimGrenade.OnEnter += AimGrenade_OnEnter;
-        }
-
-        public override void ClearEventHandlers() {
-            On.EntityStates.Toolbot.BaseNailgunState.FireBullet -= BaseNailgunState_FireBullet;
-            On.EntityStates.Toolbot.AimGrenade.OnEnter -= AimGrenade_OnEnter;
         }
 
         private void AimGrenade_OnEnter(On.EntityStates.Toolbot.AimGrenade.orig_OnEnter orig, AimGrenade self) {

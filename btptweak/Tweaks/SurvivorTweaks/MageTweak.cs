@@ -11,17 +11,12 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class MageTweak : TweakBase<MageTweak> {
+    internal class MageTweak : TweakBase<MageTweak>, IOnRoR2LoadedBehavior {
+        public const float 电击半径 = 25;
+        public const float 电击伤害系数 = 0.6f;
+        public const int 每次最大电击数 = 10;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-        }
-
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             SteppedSkillDef mageFireFirebolt = SteppedSkillDefPaths.MageBodyFireFirebolt.Load<SteppedSkillDef>();
             mageFireFirebolt.baseRechargeInterval = 0;
             mageFireFirebolt.baseMaxStock = 1;
@@ -30,14 +25,14 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             mageFireLightningBolt.baseMaxStock = 1;
             GameObjectPaths.MageIceBombProjectile.Load<GameObject>().AddComponent<IceExplosion>();
             GameObject mageLightningBomb = GameObjectPaths.MageLightningBombProjectile.Load<GameObject>();
-            mageLightningBomb.AddComponent<MageLightningBombStartAction>();
             mageLightningBomb.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
-            ProjectileProximityBeamController mageProximityBeamController = mageLightningBomb.GetComponent<ProjectileProximityBeamController>();
-            mageProximityBeamController.attackFireCount = 30;
-            mageProximityBeamController.attackRange = 18;
+            var mageProximityBeamController = mageLightningBomb.GetComponent<ProjectileProximityBeamController>();
+            mageProximityBeamController.attackFireCount = 每次最大电击数;
+            mageProximityBeamController.attackInterval = 0.2f;
+            mageProximityBeamController.attackRange = 电击半径;
+            mageProximityBeamController.damageCoefficient = 电击伤害系数 * 0.2f;
             mageProximityBeamController.inheritDamageType = true;
-            mageProximityBeamController.damageCoefficient = 0.8f * mageProximityBeamController.attackInterval;
-            mageProximityBeamController.listClearInterval = 0;
+            mageProximityBeamController.listClearInterval = 0.2f;
             mageProximityBeamController.procCoefficient = 0.3f;
             SkillDefPaths.MageBodyIceBomb.Load<SkillDef>().mustKeyPress = false;
             SkillDefPaths.MageBodyNovaBomb.Load<SkillDef>().mustKeyPress = false;
@@ -76,15 +71,15 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         [RequireComponent(typeof(ProjectileProximityBeamController))]
         private class MageLightningBombStartAction : MonoBehaviour {
 
-            public void Start() {
+            private void Awake() {
+                enabled = NetworkServer.active;
+            }
+
+            private void Start() {
                 var inventory = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory;
                 if (inventory) {
                     GetComponent<ProjectileProximityBeamController>().attackRange += 3 * inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
                 }
-            }
-
-            private void Awake() {
-                enabled = NetworkServer.active;
             }
         }
 
@@ -100,7 +95,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 ProjectileController projectileController = gameObject.GetComponent<ProjectileController>();
                 ProjectileDamage projectileDamage = gameObject.GetComponent<ProjectileDamage>();
                 int itemCount = projectileController.owner?.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex) ?? 0;
-                List<HealthComponent> bouncedObjects = new();
+                List<HealthComponent> bouncedObjects = [];
                 BullseyeSearch search = new() {
                     filterByLoS = false,
                     maxDistanceFilter = 30 + 3 * itemCount,
@@ -113,7 +108,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 for (int i = 0 - itemCount; i < 3; ++i) {
                     LightningOrb lightningOrb = new() {
                         attacker = projectileController.owner,
-                        bouncedObjects = new List<HealthComponent>(),
+                        bouncedObjects = [],
                         bouncesRemaining = 0,
                         damageColorIndex = DamageColorIndex.Default,
                         damageType = projectileDamage.damageType,

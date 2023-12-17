@@ -7,17 +7,9 @@ using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class ItemMiscTweak : TweakBase<ItemMiscTweak> {
+    internal class ItemMiscTweak : TweakBase<ItemMiscTweak>, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
-        }
-
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             static void TryApplyTagToItem(ItemTag itemTag, ItemDef itemDef) {
                 if (itemDef && itemDef.DoesNotContainTag(itemTag)) {
                     R2API.ItemAPI.ApplyTagToItem(itemTag, itemDef);
@@ -28,46 +20,25 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.CaptainDefenseMatrix);
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.NovaOnHeal);
             TryApplyTagToItem(ItemTag.AIBlacklist, RoR2Content.Items.ShockNearby);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, DLC1Content.Items.ImmuneToDebuff);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, DLC1Content.Items.MinorConstructOnKill);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.BeetleGland);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.Behemoth);
+            TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.Dagger);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.ExecuteLowHealthElite);
+            TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.ExplodeOnDeath);
+            TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.IgniteOnKill);
+            TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.NovaOnLowHealth);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.RoboBallBuddy);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.ShockNearby);
             TryApplyTagToItem(ItemTag.BrotherBlacklist, RoR2Content.Items.Thorns);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectAragonite);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectBackup);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectBarrier);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectBlackHole);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectBlighted);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectBlue);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectBuffered);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectEarth);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectGold);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectHaunted);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectLunar);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectMoney);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectNight);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectNullifier);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectOppressive);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectPlated);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectPoison);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectPurity);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectRealgar);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectRed);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectSanguine);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectSepia);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectVeiled);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectVoid);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectWarped);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectWater);
-            TryApplyTagToItem(ItemTag.BrotherBlacklist, TPDespair.ZetAspects.Catalog.Item.ZetAspectWhite);
             TryApplyTagToItem(ItemTag.CannotSteal, DLC1Content.Items.ExtraLifeVoid);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.CaptainDefenseMatrix);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.ExtraLife);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.Infusion);
-            RoR2Content.Items.FlatHealth.tags = new ItemTag[] { ItemTag.Healing };
+            foreach (var item in ItemCatalog.allItemDefs) {
+                TryApplyTagToItem(ItemTag.BrotherBlacklist, item);
+            }
+            RoR2Content.Items.FlatHealth.tags = [ItemTag.Healing];
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -96,7 +67,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
             private void FixedUpdate() {
                 if (projectileFuse.fuse - Time.fixedDeltaTime <= 0) {
-                    List<HurtBox> hurtBoxes = new();
+                    List<HurtBox> hurtBoxes = [];
                     radialForce.SearchForTargets(hurtBoxes);
                     projectileExplosion.blastDamageCoefficient += hurtBoxes.Count;
                     hurtBoxes.Clear();

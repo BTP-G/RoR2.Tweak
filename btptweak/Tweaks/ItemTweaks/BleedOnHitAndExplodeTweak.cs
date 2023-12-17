@@ -6,22 +6,16 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    internal class BleedOnHitAndExplodeTweak : TweakBase<BleedOnHitAndExplodeTweak> {
+    internal class BleedOnHitAndExplodeTweak : TweakBase<BleedOnHitAndExplodeTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BaseRadius = 16;
         public const int StackRadius = 8;
         public const int DamageCoefficient = 4;
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            IL.RoR2.GlobalEventManager.OnCharacterDeath -= GlobalEventManager_OnCharacterDeath;
-        }
-
-        private void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var delayBlast = GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect.GetComponent<DelayBlast>();
             delayBlast.baseForce = 0f;
             delayBlast.bonusForce = Vector3.zero;

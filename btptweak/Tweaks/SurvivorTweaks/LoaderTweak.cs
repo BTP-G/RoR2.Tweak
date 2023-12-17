@@ -10,21 +10,14 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class LoaderTweak : TweakBase<LoaderTweak> {
+    internal class LoaderTweak : TweakBase<LoaderTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.Loader.SwingZapFist.OnExit += SwingZapFist_OnExit;
             On.EntityStates.Loader.BaseSwingChargedFist.OnEnter += BaseSwingChargedFist_OnEnter;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            On.EntityStates.Loader.SwingZapFist.OnExit -= SwingZapFist_OnExit;
-            On.EntityStates.Loader.BaseSwingChargedFist.OnEnter -= BaseSwingChargedFist_OnEnter;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var loaderBody = RoR2Content.Survivors.Loader.bodyPrefab.GetComponent<CharacterBody>();
             loaderBody.baseAcceleration *= 2f;
             GameObjectPaths.LoaderPylon.Load<GameObject>().AddComponent<M551PylonStartAction>();  // 电塔
@@ -46,7 +39,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             LanguageAPI.Add("SKILL_FIST_MINCHARGE_NAME", $"拳击(无充能)");
             LanguageAPI.Add("SKILL_FIST_MAXCHARGE_NAME", $"拳击(满充能)");
             BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef2.skillName, "SKILL_FIST_MINCHARGE_NAME", 0.6f);
-            BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef2.skillName, "SKILL_FIST_MAXCHARGE_NAME", 2.7f);
+            BetterUI.ProcCoefficientCatalog.AddToSkill(steppedSkillDef2.skillName, "SKILL_FIST_MAXCHARGE_NAME", 2.7f);
         }
 
         private void BaseSwingChargedFist_OnEnter(On.EntityStates.Loader.BaseSwingChargedFist.orig_OnEnter orig, EntityStates.Loader.BaseSwingChargedFist self) {

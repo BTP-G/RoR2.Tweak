@@ -11,25 +11,16 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class HereticTweak : TweakBase<HereticTweak> {
+    internal class HereticTweak : TweakBase<HereticTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
-        public override void SetEventHandlers() {
-            RoR2Application.onLoad += Load;
+        void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.GhostUtilitySkillState.FixedUpdate += GhostUtilitySkillState_FixedUpdate;
             On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter += Detonate_OnEnter;
             On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter += FireLunarNeedle_OnEnter;
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += Squawk_OnEnter;
         }
 
-        public override void ClearEventHandlers() {
-            RoR2Application.onLoad -= Load;
-            On.EntityStates.GhostUtilitySkillState.FixedUpdate -= GhostUtilitySkillState_FixedUpdate;
-            On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter -= Detonate_OnEnter;
-            On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter -= FireLunarNeedle_OnEnter;
-            On.EntityStates.Heretic.Weapon.Squawk.OnEnter -= Squawk_OnEnter;
-        }
-
-        public void Load() {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             SkillDefPaths.HereticDefaultAbility.Load<SkillDef>().baseRechargeInterval = 40;
             var lunarSecondaryProjectile = GameObjectPaths.LunarSecondaryProjectile.Load<GameObject>();
             lunarSecondaryProjectile.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
@@ -42,7 +33,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         private void Detonate_OnEnter(On.EntityStates.GlobalSkills.LunarDetonator.Detonate.orig_OnEnter orig, EntityStates.GlobalSkills.LunarDetonator.Detonate self) {
             var commonComponents = self.outer.commonComponents;
-            if (commonComponents.characterBody.bodyIndex == BodyIndexes.HereticBody) {
+            if (commonComponents.characterBody.bodyIndex == BodyIndexes.Heretic) {
                 EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f + 0.6f * commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
             } else {
                 EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f;
@@ -51,7 +42,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         private void FireLunarNeedle_OnEnter(On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.orig_OnEnter orig, FireLunarNeedle self) {
-            if (self.characterBody.bodyIndex == BodyIndexes.HereticBody) {
+            if (self.characterBody.bodyIndex == BodyIndexes.Heretic) {
                 FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 1800f;
             } else {
                 FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>().rotationSpeed = 180f;
@@ -63,7 +54,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             orig(self);
             if (self.isAuthority) {
                 var commonComponents = self.outer.commonComponents;
-                if (commonComponents.characterBody.bodyIndex == BodyIndexes.HereticBody && commonComponents.inputBank.skill3.justReleased && self.fixedAge > 1f) {
+                if (commonComponents.characterBody.bodyIndex == BodyIndexes.Heretic && commonComponents.inputBank.skill3.justReleased && self.fixedAge > 1f) {
                     self.outer.SetNextStateToMain();
                 }
             }
@@ -87,7 +78,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
             public void Start() {
                 var body = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>();
-                if (body?.bodyIndex == BodyIndexes.HereticBody) {
+                if (body?.bodyIndex == BodyIndexes.Heretic) {
                     GetComponent<ProjectileExplosion>().blastRadius *= 1 + 0.5f * body.inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
                 }
             }
