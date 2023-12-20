@@ -1,7 +1,8 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Pools;
+using BtpTweak.Utils;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
@@ -9,11 +10,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int Radius = 3;
         public const float BaseDamageCoefficient = 0.6f;
 
-        public   void OnModLoad() {
+        public void OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitAll += GlobalEventManager_OnHitAll;
         }
-
-        
 
         private void GlobalEventManager_OnHitAll(ILContext il) {
             var ilcursor = new ILCursor(il);
@@ -24,28 +23,21 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc_0);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
                     if (itemCount > 0) {
-                        var blastAttack = new BlastAttack {
-                            attacker = damageInfo.attacker,
-                            baseDamage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, BaseDamageCoefficient),
-                            baseForce = 0,
+                        var attackInfo = new BlastAttackInfo {
                             crit = damageInfo.crit,
-                            damageColorIndex = damageInfo.damageColorIndex,
                             damageType = damageInfo.damageType,
-                            falloffModel = BlastAttack.FalloffModel.Linear,
-                            inflictor = damageInfo.inflictor,
-                            position = damageInfo.position,
-                            procChainMask = damageInfo.procChainMask,
                             procCoefficient = damageInfo.procCoefficient,
                             radius = Radius * itemCount,
+                            attacker = damageInfo.attacker,
+                            inflictor = damageInfo.inflictor,
+                            procChainMask = damageInfo.procChainMask,
                             teamIndex = attackerBody.teamComponent.teamIndex,
                         };
-                        blastAttack.procChainMask.AddProc(ProcType.Behemoth);
-                        blastAttack.Fire();
-                        EffectManager.SpawnEffect(AssetReferences.omniExplosionVFXQuick, new EffectData {
-                            origin = damageInfo.position,
-                            scale = blastAttack.radius,
-                            rotation = Quaternion.identity,
-                        }, true);
+                        attackInfo.procChainMask.AddWhiteProcs();
+                        (attackerBody.gameObject.GetComponent<BehemothPool>()
+                        ?? attackerBody.gameObject.AddComponent<BehemothPool>()).AddAttack(attackInfo,
+                                                                               damageInfo.position,
+                                                                               Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

@@ -28,7 +28,9 @@ namespace BtpTweak {
         public static readonly GameObject shrineUseEffect = GameObjectPaths.ShrineUseEffect.Load<GameObject>();
         public static readonly GameObject brotherBodyPrefab = GameObjectPaths.BrotherBody.Load<GameObject>();
         public static readonly GameObject lunarMissilePrefab = GameObjectPaths.LunarMissileProjectile.Load<GameObject>();
+        public static readonly GameObject lightningStakeNova = GameObjectPaths.LightningStakeNova.Load<GameObject>();
         public static readonly GameObject brotherUltLineProjectileStatic = GameObjectPaths.BrotherUltLineProjectileStatic.Load<GameObject>();
+        public static readonly GameObject fractureImpactEffect = GameObjectPaths.FractureImpactEffect.Load<GameObject>();
         public static readonly Material helscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/LunarWisp/matLunarWispFlames.mat").WaitForCompletion();
         public static readonly Material moonscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matSkyboxMoon.mat").WaitForCompletion();
         public static readonly Material stormscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Mage/matMageCalibrateLightning.mat").WaitForCompletion();

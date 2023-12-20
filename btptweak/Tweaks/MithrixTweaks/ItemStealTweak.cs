@@ -33,7 +33,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             return false;
         }
 
-        private void ReturnStolenItemsOnGettingHit_OnTakeDamageServer(On.RoR2.ReturnStolenItemsOnGettingHit.orig_OnTakeDamageServer orig, RoR2.ReturnStolenItemsOnGettingHit self, RoR2.DamageReport damageReport) {
+        private void ReturnStolenItemsOnGettingHit_OnTakeDamageServer(On.RoR2.ReturnStolenItemsOnGettingHit.orig_OnTakeDamageServer orig, ReturnStolenItemsOnGettingHit self, DamageReport damageReport) {
         }
 
         private void SceneCatalog_onMostRecentSceneDefChanged(SceneDef sceneDef) {

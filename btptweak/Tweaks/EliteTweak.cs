@@ -14,8 +14,9 @@ namespace BtpTweak.Tweaks {
         private readonly List<HealthComponent> SearchedObjects = [];
 
         private readonly BullseyeSearch search = new() {
-            searchDirection = Vector3.zero,
+            filterByDistinctEntity = true,
             filterByLoS = false,
+            searchDirection = Vector3.zero,
             sortMode = BullseyeSearch.SortMode.Distance,
         };
 
@@ -44,6 +45,7 @@ namespace BtpTweak.Tweaks {
                             search.searchOrigin = body.corePosition;
                             search.teamMaskFilter = TeamMask.allButNeutral;
                             search.teamMaskFilter.RemoveTeam(body.teamComponent.teamIndex);
+                            search.maxDistanceFilter = body.bestFitRadius * 10f;
                             search.RefreshCandidates();
                             SearchedObjects.Clear();
                             foreach (var hurtBox in search.GetResults()) {

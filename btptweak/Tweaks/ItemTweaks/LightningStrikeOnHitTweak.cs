@@ -27,9 +27,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.LightningStrikeOnHit) && victimBody.mainHurtBox && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerMaster)) {
                         var simpleOrbInfo = new SimpleOrbInfo {
                             attacker = damageInfo.attacker,
-                            target = victimBody.mainHurtBox,
                             isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
+                            target = victimBody.mainHurtBox,
                         };
                         simpleOrbInfo.procChainMask.AddYellowProcs();
                         (victimBody.GetComponent<SimpleLightningStrikeOrbPool>()

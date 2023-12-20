@@ -4,11 +4,9 @@ using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.BrotherMonster;
 using RoR2;
 using RoR2.Projectile;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.MithrixTweaks {
@@ -37,20 +35,26 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
 
         private void SpellChannelState_OnExit(On.EntityStates.BrotherMonster.SpellChannelState.orig_OnExit orig, SpellChannelState self) {
             orig(self);
-            var body = self.characterBody;
-            var dotInfo = new InflictDotInfo {
-                damageMultiplier = 1,
-                dotIndex = DotController.DotIndex.Helfire,
-                duration = float.MaxValue,
-                attackerObject = body.gameObject,
-                victimObject = body.gameObject,
-            };
-            body.SetBuffCount(DLC1Content.Buffs.ImmuneToDebuffReady.buffIndex, 0);
-            DotController.InflictDot(ref dotInfo);
-            body.RecalculateStats();
-            var healthComponent = body.healthComponent;
-            healthComponent.Networkhealth = healthComponent.fullHealth;
-            healthComponent.Networkshield = healthComponent.fullShield;
+            if (NetworkServer.active) {
+                var body = self.characterBody;
+                var dotInfo = new InflictDotInfo {
+                    attackerObject = body.gameObject,
+                    damageMultiplier = 1,
+                    dotIndex = DotController.DotIndex.Helfire,
+                    duration = float.MaxValue,
+                    victimObject = body.gameObject,
+                };
+                body.SetBuffCount(DLC1Content.Buffs.ImmuneToDebuffReady.buffIndex, 0);
+                DotController.InflictDot(ref dotInfo);
+                var dotStack = DotController.FindDotController(body.gameObject)?.dotStackList.FirstOrDefault(dotStack => dotStack.dotIndex == dotInfo.dotIndex);
+                if (dotStack != null) {
+                    dotStack.damageType |= DamageType.BypassArmor;
+                }
+                body.RecalculateStats();
+                var healthComponent = body.healthComponent;
+                healthComponent.Networkhealth = healthComponent.fullHealth;
+                healthComponent.RechargeShieldFull();
+            }
         }
 
         private void TrueDeathState_FixedUpdate(On.EntityStates.BrotherMonster.TrueDeathState.orig_FixedUpdate orig, TrueDeathState self) {
@@ -115,7 +119,10 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             }
 
             private void FixedUpdate() {
-                if (RunInfo.位于月球 && (waveTimer -= Time.fixedDeltaTime) <= 0) {
+                if (!RunInfo.位于月球) {
+                    return;
+                }
+                if ((waveTimer -= Time.fixedDeltaTime) <= 0) {
                     waveTimer = waveInterval;
                     waveList.Add(new MeteorStormController.MeteorWave(CharacterBody.readOnlyInstancesList.Where(body => body.bodyIndex != BodyIndexes.BrotherHurt).ToArray(), transform.position) {
                         hitChance = 0.1f,
@@ -153,8 +160,8 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     if (meteor.startTime < num) {
                         meteorList.RemoveAt(j);
                         DetonateMeteor(meteor);
-                        if (UnityEngine.Random.value > 0.5f) {
-                            ProjectileManager.instance.FireProjectile(AssetReferences.brotherUltLineProjectileStatic, meteor.impactPosition, Quaternion.Euler(0, UnityEngine.Random.Range(0f, 180f), 0), gameObject, characterBody.damage * UltChannelState.waveProjectileDamageCoefficient, UltChannelState.waveProjectileForce, characterBody.RollCrit());
+                        if (Random.value > 0.5f) {
+                            ProjectileManager.instance.FireProjectile(AssetReferences.brotherUltLineProjectileStatic, meteor.impactPosition, Quaternion.Euler(0, Random.Range(0f, 180f), 0), gameObject, characterBody.damage * UltChannelState.waveProjectileDamageCoefficient, UltChannelState.waveProjectileForce, characterBody.RollCrit());
                         } else {
                             ProjectileManager.instance.FireProjectile(WeaponSlam.pillarProjectilePrefab, meteor.impactPosition, Quaternion.identity, gameObject, characterBody.damage * WeaponSlam.pillarDamageCoefficient, 0f, characterBody.RollCrit());
                         }

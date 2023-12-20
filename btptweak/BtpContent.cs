@@ -19,8 +19,8 @@ namespace BtpTweak {
             private static void InitBuffs() {
                 VoidFire = ScriptableObject.CreateInstance<BuffDef>();
                 VoidFire.name = "Void Fire";
-                VoidFire.iconSprite = Texture2DPaths.texBuffOnFireIcon.Load<Sprite>();
-                VoidFire.buffColor = new Color(174, 108, 209);
+                VoidFire.iconSprite = Texture2DPaths.texBuffVoidFog.Load<Sprite>();
+                VoidFire.buffColor = Color.red;
                 VoidFire.canStack = false;
                 VoidFire.isHidden = true;
                 VoidFire.isDebuff = false;
@@ -44,21 +44,6 @@ namespace BtpTweak {
                 CreateStormscourgeItem();
                 CreateHelscourgeItem();
                 On.RoR2.CharacterModel.UpdateOverlays += CharacterModel_UpdateOverlays;
-            }
-
-            private static void CharacterModel_UpdateOverlays(On.RoR2.CharacterModel.orig_UpdateOverlays orig, CharacterModel self) {
-                orig(self);
-                if (self.body?.bodyIndex == BodyIndexes.Brother) {
-                    void AddOverlay2(Material overlayMaterial, bool condition) {
-                        if (self.activeOverlayCount < CharacterModel.maxOverlays && condition) {
-                            self.currentOverlays[self.activeOverlayCount++] = overlayMaterial;
-                        }
-                    }
-                    var inventory = self.body.inventory;
-                    AddOverlay2(AssetReferences.moonscourgeMat, inventory.GetItemCount(MoonscourgeAccursedItem) > 0);
-                    AddOverlay2(AssetReferences.stormscourgeMat, inventory.GetItemCount(StormscourgeAccursedItem) > 0);
-                    AddOverlay2(AssetReferences.helscourgeMat, inventory.GetItemCount(HelscourgeAccursedItemDef) > 0);
-                }
             }
 
             private static void CreateMoonscourgeItem() {
@@ -97,6 +82,20 @@ namespace BtpTweak {
                 HelscourgeAccursedItemDef.deprecatedTier = ItemTier.NoTier;
                 if (!ContentAddition.AddItemDef(HelscourgeAccursedItemDef)) {
                     Main.Logger.LogError("AddItemDef :: HelscourgeAccursedItemDef Failed!");
+                }
+            }
+
+            private static void CharacterModel_UpdateOverlays(On.RoR2.CharacterModel.orig_UpdateOverlays orig, CharacterModel self) {
+                orig(self);
+                if (self.body?.bodyIndex == BodyIndexes.Brother && self.activeOverlayCount < CharacterModel.maxOverlays) {
+                    var inventory = self.body.inventory;
+                    if (inventory.GetItemCount(HelscourgeAccursedItemDef) > 0) {
+                        self.currentOverlays[self.activeOverlayCount++] = AssetReferences.helscourgeMat;
+                    } else if (inventory.GetItemCount(StormscourgeAccursedItem) > 0) {
+                        self.currentOverlays[self.activeOverlayCount++] = AssetReferences.stormscourgeMat;
+                    } else if (inventory.GetItemCount(MoonscourgeAccursedItem) > 0) {
+                        self.currentOverlays[self.activeOverlayCount++] = AssetReferences.moonscourgeMat;
+                    }
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace BtpTweak.OrbPools {
             } else {
                 Pool.Add(simpleOrbInfo, new() {
                     attacker = simpleOrbInfo.attacker,
-                    bouncedObjects = new() { _healthComponent },
+                    bouncedObjects = [_healthComponent],
                     bouncesRemaining = ChainLightningTweak.Bounces,
                     damageColorIndex = DamageColorIndex.Item,
                     damageValue = damageValue,

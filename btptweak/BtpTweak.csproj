@@ -140,8 +140,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pools\" />
-  </ItemGroup>
-
 </Project>

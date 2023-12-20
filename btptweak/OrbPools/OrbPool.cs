@@ -16,11 +16,13 @@ namespace BtpTweak.OrbPools {
     public abstract class OrbPool<TKey, TOrb> : MonoBehaviour where TOrb : Orb {
         private float _orbTimer;
         protected abstract float OrbInterval { get; }
-        protected Dictionary<TKey, TOrb> Pool { get; } = new();
+        protected Dictionary<TKey, TOrb> Pool { get; } = [];
 
         protected abstract void ModifyOrb(ref TOrb orb);
 
-        private void Awake() => enabled = NetworkServer.active;
+        private void Awake() {
+            enabled = NetworkServer.active;
+        }
 
         private void FixedUpdate() {
             if ((_orbTimer -= Time.fixedDeltaTime) < 0) {

@@ -8,11 +8,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int BaseRadius = 12;
         public const int StackRadius = 4;
 
-        public   void OnModLoad() {
+        public void OnModLoad() {
             On.RoR2.GlobalEventManager.ProcIgniteOnKill += GlobalEventManager_ProcIgniteOnKill;
         }
-
-        
 
         private void GlobalEventManager_ProcIgniteOnKill(On.RoR2.GlobalEventManager.orig_ProcIgniteOnKill orig, DamageReport damageReport, int igniteOnKillCount, CharacterBody victimBody, TeamIndex attackerTeamIndex) {
             var attackerBody = damageReport.attackerBody;
@@ -46,7 +44,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 foreach (var hitPoint in result.hitPoints) {
                     var healthComponent = hitPoint.hurtBox.healthComponent;
                     if (healthComponent.alive) {
-                        InflictDotInfo inflictDotInfo = baseInflictDotInfo;
+                        var inflictDotInfo = baseInflictDotInfo;
                         inflictDotInfo.victimObject = healthComponent.gameObject;
                         DotController.InflictDot(ref inflictDotInfo);
                     }
