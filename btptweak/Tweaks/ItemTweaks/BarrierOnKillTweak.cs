@@ -7,11 +7,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class BarrierOnKillTweak : TweakBase<BarrierOnKillTweak>, IOnModLoadBehavior {
         public const float AddBarrierFraction = 0.01f;
 
-        public   void OnModLoad() {
+        public void OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
-       
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {
             var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.After,

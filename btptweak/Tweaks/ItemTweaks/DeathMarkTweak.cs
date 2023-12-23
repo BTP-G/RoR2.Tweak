@@ -8,11 +8,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float BaseDamageCoefficient = 0.4f;
         public const float StackDamageCoefficient = 0.08f;
 
-        public   void OnModLoad() {
+        public void OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
-
-        
 
         private void HealthComponent_TakeDamage(ILContext il) {
             var c = new ILCursor(il);

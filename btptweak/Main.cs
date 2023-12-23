@@ -2,9 +2,11 @@
 using BepInEx.Logging;
 using BtpTweak.Tweaks;
 using ConfigurableDifficulty;
+using R2API.MiscHelpers;
 using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -35,7 +37,6 @@ namespace BtpTweak {
         public const string PluginVersion = "2.3.4";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
-
         internal new static ManualLogSource Logger { get; private set; }
 
         private void Awake() {

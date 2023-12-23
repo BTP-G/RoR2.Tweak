@@ -1,5 +1,6 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using ConfigurableDifficulty;
 using EntityStates.Missions.LunarScavengerEncounter;
 using R2API.Utils;
 using RoR2;
@@ -54,6 +55,7 @@ namespace BtpTweak.Tweaks {
 
         public void Stage_onStageStartGlobal(Stage stage) {
             BulwarksHaunt.GhostWave.maxWaves = Run.instance.stageClearCount + 1;
+            ConfigurableDifficultyPlugin.configurableDifficultyDef.scalingValue = 2f + (ConfigurableDifficultyPlugin.difficultyScaling.Value + Run.instance.stageClearCount * ModConfig.每关难度增加量.Value) / 50f;
         }
 
         internal static void SetLunarWingsState(bool enable) {

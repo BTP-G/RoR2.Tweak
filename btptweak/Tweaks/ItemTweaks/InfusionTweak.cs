@@ -7,12 +7,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class InfusionTweak : TweakBase<InfusionTweak>, IOnModLoadBehavior {
         public const float 基础生命值占比 = 0.1f;
-        
-        public   void OnModLoad() {
+
+        public void OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
-
-         
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {
             ILCursor ilcursor = new(il);

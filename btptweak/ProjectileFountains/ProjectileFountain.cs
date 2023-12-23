@@ -1,14 +1,22 @@
-﻿using RoR2;
+﻿using HG;
+using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BtpTweak.ProjectileFountains {
 
+    public struct SimpleProjectileInfo {
+        public GameObject attacker;
+        public ProcChainMask procChainMask;
+        public bool isCrit;
+    }
+
     [RequireComponent(typeof(CharacterBody))]
     public abstract class ProjectileFountain : MonoBehaviour {
-        private readonly Dictionary<SimpleProjectileInfo, ProjectileInfo> _pool = new();
+        private readonly Dictionary<SimpleProjectileInfo, ProjectileInfo> _pool = CollectionPool<KeyValuePair<SimpleProjectileInfo, ProjectileInfo>, Dictionary<SimpleProjectileInfo, ProjectileInfo>>.RentCollection();
         private CharacterBody _victimBody;
         private float _fireTimer;
         protected abstract GameObject ProjectilePrefab { get; }
@@ -49,28 +57,21 @@ namespace BtpTweak.ProjectileFountains {
         private void FixedUpdate() {
             if ((_fireTimer -= Time.fixedDeltaTime) < 0) {
                 if (_pool.Count > 0) {
-                    foreach (var kvp in _pool) {
-                        var projectileInfo = kvp.Value;
-                        projectileInfo.fireProjectileInfo.position = _victimBody.corePosition + (_victimBody.bestFitRadius * 0.5f * Vector3.up);
-                        ModifyProjectile(ref projectileInfo.fireProjectileInfo);
-                        ProjectileManager.instance.FireProjectile(projectileInfo.fireProjectileInfo);
-                    }
-                    _pool.Clear();
+                    var first = _pool.First();
+                    var projectileInfo = first.Value;
+                    projectileInfo.fireProjectileInfo.position = _victimBody.corePosition + (_victimBody.bestFitRadius * 0.5f * Vector3.up);
+                    ModifyProjectile(ref projectileInfo.fireProjectileInfo);
+                    ProjectileManager.instance.FireProjectile(projectileInfo.fireProjectileInfo);
+                    _pool.Remove(first.Key);
                     _fireTimer = ModConfig.喷泉喷射间隔.Value;
                 }
             }
         }
 
-        private void OnDestroy() => _pool.Clear();
+        private void OnDestroy() => CollectionPool<KeyValuePair<SimpleProjectileInfo, ProjectileInfo>, Dictionary<SimpleProjectileInfo, ProjectileInfo>>.ReturnCollection(_pool);
+    }
 
-        public struct SimpleProjectileInfo {
-            public GameObject attacker;
-            public ProcChainMask procChainMask;
-            public bool isCrit;
-        }
-
-        private class ProjectileInfo {
-            public FireProjectileInfo fireProjectileInfo;
-        }
+    internal sealed class ProjectileInfo {
+        public FireProjectileInfo fireProjectileInfo;
     }
 }

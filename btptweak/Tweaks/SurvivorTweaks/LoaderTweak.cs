@@ -49,6 +49,9 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 self.procCoefficient = 2.1f;
             }
             orig(self);
+            if (NetworkServer.active) {
+                self.characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, self.duration);
+            }
         }
 
         private void SwingZapFist_OnExit(On.EntityStates.Loader.SwingZapFist.orig_OnExit orig, EntityStates.Loader.SwingZapFist self) {

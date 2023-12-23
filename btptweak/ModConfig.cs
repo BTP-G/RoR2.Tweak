@@ -17,6 +17,7 @@ namespace BtpTweak {
         public static ConfigOptions.ConfigurableValue<bool> 启用阶梯触发链 { get; private set; }
         public static ConfigOptions.ConfigurableValue<float> Boss物品掉率 { get; private set; }
         public static ConfigOptions.ConfigurableValue<float> 测试用 { get; private set; }
+        public static ConfigOptions.ConfigurableValue<float> 测试用2 { get; private set; }
         public static ConfigOptions.ConfigurableValue<float> 导弹发射间隔 { get; private set; }
         public static ConfigOptions.ConfigurableValue<float> 每关难度增加量 { get; private set; }
         public static ConfigOptions.ConfigurableValue<float> 喷泉喷射间隔 { get; private set; }
@@ -38,6 +39,7 @@ namespace BtpTweak {
             Boss物品掉率 = ConfigOptions.ConfigurableValue.CreateFloat(Main.PluginGUID, Main.PluginName, config, "测试", "Boss物品掉率", 2.5f, 0, 100f, "具有特殊奖励的敌人死亡时, 掉落该物品的概率, 不受其他因素影响。");
             启用阶梯触发链 = ConfigOptions.ConfigurableValue.CreateBool(Main.PluginGUID, Main.PluginName, config, "测试", "启用阶梯触发链", false, "开启后，某些物品只能触发比自己低品质的物品。（目前受影响的物品：黏弹 < Atg-MK1导弹 = 等离子虾 = 尤克里里 = 聚合鲁特琴 = 冰火双环 < 感应肉钩 < 雷火双钻）");
             测试用 = ConfigOptions.ConfigurableValue.CreateFloat(Main.PluginGUID, Main.PluginName, config, "测试", "测试用", 0, 0, float.MaxValue * 0.1f);
+            测试用2 = ConfigOptions.ConfigurableValue.CreateFloat(Main.PluginGUID, Main.PluginName, config, "测试", "测试用2", 0, 0, float.MaxValue * 0.1f);
         }
     }
 }

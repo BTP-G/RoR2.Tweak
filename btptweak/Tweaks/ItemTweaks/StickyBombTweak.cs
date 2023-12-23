@@ -5,7 +5,6 @@ using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
-using static BtpTweak.ProjectileFountains.ProjectileFountain;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 

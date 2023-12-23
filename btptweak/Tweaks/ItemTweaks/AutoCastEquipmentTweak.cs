@@ -7,8 +7,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class AutoCastEquipmentTweak : TweakBase<AutoCastEquipmentTweak>, IOnModLoadBehavior {
         public const float 强制冷却时间 = 0.15f;
-         
-        public   void OnModLoad() {
+
+        public void OnModLoad() {
             IL.RoR2.Inventory.UpdateEquipment += IL_Inventory_UpdateEquipment;
         }
 

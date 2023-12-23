@@ -49,7 +49,7 @@ namespace BtpTweak.Tweaks {
 
         private void Run_AdvanceStage(On.RoR2.Run.orig_AdvanceStage orig, Run self, SceneDef nextScene) {
             orig(self, nextScene);
-            int newSoftCharacterLimit = Mathf.Max(18, 40 - 4 * self.stageClearCount);
+            int newSoftCharacterLimit = Mathf.Max(16, 40 - 4 * self.stageClearCount);
             TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = newSoftCharacterLimit;
             TeamCatalog.GetTeamDef(TeamIndex.Void).softCharacterLimit = newSoftCharacterLimit;
         }

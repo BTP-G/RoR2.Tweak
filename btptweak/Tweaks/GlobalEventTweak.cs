@@ -5,9 +5,10 @@ using BtpTweak.Utils;
 using HG;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using Newtonsoft.Json.Utilities;
 using RoR2;
-using RoR2.Projectile;
 using System;
+using System.Threading.Tasks;
 using TPDespair.ZetAspects;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -19,14 +20,25 @@ namespace BtpTweak.Tweaks {
         void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
             GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
+            On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
             On.RoR2.GlobalEventManager.OnHitAll += GlobalEventManager_OnHitAll;
+            On.RoR2.GlobalEventManager.OnCrit += GlobalEventManager_OnCrit;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;
             IL.RoR2.GlobalEventManager.OnHitEnemy += IL_GlobalEventManager_OnHitEnemy;
-            On.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+        }
+
+        private void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
+            if (victim.TryGetComponent<CharacterBody>(out var victimBody) && !victimBody.master) {
+                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = false;
+                orig(self, damageInfo, victim);
+                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = true;
+            } else {
+                orig(self, damageInfo, victim);
+            }
         }
 
         private void GlobalEventManager_OnHitAll(On.RoR2.GlobalEventManager.orig_OnHitAll orig, GlobalEventManager self, DamageInfo damageInfo, GameObject hitObject) {
-            if (damageInfo.procCoefficient == 0f || damageInfo.rejected && !damageInfo.attacker) {
+            if (damageInfo.procCoefficient == 0f || damageInfo.rejected || !damageInfo.attacker) {
                 return;
             }
             if (!damageInfo.attacker.TryGetComponent<CharacterBody>(out var attackerBody)) {
@@ -37,7 +49,7 @@ namespace BtpTweak.Tweaks {
                 return;
             }
             var inventory = master.inventory;
-            if (!master.inventory) {
+            if (!inventory) {
                 return;
             }
             int itemCount = inventory.GetItemCount(RoR2Content.Items.Behemoth);
@@ -50,34 +62,45 @@ namespace BtpTweak.Tweaks {
                     attacker = damageInfo.attacker,
                     inflictor = damageInfo.inflictor,
                     procChainMask = damageInfo.procChainMask,
-                    teamIndex = attackerBody.teamComponent.teamIndex,
+                    teamIndex = master.teamIndex,
                 };
                 attackInfo.procChainMask.AddWhiteProcs();
-                (attackerBody.gameObject.GetComponent<BehemothPool>()
-                ?? attackerBody.gameObject.AddComponent<BehemothPool>()).AddAttack(attackInfo,
-                                                                       damageInfo.position,
-                                                                       Util.OnHitProcDamage(damageInfo.damage, 0, BehemothTweak.BaseDamageCoefficient));
+                BehemothPool.RentPool(attackInfo.attacker).AddBlastAttack(attackInfo,
+                                                                     damageInfo.position,
+                                                                     Util.OnHitProcDamage(damageInfo.damage, 0, BehemothTweak.BaseDamageCoefficient));
             }
             if (attackerBody.HasBuff(RoR2Content.Buffs.AffixBlue)) {
                 var stack = Catalog.GetStackMagnitude(attackerBody, RoR2Content.Buffs.AffixBlue);
                 var damageCoefficient = Configuration.AspectBlueBaseDamage.Value + Configuration.AspectBlueStackDamage.Value * (stack - 1f);
-                if (attackerBody.teamComponent.teamIndex != TeamIndex.Player) {
+                if (master.teamIndex != TeamIndex.Player) {
                     damageCoefficient *= Configuration.AspectBlueMonsterDamageMult.Value;
                 }
-                var fireProjectileInfo = new FireProjectileInfo {
-                    crit = damageInfo.crit,
-                    damage = Util.OnHitProcDamage(damageInfo.damage, 0, damageCoefficient),
-                    damageColorIndex = DamageColorIndex.Item,
-                    damageTypeOverride = damageInfo.damageType,
-                    force = 0f,
-                    fuseOverride = Configuration.AspectBlueBombDuration.Value,
-                    owner = damageInfo.attacker,
-                    position = damageInfo.position,
-                    projectilePrefab = AssetReferences.lightningStakeNova,
-                    rotation = Quaternion.identity,
-                    useFuseOverride = true,
-                };
-                ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+                LightningStakePool.RentPool(damageInfo.attacker).AddProjectile(new() { attacker = damageInfo.attacker, isCrit = damageInfo.crit, },
+                                                                               damageInfo.position,
+                                                                               Util.OnHitProcDamage(damageInfo.damage, 0, damageCoefficient));
+            }
+        }
+
+        private void GlobalEventManager_OnCrit(On.RoR2.GlobalEventManager.orig_OnCrit orig, GlobalEventManager self, CharacterBody body, DamageInfo damageInfo, CharacterMaster master, float procCoefficient, ProcChainMask procChainMask) {
+            EffectManager.SimpleImpactEffect(body.critMultiplier > 2f ? AssetReferences.critsparkHeavy : AssetReferences.critspark, damageInfo?.position ?? body.corePosition, Vector3.up, transmit: true);
+            if (procCoefficient > 0f) {
+                var inventory = master.inventory;
+                if (!procChainMask.HasProc(ProcType.HealOnCrit)) {
+                    procChainMask.AddProc(ProcType.HealOnCrit);
+                    int itemCount = inventory.GetItemCount(RoR2Content.Items.HealOnCrit);
+                    if (itemCount > 0 && (bool)body.healthComponent) {
+                        Util.PlaySound("Play_item_proc_crit_heal", body.gameObject);
+                        body.healthComponent.Heal((4f + itemCount * 4f) * procCoefficient, procChainMask);
+                    }
+                }
+                if (inventory.GetItemCount(RoR2Content.Items.AttackSpeedOnCrit) > 0) {
+                    body.AddTimedBuff(RoR2Content.Buffs.AttackSpeedOnCrit, 3f * procCoefficient);
+                }
+                int itemCount2 = inventory.GetItemCount(JunkContent.Items.CooldownOnCrit);
+                if (itemCount2 > 0) {
+                    Util.PlaySound("Play_item_proc_crit_cooldown", body.gameObject);
+                    body.skillLocator?.DeductCooldownFromAllSkillsServer(itemCount2 * procCoefficient);
+                }
             }
         }
 
@@ -107,16 +130,6 @@ namespace BtpTweak.Tweaks {
             }
             if (victimBody.TryGetComponent<DeathRewards>(out var deathRewards) && deathRewards.bossDropTable && Util.CheckRoll(ModConfig.Boss物品掉率.Value, damageReport.attackerMaster)) {
                 PickupDropletController.CreatePickupDroplet(deathRewards.bossDropTable.GenerateDrop(Run.instance.treasureRng), victimBody.corePosition, Vector3.up * 15f);
-            }
-        }
-
-        private void GlobalEventManager_OnHitEnemy(On.RoR2.GlobalEventManager.orig_OnHitEnemy orig, GlobalEventManager self, DamageInfo damageInfo, GameObject victim) {
-            if (victim.TryGetComponent<CharacterBody>(out var victimBody) && !victimBody.master) {
-                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = false;
-                orig(self, damageInfo, victim);
-                GoldenCoastPlus.GoldenCoastPlus.EnableGoldElites.Value = true;
-            } else {
-                orig(self, damageInfo, victim);
             }
         }
 

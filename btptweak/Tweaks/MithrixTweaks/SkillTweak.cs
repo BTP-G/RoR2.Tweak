@@ -2,16 +2,17 @@
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.BrotherMonster;
-using R2API;
-using RoR2.Projectile;
-using RoR2;
-using UnityEngine;
-using EntityStates.LunarGolem;
 using EntityStates.BrotherMonster.Weapon;
-using System.Collections.Generic;
-using RoR2.Skills;
-using System.Linq;
+using EntityStates.LunarGolem;
+using R2API;
 using R2API.Utils;
+
+using RoR2;
+using RoR2.Projectile;
+using RoR2.Skills;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace BtpTweak.Tweaks.MithrixTweaks {
 

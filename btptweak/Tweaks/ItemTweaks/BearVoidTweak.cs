@@ -8,8 +8,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class BearVoidTweak : TweakBase<BearVoidTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 50;
 
-       
-        public   void OnModLoad() {
+        public void OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
         }
 

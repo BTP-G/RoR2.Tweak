@@ -21,9 +21,9 @@ namespace BtpTweak.Tweaks {
 
         void IOnModLoadBehavior.OnModLoad() {
             onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
-            On.RoR2.DotController.FixedUpdate += DotController_FixedUpdate;
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
             On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.GlobalEventManager_OnHitEnemy += DeepRot_GlobalEventManager_OnHitEnemy;
+            IL.RoR2.DotController.FixedUpdate += DotController_FixedUpdate;
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
@@ -86,34 +86,39 @@ namespace BtpTweak.Tweaks {
             return result;
         }
 
-        private void DotController_FixedUpdate(On.RoR2.DotController.orig_FixedUpdate orig, DotController self) {
-            self.UpdateDotVisuals();
-            if (!NetworkServer.active) {
-                return;
-            }
-            if (!self.victimObject) {
-                UnityEngine.Object.Destroy(self.gameObject);
-                return;
-            }
-            for (DotIndex dotIndex = DotIndex.Bleed; dotIndex < DotIndex.Count; ++dotIndex) {
-                uint num = 1U << (int)dotIndex;
-                if ((self.activeDotFlags & num) == 0) {
-                    continue;
+        private void DotController_FixedUpdate(ILContext il) {
+            var cursor = new ILCursor(il);
+            cursor.Emit(OpCodes.Ldarg_0);
+            cursor.EmitDelegate((DotController dotController) => {
+                dotController.UpdateDotVisuals();
+                if (!NetworkServer.active) {
+                    return;
                 }
-                var num2 = self.dotTimers[(int)dotIndex] - Time.fixedDeltaTime;
-                if (num2 <= 0f) {
-                    var dotDef = GetDotDef(dotIndex);
-                    num2 += dotDef.interval;
-                    self.NetworkactiveDotFlags = self.activeDotFlags & ~num;
-                    if (BetterEvaluateDotStacksForType(self, dotDef, dotIndex)) {
-                        self.NetworkactiveDotFlags = self.activeDotFlags | num;
+                if (!dotController.victimObject) {
+                    UnityEngine.Object.Destroy(dotController.gameObject);
+                    return;
+                }
+                for (DotIndex dotIndex = DotIndex.Bleed; dotIndex < DotIndex.Count; ++dotIndex) {
+                    uint num = 1U << (int)dotIndex;
+                    if ((dotController.activeDotFlags & num) == 0) {
+                        continue;
                     }
+                    var num2 = dotController.dotTimers[(int)dotIndex] - Time.fixedDeltaTime;
+                    if (num2 <= 0f) {
+                        var dotDef = GetDotDef(dotIndex);
+                        num2 += dotDef.interval;
+                        dotController.NetworkactiveDotFlags = dotController.activeDotFlags & ~num;
+                        if (BetterEvaluateDotStacksForType(dotController, dotDef, dotIndex)) {
+                            dotController.NetworkactiveDotFlags = dotController.activeDotFlags | num;
+                        }
+                    }
+                    dotController.dotTimers[(int)dotIndex] = num2;
                 }
-                self.dotTimers[(int)dotIndex] = num2;
-            }
-            if (self.dotStackList.Count == 0) {
-                UnityEngine.Object.Destroy(self.gameObject);
-            }
+                if (dotController.dotStackList.Count == 0) {
+                    UnityEngine.Object.Destroy(dotController.gameObject);
+                }
+            });
+            cursor.Emit(OpCodes.Ret);
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -143,7 +148,7 @@ namespace BtpTweak.Tweaks {
         }
 
         private void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {
-            if (buffDef.buffIndex == RoR2Content.Buffs.Nullified.buffIndex && self.teamComponent.teamIndex == TeamIndex.Void) {
+            if (self.isBoss || buffDef.buffIndex == RoR2Content.Buffs.Nullified.buffIndex && self.teamComponent.teamIndex == TeamIndex.Void) {
                 return;
             }
             orig(self, buffDef, duration);

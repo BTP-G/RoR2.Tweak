@@ -22,18 +22,16 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
 
         public override void OnEnter() {
             base.OnEnter();
-            Transform modelTransform = GetModelTransform();
+            var modelTransform = GetModelTransform();
             if (modelTransform) {
                 characterModel = modelTransform.GetComponent<CharacterModel>();
                 hurtboxGroup = modelTransform.GetComponent<HurtBoxGroup>();
             }
             if (characterModel) {
-                characterModel.invisibilityCount++;
+                ++characterModel.invisibilityCount;
             }
             if (hurtboxGroup) {
-                HurtBoxGroup hurtBoxGroup = hurtboxGroup;
-                int hurtBoxesDeactivatorCounter = hurtBoxGroup.hurtBoxesDeactivatorCounter + 1;
-                hurtBoxGroup.hurtBoxesDeactivatorCounter = hurtBoxesDeactivatorCounter;
+                hurtboxGroup.hurtBoxesDeactivatorCounter = hurtboxGroup.hurtBoxesDeactivatorCounter + 1;
             }
             Util.PlaySound("Play_voidRaid_snipe_shoot_final", gameObject);
             gameObject.layer = LayerIndex.fakeActor.intVal;
@@ -42,13 +40,12 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
             var newPosition = characterMotor.transform.position;
             newPosition.y += 25f;
             characterMotor.Motor.SetPosition(newPosition, true);
-            PickNextRandomTarget();
+            PickNextTarget();
             if (!ArrowRain.areaIndicatorPrefab || areaIndicatorInstance) {
                 return;
             }
-            areaIndicatorInstance = Object.Instantiate(ArrowRain.areaIndicatorPrefab);
-            areaIndicatorInstance.AddComponent<NetworkTransform>();
-            areaIndicatorInstance.transform.position = transform.position;
+            areaIndicatorInstance = Object.Instantiate(ArrowRain.areaIndicatorPrefab, transform.position, Quaternion.identity);
+            //areaIndicatorInstance.AddComponent<NetworkTransform>();
             areaIndicatorInstance.transform.localScale = new Vector3(ArrowRain.arrowRainRadius, ArrowRain.arrowRainRadius, ArrowRain.arrowRainRadius);
             areaIndicatorInstance.transform.GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = tpMat;
         }
@@ -58,31 +55,32 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
             stopwatch += Time.fixedDeltaTime;
             if (stopwatch < HoldSkyLeap.duration - 1f) {
                 UpdateAreaIndicator();
-            }
-            if (stopwatch >= HoldSkyLeap.duration - 1f) {
+            } else {
                 areaIndicatorInstance.transform.GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = awShellExpolsionMat;
             }
-            if (((ultLinetimer += Time.fixedDeltaTime) > HoldSkyLeap.duration * 0.3f) && isAuthority) {
-                ultLinetimer = 0;
-                float num = 360f / UltChannelState.totalWaves;
-                Vector3 point = Vector3.ProjectOnPlane(inputBank.aimDirection, Vector3.up);
-                var projectileInfo = new FireProjectileInfo {
-                    projectilePrefab = AssetReferences.brotherUltLineProjectileStatic,
-                    owner = gameObject,
-                    damage = damageStat * UltChannelState.waveProjectileDamageCoefficient,
-                    force = UltChannelState.waveProjectileForce,
-                };
-                for (int i = 0; i < 4; ++i) {
-                    projectileInfo.position = SkillTweak.p23PizzaPoints[i];
-                    for (int j = 0; j < UltChannelState.totalWaves; ++j) {
-                        projectileInfo.rotation = Util.QuaternionSafeLookRotation(Quaternion.AngleAxis(num * j, Vector3.up) * point);
-                        projectileInfo.crit = characterBody.RollCrit();
-                        ProjectileManager.instance.FireProjectile(projectileInfo);
+            if (isAuthority) {
+                if (((ultLinetimer += Time.fixedDeltaTime) > HoldSkyLeap.duration * 0.3f)) {
+                    ultLinetimer = 0;
+                    float num = 360f / UltChannelState.totalWaves;
+                    Vector3 point = Vector3.ProjectOnPlane(inputBank.aimDirection, Vector3.up);
+                    var projectileInfo = new FireProjectileInfo {
+                        projectilePrefab = AssetReferences.brotherUltLineProjectileStatic,
+                        owner = gameObject,
+                        damage = damageStat * UltChannelState.waveProjectileDamageCoefficient,
+                        force = UltChannelState.waveProjectileForce,
+                    };
+                    for (int i = 0; i < 4; ++i) {
+                        projectileInfo.position = SkillTweak.p23PizzaPoints[i];
+                        for (int j = 0; j < UltChannelState.totalWaves; ++j) {
+                            projectileInfo.rotation = Util.QuaternionSafeLookRotation(Quaternion.AngleAxis(num * j, Vector3.up) * point);
+                            projectileInfo.crit = characterBody.RollCrit();
+                            ProjectileManager.instance.FireProjectile(projectileInfo);
+                        }
                     }
                 }
-            }
-            if (fixedAge > HoldSkyLeap.duration && isAuthority) {
-                HandleFollowupAttack();
+                if (fixedAge > HoldSkyLeap.duration) {
+                    HandleFollowupAttack();
+                }
             }
         }
 
@@ -110,7 +108,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
         }
 
         private void UpdateAreaIndicator() {
-            if (areaIndicatorInstance && (targetBody || PickNextRandomTarget())) {
+            if (areaIndicatorInstance && (targetBody || PickNextTarget())) {
                 if (Physics.Raycast(new Ray(targetBody.footPosition, Vector3.down), out var raycastHit, 200f, LayerIndex.world.mask, QueryTriggerInteraction.Ignore)) {
                     areaIndicatorInstance.transform.position = raycastHit.point;
                     return;
@@ -119,9 +117,15 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
             }
         }
 
-        private bool PickNextRandomTarget() {
-            var targets = PlayerCharacterMasterController.instances.Where((player) => player.body != null);
-            targetBody = targets.ElementAtOrDefault(Random.Range(0, targets.Count()))?.body;
+        private bool PickNextTarget() {
+            foreach (var target in CharacterBody.readOnlyInstancesList) {
+                if (!target.isPlayerControlled) {
+                    continue;
+                }
+                if (!targetBody || targetBody.healthComponent.combinedHealth > target.healthComponent.combinedHealth) {
+                    targetBody = target;
+                }
+            }
             return targetBody != null;
         }
     }

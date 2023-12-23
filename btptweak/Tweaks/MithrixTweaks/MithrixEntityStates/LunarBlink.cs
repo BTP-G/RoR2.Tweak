@@ -49,7 +49,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
                     FireBalls(AssetReferences.magmaOrbProjectile, body.corePosition, orbCount, 0, WeaponSlam.weaponForce);
                 }
             }
-            if (characterBody.bodyIndex == BodyIndexes.Brother) {
+            if (characterBody.bodyIndex == BodyIndexes.Brother && Random.value > 0.5f) {
                 for (int i = 0; i < cloneCount; ++i) {
                     var directorSpawnRequest = new DirectorSpawnRequest(ExitCrushingLeap.brotherGlassSpawnCard, new DirectorPlacementRule {
                         placementMode = DirectorPlacementRule.PlacementMode.Approximate,

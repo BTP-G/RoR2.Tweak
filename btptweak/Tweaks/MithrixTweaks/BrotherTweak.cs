@@ -1,8 +1,10 @@
-﻿using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BtpTweak.RoR2Indexes;
+
 using BtpTweak.Utils;
-using RoR2.CharacterAI;
+
+using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
-using BtpTweak.RoR2Indexes;
+using RoR2.CharacterAI;
 
 namespace BtpTweak.Tweaks.MithrixTweaks {
 
@@ -48,11 +50,13 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
         private void PhaseCounter_OnEnable(On.RoR2.PhaseCounter.orig_OnEnable orig, PhaseCounter self) {
             orig(self);
             GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
+            TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = 10;
         }
 
         private void PhaseCounter_OnDisable(On.RoR2.PhaseCounter.orig_OnDisable orig, PhaseCounter self) {
             orig(self);
             GlobalEventManager.onServerDamageDealt -= GlobalEventManager_onServerDamageDealt;
+            TeamCatalog.GetTeamDef(TeamIndex.Monster).softCharacterLimit = 40;
         }
 
         private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
