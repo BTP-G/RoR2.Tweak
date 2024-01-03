@@ -13,8 +13,7 @@ namespace BtpTweak.Tweaks {
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
             var inventory = sender.inventory;
             if (inventory) {
-                float upLevel = sender.level - 1;
-                int itemCount = inventory.GetItemCount(RoR2Content.Items.FlatHealth.itemIndex);
+                var itemCount = inventory.GetItemCount(RoR2Content.Items.FlatHealth.itemIndex);
                 float levelMaxHealthAdd = sender.levelMaxHealth / 9f * itemCount;
                 if (BodyIndexToNameIndex.TryGetValue((int)sender.bodyIndex, out BodyNameIndex loc)) {
                     switch (loc) {
@@ -82,11 +81,13 @@ namespace BtpTweak.Tweaks {
                 itemCount = inventory.GetItemCount(RoR2Content.Items.Knurl.itemIndex);
                 float regenFraction = 0.016f * itemCount;
                 levelMaxHealthAdd += sender.levelMaxHealth * 0.5f * itemCount;
-                args.baseHealthAdd += levelMaxHealthAdd * upLevel;
+                args.levelHealthAdd += levelMaxHealthAdd;
                 args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
                 args.baseRegenAdd += 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
-                args.armorAdd += (50 + upLevel) * inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex) - 10 * sender.GetBuffCount(RoR2Content.Buffs.BeetleJuice.buffIndex);
+                itemCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
+                args.levelArmorAdd += itemCount;
+                args.armorAdd += 50 * itemCount - 10 * sender.GetBuffCount(RoR2Content.Buffs.BeetleJuice.buffIndex);
                 if (sender.HasBuff(RoR2Content.Buffs.Warbanner.buffIndex)) {
                     args.armorAdd += 30f;
                 }
@@ -107,8 +108,11 @@ namespace BtpTweak.Tweaks {
                     regenFraction += 0.016f * inventory.GetItemCount(RoR2Content.Items.HealWhileSafe.itemIndex);
                 }
                 args.baseRegenAdd += regenFraction * sender.maxHealth;
-                if (sender.healthComponent.barrier > sender.maxBarrier) {
-                    sender.healthComponent.Networkbarrier = sender.maxBarrier;
+                if (RunInfo.是否选择造物难度 && sender.teamComponent.teamIndex != TeamIndex.Player) {
+                    args.levelArmorAdd += 0.05f
+                        + (sender.isElite ? 0.1f : 0f)
+                        + (sender.isBoss ? 0.15f : 0f)
+                        + (sender.isChampion ? 0.15f : 0f);
                 }
             }
         }

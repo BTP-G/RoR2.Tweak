@@ -41,9 +41,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         if (victimBody.HasBuff(BtpContent.Buffs.VoidFire)) {
                             return;
                         }
-                        float combinedHealth = healthComponent.combinedHealth;
-                        float fullCombinedHealth = healthComponent.fullCombinedHealth;
-                        float combinedHealthFraction = combinedHealth > fullCombinedHealth ? 1f : combinedHealth / fullCombinedHealth;
+                        var combinedHealth = healthComponent.combinedHealth;
+                        var fullCombinedHealth = healthComponent.fullCombinedHealth;
+                        var combinedHealthFraction = combinedHealth > fullCombinedHealth ? 1f : combinedHealth / fullCombinedHealth;
                         var explodeOnDeathVoidExplosion = Object.Instantiate(HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab, victimBody.corePosition, Quaternion.identity);
                         explodeOnDeathVoidExplosion.GetComponent<TeamFilter>().teamIndex = attacterBody.teamComponent.teamIndex;
                         var delayBlast = explodeOnDeathVoidExplosion.GetComponent<DelayBlast>();
@@ -58,10 +58,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         var inflictDotInfo = new InflictDotInfo {
                             attackerObject = damageInfo.attacker,
                             damageMultiplier = 1f,
-                            dotIndex = DotController.DotIndex.PercentBurn,
+                            dotIndex = DotController.DotIndex.Burn,
                             totalDamage = combinedHealth,
                             victimObject = healthComponent.gameObject,
                         };
+                        StrengthenBurnUtils.CheckDotForUpgrade(attacterBody.inventory, ref inflictDotInfo);
                         DotController.InflictDot(ref inflictDotInfo);
                     }
                 });

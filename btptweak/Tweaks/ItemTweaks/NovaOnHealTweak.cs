@@ -31,14 +31,13 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         var novaOnHealCount = healthComponent.itemCounts.novaOnHeal;
                         var damageValue = BtpUtils.简单逼近(novaOnHealCount > 0 ? novaOnHealCount : 1, 9f, healthComponent.fullCombinedHealth);
                         if (healthComponent.devilOrbHealPool >= damageValue) {
-                            healthComponent.devilOrbHealPool -= damageValue;
                             var body = healthComponent.body;
                             var devilOrb = new DevilOrb {
-                                attacker = body.gameObject,
+                                attacker = healthComponent.gameObject,
                                 damageColorIndex = DamageColorIndex.Poison,
                                 damageValue = damageValue,
                                 effectType = DevilOrb.EffectType.Skull,
-                                origin = body.aimOriginTransform.position,
+                                origin = body.aimOrigin,
                                 procChainMask = default,
                                 procCoefficient = 0.5f,
                                 scale = 1,
@@ -48,6 +47,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 devilOrb.procChainMask.AddProc(ProcType.HealNova);
                                 devilOrb.isCrit = body.RollCrit();
                                 OrbManager.instance.AddOrb(devilOrb);
+                                healthComponent.devilOrbHealPool -= damageValue;
                             }
                         }
                     }

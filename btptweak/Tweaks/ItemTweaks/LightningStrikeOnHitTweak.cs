@@ -1,4 +1,4 @@
-﻿using BtpTweak.OrbPools;
+﻿using BtpTweak.Pools.OrbPools;
 using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -10,6 +10,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int BasePercentChance = 10;
         public const float 半数 = 9f;
         public const int DamageCoefficient = 3;
+        public const float Interval = 0.5f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
@@ -21,19 +22,20 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("LightningStrikeOnHit")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldloc, 4);
-                ilcursor.Emit(OpCodes.Ldloc, 2);
-                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) => {
-                    if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.LightningStrikeOnHit) && victimBody.mainHurtBox && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerMaster)) {
-                        var simpleOrbInfo = new SimpleOrbInfo {
-                            attacker = damageInfo.attacker,
+                ilcursor.Emit(OpCodes.Ldloc_1);
+                ilcursor.Emit(OpCodes.Ldloc_2);
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
+                    if (itemCount > 0
+                    && !damageInfo.procChainMask.HasProc(ProcType.LightningStrikeOnHit)
+                    && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerBody.master)
+                    && victimBody.mainHurtBox) {
+                        var simpleOrbInfo = new OrbPoolKey {
+                            attackerBody = attackerBody,
                             isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
                             target = victimBody.mainHurtBox,
                         };
-                        simpleOrbInfo.procChainMask.AddYellowProcs();
-                        (victimBody.GetComponent<SimpleLightningStrikeOrbPool>()
-                        ?? victimBody.AddComponent<SimpleLightningStrikeOrbPool>()).AddOrb(simpleOrbInfo,
+                        SimpleLightningStrikeOrbPool.RentPool(simpleOrbInfo.target.gameObject).AddOrb(simpleOrbInfo,
                                                                                            Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }
                 });

@@ -12,43 +12,104 @@ namespace BtpTweak.Tweaks {
         private int _造物难度敌人血量提升物品数量;
 
         void IOnModLoadBehavior.OnModLoad() {
-            CharacterBody.onBodyStartGlobal += CharacterBody_onBodyStartGlobal;
-            CharacterMaster.onStartGlobal += CharacterMaster_onStartGlobal;
+            CharacterBody.onBodyStartGlobal += OnBodyStartGlobal;
+            CharacterMaster.onStartGlobal += OnMasterStartGlobal;
+            Run.onPlayerFirstCreatedServer += OnPlayerFirstCreatedServer;
             Run.onRunAmbientLevelUp += RecalculateBoostHpCount;
-            Run.onRunStartGlobal += Run_onRunStartGlobal;
+            Run.onRunStartGlobal += OnRunStartGlobal;
         }
 
-        public void Run_onRunStartGlobal(Run run) {
+        public void OnRunStartGlobal(Run run) {
             _造物难度敌人血量提升物品数量 = 0;
         }
 
-        private void CharacterBody_onBodyStartGlobal(CharacterBody body) {
+        private void OnPlayerFirstCreatedServer(Run run, PlayerCharacterMasterController player) {
+            if (run.selectedDifficulty == BtpContent.Difficulties.造物索引) {
+                var master = player.master;
+                master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
+                var inventory = master.inventory;
+                inventory.GiveItem(RoR2Content.Items.ExtraLife.itemIndex);
+                inventory.GiveItem(RoR2Content.Items.Infusion.itemIndex);
+                inventory.GiveItem(RoR2Content.Items.HealWhileSafe.itemIndex);
+            }
+        }
+
+        private void OnBodyStartGlobal(CharacterBody body) {
             if (NetworkServer.active) {
-                body.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 0.3f + Random.value);
+                body.healthComponent.ospTimer += 0.3f + Random.value;
                 if (RunInfo.位于天文馆 && body.teamComponent.teamIndex != TeamIndex.Void) {
-                    body.AddBuff(TPDespair.ZetAspects.Catalog.Buff.ZetWarped.buffIndex);
+                    body.baseJumpPower *= 0.5f;
                 }
                 var inventory = body.inventory;
                 if (inventory) {
                     body.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex));
                 }
+                if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
+                    switch (nameIndex) {
+                        case BodyNameIndex.BrotherBody:
+                        case BodyNameIndex.BrotherHurtBody: {
+                            switch (PhaseCounter.instance?.phase) {  // Give Mithrix the Scourge items
+                                case 1: {
+                                    inventory.GiveItem(BtpContent.Items.MoonscourgeAccursedItem);
+                                    body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
+                                    break;
+                                }
+                                case 2: {
+                                    inventory.GiveItem(BtpContent.Items.StormscourgeAccursedItem);
+                                    body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
+                                    break;
+                                }
+                                case 3: {
+                                    inventory.GiveItem(BtpContent.Items.HelscourgeAccursedItemDef);
+                                    body.baseAcceleration *= Run.instance.participatingPlayerCount;
+                                    body.AddBuff(RoR2Content.Buffs.LunarShell.buffIndex);
+                                    body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
+                                    break;
+                                }
+                                case 4: {
+                                    break;
+                                }
+                            }
+                            inventory.GiveItem(RoR2Content.Items.TeleportWhenOob.itemIndex);
+                            body.healthComponent.ospTimer += 3f;
+                            Util.CleanseBody(body, true, false, true, true, true, true);
+                            break;
+                        }
+                        case BodyNameIndex.MiniVoidRaidCrabBodyPhase1:
+                        case BodyNameIndex.MiniVoidRaidCrabBodyPhase2:
+                        case BodyNameIndex.MiniVoidRaidCrabBodyPhase3: {
+                            if (inventory.GetItemCount(DLC1Content.Items.VoidMegaCrabItem.itemIndex) > 0) {
+                                return;
+                            }
+                            inventory.GiveItem(DLC1Content.Items.VoidMegaCrabItem.itemIndex, 3);
+                            inventory.GiveItem(DLC1Content.Items.BearVoid.itemIndex, 4);
+                            inventory.GiveItem(DLC1Content.Items.BleedOnHitVoid.itemIndex, 5);
+                            inventory.GiveItem(DLC1Content.Items.ChainLightningVoid.itemIndex, 4);
+                            inventory.GiveItem(DLC1Content.Items.ElementalRingVoid.itemIndex);
+                            inventory.GiveItem(DLC1Content.Items.ExplodeOnDeathVoid.itemIndex, 9);
+                            inventory.GiveItem(DLC1Content.Items.MissileVoid.itemIndex);
+                            inventory.GiveItem(DLC1Content.Items.MoreMissile.itemIndex);
+                            inventory.GiveItem(DLC1Content.Items.SlowOnHitVoid.itemIndex);
+                            inventory.GiveItem(RoR2Content.Items.PersonalShield.itemIndex, 5);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
-        private void CharacterMaster_onStartGlobal(CharacterMaster master) {
-            if (NetworkServer.active && RunInfo.是否选择造物难度) {
-                master.onBodyStart += 造物难度_onBodyStart;
+        private void OnMasterStartGlobal(CharacterMaster master) {
+            if (NetworkServer.active
+                && RunInfo.是否选择造物难度
+                && master.teamIndex != TeamIndex.Player) {
+                master.inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
             }
         }
 
-        private void 造物难度_onBodyStart(CharacterBody body) {
+        private void 造物难度_OnPlayerBodyFirstStartServer(CharacterBody body) {
             var master = body.master;
             var inventory = body.inventory;
-            master.onBodyStart -= 造物难度_onBodyStart;
-            if (master.teamIndex != TeamIndex.Player) {
-                body.baseArmor += body.level;
-                inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
-            }
+            master.onBodyStart -= 造物难度_OnPlayerBodyFirstStartServer;
             if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
                 switch (nameIndex) {
                     case BodyNameIndex.ArbiterBody: {
@@ -75,7 +136,7 @@ namespace BtpTweak.Tweaks {
                         break;
                     }
                     case BodyNameIndex.CommandoBody: {
-                        if (Util.CheckRoll(50)) {
+                        if (Random.value > 0.5f) {
                             inventory.GiveItem(RoR2Content.Items.Syringe.itemIndex, 2);
                             inventory.GiveItem(RoR2Content.Items.SecondarySkillMagazine.itemIndex);
                         } else {
@@ -150,53 +211,12 @@ namespace BtpTweak.Tweaks {
                         inventory.GiveItem(DLC1Content.Items.ElementalRingVoid.itemIndex);
                         break;
                     }
-                    case BodyNameIndex.BrotherBody:
-                    case BodyNameIndex.BrotherHurtBody: {
-                        switch (PhaseCounter.instance?.phase) {  // Give Mithrix the Scourge items
-                            case 1: {
-                                inventory.GiveItem(BtpContent.Items.MoonscourgeAccursedItem);
-                                body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
-                                break;
-                            }
-                            case 2: {
-                                inventory.GiveItem(BtpContent.Items.StormscourgeAccursedItem);
-                                body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
-                                break;
-                            }
-                            case 3: {
-                                inventory.GiveItem(BtpContent.Items.HelscourgeAccursedItemDef);
-                                body.baseAcceleration *= Run.instance.participatingPlayerCount;
-                                body.AddBuff(RoR2Content.Buffs.LunarShell.buffIndex);
-                                body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
-                                break;
-                            }
-                            case 4: {
-                                break;
-                            }
-                        }
-                        inventory.GiveItem(RoR2Content.Items.TeleportWhenOob.itemIndex);
-                        body.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 3f);
-                        break;
-                    }
-                    case BodyNameIndex.MiniVoidRaidCrabBodyPhase1:
-                    case BodyNameIndex.MiniVoidRaidCrabBodyPhase2:
-                    case BodyNameIndex.MiniVoidRaidCrabBodyPhase3: {
-                        inventory.GiveItem(DLC1Content.Items.BearVoid.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.BleedOnHitVoid.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.ChainLightningVoid.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.ElementalRingVoid.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.ExplodeOnDeathVoid.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.MissileVoid.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.MoreMissile.itemIndex);
-                        inventory.GiveItem(DLC1Content.Items.SlowOnHitVoid.itemIndex);
-                        break;
-                    }
                 }
             }
         }
 
         private void RecalculateBoostHpCount(Run run) {
-            _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.往日不再 ? 1 + 0.1f * run.stageClearCount : 1), 10000000));
+            _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.造物主的试炼 ? 1f + 0.1f * run.stageClearCount : 1f), 100000000));
         }
     }
 }

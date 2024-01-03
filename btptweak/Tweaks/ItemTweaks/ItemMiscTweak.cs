@@ -3,6 +3,7 @@ using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
@@ -34,10 +35,12 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             TryApplyTagToItem(ItemTag.CannotSteal, DLC1Content.Items.ExtraLifeVoid);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.CaptainDefenseMatrix);
             TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.ExtraLife);
-            TryApplyTagToItem(ItemTag.CannotSteal, RoR2Content.Items.Infusion);
             foreach (var item in ItemCatalog.allItemDefs) {
                 TryApplyTagToItem(ItemTag.BrotherBlacklist, item);
             }
+            var tags = RoR2Content.Items.TonicAffliction.tags.ToList();
+            tags.Remove(ItemTag.CannotSteal);
+            RoR2Content.Items.TonicAffliction.tags = [.. tags];
             RoR2Content.Items.FlatHealth.tags = [ItemTag.Healing];
         }
 

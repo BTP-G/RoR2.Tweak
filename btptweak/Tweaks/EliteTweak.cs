@@ -34,13 +34,13 @@ namespace BtpTweak.Tweaks {
         }
 
         private void CharacterBody_UpdateAffixPoison(ILContext il) {
-            ILCursor iLCursor = new(il);
-            if (iLCursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdcR4(x, 6f))) {
-                iLCursor.Remove();
-                iLCursor.Emit(OpCodes.Ldc_R4, 3f);
-                if (iLCursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdcR4(x, 0f))) {
-                    iLCursor.Emit(OpCodes.Ldarg_0);
-                    iLCursor.EmitDelegate((CharacterBody body) => {
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdcR4(x, 6f))) {
+                cursor.Remove();
+                cursor.Emit(OpCodes.Ldc_R4, 3f);
+                if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdcR4(x, 0f))) {
+                    cursor.Emit(OpCodes.Ldarg_0);
+                    cursor.EmitDelegate((CharacterBody body) => {
                         if (NetworkServer.active) {
                             search.searchOrigin = body.corePosition;
                             search.teamMaskFilter = TeamMask.allButNeutral;
@@ -53,7 +53,7 @@ namespace BtpTweak.Tweaks {
                                     continue;
                                 }
                                 SearchedObjects.Add(hurtBox.healthComponent);
-                                hurtBox.healthComponent.body.AddTimedBuff(RoR2Content.Buffs.HealingDisabled, 4);
+                                hurtBox.healthComponent.body.AddTimedBuff(RoR2Content.Buffs.HealingDisabled, 4f);
                             }
                         }
                     });

@@ -18,6 +18,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyEvis.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");
             ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyEvisProjectile.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");
+            Evis.minimumDuration = 1f;
         }
 
         private void Evis_OnEnter(On.EntityStates.Merc.Evis.orig_OnEnter orig, Evis self) {

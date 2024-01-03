@@ -1,4 +1,4 @@
-﻿using BtpTweak.OrbPools;
+﻿using BtpTweak.Pools.OrbPools;
 using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -8,6 +8,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class MissileVoidTweak : TweakBase<MissileVoidTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 0.6f;
+        public const float Interval = 0.1f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.Orbs.MissileVoidOrb.Begin += MissileVoidOrb_Begin;
@@ -30,8 +31,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(DLC1Content.Items).GetField("MissileVoid")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldloc, 1);
-                ilcursor.Emit(OpCodes.Ldloc, 2);
+                ilcursor.Emit(OpCodes.Ldloc_1);
+                ilcursor.Emit(OpCodes.Ldloc_2);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
                     if (itemCount < 1 || !victimBody.mainHurtBox) {
                         return;
@@ -40,17 +41,16 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     if (!Util.CheckRoll(100f * shieldFraction, attackerBody.master)) {
                         return;
                     }
-                    var simpleOrbInfo = new SimpleOrbInfo {
-                        attacker = damageInfo.attacker,
+                    var simpleOrbInfo = new OrbPoolKey {
+                        attackerBody = attackerBody,
                         isCrit = damageInfo.crit,
                         procChainMask = damageInfo.procChainMask,
                         target = victimBody.mainHurtBox,
+                        通用浮点数 = attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile.itemIndex),
                     };
                     simpleOrbInfo.procChainMask.AddGreenProcs();
-                    (attackerBody.GetComponent<MissileVoidOrbPool>()
-                        ?? attackerBody.AddComponent<MissileVoidOrbPool>()).AddOrb(simpleOrbInfo,
-                                                                                   Util.OnHitProcDamage(damageInfo.damage, 0, shieldFraction * DamageCoefficient * itemCount),
-                                                                                   attackerBody.teamComponent.teamIndex);
+                    MissileVoidOrbPool.RentPool(simpleOrbInfo.target.gameObject).AddOrb(simpleOrbInfo,
+                                                                              Util.OnHitProcDamage(damageInfo.damage, 0, shieldFraction * DamageCoefficient * itemCount));
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {

@@ -1,13 +1,8 @@
-﻿using BtpTweak.Utils;
-using HG;
-using RoR2;
+﻿using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Bindings;
-using UnityEngine.UIElements.UIR;
-using static UnityEngine.UI.GridLayoutGroup;
 
 namespace BtpTweak.Pools {
 
@@ -22,13 +17,13 @@ namespace BtpTweak.Pools {
             }
             if (pool.Count > 0) {
                 var first = pool.First();
-                OnTimeOut(first.Value);
+                OnTimeOut(first.Key, first.Value);
                 pool.Remove(first.Key);
                 fixedTimer = Interval;
             }
         }
 
-        protected abstract void OnTimeOut(TValue value);
+        protected abstract void OnTimeOut(in TKey key, in TValue value);
     }
 
     internal abstract class Pool<T, TKey, TValue> : Pool<TKey, TValue> where T : Pool<T, TKey, TValue> {
@@ -38,9 +33,13 @@ namespace BtpTweak.Pools {
 
         public static T RentPool(GameObject owner) {
             if (!_pools.TryGetValue(owner, out var pool)) {
-                pool = _poolStack.Pop() ?? Activator.CreateInstance<T>();
+                if (_poolStack.Count > 0) {
+                    pool = _poolStack.Pop();
+                } else {
+                    pool = Activator.CreateInstance<T>();
+                }
                 pool._owner = owner;
-                pool.fixedTimer = pool.Interval;
+                pool.fixedTimer = 0;
                 _pools.Add(owner, pool);
                 RoR2Application.onFixedUpdate += pool.FixedUpdate;
             }
@@ -48,7 +47,6 @@ namespace BtpTweak.Pools {
         }
 
         protected override void FixedUpdate() {
-            base.FixedUpdate();
             if (!_owner) {
                 RoR2Application.onFixedUpdate -= FixedUpdate;
                 pool.Clear();
@@ -56,7 +54,9 @@ namespace BtpTweak.Pools {
                     _poolStack.Push(this as T);
                 }
                 _owner = null;
+                return;
             }
+            base.FixedUpdate();
         }
     }
 }

@@ -177,9 +177,9 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                         }
                     }
                 } else if (PhaseCounter.instance.phase == 3) {
-                    var livePlayers = PlayerCharacterMasterController.instances.Where(player => player.master.hasBody);
-                    var target = livePlayers.ElementAt(Random.Range(0, livePlayers.Count())).body;
-                    if (Physics.Raycast(new Ray(target.footPosition, Vector3.down), out RaycastHit raycastHit, float.MaxValue, LayerIndex.world.mask, QueryTriggerInteraction.Ignore)) {
+                    var livePlayers = CharacterBody.readOnlyInstancesList.Where(body => body.isPlayerControlled);
+                    var target = livePlayers.ElementAt(Random.Range(0, livePlayers.Count()));
+                    if (Physics.Raycast(new Ray(target.footPosition, Vector3.down), out var raycastHit, float.MaxValue, LayerIndex.world.mask, QueryTriggerInteraction.Ignore)) {
                         Vector3[] hitPositions = [
                             raycastHit.point + new Vector3(Random.Range(-90f, -30f), 0f, Random.Range(-90f, -30f)),
                             raycastHit.point + new Vector3(Random.Range(30f, 90f), 0f, Random.Range(30f, 90f))

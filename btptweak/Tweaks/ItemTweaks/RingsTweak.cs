@@ -19,21 +19,21 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>().overlapProcCoefficient = 0.1f;
+            AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>().overlapProcCoefficient = 0.2f;
             AssetReferences.fireTornado.GetComponent<ProjectileSimple>().lifetime = 3f;
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
-            ILCursor ilcursor = new(il);
-            if (ilcursor.TryGotoNext(MoveType.After,
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdarg(1),
                                      x => x.MatchLdflda<DamageInfo>("procChainMask"),
                                      x => x.MatchLdcI4(12),
                                      x => x.MatchCall<ProcChainMask>("HasProc"))) {
-                ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldloc, 1);
-                ilcursor.Emit(OpCodes.Ldloc, 5);
-                ilcursor.EmitDelegate((bool hasRingsProc, DamageInfo damageInfo, CharacterBody attackerBody, Inventory inventory) => {
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.Emit(OpCodes.Ldloc, 1);
+                cursor.Emit(OpCodes.Ldloc, 5);
+                cursor.EmitDelegate((bool hasRingsProc, DamageInfo damageInfo, CharacterBody attackerBody, Inventory inventory) => {
                     if (hasRingsProc) {
                         return;
                     }
@@ -43,7 +43,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         if (damageInfo.damage < (3 + (iceRingCount > fireRingCount ? iceRingCount : fireRingCount)) * attackerBody.damage) {
                             return;
                         }
-                        attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady);
+                        attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady.buffIndex);
                         if (attackerBody.bodyIndex == BodyIndexes.Mage) {
                             attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, 1f);
                         } else {
@@ -57,7 +57,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         if (iceRingCount > 0) {
                             var blastAttack = new BlastAttack {
                                 attacker = damageInfo.attacker,
-                                baseDamage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, IceRingDamageCoefficient * iceRingCount),
+                                baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, IceRingDamageCoefficient * iceRingCount),
                                 canRejectForce = true,
                                 crit = damageInfo.crit,
                                 damageColorIndex = DamageColorIndex.Item,
@@ -69,13 +69,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 radius = 12f,
                                 teamIndex = attackerBody.teamComponent.teamIndex,
                             };
-                            var result = blastAttack.Fire();
-                            if (result.hitCount > 0) {
-                                foreach (var hitPoint in result.hitPoints) {
-                                    var healthComponent = hitPoint.hurtBox.healthComponent;
-                                    if (healthComponent.alive) {
-                                        healthComponent.body.AddTimedBuff(RoR2Content.Buffs.Slow80, IceRingSlow80BuffDuration * iceRingCount);
-                                    }
+                            foreach (var hitPoint in blastAttack.Fire().hitPoints) {
+                                var healthComponent = hitPoint.hurtBox.healthComponent;
+                                if (healthComponent.alive) {
+                                    healthComponent.body.AddTimedBuff(RoR2Content.Buffs.Slow80, IceRingSlow80BuffDuration * iceRingCount);
                                 }
                             }
                             EffectManager.SpawnEffect(AssetReferences.affixWhiteExplosion, new EffectData() {
@@ -86,8 +83,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         if (fireRingCount > 0) {
                             ProjectileManager.instance.FireProjectile(new FireProjectileInfo {
                                 crit = damageInfo.crit,
-                                damage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, FireRingDamageCoefficient * fireRingCount) * 0.1f,
+                                damage = Util.OnHitProcDamage(damageInfo.damage, 0, FireRingDamageCoefficient * fireRingCount * 0.1f),
                                 damageColorIndex = DamageColorIndex.Item,
+                                damageTypeOverride = DamageType.IgniteOnHit,
                                 owner = damageInfo.attacker,
                                 position = damageInfo.position,
                                 procChainMask = ringProcChainMask,
@@ -110,7 +108,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         }
                         var fireProjectileInfo = new FireProjectileInfo {
                             crit = damageInfo.crit,
-                            damage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, voidRingCount),
+                            damage = Util.OnHitProcDamage(damageInfo.damage, 0, voidRingCount),
                             damageColorIndex = DamageColorIndex.Void,
                             force = 6000f,
                             owner = damageInfo.attacker,
@@ -123,7 +121,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         ProjectileManager.instance.FireProjectile(fireProjectileInfo);
                     }
                 });
-                ilcursor.Emit(OpCodes.Ldc_I4_1);
+                cursor.Emit(OpCodes.Ldc_I4_1);
             } else {
                 Main.Logger.LogError("Rings :: Hook Failed!");
             }

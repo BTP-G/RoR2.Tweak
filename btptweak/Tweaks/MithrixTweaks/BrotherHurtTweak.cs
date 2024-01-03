@@ -1,7 +1,9 @@
 ﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Tweaks.ItemTweaks;
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.BrotherMonster;
+using R2API.Utils;
 using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
@@ -21,7 +23,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
         private float fireTimer;
 
         void IOnModLoadBehavior.OnModLoad() {
-            On.EntityStates.BrotherMonster.SpellChannelState.OnExit += SpellChannelState_OnExit;
+            On.EntityStates.BrotherMonster.SpellChannelExitState.OnEnter += SpellChannelExitState_OnEnter;
             On.EntityStates.BrotherMonster.TrueDeathState.FixedUpdate += TrueDeathState_FixedUpdate;
         }
 
@@ -33,10 +35,10 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             component.travelEffectPrefab = meteorStormController.travelEffectPrefab;
         }
 
-        private void SpellChannelState_OnExit(On.EntityStates.BrotherMonster.SpellChannelState.orig_OnExit orig, SpellChannelState self) {
+        private void SpellChannelExitState_OnEnter(On.EntityStates.BrotherMonster.SpellChannelExitState.orig_OnEnter orig, SpellChannelExitState self) {
             orig(self);
             if (NetworkServer.active) {
-                var body = self.characterBody;
+                var body = self.outer.commonComponents.characterBody;
                 var dotInfo = new InflictDotInfo {
                     attackerObject = body.gameObject,
                     damageMultiplier = 1,
@@ -54,6 +56,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 var healthComponent = body.healthComponent;
                 healthComponent.Networkhealth = healthComponent.fullHealth;
                 healthComponent.RechargeShieldFull();
+                dotStack.damage = Mathf.Min(dotStack.damage, healthComponent.fullCombinedHealth * 0.001f);
             }
         }
 
@@ -92,7 +95,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             public const float blastRadius = 8;
             public const float impactDelay = 2;
             public const float travelEffectDuration = 2;
-            public const float waveInterval = 0.5f;
+            public const float waveInterval = 1f;
 
             public GameObject warningEffectPrefab;
             public GameObject travelEffectPrefab;
@@ -106,16 +109,24 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             private void Awake() {
                 if (enabled = NetworkServer.active) {
                     characterBody = GetComponent<CharacterBody>();
+                    GetComponent<HealthComponent>().ospTimer += 3f;
                     meteorList = [];
                     waveList = [];
                     On.RoR2.HealthComponent.Heal += HealthComponent_Heal;
                     On.RoR2.HealthComponent.RechargeShield += HealthComponent_RechargeShield;
                     On.RoR2.HealthComponent.AddBarrier += HealthComponent_AddBarrier;
                 }
+                if (RunInfo.位于时之墓
+                    && LunarWingsTweak.LunarWingsBehavior.Instance
+                    && LunarWingsTweak.GoNextState(LunarWingsState.过去时)) {
+                    ChatMessage.Send(LunarWingsTweak.LunarWingsBehavior.Instance.body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                }
             }
 
             private void Start() {
-                characterBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
+                characterBody.master.teamIndex = TeamIndex.Lunar;
+                characterBody.teamComponent.teamIndex = TeamIndex.Lunar;
+                Util.CleanseBody(characterBody, true, false, true, true, true, true);
             }
 
             private void FixedUpdate() {
@@ -124,7 +135,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 }
                 if ((waveTimer -= Time.fixedDeltaTime) <= 0) {
                     waveTimer = waveInterval;
-                    waveList.Add(new MeteorStormController.MeteorWave(CharacterBody.readOnlyInstancesList.Where(body => body.bodyIndex != BodyIndexes.BrotherHurt).ToArray(), transform.position) {
+                    waveList.Add(new MeteorStormController.MeteorWave(CharacterBody.readOnlyInstancesList.Where(body => body.isPlayerControlled).ToArray(), transform.position) {
                         hitChance = 0.1f,
                     });
                 }
@@ -147,7 +158,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 }
                 float num = Run.instance.time - impactDelay;
                 float num2 = num - travelEffectDuration;
-                for (int j = meteorList.Count - 1; j >= 0; j--) {
+                for (int j = meteorList.Count - 1; j >= 0; --j) {
                     var meteor = meteorList[j];
                     if (meteor.startTime < num2 && !meteor.didTravelEffect) {
                         meteor.didTravelEffect = true;

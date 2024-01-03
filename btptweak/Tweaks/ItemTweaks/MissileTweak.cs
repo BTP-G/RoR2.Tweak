@@ -1,11 +1,10 @@
-﻿using BtpTweak.MissilePools;
+﻿using BtpTweak.Pools;
 using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
-using static BtpTweak.MissilePools.MissilePool;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
@@ -13,6 +12,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float BasePercnetChance = 10f;
         public const float 半数 = 9;
         public const float DamageCoefficient = 1.5f;
+        public const float Interval = 1f;
 
         void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Projectile.MissileController.FixedUpdate += MissileController_FixedUpdate;
@@ -41,19 +41,19 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldarg_2);
-                ilcursor.Emit(OpCodes.Ldloc, 4);
-                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterMaster attackerMaster) => {
-                    if (itemCount > 0 && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerMaster)) {
-                        var attacker = damageInfo.attacker;
-                        var missileInfo = new MissileInfo {
+                ilcursor.Emit(OpCodes.Ldloc_1);
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
+                    if (itemCount > 0 && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerBody.master)) {
+                        var missileInfo = new MissilePoolKey {
                             missilePrefab = GlobalEventManager.CommonAssets.missilePrefab,
                             procChainMask = damageInfo.procChainMask,
                             isCrit = damageInfo.crit,
                             target = victim,
+                            attackerBody = attackerBody,
                         };
                         missileInfo.procChainMask.AddGreenProcs();
-                        (attacker.GetComponent<MissilePool>()
-                        ?? attacker.AddComponent<MissilePool>()).AddMissile(missileInfo, Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
+                        MissilePool.RentPool(damageInfo.attacker).AddMissile(missileInfo,
+                                                                             Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

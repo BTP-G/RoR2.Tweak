@@ -52,6 +52,12 @@ namespace BtpTweak.Utils {
 
         public static string ToIce(this string str) => "<color=#CCFFFF>" + str + "</color>";
 
+        public static string ToWavy(this string str) => "<link=\"BulwarksHauntWavy\">" + str + "</link>";
+
+        public static string ToRainbowWavy(this string str) => "<link=\"BulwarksHauntRainbowWavy\">" + str + "</link>";
+
+        public static string ToShaky(this string str) => "<link=\"BulwarksHauntShaky\">" + str + "</link>";
+
         public static string ToLightning(this string str) => "<color=#99CCFF>" + str + "</color>";
 
         public static string ToLunar(this string str) => "<style=cIsLunar>" + str + "</style>";

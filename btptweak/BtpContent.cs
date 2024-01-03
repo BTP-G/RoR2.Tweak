@@ -113,8 +113,8 @@ namespace BtpTweak {
                 UngroundedDash.skillName = "LunarDash";
                 UngroundedDash.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
                 UngroundedDash.activationStateMachineName = "Body";
-                UngroundedDash.baseMaxStock = 2;
-                UngroundedDash.baseRechargeInterval = 3f;
+                UngroundedDash.baseMaxStock = 1;
+                UngroundedDash.baseRechargeInterval = 5f;
                 UngroundedDash.beginSkillCooldownOnSkillEnd = false;
                 UngroundedDash.canceledFromSprinting = false;
                 UngroundedDash.cancelSprintingOnActivation = true;
@@ -130,6 +130,33 @@ namespace BtpTweak {
                     return;
                 }
                 Main.Logger.LogError("CreateUngroundedDash failed!");
+            }
+        }
+
+        public static class Difficulties {
+            public static DifficultyDef 造物 { get; private set; }
+            public static DifficultyIndex 造物索引 { get; private set; }
+
+            [RuntimeInitializeOnLoadMethod]
+            private static void Init() {
+                造物 = new DifficultyDef(3f,
+                                       "DIFFICULTY_CREATION_NAME",
+                                       null,
+                                       "DIFFICULTY_CREATION_DESC",
+                                       ColorCatalog.GetColor(ColorCatalog.ColorIndex.VoidCoin),
+                                       "btp",
+                                       true);
+                造物索引 = DifficultyAPI.AddDifficulty(造物, Texture2DPaths.texVoidCoinIcon.Load<Sprite>());
+                if (造物索引 == DifficultyIndex.Invalid) {
+                    Main.Logger.LogError($"Difficulties {造物.nameToken} add failed!");
+                }
+                Localizer.AddOverlay("DIFFICULTY_CREATION_NAME", "造物");
+                Localizer.AddOverlay("DIFFICULTY_CREATION_DESC", "准备好面对造物主的试炼了吗？\n\n".ToRainbowWavy()
+                    + "以标准的季风难度开局，但难度随情况变化。\n\n".ToShaky()
+                    + ">玩家根据所选角色获得初始物品\n".ToHealing()
+                    + ">敌人将会根据情况获得各种增益\n".ToDeath()
+                    + ">充能半径将与充能进度成反比\n".ToDeath()
+                    + ">未充能时进度缓慢衰减\n".ToDeath());
             }
         }
     }

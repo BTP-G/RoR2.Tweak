@@ -1,0 +1,192 @@
+﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
+using EntityStates.Drone.DroneWeapon;
+using R2API.Utils;
+using RoR2;
+using System.Collections.Generic;
+using TPDespair.ZetArtifacts;
+using UnityEngine;
+using UnityEngine.Networking;
+
+namespace BtpTweak.Tweaks.ItemTweaks {
+
+    public enum LunarWingsState {
+        Default = 0,
+        过去时,
+        过去完成时,
+        现在时,
+        现在完成时,
+        将来时,
+        将来完成时,
+        Count,
+    }
+
+    internal class LunarWingsTweak : TweakBase<LunarWingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const string DescToken = "ITEM_LUNARWINGS_DESC";
+        public const string DefaultDesc = "默认：看起来只是一双翅膀。";
+        private static LunarWingsState _state = LunarWingsState.Default;
+        public static string PastDesc => $"{"过去时".ToStk()}：看起来只是一双翅膀。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"离开...".ToWavy()}”\n无效果。";
+        public static string PastPerfectDesc => $"{"过去完成时".ToLunar()}：看起来这双翅膀对某个敌人有反应。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"力量...".ToWavy()}”\n{"全属性上升".ToYellow() + 1.ToBaseAndStkPct().ToYellow()}。";
+        public static string PresentDesc => $"{"现在时".ToStk()}：看起来这双翅膀十分活跃。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"时间...".ToWavy()}”\n{"或许它在提示你...".ToUtil()}。";
+
+        public static string PresentPrefectDesc => $"{"现在完成时".ToRainbowWavy()}：看起来这双翅膀拥有无尽的知识。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"知识...".ToWavy()}”\n"
+            + (ZetDropifact.Enabled ? $"掌握对{"月球".ToLunar()}和{"虚空".ToVoid()}物品的丢弃权。" : "")
+            + $"{"右键点击象征（右下角）".ToUtil()}装备可将其{"转化为物品".ToUtil()}。";
+
+        public static string FutureDesc => $"{"将来时".ToShaky()}：敬请期待。";
+        public static string FuturePerfectDesc => $"{"将来完成时".ToShaky()}：敬请期待。";
+        public static ItemDef 特拉法梅的祝福 { get; private set; }
+
+        void IOnModLoadBehavior.OnModLoad() {
+            Run.onRunStartGlobal += OnRunStartGlobal;
+            CharacterBody.onBodyInventoryChangedGlobal += CharacterBody_onBodyInventoryChangedGlobal;
+        }
+
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            特拉法梅的祝福 = ItemDefPaths.LunarWings.Load<ItemDef>();
+            特拉法梅的祝福.deprecatedTier = ItemTier.Lunar;
+            特拉法梅的祝福.tier = ItemTier.Lunar;
+            特拉法梅的祝福.canRemove = false;
+            特拉法梅的祝福.tags = [
+                ItemTag.CannotCopy,
+                ItemTag.CannotDuplicate,
+                ItemTag.CannotSteal,
+                ItemTag.Utility,
+                ItemTag.WorldUnique,
+            ];
+            var pickupDef = PickupCatalog.GetPickupDef(PickupCatalog.FindPickupIndex(特拉法梅的祝福.itemIndex));
+            var itemTierDef = ItemTierCatalog.GetItemTierDef(特拉法梅的祝福.tier);
+            pickupDef.baseColor = ColorCatalog.GetColor(itemTierDef.colorIndex);
+            pickupDef.darkColor = ColorCatalog.GetColor(itemTierDef.darkColorIndex);
+            pickupDef.dropletDisplayPrefab = itemTierDef.dropletDisplayPrefab;
+            pickupDef.isLunar = 特拉法梅的祝福.tier == ItemTier.Lunar;
+            pickupDef.itemTier = 特拉法梅的祝福.tier;
+            Localizer.AddOverlay(DescToken, DefaultDesc);
+        }
+
+        internal static bool GoNextState(LunarWingsState currentState) {
+            if (_state == currentState) {
+                UpdateLunarWingsState(_state + 1);
+                return true;
+            }
+            return false;
+        }
+
+        internal static void UpdateLunarWingsState(LunarWingsState newState) {
+            Reset();
+            switch (newState) {
+                case LunarWingsState.Default:
+                    Localizer.AddOverlay(DescToken, DefaultDesc);
+                    break;
+
+                case LunarWingsState.过去时:
+                    Localizer.AddOverlay(DescToken, PastDesc);
+                    break;
+
+                case LunarWingsState.过去完成时:
+                    Localizer.AddOverlay(DescToken, PastPerfectDesc);
+                    R2API.RecalculateStatsAPI.GetStatCoefficients += 全属性上升Hook;
+                    break;
+
+                case LunarWingsState.现在时:
+                    Localizer.AddOverlay(DescToken, PresentDesc);
+                    break;
+
+                case LunarWingsState.现在完成时:
+                    Localizer.AddOverlay(DescToken, PresentPrefectDesc);
+                    TPDespair.ZetAspects.Configuration.AspectEquipmentConversion.Value = true;
+                    ZetArtifactsPlugin.DropifactVoidT1.Value = true;
+                    ZetArtifactsPlugin.DropifactVoidT2.Value = true;
+                    ZetArtifactsPlugin.DropifactVoidT3.Value = true;
+                    ZetArtifactsPlugin.DropifactVoid.Value = true;
+                    ZetArtifactsPlugin.DropifactLunar.Value = true;
+                    ZetArtifactsPlugin.DropifactVoidLunar.Value = true;
+                    break;
+
+                case LunarWingsState.将来时:
+                case LunarWingsState.将来完成时:
+                    Localizer.AddOverlay(DescToken, FutureDesc);
+                    break;
+
+                default:
+                    break;
+            }
+            _state = newState;
+        }
+
+        private static void Reset() {
+            TPDespair.ZetAspects.Configuration.AspectEquipmentConversion.Value = false;
+            ZetArtifactsPlugin.DropifactVoidT1.Value = false;
+            ZetArtifactsPlugin.DropifactVoidT2.Value = false;
+            ZetArtifactsPlugin.DropifactVoidT3.Value = false;
+            ZetArtifactsPlugin.DropifactVoid.Value = false;
+            ZetArtifactsPlugin.DropifactLunar.Value = false;
+            ZetArtifactsPlugin.DropifactVoidLunar.Value = false;
+            R2API.RecalculateStatsAPI.GetStatCoefficients -= 全属性上升Hook;
+        }
+
+        private static void 全属性上升Hook(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
+            if (sender.inventory) {
+                var itemCount = sender.inventory.GetItemCount(LunarWingsTweak.特拉法梅的祝福);
+                if (itemCount > 0) {
+                    args.attackSpeedMultAdd += itemCount;
+                    args.damageMultAdd += itemCount;
+                    args.healthMultAdd += itemCount;
+                    args.levelArmorAdd += itemCount;
+                    args.moveSpeedMultAdd += itemCount;
+                    args.regenMultAdd += itemCount;
+                }
+            }
+        }
+
+        private void CharacterBody_onBodyInventoryChangedGlobal(CharacterBody body) {
+            body.AddItemBehavior<LunarWingsBehavior>(body.inventory.GetItemCount(特拉法梅的祝福));
+        }
+
+        private void OnRunStartGlobal(Run run) {
+            UpdateLunarWingsState(LunarWingsState.Default);
+        }
+
+        public class LunarWingsBehavior : CharacterBody.ItemBehavior {
+            public static LunarWingsBehavior Instance { get; private set; }
+
+            private void Start() {
+                if (Instance) {
+                    Main.Logger.LogError("LunarWingsBehavior Exception!!!");
+                }
+                Instance = this;
+                if (GoNextState(LunarWingsState.Default)) {
+                    ChatMessage.Send(body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                }
+                if (_state < LunarWingsState.现在完成时) {
+                    On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
+                    if (_state < LunarWingsState.现在时) {
+                        BulwarksHaunt.GhostWave.BulwarksHauntGhostWaveController.OnGhostWaveComplete += BulwarksHauntGhostWaveController_OnGhostWaveComplete;
+                    }
+                }
+            }
+
+            private void BulwarksHauntGhostWaveController_OnGhostWaveComplete() {
+                BulwarksHaunt.GhostWave.BulwarksHauntGhostWaveController.OnGhostWaveComplete -= BulwarksHauntGhostWaveController_OnGhostWaveComplete;
+                GoNextState(LunarWingsState.过去时);
+                if (GoNextState(LunarWingsState.过去完成时)) {
+                    ChatMessage.Send(body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                }
+            }
+
+            private void FadeOut_OnEnter(On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.orig_OnEnter orig, EntityStates.Missions.LunarScavengerEncounter.FadeOut self) {
+                orig(self);
+                On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
+                if (GoNextState(LunarWingsState.现在时)) {
+                    ChatMessage.Send(body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                }
+            }
+
+            private void OnDestroy() {
+                Instance = null;
+                On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
+                BulwarksHaunt.GhostWave.BulwarksHauntGhostWaveController.OnGhostWaveComplete -= BulwarksHauntGhostWaveController_OnGhostWaveComplete;
+            }
+        }
+    }
+}

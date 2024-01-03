@@ -22,7 +22,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody attackerBody) => {
                     int teamItemCount = Util.GetItemCountForTeam(damageReport.attackerTeamIndex, RoR2Content.Items.Infusion.itemIndex, true, false);
                     if (teamItemCount > 0) {
-                        if (attackerBody.inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount + ModConfig.测试用.Value)) {
+                        if (attackerBody.mainHurtBox && attackerBody.inventory.infusionBonus < (uint)(attackerBody.level * attackerBody.baseMaxHealth * 基础生命值占比 * teamItemCount + ModConfig.测试用.Value)) {
                             var infusionOrb = new InfusionOrb() {
                                 origin = damageReport.damageInfo.position,
                                 target = attackerBody.mainHurtBox,
@@ -31,7 +31,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             OrbManager.instance.AddOrb(infusionOrb);
                         }
                         var ownerBody = damageReport.attackerOwnerMaster?.GetBody();
-                        if (ownerBody?.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount + ModConfig.测试用.Value)) {
+                        if (ownerBody && ownerBody.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.levelMaxHealth * teamItemCount + ModConfig.测试用.Value)) {
                             var infusionOrb = new InfusionOrb() {
                                 origin = damageReport.damageInfo.position,
                                 target = ownerBody.mainHurtBox,

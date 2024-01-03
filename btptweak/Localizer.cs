@@ -26,18 +26,28 @@ namespace BtpTweak {
 
         private static readonly List<string> strings = [];
 
-        [RuntimeInitializeOnLoadMethod]
-        private static void Init() {
-            On.RoR2.UI.MainMenu.MainMenuController.Start += MainMenuController_Start;
-            //On.RoR2.Language.GetLocalizedStringByToken += Language_GetLocalizedStringByToken;
-        }
-
-        private static void AddOverlay(string key, string value, string lang = "zh-CN") {
+        public static void AddOverlay(string key, string value, string lang) {
             if (key == null || value == null) {
                 return;
             }
             Language.FindLanguageByName(lang)?.stringsByToken.Remove(key);
             R2API.LanguageAPI.AddOverlay(key, value, lang);
+        }
+
+        public static void AddOverlay(string key, string value) {
+            if (key == null || value == null) {
+                return;
+            }
+            foreach (var language in Language.GetAllLanguages()) {
+                language.stringsByToken.Remove(key);
+            }
+            R2API.LanguageAPI.AddOverlay(key, value);
+        }
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void Init() {
+            On.RoR2.UI.MainMenu.MainMenuController.Start += MainMenuController_Start;
+            //On.RoR2.Language.GetLocalizedStringByToken += Language_GetLocalizedStringByToken;
         }
 
         private static void 基础汉化() {
@@ -188,7 +198,7 @@ namespace BtpTweak {
             AddOverlay("INTERACTIBLE_STATICPORTAL_CONTEXT", "返回星球", "zh-CN");
             AddOverlay("ITEM_AbyssalMedkit_DESCRIPTION", "<style=cIsUtility>消耗品</style>，抵挡<style=cIsUtility>10次</style>减益后失效。每一次抵挡都有<style=cIsHealing>10%</style>概率给予你<style=cIsHealing>“祝·福”</style>。每个<style=cIsHealing>祝福</style>可使你<style=cIsUtility>所有属性提升3%</style>。<style=cIsVoid>使所有医疗包无效化</style>", "zh-CN");
             AddOverlay("ITEM_AbyssalMedkit_PICKUP", "消耗品，可以替你抵挡10次减益，每一次抵挡都有概率给予你“祝·福”", "zh-CN");
-            AddOverlay("ITEM_ANCIENT_SCEPTER_DESCRIPTION", $"{"原始：来自原始传送器。".ToRed()}\n改变你的某个<style=cIsUtility>技能</style>。<style=cStack>（具体效果见技能介绍，对某些角色无效果）</style>。", "zh-CN");
+            //AddOverlay("ITEM_ANCIENT_SCEPTER_DESCRIPTION", $"{"原始：来自原始传送器。".ToRed()}\n改变你的某个<style=cIsUtility>技能</style>。<style=cStack>（具体效果见技能介绍，对某些角色无效果）</style>。", "zh-CN");
             AddOverlay("ITEM_ARMORREDUCTIONONHIT_DESC", $"{"2秒".ToUtil()}内命中敌人{"5次".ToDmg()}造成{"粉碎".ToDmg()}减益，将对方<style=cIsDamage>护甲</style>降低<style=cIsDamage>60</style>点，持续<style=cIsDamage>8秒</style><style=cStack>（每层+8秒）</style>。你的攻击将{"穿透".ToDmg()}被{"粉碎"}的敌人{ArmorReductionOnHitTweak.基础破甲率.ToDmgPct() + ToStk简单逼近百分百字符串(ArmorReductionOnHitTweak.半数)}的护甲。", "zh-CN");
             AddOverlay("ITEM_ATTACKSPEEDANDMOVESPEED_DESC", $"使<style=cIsDamage>攻击速度</style>提高<style=cIsDamage>7.5%</style><style=cStack>（每层+7.5%）</style>，使<style=cIsUtility>移动速度</style>提高<style=cIsUtility>7%</style><style=cStack>（每层+7%）</style>。<color=#FFFF00>加里翁特殊效果：最大生命值和基础生命值再生速度速度增加5%<style=cStack>（每层+5%）</style>。</color>", "zh-CN");
             AddOverlay("ITEM_AUTOCASTEQUIPMENT_DESC", $"<style=cIsUtility>使装备冷却时间减少</style><style=cIsUtility>50%</style><style=cStack>（每层增加15%）</style>，但会使装备增加{"0.15秒强制冷却时间".ToUtil() + "（每层+0.15秒）".ToStk()}。装备会在<style=cIsUtility>冷却时间</style>结束时被迫自动<style=cIsUtility>激活</style>。", "zh-CN");
@@ -196,19 +206,19 @@ namespace BtpTweak {
             AddOverlay("ITEM_BARRIERONOVERHEAL_DESC", $"基础护甲增加{50.ToBaseAndStk().ToHealing("_点")}，外加升级获得护甲增加{1.ToBaseAndStk().ToHealing("_点")}。过量<style=cIsHealing>治疗</style>会使你获得一道相当于{0.5f.ToBaseAndStkPct().ToHealing()}已<style=cIsHealing>治疗</style>生命值的<style=cIsHealing>临时屏障</style>。", "zh-CN");
             AddOverlay("ITEM_BEAR_DESC", $"增加<style=cIsHealing>10</style>点<style=cStack>（每层增加10点）</style>护甲。\n<style=cIsHealing>【护甲减伤公式：100%x护甲值÷(护甲值+100)】</style>", "zh-CN");
             AddOverlay("ITEM_BEARVOID_DESC", $"有<style=cIsHealing>50%</style>概率<style=cIsUtility>（成为虚空的象征+50%概率）</style><style=cIsHealing>格挡</style>一次来袭的伤害。充能时间<style=cIsUtility>15秒</style><style=cStack>（每层-10%）</style>。<style=cIsVoid>使所有更艰难的时光无效化</style>。", "zh-CN");
-            AddOverlay("ITEM_BEHEMOTH_DESC", $"你的所有<style=cIsDamage>攻击均会产生爆炸</style>，爆炸将{"继承".ToUtil()}这次攻击的{"所有属性".ToUtil()}，对{BehemothTweak.Radius.ToBaseAndStk().ToDmg("_米")}范围内的敌人合计造成{BehemothTweak.BaseDamageCoefficient.ToDmgPct()}的额外伤害。<color=#FFFF00>船长特殊效果：关于“火神霰弹枪”（详情看技能介绍）。</color>", "zh-CN");
+            AddOverlay("ITEM_BEHEMOTH_DESC", $"你的所有<style=cIsDamage>攻击均会产生爆炸</style>{BehemothTweak.Interval.ToStk("（爆炸间隔：_秒）")}，爆炸将{"继承".ToUtil()}这次攻击的{"所有属性".ToUtil()}，对{BehemothTweak.Radius.ToBaseAndStk().ToDmg("_米")}范围内的敌人合计造成{BehemothTweak.BaseDamageCoefficient.ToDmgPct()}的额外伤害。<color=#FFFF00>船长特殊效果：关于“火神霰弹枪”（详情看技能介绍）。</color>", "zh-CN");
             AddOverlay("ITEM_BLEEDONHIT_DESC", $"攻击有<style=cIsDamage>10%</style><style=cStack>（每层增加10%）</style>的几率使敌人<style=cIsDamage>流血</style>{"（不与其他流血重复）".ToUtil()}，造成<style=cIsDamage>320%</style>的基础伤害。<style=cIsDamage>多层</style><style=cIsDamage>流血或{"出血".ToDeath()}</style>将整合为{1.ToDmg()}层。", "zh-CN");
             AddOverlay("ITEM_BLEEDONHITANDEXPLODE_DESC", $"<style=cIsDamage>暴击流血</style>{"（不与其他流血重复）".ToUtil()}将对敌人造成<style=cIsDamage>320%</style>的基础伤害。<style=cIsDamage>流血或出血</style>的敌人将会在死亡后产生半径{BleedOnHitAndExplodeTweak.BaseRadius.ToBaseWithStk(BleedOnHitAndExplodeTweak.StackRadius).ToDmg("_米") + "（具体范围与敌人体型相关）".ToUtil()}的<style=cIsDamage>鲜血爆炸</style>并造成{BleedOnHitAndExplodeTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的基础伤害。", "zh-CN");
             AddOverlay("ITEM_BLEEDONHITVOID_DESC", $"攻击有<style=cIsDamage>10%</style><style=cStack>（每层+10%）</style>几率<style=cIsDamage>瓦解</style>敌人，合计造成<style=cIsDamage>44%</style>的伤害。<style=cIsVoid>使所有三尖匕首无效化</style>。", "zh-CN");
             AddOverlay("ITEM_BLESSING_NAME_DESCRIPTION", $"凝视深渊过久，深渊将回以凝视！\n<style=cIsVoid>所有属性提升3%</style><style=cStack>（每层+3%）</style>\n<style=cIsVoid>祝·福深入灵魂，将伴随你一生</style>。", "zh-CN");
             AddOverlay("ITEM_BONUSGOLDPACKONKILL_DESC", $"<style=cIsDamage>击杀敌人</style>时有{BonusGoldPackOnKillTweak.DropPercentChance.ToBaseAndStk().ToUtil("_%")}的几率掉落价值<style=cIsUtility>25{BonusGoldPackOnKillTweak.StackMoney.ToStk("（每层+_）")}<color=yellow>金钱</color></style>的宝物<style=cIsUtility>（价值随时间变化）</style>。", "zh-CN");
             AddOverlay("ITEM_BOSSDAMAGEBONUS_DESC", $"对<style=cIsHealing>护盾</style>和<style=cIsHealing>临时屏障</style>额外造成<style=cIsDamage>20%</style>的伤害<style=cStack>（每层增加20%）</style>。<color=#FFFF00>指挥官特殊效果：基础伤害增加2点<style=cStack>（每层+2点）</style>。</color>", "zh-CN");
-            AddOverlay("ITEM_BOUNCENEARBY_DESC", $"命中敌人时有{BounceNearbyTweak.BasePercentChance.ToBaseWithStk(BounceNearbyTweak.StackPercentChance).ToDmg("_%")}的几率向周围{BounceNearbyTweak.BaseRadius.ToUtil("_米")}内最多<style=cIsDamage>{BounceNearbyTweak.BaseMaxTargets}名</style>敌人发射<style=cIsDamage>追踪钩爪</style>{0.33f.ToStk("（发射间隔：_秒）")}，合计造成{BounceNearbyTweak.BaseDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
-            AddOverlay("ITEM_BULWARKSHAUNT_SWORD_DESC", $"神秘声音在你的脑海中回荡，低语着：<link=\"BulwarksHauntWavy\">\"方尖碑...方尖碑...\"</link>，看样子它好像想让你带它去方尖碑处", "zh-CN");
-            AddOverlay("ITEM_BULWARKSHAUNT_SWORD_UNLEASHED_DESC", $"神秘声音在你的脑海中回荡，低语着：<link=\"BulwarksHauntWavy\">\"方尖碑...方尖碑...\"</link>，看样子它好像想让你带它去方尖碑处", "zh-CN");
+            AddOverlay("ITEM_BOUNCENEARBY_DESC", $"命中敌人时有{BounceNearbyTweak.BasePercentChance.ToBaseWithStk(BounceNearbyTweak.StackPercentChance).ToDmg("_%")}的几率向周围{BounceNearbyTweak.BaseRadius.ToUtil("_米")}内最多<style=cIsDamage>{BounceNearbyTweak.BaseMaxTargets}名</style>敌人发射<style=cIsDamage>追踪钩爪</style>{BounceNearbyTweak.Interval.ToStk("（发射间隔：_秒）")}，合计造成{BounceNearbyTweak.BaseDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+            AddOverlay("ITEM_BULWARKSHAUNT_SWORD_DESC", $"神秘声音在你的脑海中回荡，低语着：<link=\"BulwarksHauntWavy\">\"方尖碑...方尖碑...\"</link>，看样子它好像想让你带它去方尖碑处。", "zh-CN");
+            AddOverlay("ITEM_BULWARKSHAUNT_SWORD_UNLEASHED_DESC", $"神秘声音在你的脑海中回荡，低语着：<link=\"BulwarksHauntWavy\">\"方尖碑...方尖碑...\"</link>，看样子它好像想让你带它去方尖碑处。", "zh-CN");
             AddOverlay("ITEM_CARTRIDGECONSUMED_DESCRIPTION", $"他曾梦想成为一名艺术家...", "zh-CN");
-            AddOverlay("ITEM_CHAINLIGHTNING_DESC", $"有{ChainLightningTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(ChainLightningTweak.半数)}的几率发射<style=cIsDamage>连锁闪电</style>{0.2f.ToStk("（发射间隔：_秒）")}，对{ChainLightningTweak.BaseRadius.ToBaseWithStk(ChainLightningTweak.StackRadius).ToUtil("_米")}内的最多<style=cIsDamage>{ChainLightningTweak.Bounces + 1}个</style>目标合计造成{ChainLightningTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。<color=#FFFF00>工匠特殊效果：关于“充能完毕的纳米炸弹”（详情看技能介绍）。</color>", "zh-CN");
-            AddOverlay("ITEM_CHAINLIGHTNINGVOID_DESC", $"有{ChainLightningVoidTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(ChainLightningVoidTweak.半数)}的几率发射<style=cIsDamage>虚空闪电</style>，对同一个敌人合计造成{ChainLightningVoidTweak.TotalStrikes.ToDmg()}x{ChainLightningVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。<style=cIsVoid>使所有尤克里里无效化</style>。", "zh-CN");
+            AddOverlay("ITEM_CHAINLIGHTNING_DESC", $"有{ChainLightningTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(ChainLightningTweak.半数)}的几率发射<style=cIsDamage>连锁闪电</style>{ChainLightningTweak.Interval.ToStk("（发射间隔：_秒）")}，对{ChainLightningTweak.BaseRadius.ToBaseWithStk(ChainLightningTweak.StackRadius).ToUtil("_米")}内的最多<style=cIsDamage>{ChainLightningTweak.Bounces + 1}个</style>目标合计造成{ChainLightningTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。<color=#FFFF00>工匠特殊效果：关于“充能完毕的纳米炸弹”（详情看技能介绍）。</color>", "zh-CN");
+            AddOverlay("ITEM_CHAINLIGHTNINGVOID_DESC", $"有{ChainLightningVoidTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(ChainLightningVoidTweak.半数)}的几率发射<style=cIsDamage>虚空闪电</style>{ChainLightningVoidTweak.Interval.ToStk("（发射间隔：_秒）")}，对同一个敌人合计造成{ChainLightningVoidTweak.TotalStrikes.ToDmg()}x{ChainLightningVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。<style=cIsVoid>使所有尤克里里无效化</style>。", "zh-CN");
             AddOverlay("ITEM_CLOVER_DESC", $"所有随机效果的概率提升<style=cIsUtility>25%</style>{"（叠加公式：幸运提升概率 = 原概率x(运气/(|运气|+3))）".ToStk()}。", "zh-CN");
             AddOverlay("ITEM_CRITDAMAGE_DESC", $"<style=cIsDamage>暴击伤害</style>增加<style=cIsDamage>100%</style><style=cStack>（每层+100%）</style>。<color=#FFFF00>磁轨炮手特殊效果：敌人弱点范围增加100%<style=cStack>（每层+100%）</style>（弱点框不再变大，防止遮挡视野）。</color>", "zh-CN");
             AddOverlay("ITEM_CRITGLASSESVOID_DESC", $"你的攻击有{CritGlassesVoidTweak.PercentChance.ToBaseAndStk().ToDmg("_%")}几率{"（不受运气影响）".ToStk()}对<style=cIsDamage>非Boss敌人</style>造成<style=cIsDamage>生命诅咒</style>，永久降低<style=cIsHealing>最大生命值</style>。<style=cIsVoid>使所有透镜制作者的眼镜无效化</style>。", "zh-CN");
@@ -220,10 +230,10 @@ namespace BtpTweak {
             AddOverlay("ITEM_ESSENCEOFTAR_DESC", $"成为焦油的象征，<style=cDeath>生命不再自然恢复</style>。攻击敌人<style=cIsHealing>吸收他们的生命</style>。<style=cDeath>移除将导致你直接死亡</style>", "zh-CN");
             AddOverlay("ITEM_EXECUTELOWHEALTHELITE_DESC", $"立即击败生命值低于<style=cIsHealth>10%的精英怪物</style><style=cStack>（叠加公式：斩杀线 = 50%x(层数÷(层数+4))）</style>。", "zh-CN");
             AddOverlay("ITEM_EXPLODEONDEATH_DESC", $"击败敌人后召唤一道<style=cIsDamage>岩浆柱</style>，并在{"0.5秒".ToUtil()}后产生半径<style=cIsDamage>{ExplodeOnDeathTweak.BaseRadius}米</style>{ExplodeOnDeathTweak.StackRadius.ToStk("（每层+_米）") + "（具体范围与敌人体型相关）".ToUtil()}的爆炸，造成{ExplodeOnDeathTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的基础伤害。", "zh-CN");
-            AddOverlay("ITEM_EXPLODEONDEATHVOID_DESC", $"当你对敌人造成{"第一次".ToUtil()}伤害时将<style=cIsDamage>引爆</style>它们，产生半径{ExplodeOnDeathVoidTweak.BaseRadius.ToBaseWithStk(ExplodeOnDeathVoidTweak.StackRadius).ToUtil("_米") + "（具体范围与敌人体型和剩余血量相关）".ToUtil()}的爆炸，合计造成{"敌方剩余百分比生命值".ToHealth()}x{ExplodeOnDeathVoidTweak.BaseDamageCoefficient.ToDmgPct() + ToStk简单逼近百分百字符串(ExplodeOnDeathVoidTweak.半数)}的总伤害，并且<style=cIsDamage>点燃</style>该敌人，但此燃烧伤害{"不享受".ToUtil()}点火罐加成，燃烧总共造成等同于敌人<style=cIsDamage>剩余生命值</style>的伤害。<style=cIsVoid>使所有鬼火无效化</style>。", "zh-CN");
+            AddOverlay("ITEM_EXPLODEONDEATHVOID_DESC", $"当你对敌人造成{"第一次".ToUtil()}伤害时将<style=cIsDamage>引爆</style>它们，产生半径{ExplodeOnDeathVoidTweak.BaseRadius.ToBaseWithStk(ExplodeOnDeathVoidTweak.StackRadius).ToUtil("_米") + "（具体范围与敌人体型和剩余血量相关）".ToUtil()}的爆炸，合计造成{"敌方剩余百分比生命值".ToHealth()}x{ExplodeOnDeathVoidTweak.BaseDamageCoefficient.ToDmgPct() + ToStk简单逼近百分百字符串(ExplodeOnDeathVoidTweak.半数)}的总伤害，并且<style=cIsDamage>点燃</style>该敌人，燃烧总共造成等同于敌人<style=cIsDamage>剩余生命值</style>的伤害。<style=cIsVoid>使所有鬼火无效化</style>。", "zh-CN");
             AddOverlay("ITEM_EXTRALIFE_DESC", $"<style=cIsUtility>倒下后</style>，该物品将被<style=cIsUtility>消耗</style>，你将<style=cIsHealing>起死回生</style>并获得<style=cIsHealing>3秒的无敌时间</style>。\n<style=cIsUtility>死去的迪奥将在过关时复活。\n此物品不会被米斯历克斯偷走</style>。", "zh-CN");
             AddOverlay("ITEM_FALLBOOTSVOID_DESC", $"按住'E'可<style=cIsUtility>漂浮</style>并吸收<style=cIsUtility>引力波</style>。松开创造一个半径<style=cIsUtility>30米</style>的<style=cIsUtility>反重力区</style>，持续<style=cIsUtility>15</style>秒。之后进入<style=cIsUtility>20</style><style=cStack>（每层-50%）</style>秒的充能时间，反重力区中心会吸引周围敌人并造成<style=cIsDamage>200-2000%</style>的基础伤害。<style=cIsVoid>使所有H3AD-5T v2无效化</style>。", "zh-CN");
-            AddOverlay("ITEM_FIREBALLSONHIT_DESC", $"命中敌人时有{FireballsOnHitTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(FireballsOnHitTweak.半数)}的几率向敌人的{"岩浆球喷泉".ToFire()}中添加{"3颗岩浆球".ToFire() + ModConfig.喷泉喷射间隔.Value.ToStk("（喷射间隔：_秒）")}，每颗造成{FireballsOnHitTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害，并<style=cIsDamage>点燃</style>敌人。", "zh-CN");
+            AddOverlay("ITEM_FIREBALLSONHIT_DESC", $"命中敌人时有{FireballsOnHitTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(FireballsOnHitTweak.半数)}的几率向敌人的{"岩浆球喷泉".ToFire()}中添加{"3颗岩浆球".ToFire() + FireballsOnHitTweak.Interval.ToStk("（喷射间隔：_秒）")}，每颗造成{FireballsOnHitTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害，并<style=cIsDamage>点燃</style>敌人。", "zh-CN");
             AddOverlay("ITEM_FIRERING_DESC", $"充能完毕后，<style=cIsDamage>不低于{4.ToPct() + 1.ToStkPct("（取双环中层数高的每层+_）")}伤害的攻击</style>击中敌人时会产生一道{"符文火焰龙卷风".ToFire()}轰击敌人，造成{RingsTweak.FireRingDamageCoefficient.ToBaseAndStkPct().ToDmg()}的总持续伤害，同时<style=cIsDamage>点燃</style>敌人。充能时间<style=cIsUtility>10</style>秒<style=cStack>（每双手环减少1秒。至少1秒）</style>。<color=#FFFF00>工匠特殊效果：充能时间降低至1秒。</color>", "zh-CN");
             AddOverlay("ITEM_FLATHEALTH_DESC", $"<style=cIsHealing>最大生命值</style>增加<style=cIsHealing>25</style>点<style=cStack>（每层+25点）</style>。升级获得的<style=cIsHealing>最大生命值</style>增加<style=cIsHealing>11.11%</style><style=cStack>（每层+11.11%）</style>。<color=#FFFF00>厨师特殊效果：野牛肉排的效果翻倍。</color>", "zh-CN");
             AddOverlay("ITEM_FRAGILEDAMAGEBONUS_DESC", $"使造成的伤害提高<style=cIsDamage>20%</style><style=cStack>（每层+20%）</style>。受到伤害导致生命值降到<style=cIsHealth>25%</style>以下时，该物品会<style=cIsUtility>损坏</style>。\n<style=cIsUtility>损坏的手表将在过关时修复</style>。", "zh-CN");
@@ -236,7 +246,7 @@ namespace BtpTweak {
             AddOverlay("ITEM_IMMUNETODEBUFF_DESC", $"防止<style=cIsUtility>1<style=cStack>（每层+1）</style>个</style><style=cIsDamage>减益效果</style>并施加一道<style=cIsHealing>临时屏障</style>，数值为<style=cIsHealing>最大生命值</style>的<style=cIsHealing>10%</style>。每<style=cIsUtility>5</style>秒充能一次</style>。", "zh-CN");
             AddOverlay("ITEM_INFUSION_DESC", $"每击败一名敌人后使{"自身外加主人".ToHealing() + "（如果有）".ToStk()}<style=cIsHealing>永久性</style>增加<style=cIsHealing>1点</style><style=cStack>（每层+1点）</style>最大生命值，最多增加<style=cIsHealing>自身等级x自身基础血量x{InfusionTweak.基础生命值占比}x全队层数</style>点。", "zh-CN");
             AddOverlay("ITEM_KNURL_DESC", $"{"最大生命值".ToHealing()}增加{40.ToBaseAndStk().ToHealing()}点，外加升级获得的{"最大生命值".ToHealing()}增加{0.5f.ToHealPct()}。{"基础生命值再生速度".ToHealing()}增加{1.6f.ToBaseAndStk().ToHealing("_hp/s")}，外加{"基础生命值<color=yellow>百分比</color>再生速度".ToHealing()}增加{0.016f.ToBaseAndStkPct().ToHealing("_hp/s")}。", "zh-CN");
-            AddOverlay("ITEM_LIGHTNINGSTRIKEONHIT_DESC", $"命中敌人时有{LightningStrikeOnHitTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(LightningStrikeOnHitTweak.半数)}的几率向敌人的{"雷电召唤池".ToLightning()}中添加{"1次雷击".ToLightning() + ModConfig.喷泉喷射间隔.Value.ToStk("（召唤间隔：_秒）")}，造成<style=cIsDamage>300%</style><style=cStack>（每层+300%）</style>的伤害。<color=#FFFF00>装卸工特殊效果：关于“雷霆拳套”（详情看 权杖 技能介绍）。</color>", "zh-CN");
+            AddOverlay("ITEM_LIGHTNINGSTRIKEONHIT_DESC", $"命中敌人时有{LightningStrikeOnHitTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(LightningStrikeOnHitTweak.半数)}的几率向敌人的{"雷电召唤池".ToLightning()}中添加{"1次雷击".ToLightning() + LightningStrikeOnHitTweak.Interval.ToStk("（召唤间隔：_秒）")}，造成<style=cIsDamage>300%</style><style=cStack>（每层+300%）</style>的伤害。<color=#FFFF00>装卸工特殊效果：关于“雷霆拳套”（详情看 权杖 技能介绍）。</color>", "zh-CN");
             AddOverlay("ITEM_LUNARBADLUCK_DESC", $"所有技能冷却时间缩短<style=cIsUtility>2</style><style=cStack>（每层+1）</style>秒。所有随机效果的概率降低<style=cIsUtility>25%</style>{"（叠加公式：幸运降低概率 = 原概率x(运气/(|运气|+3))）".ToStk()}。", "zh-CN");
             AddOverlay("ITEM_LUNARPRIMARYREPLACEMENT_DESC", "<style=cIsUtility>替换主要技能</style>为<style=cIsUtility>渴望凝视</style>。\n\n发射一批会延迟引爆的<style=cIsUtility>追踪碎片</style>，造成<style=cIsDamage>120%</style>的基础伤害。最多充能12次<style=cStack>（每层增加12次）</style>，2秒后重新充能<style=cStack>（每层增加2秒）</style>。\n<style=cIsLunar>异教徒：追踪能力加强。每层使技能冷却降低2秒。</style>", "zh-CN");
             AddOverlay("ITEM_LUNARSECONDARYREPLACEMENT_DESC", $"<style=cIsUtility>将你的次要技能替换为</style><style=cIsUtility>万刃风暴</style>。\n\n充能并射出一发子弹，对附近的敌人造成<style=cIsDamage>每秒175%的伤害</style>，并在<style=cIsUtility>3</style>秒后爆炸，造成<style=cIsDamage>700%的伤害</style>{"（异教徒：每层+50%爆炸范围）".ToLunar()}，并使敌人<style=cIsDamage>定身</style><style=cIsUtility>3</style><style=cStack>（每层增加+3秒）</style>秒。5秒<style=cStack>（每层增加5秒）</style>后充能。\n<style=cIsLunar>异教徒：每层使攻击速度增加10%</style>。", "zh-CN");
@@ -244,11 +254,10 @@ namespace BtpTweak {
             AddOverlay("ITEM_LUNARSUN_DESC", $"每<style=cIsUtility>3</style><style=cStack>（每层-50%）</style>秒获得一个<style=cIsDamage>环绕运动的炸弹</style>，碰撞到敌人时爆炸，造成<style=cIsDamage>360%</style>的伤害，最多可获得<style=cIsUtility>3<style=cStack>（每层+1）</style>个炸弹</style>。每<style=cIsUtility>30</style>秒将一件随机物品<style=cIsUtility>{"（排除米斯历克斯不会偷走的物品）".ToStk()}转化</style>为该物品。", "zh-CN");
             AddOverlay("ITEM_LUNARSUN_PICKUP", "获得多个环绕运动的炸弹。<color=#FF7F7F>每30秒，将一件其他物品吸收并转化为自我中心。</color>", "zh-CN");
             AddOverlay("ITEM_LUNARUTILITYREPLACEMENT_DESC", "<style=cIsUtility>将你的辅助技能替换</style>为<style=cIsUtility>影逝</style>。\n\n隐去身形，进入<style=cIsUtility>隐形状态</style>并获得<style=cIsUtility>30%移动速度加成</style>。<style=cIsHealing>治疗</style><style=cIsHealing>25%<style=cStack>（每层增加25%）</style>的最大生命值</style>。持续3<style=cStack>（每层加3）</style>秒。\n<style=cIsLunar>异教徒：可通过技能按键切换形态。每层使移动速度增加10%。</style>", "zh-CN");
-            AddOverlay("ITEM_LUNARWINGS_DESC", $"{"工匠·过去时".ToLunar()}：随着{"时间".ToUtil()}流逝已经丧失了全部力量，{"或许在某个地方可以恢复...".ToDeath()}。", "zh-CN");
             AddOverlay("ITEM_LUNARWINGS_NAME", "特拉法梅的祝福", "zh-CN");
             AddOverlay("ITEM_LUNARWINGS_PICKUP", "一双翅膀。", "zh-CN");
-            AddOverlay("ITEM_MISSILE_DESC", $"有{MissileTweak.BasePercnetChance.ToDmg("_%") + ToStk简单逼近百分百字符串(MissileTweak.半数)}机率向{"导弹发射池".ToUtil()}里添加一枚导弹{ModConfig.导弹发射间隔.Value.ToStk("（发射间隔：_秒）")}。每枚合计造成{MissileTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。", "zh-CN");
-            AddOverlay("ITEM_MISSILEVOID_DESC", $"获得一个相当于你最大生命值<style=cIsHealing>{10}%</style>的<style=cIsHealing>护盾</style>。命中敌人时有{"护盾/总护盾".ToHealing()}x{"100%".ToDmg() + "（忽略触发系数）".ToStk()}机率向敌人发射{"1".ToDmg()}发虾米，合计造成{"护盾/总护盾".ToHealing()}x{MissileVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。<style=cIsVoid>使所有AtG导弹MK.1无效化</style>。", "zh-CN");
+            AddOverlay("ITEM_MISSILE_DESC", $"有{MissileTweak.BasePercnetChance.ToDmg("_%") + ToStk简单逼近百分百字符串(MissileTweak.半数)}机率向{"导弹发射池".ToUtil()}里添加一枚导弹{MissileTweak.Interval.ToStk("（发射间隔：_秒）")}。每枚合计造成{MissileTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。", "zh-CN");
+            AddOverlay("ITEM_MISSILEVOID_DESC", $"获得一个相当于你最大生命值<style=cIsHealing>{10}%</style>的<style=cIsHealing>护盾</style>。命中敌人时有{"护盾/总护盾".ToHealing()}x{"100%".ToDmg() + "（忽略触发系数）".ToStk()}机率向敌人发射{"1".ToDmg()}发虾米{MissileVoidTweak.Interval.ToStk("（发射间隔：_秒）")}，合计造成{"护盾/总护盾".ToHealing()}x{MissileVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害。<style=cIsVoid>使所有AtG导弹MK.1无效化</style>。", "zh-CN");
             AddOverlay("ITEM_MOVESPEEDONKILL_DESC", $"击杀敌人会使<style=cIsUtility>移动速度</style>提高<style=cIsUtility>125%</style>，在<style=cIsUtility>1</style><style=cStack>（每层+0.5）</style>秒内逐渐失效。<color=#FFFF00>女猎人特殊效果：锁敌距离增加10米{"（每层+10米）".ToStk()}。</color>", "zh-CN");
             AddOverlay("ITEM_NEARBYDAMAGEBONUS_DESC", $"对<style=cIsDamage>{13}米</style>内的敌人伤害增加{20}%<style=cStack>（每层+{20}%）</style>.", "zh-CN");
             AddOverlay("ITEM_NOVAONHEAL_DESC", $"将{1.ToBaseAndStkPct().ToHealing()}的治疗量储存为<style=cIsHealing>灵魂能量</style>，最大储量等同于<style=cIsHealing>最大生命值</style>的{1f.ToHealPct()}。当<style=cIsHealing>灵魂能量</style>达到<style=cIsHealing>最大生命值</style>的{NovaOnHealTweak.BaseThresholdFraction.ToHealPct() + ToStk简单逼近百分百字符串(NovaOnHealTweak.半数)}时，自动向周围<style=cIsDamage>{NovaOnHealTweak.BaseRadius}</style>米内的敌人<style=cIsDamage>发射一颗头骨</style>，造成相当于{NovaOnHealTweak.BaseDamageCoefficient.ToDmgPct()}<style=cIsHealing>灵魂能量</style>的伤害。", "zh-CN");
@@ -267,11 +276,11 @@ namespace BtpTweak {
             AddOverlay("ITEM_SIPHONONLOWHEALTH_DESC", $"在战斗状态下，<style=cIsDamage>15米</style>{"（每层+5米）".ToStk()}范围内距离你最近的1<style=cStack>（每层+1）</style>个敌人会与你“拴”在一起，每秒造成{SiphonOnLowHealthTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg()}的伤害，施加<style=cIsDamage>焦油</style>效果，造成伤害的<style=cIsHealing>100%</style>转化为对你的<style=cIsHealing>治疗量</style>。", "zh-CN");
             AddOverlay("ITEM_SLOWONHITVOID_DESC", $"命中敌人时有<style=cIsUtility>5%</style><style=cStack>（每层+5%）</style>几率使敌人<style=cIsDamage>定身</style><style=cIsUtility>1秒</style><style=cStack>（每层+1秒）</style>，但是对{"Boss".ToDmg()}和<style=cIsVoid>虚空生物</style><style=cDeath>无效</style>。<style=cIsVoid>使所有时空装置无效化</style>。", "zh-CN");
             AddOverlay("ITEM_SPRINTWISP_DESC", $"奔跑时，每{SprintWispTweak.FireInterval.ToUtil()}秒向{SprintWispBodyBehavior.searchRadius.ToDmg("_米")}内的敌人发射一道<style=cIsDamage>追踪幽魂</style>，造成{SprintWispBodyBehavior.damageCoefficient.ToBaseAndStkPct().ToDmg("_的伤害")}。发射速率随<style=cIsUtility>移动速度</style>增加。", "zh-CN");
-            AddOverlay("ITEM_STICKYBOMB_DESC", $"命中敌人时有<style=cIsDamage>5%</style><style=cStack>（每层增加5%）</style>的机率向敌人的{"黏弹喷泉".ToDmg()}中添加{"1颗黏弹".ToDmg() + ModConfig.喷泉喷射间隔.Value.ToStk("（喷射间隔：_秒）")}，爆炸时合计造成{StickyBombTweak.BaseDamageCoefficient.ToDmgPct()}伤害。", "zh-CN");
+            AddOverlay("ITEM_STICKYBOMB_DESC", $"命中敌人时有<style=cIsDamage>5%</style><style=cStack>（每层增加5%）</style>的机率向敌人的{"黏弹喷泉".ToDmg()}中添加{"1颗黏弹".ToDmg() + StickyBombTweak.Interval.ToStk("（喷射间隔：_秒）")}，爆炸时合计造成{StickyBombTweak.BaseDamageCoefficient.ToDmgPct()}伤害。", "zh-CN");
             AddOverlay("ITEM_STUNCHANCEONHIT_DESC", $"命中时有<style=cIsUtility>5%</style><style=cStack>（每层+5%）</style>的几率<style=cIsUtility>眩晕</style>敌人，持续<style=cIsUtility>2秒</style>。<color=#FFFF00>多功能枪兵特殊效果：关于“爆破筒”（详情看技能介绍）。</color>", "zh-CN");
             AddOverlay("ITEM_SUNBLADE_DESCRIPTION", $"第一次攻击会<style=cIsDamage>点燃</style>敌人，造成<style=cIsDamage>1500%</style>的基础伤害。之后30秒内，对该敌人的每次攻击都会<style=cIsDamage>点燃</style>它，造成<style=cIsDamage>100%</style><style=cStack>（每层+100%）</style>基础伤害。", "zh-CN");
             AddOverlay("ITEM_SYRINGE_DESC", $"使<style=cIsDamage>攻击速度</style>提高<style=cIsDamage>15%<style=cStack>（每层增加15%）</style></style>。<color=#FFFF00>指挥官特殊效果：额外使攻速，移速和最大生命值增加3%<style=cStack>（每层+3%）</style>。</color>", "zh-CN");
-            AddOverlay("ITEM_THORNS_DESC", $"受伤时弹射出1发{"剃刀".ToDmg()}还击攻击者，若没有，则弹射到{ThornsTweak.BaseRadius.ToBaseWithStk(ThornsTweak.StackRadius).ToDmg("_米")}内最近的敌人。合计造成<style=cIsDamage>受到的伤害的{ThornsTweak.BaseDamageCoefficient.ToBaseWithStkPct(ThornsTweak.StackDamageCoefficient).ToDmg()}的伤害</style>。{0.1f.ToStk("（发射间隔：_秒）")}", "zh-CN");
+            AddOverlay("ITEM_THORNS_DESC", $"受伤时弹射出1发{"剃刀".ToDmg()}还击攻击者，若没有，则弹射到{ThornsTweak.BaseRadius.ToBaseWithStk(ThornsTweak.StackRadius).ToDmg("_米")}内最近的敌人。合计造成<style=cIsDamage>受到的伤害的{ThornsTweak.BaseDamageCoefficient.ToBaseWithStkPct(ThornsTweak.StackDamageCoefficient).ToDmg()}的伤害</style>。{ThornsTweak.Interval.ToStk("（发射间隔：_秒）")}", "zh-CN");
             AddOverlay("ITEM_TITANGOLDDURINGTP_DESC", "在传送器场景中召唤<style=cIsDamage>奥利雷奥尼特</style>，它具有<style=cIsDamage>100%<style=cStack>（每层增加100%）</style>伤害</style>和<style=cIsHealing>100%<style=cStack>（每层增加100%）</style>生命值</style>。", "zh-CN");
             AddOverlay("ITEM_TOOTH_DESC", $"击败敌人后掉落一个<style=cIsHealing>治疗球</style>，拾取后恢复<style=cIsHealing>8</style>点外加等同于<style=cIsHealing>最大生命值</style><style=cIsHealing>2%<style=cStack>（每层+2%）</style></style>的生命值。<color=#FFFF00>呛鼻毒师特殊效果：关于“贪婪撕咬”（详情看技能介绍）。</color>", "zh-CN");
             AddOverlay("ITEM_TPHEALINGNOVA_DESC", $"在传送事件中释放<style=cIsHealing>1次</style><style=cStack>（每层增加1次）</style><style=cIsHealing>治疗新星</style>，<style=cIsHealing>治疗</style>传送器附近所有友方，使他们恢复<style=cIsHealing>50%</style>的最大生命值。每次释放{"新星".ToHealing()}后留下一个{"治疗区域".ToHealing()}，每秒恢复友方单位{TPHealingNovaTweak.HealFraction.ToHealPct()}的最大生命值。<color=#FFFF00>雷克斯特殊效果：治疗效果增加20%{"（每层+20%）".ToStk()}。</color>", "zh-CN");
@@ -384,56 +393,54 @@ namespace BtpTweak {
         }
 
         private static void 权杖技能汉化() {
-            AddOverlay("ANCIENTSCEPTER_BANDIT2_RESETREVOLVERDESC", Language.GetString("BANDIT2_SPECIAL_DESCRIPTION") + $"额外发射{"1发".ToDmg() + "（每层+1发）".ToStk()}子弹。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_BANDIT2_RESETREVOLVERNAME", "暗杀", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_BANDIT2_SKULLREVOLVERDESC", Language.GetString("BANDIT2_SPECIAL_ALT_DESCRIPTION") + $"子弹有21%{"（每个标记+0.21%）".ToStk()}概率{"（不受运气影响）".ToStk()}弹射到21米内的最多7名敌人{"（每层+7名）".ToStk()}。\n每次弹射后距离和伤害减少{"7%".ToDeath()}。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_BANDIT2_SKULLREVOLVERNAME", "叛徒", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKEALTDESC", Language.GetString("CAPTAIN_UTILITY_ALT1_DESCRIPTION") + $"自动制导：以{" 自身等级 x 权杖层数 m/s".ToUtil()}的速度追踪敌人。{"莉莉丝".ToRed()}具有{"2倍".ToUtil()}的范围和伤害，并且在打击后产生{"冲击波".ToDmg()}。呼叫{"莉莉丝".ToRed()}将{"消耗6层充能".ToUtil()}，打击抵达前有{"30秒".ToUtil()}等待时间。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKEALTNAME", "PHN-8300“莉莉丝”打击".ToRed(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKEDESC", Language.GetString("CAPTAIN_UTILITY_DESCRIPTION") + $"按住可连续呼叫UES顺风号，总共可造成{"21x500%".ToDmg() + "（每层+7x500%）".ToStk()}伤害。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKENAME", "连续轨道炮", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_COMMANDO_BARRAGEDESC", Language.GetString("COMMANDO_SPECIAL_DESCRIPTION") + $"每次射击额外发射{1.ToBaseAndStk().ToDmg("_发")}子弹。后坐力降低{1.ToBaseAndStkPct().ToUtil()}".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_COMMANDO_BARRAGENAME", "死亡绽放", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_COMMANDO_GRENADEDESC", Language.GetString("COMMANDO_SPECIAL_ALT1_DESCRIPTION") + $"额外扔出{"6".ToDmg() + "（每层+6）".ToStk()}枚具有一半伤害的手雷。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_COMMANDO_GRENADENAME", "地毯式轰炸", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_CROCO_DISEASEDESC", Language.GetString("CROCO_SPECIAL_DESCRIPTION") + $"使受害者成为行走的{"瘟疫之源".ToPoison()}，持续将瘟疫{"传染".ToPoison()}给周围{"10米".ToUtil() + "（每层+10米）".ToStk()}内的敌人。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_CROCO_DISEASENAME", "瘟疫", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_ENGI_TURRETDESC", Language.GetString("ENGI_SPECIAL_DESCRIPTION") + $"可额外放置{"1".ToUtil()}座炮台。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_ENGI_TURRETNAME", "TR12-C 高斯自动炮台", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_ENGI_WALKERDESC", Language.GetString("ENGI_SPECIAL_ALT1_DESCRIPTION") + $"可额外放置{"2".ToUtil()}座炮塔。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_ENGI_WALKERNAME", "TR58-C 碳化器炮塔", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_BANDIT2_RESETREVOLVERDESC", Language.GetString("BANDIT2_SPECIAL_DESCRIPTION") + $"额外发射{"1发".ToDmg() + "（每层+1发）".ToStk()}子弹。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_BANDIT2_RESETREVOLVERNAME", "暗杀", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_BANDIT2_SKULLREVOLVERDESC", Language.GetString("BANDIT2_SPECIAL_ALT_DESCRIPTION") + $"子弹有21%{"（每个标记+0.21%）".ToStk()}概率{"（不受运气影响）".ToStk()}弹射到21米内的最多7名敌人{"（每层+7名）".ToStk()}。\n每次弹射后距离和伤害减少{"7%".ToDeath()}。".ToScepterDesc(), "zh-CN");
+            AddOverlay("ANCIENTSCEPTER_VOIDSURVIVOR_CORRUPTEDCRUSHCORRUPTIONDESC", Language.GetString("VOIDSURVIVOR_SPECIAL_UPRADE_TOOLTIP") + $"技能效果影响周围{25.ToBaseAndStk().ToUtil("_米")}内的敌人，且对敌人的效果增加{1.ToBaseAndStkPct().ToUtil()}。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKEALTDESC", Language.GetString("CAPTAIN_UTILITY_ALT1_DESCRIPTION") + $"自动制导：以{" 自身等级 x 权杖层数 m/s".ToUtil()}的速度追踪敌人。{"莉莉丝".ToRed()}具有{"2倍".ToUtil()}的范围和伤害，并且在打击后产生{"冲击波".ToDmg()}。呼叫{"莉莉丝".ToRed()}将{"消耗6层充能".ToUtil()}，打击抵达前有{"30秒".ToUtil()}等待时间。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKEALTNAME", "PHN-8300“莉莉丝”打击".ToRed(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKEDESC", Language.GetString("CAPTAIN_UTILITY_DESCRIPTION") + $"按住可连续呼叫UES顺风号，总共可造成{"21x500%".ToDmg() + "（每层+7x500%）".ToStk()}伤害。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_CAPTAIN_AIRSTRIKENAME", "连续轨道炮", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_COMMANDO_BARRAGEDESC", Language.GetString("COMMANDO_SPECIAL_DESCRIPTION") + $"每次射击额外发射{1.ToBaseAndStk().ToDmg("_发")}子弹。后坐力降低{1.ToBaseAndStkPct().ToUtil()}".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_COMMANDO_BARRAGENAME", "死亡绽放", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_COMMANDO_GRENADEDESC", Language.GetString("COMMANDO_SPECIAL_ALT1_DESCRIPTION") + $"额外扔出{"6".ToDmg() + "（每层+6）".ToStk()}枚具有一半伤害的手雷。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_COMMANDO_GRENADENAME", "地毯式轰炸", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_CROCO_DISEASEDESC", Language.GetString("CROCO_SPECIAL_DESCRIPTION") + $"使受害者成为行走的{"瘟疫之源".ToPoison()}，持续将瘟疫{"传染".ToPoison()}给周围{"10米".ToUtil() + "（每层+10米）".ToStk()}内的敌人。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_CROCO_DISEASENAME", "瘟疫", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_ENGI_TURRETDESC", Language.GetString("ENGI_SPECIAL_DESCRIPTION") + $"可额外放置{"1".ToUtil()}座炮台。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_ENGI_TURRETNAME", "TR12-C 高斯自动炮台", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_ENGI_WALKERDESC", Language.GetString("ENGI_SPECIAL_ALT1_DESCRIPTION") + $"可额外放置{"2".ToUtil()}座炮塔。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_ENGI_WALKERNAME", "TR58-C 碳化器炮塔", "zh-CN");
             AddOverlay("ANCIENTSCEPTER_HERETIC_SQUAWKDESC", $"<style=cIsHealth>歌声</style>将标记所有<style=cIsHealth>活体</style>，使其染上<link=\"BulwarksHauntWavy\">{"灭绝".ToRed()}</link>！<link=\"BulwarksHauntWavy\">{"灭绝".ToRed()}</link>：持续{"10秒".ToUtil() + "（每层权杖+10秒）".ToStk()}，当带有<link=\"BulwarksHauntWavy\">{"灭绝".ToRed()}</link>的敌人{"死去".ToRed()}时，会连带着它的{"所有族人".ToRed()}一起{"死去".ToRed()}。", "zh-CN");
             AddOverlay("ANCIENTSCEPTER_HERETIC_SQUAWKNAME", "<link=\"BulwarksHauntWavy\">灭绝之歌</link>", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_HUNTRESS_BALLISTADESC", Language.GetString("HUNTRESS_SPECIAL_ALT1_DESCRIPTION") + $"每次射击额外发射{"1根".ToDmg() + "（每层+1根）".ToStk()}弩箭。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_HUNTRESS_BALLISTANAME", "-腊包尔->", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_HUNTRESS_RAINDESC", Language.GetString("HUNTRESS_SPECIAL_DESCRIPTION") + $"点燃。自动传送到敌人脚下。半径增加50%，持续时间增加{"0%".ToUtil() + "（每层+100%）".ToStk()}。{"2倍Proc系数".ToUtil()}。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_HUNTRESS_RAINNAME", "火雨", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_LOADER_CHARGEFISTDESC", Language.GetString("LOADER_UTILITY_DESCRIPTION") + $"冲刺速度增加{"100%".ToUtil() + "（每层权杖+100%）".ToStk()}。高到离谱的击退。将{"移速属性".ToUtil()}纳入伤害计算。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_LOADER_CHARGEFISTNAME", "百万吨重拳", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MAGE_FLAMETHROWERDESC", Language.GetString("MAGE_SPECIAL_FIRE_DESCRIPTION") + $"燃烧将留下{"灼热的火云".ToFire()}，存在{"10秒".ToUtil() + "（每层+10秒）".ToStk()}。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MAGE_FLAMETHROWERNAME", "龙息", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MAGE_FLYUPDESC", Language.GetString("MAGE_SPECIAL_LIGHTNING_DESCRIPTION") + $"{"2倍".ToDmg()}伤害、{"5倍".ToUtil()}半径，{"10倍".ToUtil() + "（每层+10倍）".ToStk()}击退。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MAGE_FLYUPNAME", "反物质浪涌", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MERC_EVISDESC", Language.GetString("MERC_SPECIAL_DESCRIPTION") + $"持续时间增加{"100%".ToUtil() + "（每层权杖+100%）".ToStk()}。此技能击杀敌人可{"重置持续时间".ToUtil()}，按住跳跃键可在击杀时{"退出".ToDeath()}技能！".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MERC_EVISNAME", "屠戮", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MERC_EVISPROJDESC", Language.GetString("MERC_SPECIAL_ALT1_DESCRIPTION") + $"额外发射{1.ToBaseAndStk().ToDmg("_片")}刀刃之风。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_MERC_EVISPROJNAME", "死亡之风", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPECRYODESC", Language.GetString("RAILGUNNER_SPECIAL_ALT_DESCRIPTION") + $"每次击中物体将产生{"冰冻".ToIce()}爆炸，{"冰冻".ToIce()}目标敌人{"273.15秒"}并{"冰冻".ToIce()}周围{"27.315米".ToUtil() + "（每层+27.315米）".ToStk()}内的敌人{"27.315秒".ToUtil()}，合计造成{"100%".ToDmg()}伤害。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPECRYONAME", "T°->绝对零度", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPECRYONAME", "<color=blue>冰！</color>", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPESUPERDESC", Language.GetString("RAILGUNNER_SPECIAL_DESCRIPTION") + $"发射时，将{"25%".ToYellow() + "（消耗公式：100%x(权杖层数÷(权杖层数+3))）".ToStk()}的{"金钱".ToYellow()}转化为伤害。击中将永久降低敌人{"20点".ToDmg()}护甲。Proc系数增加{"0.5".ToUtil()}。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPESUPERNAME", "超电磁炮", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPESUPERNAME", "“一枚硬币”", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_SCEPLOADER_CHARGEZAPFISTDESC", Language.GetString("LOADER_UTILITY_ALT1_DESCRIPTION") + $"全向{"闪电".ToLightning()}，击中时召唤{"雷电".ToLightning()}，合计造成{"300%".ToDmg() + "（每层电能钻机+300%）".ToStk()}的伤害。冲刺速度增加{"100%".ToUtil() + "（每层权杖+100%）".ToStk()}，冲刺时{"临时提高护甲".ToUtil()}。将{"移速属性".ToUtil()}纳入伤害计算。{"“<link=\"BulwarksHauntShaky\">以雷霆~ 击碎黑暗！</link>”".ToLightning()}".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_SCEPLOADER_CHARGEZAPFISTNAME", "雷霆拳套".ToLightning(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_TOOLBOT_DASHDESC", Language.GetString("TOOLBOT_UTILITY_DESCRIPTION") + $"进入{"毁灭模式".ToRed()}，可通过{"跳跃按键".ToUtil()}退出。将传入的伤害{"减半".ToUtil()}（与护甲叠加）。退出时产生巨大的{"爆炸".ToDmg()}击晕周围{"20米".ToUtil() + "（每层+20米）".ToStk()}内的敌人，合计造成所受伤害{"200%".ToDmg()}的伤害。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_TOOLBOT_DASHNAME", "毁灭模式".ToRed(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_TREEBOT_FLOWER2DESC", Language.GetString("TREEBOT_SPECIAL_DESCRIPTION") + $"花朵的抓取范围增加{"100%".ToUtil() + "（每层+100%）".ToStk()}。造成随机{"减益".ToDeath()}。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_TREEBOT_FLOWER2NAME", "混沌生长", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_TREEBOT_FRUIT2DESC", Language.GetString("TREEBOT_SPECIAL_ALT1_DESCRIPTION") + $"生成额外的{"果实".ToHealing() + "（每层+1基础果实数量）".ToStk()}，{"果实".ToHealing()}给予强大的随机{"增益".ToHealing()}。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_TREEBOT_FRUIT2NAME", "终极命令：收割", "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_VOIDSURVIVOR_CRUSHCORRUPTIONDESC", Language.GetString("VOIDSURVIVOR_SPECIAL_DESCRIPTION") + $"技能效果影响周围{"25米".ToUtil() + "（每层+25米）".ToStk()}内的敌人和盟友。".ToScepterDesc(), "zh-CN");
-            AddOverlay("ANCIENTSCEPTER_VOIDSURVIVOR_CRUSHCORRUPTIONNAME", "「促进」", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_HUNTRESS_BALLISTADESC", Language.GetString("HUNTRESS_SPECIAL_ALT1_DESCRIPTION") + $"每次射击额外发射{"1根".ToDmg() + "（每层+1根）".ToStk()}弩箭。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_HUNTRESS_BALLISTANAME", "-腊包尔->", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_HUNTRESS_RAINDESC", Language.GetString("HUNTRESS_SPECIAL_DESCRIPTION") + $"点燃。自动传送到敌人脚下。半径增加50%，持续时间增加{"0%".ToUtil() + "（每层+100%）".ToStk()}。{"2倍Proc系数".ToUtil()}。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_HUNTRESS_RAINNAME", "火雨", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_LOADER_CHARGEFISTDESC", Language.GetString("LOADER_UTILITY_DESCRIPTION") + $"冲刺速度增加{"100%".ToUtil() + "（每层权杖+100%）".ToStk()}。高到离谱的击退。将{"移速属性".ToUtil()}纳入伤害计算。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_LOADER_CHARGEFISTNAME", "百万吨重拳", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MAGE_FLAMETHROWERDESC", Language.GetString("MAGE_SPECIAL_FIRE_DESCRIPTION") + $"燃烧将留下{"灼热的火云".ToFire()}，存在{"10秒".ToUtil() + "（每层+10秒）".ToStk()}。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MAGE_FLAMETHROWERNAME", "龙息", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MAGE_FLYUPDESC", Language.GetString("MAGE_SPECIAL_LIGHTNING_DESCRIPTION") + $"{"2倍".ToDmg()}伤害、{"5倍".ToUtil()}半径，{"10倍".ToUtil() + "（每层+10倍）".ToStk()}击退。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MAGE_FLYUPNAME", "反物质浪涌", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MERC_EVISDESC", Language.GetString("MERC_SPECIAL_DESCRIPTION") + $"持续时间增加{"100%".ToUtil() + "（每层权杖+100%）".ToStk()}。此技能击杀敌人可{"重置持续时间".ToUtil()}，按住跳跃键可在击杀时{"退出".ToDeath()}技能！".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MERC_EVISNAME", "屠戮", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MERC_EVISPROJDESC", Language.GetString("MERC_SPECIAL_ALT1_DESCRIPTION") + $"额外发射{1.ToBaseAndStk().ToDmg("_片")}刀刃之风。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_MERC_EVISPROJNAME", "死亡之风", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPECRYODESC", Language.GetString("RAILGUNNER_SPECIAL_ALT_DESCRIPTION") + $"每次击中物体将产生{"冰冻".ToIce()}爆炸，{"冰冻".ToIce()}周围{"27.315米".ToUtil() + "（每层+27.315米）".ToStk()}内的敌人{"273.15秒".ToIce() + "（从中心向外快速衰减）"}，合计造成{"100%".ToDmg()}伤害。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPECRYONAME", "T°->绝对零度", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPECRYONAME", "<color=blue>冰！</color>", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPESUPERDESC", Language.GetString("RAILGUNNER_SPECIAL_DESCRIPTION") + $"{"点燃".ToFire()}。发射时，将{"25%".ToYellow() + "（消耗公式：100%x(权杖层数÷(权杖层数+3))）".ToStk()}的{"金钱".ToYellow()}转化为伤害。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_RAILGUNNER_SNIPESUPERNAME", "超电磁炮", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_RAILGUNNER_FIRESNIPESUPERNAME", "“一枚硬币”", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_SCEPLOADER_CHARGEZAPFISTDESC", Language.GetString("LOADER_UTILITY_ALT1_DESCRIPTION") + $"全向{"闪电".ToLightning()}，击中时召唤{"雷电".ToLightning()}，合计造成{"300%".ToDmg() + "（每层电能钻机+300%）".ToStk()}的伤害。冲刺速度增加{"100%".ToUtil() + "（每层权杖+100%）".ToStk()}，冲刺时{"临时提高护甲".ToUtil()}。将{"移速属性".ToUtil()}纳入伤害计算。{"“<link=\"BulwarksHauntShaky\">以雷霆~ 击碎黑暗！</link>”".ToLightning()}".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_SCEPLOADER_CHARGEZAPFISTNAME", "雷霆拳套".ToLightning(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_TOOLBOT_DASHDESC", Language.GetString("TOOLBOT_UTILITY_DESCRIPTION") + $"进入{"毁灭模式".ToRed()}，可通过{"跳跃按键".ToUtil()}退出。将传入的伤害{"减半".ToUtil()}（与护甲叠加）。退出时产生巨大的{"爆炸".ToDmg()}击晕周围{"20米".ToUtil() + "（每层+20米）".ToStk()}内的敌人，合计造成所受伤害{"200%".ToDmg()}的伤害。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_TOOLBOT_DASHNAME", "毁灭模式".ToRed(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_TREEBOT_FLOWER2DESC", Language.GetString("TREEBOT_SPECIAL_DESCRIPTION") + $"花朵的抓取范围增加{"100%".ToUtil() + "（每层+100%）".ToStk()}。造成随机{"减益".ToDeath()}。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_TREEBOT_FLOWER2NAME", "混沌生长", "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_TREEBOT_FRUIT2DESC", Language.GetString("TREEBOT_SPECIAL_ALT1_DESCRIPTION") + $"生成额外的{"果实".ToHealing() + "（每层+1基础果实数量）".ToStk()}，{"果实".ToHealing()}给予强大的随机{"增益".ToHealing()}。".ToScepterDesc(), "zh-CN");
+            //AddOverlay("ANCIENTSCEPTER_TREEBOT_FRUIT2NAME", "终极命令：收割", "zh-CN");
         }
 
         private static void 圣骑士汉化() {

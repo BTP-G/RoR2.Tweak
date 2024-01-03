@@ -1,5 +1,4 @@
-﻿using BtpTweak.OrbPools;
-using BtpTweak.Utils;
+﻿using BtpTweak.Pools.OrbPools;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -7,10 +6,11 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior {
-        public const int BaseRadius = 20;
-        public const int StackRadius = 10;
-        public const float BaseDamageCoefficient = 2f;
-        public const float StackDamageCoefficient = 1f;
+        public const int BaseRadius = 25;
+        public const int StackRadius = 25;
+        public const float BaseDamageCoefficient = 2.5f;
+        public const float StackDamageCoefficient = 2.5f;
+        public const float Interval = 0.1f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
@@ -30,14 +30,14 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                     if (healthComponent.itemCounts.thorns > 0 && damageDealt > 0) {
                         var damageInfo = damageReport.damageInfo;
                         if (!damageInfo.procChainMask.HasProc(ProcType.Thorns)) {
-                            var simpleOrbInfo = new SimpleOrbInfo {
-                                attacker = healthComponent.gameObject,
+                            var simpleOrbInfo = new OrbPoolKey {
+                                attackerBody = healthComponent.body,
                                 target = damageReport.attackerBody?.mainHurtBox,
                                 procChainMask = damageInfo.procChainMask,
                                 isCrit = damageInfo.crit,
+                                通用浮点数 = healthComponent.itemCounts.thorns - 1f,
                             };
-                            (healthComponent.GetComponent<ThornsOrbPool>()
-                            ?? healthComponent.AddComponent<ThornsOrbPool>()).AddOrb(simpleOrbInfo, damageReport);
+                            ThornsOrbPool.RentPool(healthComponent.gameObject).AddOrb(simpleOrbInfo, damageReport);
                         }
                     }
                 });

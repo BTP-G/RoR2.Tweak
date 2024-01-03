@@ -11,6 +11,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class BehemothTweak : TweakBase<BehemothTweak>, IOnModLoadBehavior {
         public const int Radius = 3;
         public const float BaseDamageCoefficient = 0.6f;
+        public const float Interval = 0.1f;
 
         public void OnModLoad() {
             //IL.RoR2.GlobalEventManager.OnHitAll += GlobalEventManager_OnHitAll;
@@ -25,13 +26,12 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc_0);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
                     if (itemCount > 0) {
-                        var attackInfo = new BlastAttackInfo {
+                        var attackInfo = new BehemothPoolKey {
                             crit = damageInfo.crit,
                             damageType = damageInfo.damageType,
                             procCoefficient = damageInfo.procCoefficient,
                             radius = Radius * itemCount,
                             attacker = damageInfo.attacker,
-                            inflictor = damageInfo.inflictor,
                             procChainMask = damageInfo.procChainMask,
                             teamIndex = attackerBody.teamComponent.teamIndex,
                         };

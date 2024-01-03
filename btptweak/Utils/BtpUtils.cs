@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Utils {
 
-    internal static class BtpUtils {
+    public static class BtpUtils {
 
         public static void SpawnVoidDeathBomb(in Vector3 position) => ProjectileManager.instance.FireProjectile(new FireProjectileInfo() {
             projectilePrefab = EntityStates.NullifierMonster.DeathState.deathBombProjectile,

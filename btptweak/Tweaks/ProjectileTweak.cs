@@ -35,7 +35,6 @@ namespace BtpTweak.Tweaks {
         private void EditLunarShards() {
             var lunarShardSteer = FireLunarShards.projectilePrefab.GetComponent<ProjectileSteerTowardTarget>();
             lunarShardSteer.rotationSpeed = 60f;  // vanilla 20
-            FireLunarShards.projectilePrefab.GetComponent<ProjectileDamage>().damageType |= DamageType.BleedOnHit;
             var lunarShardTargetFinder = FireLunarShards.projectilePrefab.GetComponent<ProjectileDirectionalTargetFinder>();
             lunarShardTargetFinder.lookRange = 90f;  // vanilla 80
             lunarShardTargetFinder.lookCone = 90f;

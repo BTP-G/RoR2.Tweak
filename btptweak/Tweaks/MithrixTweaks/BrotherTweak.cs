@@ -5,6 +5,7 @@ using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.CharacterAI;
+using UnityEngine;
 
 namespace BtpTweak.Tweaks.MithrixTweaks {
 
@@ -27,9 +28,8 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     aISkillDriver.minDistance = 12f;
                     Main.Logger.LogInfo("Skill FireLunarShards Change Finished");
                 }
-                aISkillDriver.maxUserHealthFraction = float.PositiveInfinity;
             }
-            // Make Mithrix immune to executes
+            // 防止被斩杀
             var body = GameObjectPaths.BrotherBody.LoadComponent<CharacterBody>();
             body.bodyFlags |= CharacterBody.BodyFlags.ImmuneToExecutes;
             // 防止被冰冻
@@ -44,7 +44,6 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             // 血量
             body.baseMaxHealth = 30000f;
             body.levelMaxHealth = 9000f;
-            body.levelArmor = 1f;
         }
 
         private void PhaseCounter_OnEnable(On.RoR2.PhaseCounter.orig_OnEnable orig, PhaseCounter self) {
@@ -69,6 +68,15 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 }
                 while (curseStacks-- > 0) {
                     victimBody.AddBuff(RoR2Content.Buffs.PermanentCurse.buffIndex);
+                }
+            }
+        }
+
+        private class BrotherBodyComponent : MonoBehaviour, IOnTakeDamageServerReceiver {
+
+            public void OnTakeDamageServer(DamageReport damageReport) {
+                if (damageReport.hitLowHealth) {
+                    damageReport.victimBody.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                 }
             }
         }

@@ -3,10 +3,8 @@ using EntityStates.BrotherMonster;
 using EntityStates.Huntress;
 using RoR2;
 using RoR2.Projectile;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
 
@@ -31,7 +29,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
                 ++characterModel.invisibilityCount;
             }
             if (hurtboxGroup) {
-                hurtboxGroup.hurtBoxesDeactivatorCounter = hurtboxGroup.hurtBoxesDeactivatorCounter + 1;
+                hurtboxGroup.hurtBoxesDeactivatorCounter += 1;
             }
             Util.PlaySound("Play_voidRaid_snipe_shoot_final", gameObject);
             gameObject.layer = LayerIndex.fakeActor.intVal;
@@ -59,7 +57,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
                 areaIndicatorInstance.transform.GetChild(0).GetChild(1).GetComponent<MeshRenderer>().material = awShellExpolsionMat;
             }
             if (isAuthority) {
-                if (((ultLinetimer += Time.fixedDeltaTime) > HoldSkyLeap.duration * 0.3f)) {
+                if ((ultLinetimer += Time.fixedDeltaTime) > HoldSkyLeap.duration * 0.3f) {
                     ultLinetimer = 0;
                     float num = 360f / UltChannelState.totalWaves;
                     Vector3 point = Vector3.ProjectOnPlane(inputBank.aimDirection, Vector3.up);
@@ -122,7 +120,8 @@ namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
                 if (!target.isPlayerControlled) {
                     continue;
                 }
-                if (!targetBody || targetBody.healthComponent.combinedHealth > target.healthComponent.combinedHealth) {
+                if (!targetBody
+                    || (targetBody.corePosition - transform.position).sqrMagnitude > (target.corePosition - transform.position).sqrMagnitude) {
                     targetBody = target;
                 }
             }

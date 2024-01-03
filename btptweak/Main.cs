@@ -1,12 +1,9 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using BtpTweak.Tweaks;
-using ConfigurableDifficulty;
-using R2API.MiscHelpers;
 using RoR2;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -16,7 +13,6 @@ namespace BtpTweak {
     [BepInDependency("com.plasmacore.PlasmaCoreSpikestripContent")]
     [BepInDependency("com.rune580.riskofoptions")]
     [BepInDependency("com.Skell.GoldenCoastPlus")]
-    [BepInDependency(ConfigurableDifficultyPlugin.PluginGUID)]
     [BepInDependency(HIFUArtificerTweaks.Main.PluginGUID)]
     [BepInDependency(HIFUCommandoTweaks.Main.PluginGUID)]
     [BepInDependency(HIFUEngineerTweaks.Main.PluginGUID)]
@@ -34,7 +30,7 @@ namespace BtpTweak {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "2.3.4";
+        public const string PluginVersion = "2.3.6";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
         internal new static ManualLogSource Logger { get; private set; }

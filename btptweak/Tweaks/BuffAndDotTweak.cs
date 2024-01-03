@@ -95,7 +95,7 @@ namespace BtpTweak.Tweaks {
                     return;
                 }
                 if (!dotController.victimObject) {
-                    UnityEngine.Object.Destroy(dotController.gameObject);
+                    Object.Destroy(dotController.gameObject);
                     return;
                 }
                 for (DotIndex dotIndex = DotIndex.Bleed; dotIndex < DotIndex.Count; ++dotIndex) {
@@ -115,7 +115,7 @@ namespace BtpTweak.Tweaks {
                     dotController.dotTimers[(int)dotIndex] = num2;
                 }
                 if (dotController.dotStackList.Count == 0) {
-                    UnityEngine.Object.Destroy(dotController.gameObject);
+                    Object.Destroy(dotController.gameObject);
                 }
             });
             cursor.Emit(OpCodes.Ret);
@@ -148,7 +148,8 @@ namespace BtpTweak.Tweaks {
         }
 
         private void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {
-            if (self.isBoss || buffDef.buffIndex == RoR2Content.Buffs.Nullified.buffIndex && self.teamComponent.teamIndex == TeamIndex.Void) {
+            if (buffDef.buffIndex == RoR2Content.Buffs.Nullified.buffIndex
+                && (self.isBoss || self.teamComponent.teamIndex == TeamIndex.Void)) {
                 return;
             }
             orig(self, buffDef, duration);

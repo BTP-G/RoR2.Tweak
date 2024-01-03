@@ -1,16 +1,16 @@
-﻿using BtpTweak.ProjectileFountains;
+﻿using BtpTweak.Pools.ProjectilePools;
 using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
-using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class StickyBombTweak : TweakBase<StickyBombTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int PercnetChance = 5;
         public const float BaseDamageCoefficient = 1f;
+        public const float Interval = 0.1f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
@@ -29,18 +29,20 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc, 4);
-                ilcursor.Emit(OpCodes.Ldarg_2);
-                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, GameObject victim) => {
-                    if (itemCount > 0 && !damageInfo.procChainMask.HasProc(ProcType.Count) && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
-                        var simpleProjectileInfo = new SimpleProjectileInfo {
+                ilcursor.Emit(OpCodes.Ldloc_2);
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) => {
+                    if (itemCount > 0
+                    && !damageInfo.procChainMask.HasProc(ProcType.Count)
+                    && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
+                        var simpleProjectileInfo = new ProjectilePoolKey {
                             attacker = damageInfo.attacker,
-                            procChainMask = damageInfo.procChainMask,
                             isCrit = damageInfo.crit,
+                            procChainMask = damageInfo.procChainMask,
+                            targetBody = victimBody,
                         };
                         simpleProjectileInfo.procChainMask.AddWhiteProcs();
-                        (victim.GetComponent<StickyBombFountain>()
-                        ?? victim.AddComponent<StickyBombFountain>()).AddProjectile(simpleProjectileInfo,
-                                                                                    Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
+                        StickyBombFountain.RentPool(victimBody.gameObject).AddProjectile(simpleProjectileInfo,
+                                                                                         Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

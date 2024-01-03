@@ -1,29 +1,23 @@
-﻿using EntityStates.Merc;
-using HG;
+﻿using BtpTweak.Tweaks.ItemTweaks;
 using RoR2;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.UIElements.UIR;
 
 namespace BtpTweak.Pools {
 
-    public struct BlastAttackInfo {
+    public struct BehemothPoolKey {
         public bool crit;
         public DamageType damageType;
         public float procCoefficient;
         public float radius;
         public GameObject attacker;
-        public GameObject inflictor;
         public ProcChainMask procChainMask;
         public TeamIndex teamIndex;
     }
 
-    internal class BehemothPool : Pool<BehemothPool, BlastAttackInfo, BlastAttack> {
-        protected override float Interval => 0.1f;
+    internal class BehemothPool : Pool<BehemothPool, BehemothPoolKey, BlastAttack> {
+        protected override float Interval => BehemothTweak.Interval;
 
-        public void AddBlastAttack(in BlastAttackInfo attackInfo, in Vector3 position, float damageValue) {
+        public void AddBlastAttack(in BehemothPoolKey attackInfo, in Vector3 position, float damageValue) {
             if (pool.TryGetValue(attackInfo, out var blastAttack)) {
                 blastAttack.position = position;
                 blastAttack.baseDamage += damageValue;
@@ -35,7 +29,6 @@ namespace BtpTweak.Pools {
                     damageColorIndex = DamageColorIndex.Item,
                     damageType = attackInfo.damageType,
                     falloffModel = BlastAttack.FalloffModel.None,
-                    inflictor = attackInfo.inflictor,
                     position = position,
                     procChainMask = attackInfo.procChainMask,
                     procCoefficient = attackInfo.procCoefficient,
@@ -45,7 +38,7 @@ namespace BtpTweak.Pools {
             }
         }
 
-        protected override void OnTimeOut(BlastAttack blastAttack) {
+        protected override void OnTimeOut(in BehemothPoolKey key, in BlastAttack blastAttack) {
             blastAttack.procChainMask.AddProc(ProcType.Behemoth);
             blastAttack.Fire();
             EffectManager.SpawnEffect(AssetReferences.omniExplosionVFXQuick, new EffectData {

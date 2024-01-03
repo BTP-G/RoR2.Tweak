@@ -1,6 +1,5 @@
 ﻿using BtpTweak.RoR2Indexes;
 using BtpTweak.Utils;
-using ConfigurableDifficulty;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
@@ -15,7 +14,7 @@ namespace BtpTweak {
         public static bool 位于时之墓 { get; private set; }
         public static bool 位于月球商店 { get; private set; }
         public static bool 是否选择造物难度 { get; private set; }
-        public static bool 往日不再 { get; private set; }
+        public static bool 造物主的试炼 { get; private set; }
 
         [RuntimeInitializeOnLoadMethod]
         private static void Init() {
@@ -26,17 +25,17 @@ namespace BtpTweak {
 
         private static void OnBrotherTrueDeath(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
-            if (是否选择造物难度 && !往日不再) {
-                往日不再 = true;
+            if (是否选择造物难度 && !造物主的试炼) {
+                造物主的试炼 = true;
                 if (NetworkServer.active) {
-                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToLunar());
+                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToRainbowWavy());
                 }
             }
         }
 
         private static void OnRunStart(Run run) {
-            往日不再 = false;
-            是否选择造物难度 = run.selectedDifficulty == ConfigurableDifficultyPlugin.configurableDifficultyIndex;
+            造物主的试炼 = false;
+            是否选择造物难度 = run.selectedDifficulty == BtpContent.Difficulties.造物索引;
         }
 
         private static void OnMostRecentSceneDefChanged(SceneDef mostRecentSceneDef) {
