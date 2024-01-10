@@ -32,9 +32,8 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         private void Detonate_OnEnter(On.EntityStates.GlobalSkills.LunarDetonator.Detonate.orig_OnEnter orig, EntityStates.GlobalSkills.LunarDetonator.Detonate self) {
-            var commonComponents = self.outer.commonComponents;
-            if (commonComponents.characterBody.bodyIndex == BodyIndexes.Heretic) {
-                EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f + 0.6f * commonComponents.characterBody.inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
+            if (self.characterBody.bodyIndex == BodyIndexes.Heretic) {
+                EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f + 0.6f * self.characterBody.inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
             } else {
                 EntityStates.GlobalSkills.LunarDetonator.Detonate.damageCoefficientPerStack = 1.2f;
             }
@@ -53,8 +52,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         private void GhostUtilitySkillState_FixedUpdate(On.EntityStates.GhostUtilitySkillState.orig_FixedUpdate orig, GhostUtilitySkillState self) {
             orig(self);
             if (self.isAuthority) {
-                var commonComponents = self.outer.commonComponents;
-                if (commonComponents.characterBody.bodyIndex == BodyIndexes.Heretic && commonComponents.inputBank.skill3.justReleased && self.fixedAge > 1f) {
+                if (self.characterBody.bodyIndex == BodyIndexes.Heretic && self.inputBank.skill3.justReleased && self.fixedAge > 1f) {
                     self.outer.SetNextStateToMain();
                 }
             }
@@ -62,12 +60,12 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         private void Squawk_OnEnter(On.EntityStates.Heretic.Weapon.Squawk.orig_OnEnter orig, EntityStates.Heretic.Weapon.Squawk self) {
             orig(self);
-            if (NetworkServer.active) {
+            if (self.isAuthority) {
                 foreach (var body in CharacterBody.readOnlyInstancesList) {
                     if (TeamIndex.Lunar == body.teamComponent.teamIndex) {
-                        body.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 30);
+                        body.AddTimedBuffAuthority(RoR2Content.Buffs.LunarSecondaryRoot.buffIndex, 30);
                     } else {
-                        body.AddTimedBuff(RoR2Content.Buffs.LunarSecondaryRoot, 10);
+                        body.AddTimedBuffAuthority(RoR2Content.Buffs.LunarSecondaryRoot.buffIndex, 10);
                     }
                 }
             }
@@ -76,15 +74,15 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         [RequireComponent(typeof(ProjectileController))]
         private class LunarSecondaryProjectileStartAction : MonoBehaviour {
 
-            public void Start() {
-                var body = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>();
-                if (body?.bodyIndex == BodyIndexes.Heretic) {
-                    GetComponent<ProjectileExplosion>().blastRadius *= 1 + 0.5f * body.inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
-                }
-            }
-
             private void Awake() {
                 enabled = NetworkServer.active;
+            }
+
+            private void Start() {
+                var owner = GetComponent<ProjectileController>().owner;
+                if (owner && owner.TryGetComponent<CharacterBody>(out var body) && body.bodyIndex == BodyIndexes.Heretic) {
+                    GetComponent<ProjectileExplosion>().blastRadius *= 1 + 0.5f * body.inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
+                }
             }
         }
     }

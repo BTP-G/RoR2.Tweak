@@ -1,11 +1,8 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
-using EntityStates.Drone.DroneWeapon;
 using R2API.Utils;
 using RoR2;
-using System.Collections.Generic;
 using TPDespair.ZetArtifacts;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
@@ -25,11 +22,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const string DescToken = "ITEM_LUNARWINGS_DESC";
         public const string DefaultDesc = "默认：看起来只是一双翅膀。";
         private static LunarWingsState _state = LunarWingsState.Default;
-        public static string PastDesc => $"{"过去时".ToStk()}：看起来只是一双翅膀。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"离开...".ToWavy()}”\n无效果。";
-        public static string PastPerfectDesc => $"{"过去完成时".ToLunar()}：看起来这双翅膀对某个敌人有反应。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"力量...".ToWavy()}”\n{"全属性上升".ToYellow() + 1.ToBaseAndStkPct().ToYellow()}。";
-        public static string PresentDesc => $"{"现在时".ToStk()}：看起来这双翅膀十分活跃。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"时间...".ToWavy()}”\n{"或许它在提示你...".ToUtil()}。";
+        public static string PastDesc => $"{"过去时".ToStk()}：看起来只是一双翅膀。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"离开...".ToWavy().ToDeath()}”\n无效果。";
+        public static string PastPerfectDesc => $"{"过去完成时".ToLunar()}：看起来这双翅膀对某个敌人有反应。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"力量...".ToWavy().ToDmg()}”\n{"全属性上升".ToYellow() + 1.ToBaseAndStkPct().ToYellow()}。";
+        public static string PresentDesc => $"{"现在时".ToStk()}：看起来这双翅膀十分活跃。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"时间...".ToWavy().ToUtil()}”\n{"或许它在提示你...".ToStk()}";
 
-        public static string PresentPrefectDesc => $"{"现在完成时".ToRainbowWavy()}：看起来这双翅膀拥有无尽的知识。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"知识...".ToWavy()}”\n"
+        public static string PresentPrefectDesc => $"{"现在完成时".ToRainbowWavy()}：看起来这双翅膀拥有无尽的知识。寄宿在里面的{"亡灵".ToDeath()}在你耳边低语：“{"知识...".ToRainbowWavy()}”\n"
             + (ZetDropifact.Enabled ? $"掌握对{"月球".ToLunar()}和{"虚空".ToVoid()}物品的丢弃权。" : "")
             + $"{"右键点击象征（右下角）".ToUtil()}装备可将其{"转化为物品".ToUtil()}。";
 
@@ -140,7 +137,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void CharacterBody_onBodyInventoryChangedGlobal(CharacterBody body) {
-            body.AddItemBehavior<LunarWingsBehavior>(body.inventory.GetItemCount(特拉法梅的祝福));
+            if (body.hasAuthority) {
+                body.AddItemBehavior<LunarWingsBehavior>(body.inventory.GetItemCount(特拉法梅的祝福));
+            }
         }
 
         private void OnRunStartGlobal(Run run) {
@@ -150,27 +149,33 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public class LunarWingsBehavior : CharacterBody.ItemBehavior {
             public static LunarWingsBehavior Instance { get; private set; }
 
+            public static void SendLunarWingsMessage() {
+                if (NetworkServer.active) {
+                    ChatMessage.Send($"你感觉耳边响起了{"亡灵".ToDeath()}的低语。");
+                }
+            }
+
             private void Start() {
                 if (Instance) {
                     Main.Logger.LogError("LunarWingsBehavior Exception!!!");
                 }
                 Instance = this;
                 if (GoNextState(LunarWingsState.Default)) {
-                    ChatMessage.Send(body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                    SendLunarWingsMessage();
                 }
                 if (_state < LunarWingsState.现在完成时) {
                     On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
                     if (_state < LunarWingsState.现在时) {
-                        BulwarksHaunt.GhostWave.BulwarksHauntGhostWaveController.OnGhostWaveComplete += BulwarksHauntGhostWaveController_OnGhostWaveComplete;
+                        SceneCatalog.onMostRecentSceneDefChanged += SceneCatalog_onMostRecentSceneDefChanged;
                     }
                 }
             }
 
-            private void BulwarksHauntGhostWaveController_OnGhostWaveComplete() {
-                BulwarksHaunt.GhostWave.BulwarksHauntGhostWaveController.OnGhostWaveComplete -= BulwarksHauntGhostWaveController_OnGhostWaveComplete;
+            private void SceneCatalog_onMostRecentSceneDefChanged(SceneDef sceneDef) {
+                SceneCatalog.onMostRecentSceneDefChanged -= SceneCatalog_onMostRecentSceneDefChanged;
                 GoNextState(LunarWingsState.过去时);
                 if (GoNextState(LunarWingsState.过去完成时)) {
-                    ChatMessage.Send(body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                    SendLunarWingsMessage();
                 }
             }
 
@@ -178,14 +183,14 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 orig(self);
                 On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
                 if (GoNextState(LunarWingsState.现在时)) {
-                    ChatMessage.Send(body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                    SendLunarWingsMessage();
                 }
             }
 
             private void OnDestroy() {
                 Instance = null;
                 On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
-                BulwarksHaunt.GhostWave.BulwarksHauntGhostWaveController.OnGhostWaveComplete -= BulwarksHauntGhostWaveController_OnGhostWaveComplete;
+                SceneCatalog.onMostRecentSceneDefChanged -= SceneCatalog_onMostRecentSceneDefChanged;
             }
         }
     }

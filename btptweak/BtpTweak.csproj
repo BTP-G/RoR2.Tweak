@@ -38,9 +38,6 @@
     <Reference Include="BetterUI">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\XoXFaby-BetterUI\BetterUI\BetterUI.dll</HintPath>
     </Reference>
-    <Reference Include="BulwarksHaunt">
-      <HintPath>..\..\BulwarksHaunt\obj\Release\netstandard2.0\BulwarksHaunt.dll</HintPath>
-    </Reference>
     <Reference Include="Facepunch.Steamworks">
       <HintPath>libs\Facepunch.Steamworks.dll</HintPath>
       <Private>false</Private>
@@ -53,30 +50,6 @@
     </Reference>
     <Reference Include="HIFUArtificerTweaks">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUArtificerTweaks\HIFUArtificerTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFUCommandoTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUCommandoTweaks\HIFUCommandoTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFUEngineerTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUEngineerTweaks\HIFUEngineerTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFUHuntressTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUHuntressTweaks\HIFUHuntressTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFULoaderTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFULoaderTweaks\HIFULoaderTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFUMercenaryTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFUMercenaryTweaks\HIFUMercenaryTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFURailgunnerTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFURailgunnerTweaks\HIFURailgunnerTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HIFURexTweaks">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HIFURexTweaks\HIFURexTweaks.dll</HintPath>
-    </Reference>
-    <Reference Include="HuntressAutoaimFix">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\HIFU-HuntressAutoaimFix\HuntressAutoaimFix.dll</HintPath>
     </Reference>
     <Reference Include="KdTreeLib">
       <HintPath>libs\KdTreeLib.dll</HintPath>

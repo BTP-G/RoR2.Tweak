@@ -7,11 +7,28 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
     internal class VoidSurvivorTweak : TweakBase<VoidSurvivorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float ChargeMegaBlasterBaseDuration = 4f;
+        public const float FireCorruptDisksDamageCoefficient = 25f;
+        public const float FireCorruptDisksSelfKnockbackForce = 0;
+        public const float FireMegaBlasterBigDamageCoefficient = 44.44f;
+        public const float FireMegaBlasterBigForce = 4444f;
+        public const float FireMegaBlasterSmallDamageCoefficient = 4.44f;
+        public const float FireMegaBlasterSmallForce = 444f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.OnEnter += ChargeMegaBlaster_OnEnter;
-            On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.FireProjectiles += FireMegaBlasterBase_FireProjectiles;
-            On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.OnEnter += FireCorruptDisks_OnEnter;
+            EntityStateConfigurationPaths.EntityStatesVoidSurvivorWeaponChargeMegaBlaster.Load<EntityStateConfiguration>().Set("baseDuration", ChargeMegaBlasterBaseDuration.ToString());
+            EntityStateConfigurationPaths.EntityStatesVoidSurvivorWeaponFireCorruptDisks.Load<EntityStateConfiguration>().Set(new System.Collections.Generic.Dictionary<string, string> {
+                ["damageCoefficient"] = FireCorruptDisksDamageCoefficient.ToString(),
+                ["selfKnockbackForce"] = FireCorruptDisksSelfKnockbackForce.ToString(),
+            });
+            EntityStateConfigurationPaths.EntityStatesVoidSurvivorWeaponFireMegaBlasterBig.Load<EntityStateConfiguration>().Set(new System.Collections.Generic.Dictionary<string, string> {
+                ["damageCoefficient"] = FireMegaBlasterBigDamageCoefficient.ToString(),
+                ["force"] = FireMegaBlasterBigForce.ToString(),
+            });
+            EntityStateConfigurationPaths.EntityStatesVoidSurvivorWeaponFireMegaBlasterSmall.Load<EntityStateConfiguration>().Set(new System.Collections.Generic.Dictionary<string, string> {
+                ["damageCoefficient"] = FireMegaBlasterSmallDamageCoefficient.ToString(),
+                ["force"] = FireMegaBlasterSmallForce.ToString(),
+            });
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -27,28 +44,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             radialForce.forceMagnitude = -2500f;
             radialForce.forceCoefficientAtEdge = 0.5f;
             gameObject.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
-        }
-
-        private void ChargeMegaBlaster_OnEnter(On.EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.ChargeMegaBlaster self) {
-            self.baseDuration = 4;
-            orig(self);
-        }
-
-        private void FireCorruptDisks_OnEnter(On.EntityStates.VoidSurvivor.Weapon.FireCorruptDisks.orig_OnEnter orig, EntityStates.VoidSurvivor.Weapon.FireCorruptDisks self) {
-            self.damageCoefficient = 25;
-            self.selfKnockbackForce = 0;
-            orig(self);
-        }
-
-        private void FireMegaBlasterBase_FireProjectiles(On.EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase.orig_FireProjectiles orig, EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBase self) {
-            if (self is EntityStates.VoidSurvivor.Weapon.FireMegaBlasterBig) {
-                self.force = 4444;
-                self.damageCoefficient = 44.44f;
-            } else {
-                self.force = 666;
-                self.damageCoefficient = 6.66f;
-            }
-            orig(self);
         }
     }
 }

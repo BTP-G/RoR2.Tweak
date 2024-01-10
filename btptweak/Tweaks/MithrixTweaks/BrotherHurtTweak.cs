@@ -3,7 +3,6 @@ using BtpTweak.Tweaks.ItemTweaks;
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.BrotherMonster;
-using R2API.Utils;
 using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
@@ -119,7 +118,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 if (RunInfo.位于时之墓
                     && LunarWingsTweak.LunarWingsBehavior.Instance
                     && LunarWingsTweak.GoNextState(LunarWingsState.过去时)) {
-                    ChatMessage.Send(LunarWingsTweak.LunarWingsBehavior.Instance.body.GetUserName() + $"身上响起了{"亡灵".ToDeath()}的低语。");
+                    LunarWingsTweak.LunarWingsBehavior.SendLunarWingsMessage();
                 }
             }
 

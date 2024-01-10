@@ -1,4 +1,5 @@
-﻿using BtpTweak.Utils;
+﻿using BetterUI;
+using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using HG;
 using Mono.Cecil.Cil;
@@ -12,6 +13,15 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
     internal class RailgunnerTweak : TweakBase<RailgunnerTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float HH44DamageCoefficient = 4f;
+        public const float HH44PiercingDamageCoefficientPerTarget = 0.5f;
+        public const float M99DamageCoefficient = 8f;
+        public const float M99PiercingDamageCoefficientPerTarget = 0.9f;
+        public const float CryochargeDamageCoefficient = 20f;
+        public const float CryochargeProcCoefficient = 2f;
+        public const float SuperchargeDamageCoefficient = 30f;
+        public const float SuperchargeCritDamageCoefficient = 1.5f;
+        public const float PolarFieldDeviceSlowDownCoefficient = 0.01f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.EntityStates.Railgunner.Reload.Reloading.OnEnter += Reloading_OnEnter;
@@ -19,20 +29,31 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             On.EntityStates.Railgunner.Reload.Boosted.OnEnter += Boosted_OnEnter;
             On.EntityStates.Railgunner.Reload.Waiting.FixedUpdate += Waiting_FixedUpdate;
             On.EntityStates.Railgunner.Scope.BaseWindUp.OnEnter += BaseWindUp_OnEnter;
+            EntityStateConfigurationPaths.EntityStatesRailgunnerWeaponFirePistol.Load<EntityStateConfiguration>().Set("selfKnockbackForce", "0");
+            EntityStateConfigurationPaths.EntityStatesRailgunnerWeaponFireSnipeHeavy.Load<EntityStateConfiguration>().Set(new System.Collections.Generic.Dictionary<string, string> {
+                ["damageCoefficient"] = M99DamageCoefficient.ToString(),
+                ["piercingDamageCoefficientPerTarget"] = M99PiercingDamageCoefficientPerTarget.ToString(),
+            });
+            EntityStateConfigurationPaths.EntityStatesRailgunnerWeaponFireSnipeSuper.Load<EntityStateConfiguration>().Set("damageCoefficient", SuperchargeDamageCoefficient.ToString());
+            EntityStateConfigurationPaths.EntityStatesRailgunnerWeaponFireSnipeCryo.Load<EntityStateConfiguration>().Set("procCoefficient", CryochargeProcCoefficient.ToString());
+            ProcCoefficientCatalog.AddSkill("RailgunnerBodyChargeSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
+            ProcCoefficientCatalog.AddSkill("RailgunnerBodyFireSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<SlowDownProjectiles>().slowDownCoefficient = 0.01f;
+            GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<SlowDownProjectiles>().slowDownCoefficient = PolarFieldDeviceSlowDownCoefficient;
+            GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<BuffWard>().radius = 15f;
+            GameObjectPaths.RailgunnerPistolProjectile.LoadComponent<ProjectileSimple>().lifetime = 1f;
             RoR2ResourcesPaths.RailgunnerBodyFireSnipeHeavy.Load<RailgunSkillDef>().mustKeyPress = false;
             LanguageAPI.Add("KEYWORD_ACTIVERELOAD_ALT", $"<style=cKeywordName>手动上弹</style><style=cSub>按{ModConfig.ReloadKey.Value.MainKey.ToUtil()}键给你的磁轨炮上弹。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。");
             ArrayUtils.ArrayAppend(ref RoR2ResourcesPaths.RailgunnerBodyScopeLight.Load<RailgunSkillDef>().keywordTokens, "KEYWORD_ACTIVERELOAD_ALT");
         }
 
         private void BaseFireSnipe_ModifyBullet(ILContext il) {
-            ILCursor cursor = new(il);
+            var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.Before,
-                                   x => ILPatternMatchingExt.MatchLdloc(x, 3),
-                                   x => ILPatternMatchingExt.MatchCallvirt<EntityStates.Railgunner.Reload.Boosted>(x, "GetBonusDamage"),
+                                   x => x.MatchLdloc(3),
+                                   x => x.MatchCallvirt<EntityStates.Railgunner.Reload.Boosted>("GetBonusDamage"),
                                    ILPatternMatchingExt.MatchAdd)) {
                 ++cursor.Index;
                 cursor.RemoveRange(2);
@@ -56,12 +77,12 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         private void Reloading_OnEnter(ILContext il) {
-            ILCursor cursor = new(il);
+            var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchStloc(x, 1))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate((EntityStates.Railgunner.Reload.Reloading reloading) => {
                     var body = reloading.characterBody;
-                    reloading.attackSpeedStat = Mathf.Max(0.04f, reloading.attackSpeedStat - body.baseAttackSpeed * 0.1f * body.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine.itemIndex));
+                    reloading.attackSpeedStat = Mathf.Max(0.01f, reloading.attackSpeedStat - body.baseAttackSpeed * 0.15f * body.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine.itemIndex));
                 });
             } else {
                 Main.Logger.LogError("Railgunner ReloadingOnEnter Hook Failed!");

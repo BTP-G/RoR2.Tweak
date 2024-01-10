@@ -1,6 +1,7 @@
 ﻿using BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates;
 using EntityStates;
 using EntityStates.BrotherMonster;
+using KinematicCharacterController;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -46,6 +47,15 @@ namespace BtpTweak.Tweaks {
                 }
                 if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
                     switch (nameIndex) {
+                        case BodyNameIndex.TreebotBody: {
+                            var kinematicCharacterMotor = body.GetComponent<KinematicCharacterMotor>();
+                            kinematicCharacterMotor.MaxStableSlopeAngle = 180f;
+                            kinematicCharacterMotor.MaxStableDenivelationAngle = 180f;
+                            kinematicCharacterMotor.MaxStepHeight = 2;
+                            kinematicCharacterMotor.MinRequiredStepDepth = 0;
+                            kinematicCharacterMotor.PreventSnappingOnLedges = true;
+                            break;
+                        }
                         case BodyNameIndex.BrotherBody:
                         case BodyNameIndex.BrotherHurtBody: {
                             switch (PhaseCounter.instance?.phase) {  // Give Mithrix the Scourge items

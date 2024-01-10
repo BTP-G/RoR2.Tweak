@@ -1,13 +1,17 @@
-﻿using RoR2;
-using UnityEngine.Networking;
+﻿using BtpTweak.Messages;
+using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
+using R2API.Networking;
+using RoR2;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
     internal class Bandit2Tweak : TweakBase<Bandit2Tweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float ResetRevolverDamageCoefficient = 12f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            On.EntityStates.Bandit2.Weapon.FireSidearmResetRevolver.ModifyBullet += FireSidearmResetRevolver_ModifyBullet;
-            On.EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState.OnEnter += BaseFireSidearmRevolverState_OnEnter;
+            On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.ModifyBullet += FireSidearmSkullRevolver_ModifyBullet;
+            EntityStateConfigurationPaths.EntityStatesBandit2WeaponFireSidearmResetRevolver.Load<EntityStateConfiguration>().Set("damageCoefficient", ResetRevolverDamageCoefficient.ToString());
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -15,21 +19,14 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             EntityStates.Bandit2.Weapon.Reload.baseDuration *= 0.5f;
         }
 
-        private void BaseFireSidearmRevolverState_OnEnter(On.EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState.orig_OnEnter orig, EntityStates.Bandit2.Weapon.BaseFireSidearmRevolverState self) {
-            orig(self);
-            if (NetworkServer.active && self is EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver) {
-                var body = self.characterBody;
-                var inventory = body.inventory;
-                int buffCount = body.GetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex);
-                buffCount -= buffCount / (5 * (int)body.level);
-                body.SetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex, buffCount);
-                inventory.GiveItem(JunkContent.Items.SkullCounter.itemIndex, buffCount - inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex));
-            }
-        }
-
-        private void FireSidearmResetRevolver_ModifyBullet(On.EntityStates.Bandit2.Weapon.FireSidearmResetRevolver.orig_ModifyBullet orig, EntityStates.Bandit2.Weapon.FireSidearmResetRevolver self, BulletAttack bulletAttack) {
+        private void FireSidearmSkullRevolver_ModifyBullet(On.EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver.orig_ModifyBullet orig, EntityStates.Bandit2.Weapon.FireSidearmSkullRevolver self, BulletAttack bulletAttack) {
             orig(self, bulletAttack);
-            bulletAttack.damage *= 2f;
+            var body = self.characterBody;
+            var inventory = body.inventory;
+            var buffCount = body.GetBuffCount(RoR2Content.Buffs.BanditSkull.buffIndex);
+            buffCount -= buffCount / (5 * (int)body.level);
+            body.ApplyBuff(RoR2Content.Buffs.BanditSkull.buffIndex, buffCount);
+            inventory.GiveItemAuthority(JunkContent.Items.SkullCounter.itemIndex, buffCount - inventory.GetItemCount(JunkContent.Items.SkullCounter.itemIndex));
         }
     }
 }

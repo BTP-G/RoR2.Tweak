@@ -17,5 +17,13 @@ namespace BtpTweak.Messages {
                 new MoneyMessage(master, amount, changeToRemoveMoney).Send(R2API.Networking.NetworkDestination.Server);
             }
         }
+
+        public static void GiveItemAuthority(this Inventory inventory, ItemIndex itemIndex, int itemCount) {
+            if (NetworkServer.active) {
+                inventory.GiveItem(itemIndex, itemCount);
+            } else {
+                new ItemMessage(inventory, itemIndex, itemCount).Send(R2API.Networking.NetworkDestination.Server);
+            }
+        }
     }
 }

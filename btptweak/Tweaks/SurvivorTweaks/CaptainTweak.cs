@@ -10,14 +10,15 @@ using UnityEngine.Networking;
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
     internal class CaptainTweak : TweakBase<CaptainTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float CallAirstrikeAltDamageCoefficient = 500f;
 
         void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Achievements.Captain.CaptainSupplyDropFinaleAchievement.CaptainSupplyDropFinaleServerAchievement.DoesDamageQualify += CaptainSupplyDropFinaleServerAchievement_DoesDamageQualify;
-            On.EntityStates.Captain.Weapon.CallAirstrikeAlt.OnExit += CallAirstrikeAlt_OnExit;
             On.EntityStates.Captain.Weapon.CallAirstrikeBase.ModifyProjectile += CallAirstrikeBase_ModifyProjectile;
             On.EntityStates.Captain.Weapon.FireCaptainShotgun.ModifyBullet += FireCaptainShotgun_ModifyBullet;
             On.EntityStates.CaptainSupplyDrop.BaseCaptainSupplyDropState.OnEnter += BaseCaptainSupplyDropState_OnEnter;
             On.EntityStates.CaptainSupplyDrop.HealZoneMainState.OnEnter += HealZoneMainState_OnEnter;
+            EntityStateConfigurationPaths.EntityStatesCaptainWeaponCallAirstrikeAlt.Load<EntityStateConfiguration>().Set("damageCoefficient", CallAirstrikeAltDamageCoefficient.ToString());
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -32,7 +33,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             prepAirstrikeAlt.baseMaxStock = 4;
             prepAirstrikeAlt.requiredStock = 4;
             prepAirstrikeAlt.stockToConsume = 4;
-            EntityStates.CaptainSupplyDrop.ShockZoneMainState.shockRadius = 20;
+            EntityStates.CaptainSupplyDrop.ShockZoneMainState.shockRadius = 20f;
             SkillCatalog.GetSkillDef(SkillCatalog.FindSkillIndexByName("CaptainSupplyDropDepleted")).baseMaxStock = 1;
             RoR2Content.Survivors.Captain.bodyPrefab.GetComponent<CharacterBody>().baseMoveSpeed = 8;
             foreach (var sceneDef in SceneCatalog.allSceneDefs) {
@@ -52,11 +53,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             if (self is EntityStates.CaptainSupplyDrop.EquipmentRestockMainState) {
                 self.energyComponent.chargeRate = 0.5f * TeamManager.instance.GetTeamLevel(self.teamFilter.teamIndex);
             }
-        }
-
-        private void CallAirstrikeAlt_OnExit(On.EntityStates.Captain.Weapon.CallAirstrikeAlt.orig_OnExit orig, EntityStates.Captain.Weapon.CallAirstrikeAlt self) {
-            self.damageCoefficient = 500f;
-            orig(self);
         }
 
         private void CallAirstrikeBase_ModifyProjectile(On.EntityStates.Captain.Weapon.CallAirstrikeBase.orig_ModifyProjectile orig, EntityStates.Captain.Weapon.CallAirstrikeBase self, ref FireProjectileInfo fireProjectileInfo) {

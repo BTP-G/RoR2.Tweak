@@ -38,7 +38,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             SkillDefPaths.MageBodyNovaBomb.Load<SkillDef>().mustKeyPress = false;
         }
 
-        [RequireComponent(typeof(ProjectileController))]
         private class IceExplosion : MonoBehaviour {
 
             private void Awake() {
@@ -46,11 +45,11 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             }
 
             private void OnDestroy() {
-                ProjectileController projectileController = gameObject.GetComponent<ProjectileController>();
-                ProjectileDamage projectileDamage = gameObject.GetComponent<ProjectileDamage>();
-                GameObject iceExplosion = Instantiate(AssetReferences.genericDelayBlast, transform.position, Quaternion.identity);
+                var projectileController = gameObject.GetComponent<ProjectileController>();
+                var projectileDamage = gameObject.GetComponent<ProjectileDamage>();
+                var iceExplosion = Instantiate(AssetReferences.genericDelayBlast, transform.position, Quaternion.identity);
                 iceExplosion.transform.localScale = new Vector3(12, 12, 12);
-                DelayBlast delayBlast = iceExplosion.GetComponent<DelayBlast>();
+                var delayBlast = iceExplosion.GetComponent<DelayBlast>();
                 delayBlast.position = transform.position;
                 delayBlast.baseDamage = projectileDamage.damage;
                 delayBlast.baseForce = projectileDamage.force;
@@ -67,8 +66,6 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             }
         }
 
-        [RequireComponent(typeof(ProjectileController))]
-        [RequireComponent(typeof(ProjectileProximityBeamController))]
         private class MageLightningBombStartAction : MonoBehaviour {
 
             private void Awake() {
@@ -76,15 +73,13 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             }
 
             private void Start() {
-                var inventory = GetComponent<ProjectileController>().owner?.GetComponent<CharacterBody>().inventory;
-                if (inventory) {
-                    GetComponent<ProjectileProximityBeamController>().attackRange += 3 * inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
+                var owner = GetComponent<ProjectileController>().owner;
+                if (owner) {
+                    GetComponent<ProjectileProximityBeamController>().attackRange += 3 * owner.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex);
                 }
             }
         }
 
-        [RequireComponent(typeof(ProjectileController))]
-        [RequireComponent(typeof(ProjectileDamage))]
         private class LightningExplosion : MonoBehaviour {
 
             private void Awake() {
@@ -92,11 +87,11 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             }
 
             private void OnDestroy() {
-                ProjectileController projectileController = gameObject.GetComponent<ProjectileController>();
-                ProjectileDamage projectileDamage = gameObject.GetComponent<ProjectileDamage>();
+                var projectileController = gameObject.GetComponent<ProjectileController>();
+                var projectileDamage = gameObject.GetComponent<ProjectileDamage>();
                 int itemCount = projectileController.owner?.GetComponent<CharacterBody>().inventory.GetItemCount(RoR2Content.Items.ChainLightning.itemIndex) ?? 0;
-                List<HealthComponent> bouncedObjects = [];
-                BullseyeSearch search = new() {
+                var bouncedObjects = new List<HealthComponent>();
+                var search = new BullseyeSearch() {
                     filterByLoS = false,
                     maxDistanceFilter = 30 + 3 * itemCount,
                     searchDirection = Vector3.zero,
@@ -106,7 +101,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 };
                 search.teamMaskFilter.RemoveTeam(projectileController.teamFilter.teamIndex);
                 for (int i = 0 - itemCount; i < 3; ++i) {
-                    LightningOrb lightningOrb = new() {
+                    var lightningOrb = new LightningOrb() {
                         attacker = projectileController.owner,
                         bouncedObjects = [],
                         bouncesRemaining = 0,
@@ -122,7 +117,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                         teamIndex = projectileController.teamFilter.teamIndex
                     };
                     search.RefreshCandidates();
-                    HurtBox hurtBox = (from v in search.GetResults() where !bouncedObjects.Contains(v.healthComponent) select v).FirstOrDefault();
+                    var hurtBox = (from v in search.GetResults() where !bouncedObjects.Contains(v.healthComponent) select v).FirstOrDefault();
                     if (hurtBox) {
                         bouncedObjects.Add(hurtBox.healthComponent);
                         lightningOrb.target = hurtBox;

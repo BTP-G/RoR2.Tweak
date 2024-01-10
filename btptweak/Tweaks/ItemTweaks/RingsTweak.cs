@@ -44,12 +44,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             return;
                         }
                         attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady.buffIndex);
-                        if (attackerBody.bodyIndex == BodyIndexes.Mage) {
-                            attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, 1f);
-                        } else {
-                            for (int i = Mathf.Max(1, 10 - (iceRingCount > fireRingCount ? fireRingCount : iceRingCount)); i > 0; --i) {
-                                attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, i);
-                            }
+                        var cooldown = (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor ? 1f : 10f) * Mathf.Pow(0.9f, iceRingCount < fireRingCount ? fireRingCount : iceRingCount);
+                        while (cooldown > 0) {
+                            attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, cooldown--);
                         }
                         var ringProcChainMask = damageInfo.procChainMask;
                         ringProcChainMask.AddProc(ProcType.Rings);
@@ -62,7 +59,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 crit = damageInfo.crit,
                                 damageColorIndex = DamageColorIndex.Item,
                                 damageType = DamageType.AOE,
-                                falloffModel = BlastAttack.FalloffModel.SweetSpot,
+                                falloffModel = BlastAttack.FalloffModel.None,
                                 position = damageInfo.position,
                                 procChainMask = ringProcChainMask,
                                 procCoefficient = 1f,
@@ -99,12 +96,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         }
                         int voidRingCount = inventory.GetItemCount(DLC1Content.Items.ElementalRingVoid.itemIndex);
                         attackerBody.RemoveBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex);
-                        if (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor) {
-                            attackerBody.AddTimedBuff(DLC1Content.Buffs.ElementalRingVoidCooldown, 2f);
-                        } else {
-                            for (int i = Mathf.Max(2, 20 - voidRingCount); i > 0; --i) {
-                                attackerBody.AddTimedBuff(DLC1Content.Buffs.ElementalRingVoidCooldown, i);
-                            }
+                        var cooldown = (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor ? 2f : 20f) * Mathf.Pow(0.9f, voidRingCount - 1);
+                        while (cooldown > 0) {
+                            attackerBody.AddTimedBuff(DLC1Content.Buffs.ElementalRingVoidCooldown, cooldown--);
                         }
                         var fireProjectileInfo = new FireProjectileInfo {
                             crit = damageInfo.crit,
