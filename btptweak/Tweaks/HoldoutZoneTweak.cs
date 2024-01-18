@@ -13,9 +13,9 @@ namespace BtpTweak.Tweaks {
             orig(self);
             if (RunInfo.是否选择造物难度) {
                 self.minimumRadius = Mathf.Max(7f, self.minimumRadius);
-                self.dischargeRate = 0.25f / self.baseChargeDuration;
+                self.dischargeRate = 0.5f / self.baseChargeDuration;
                 self.calcRadius += (ref float radius) => {
-                    radius -= Mathf.Lerp(0, radius - self.minimumRadius, self.charge);
+                    radius -= Mathf.Lerp(0f, radius - self.minimumRadius, self.charge);
                 };
             }
         }

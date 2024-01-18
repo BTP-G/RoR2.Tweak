@@ -1,4 +1,5 @@
-﻿using R2API.Networking.Interfaces;
+﻿using BtpTweak.Tweaks.ItemTweaks;
+using R2API.Networking.Interfaces;
 using RoR2;
 using UnityEngine.Networking;
 
@@ -23,6 +24,13 @@ namespace BtpTweak.Messages {
                 inventory.GiveItem(itemIndex, itemCount);
             } else {
                 new ItemMessage(inventory, itemIndex, itemCount).Send(R2API.Networking.NetworkDestination.Server);
+            }
+        }
+
+        [Server]
+        public static void 同步特拉法梅的祝福(this LunarWingsState state) {
+            if (NetworkServer.active) {
+                new LunarWingsMessage(state).Send(R2API.Networking.NetworkDestination.Clients);
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using RoR2;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using RoR2;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
@@ -8,17 +10,26 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float 指数 = 0.5f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
+            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
-            var attackerBody = damageReport.attackerBody;
-            if (!attackerBody) {
-                return;
-            }
-            var itemCount = attackerBody.inventory?.GetItemCount(RoR2Content.Items.Seed.itemIndex) ?? 0;
-            if (itemCount > 0) {
-                attackerBody.healthComponent.Heal(Mathf.Sqrt(damageReport.damageDealt * Leech * itemCount + 1), damageReport.damageInfo.procChainMask, true);
+        private void GlobalEventManager_OnHitEnemy(ILContext il) {
+            var ilcursor = new ILCursor(il);
+            if (ilcursor.TryGotoNext(MoveType.After,
+                                     x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Seed")),
+                                     x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
+                ilcursor.Emit(OpCodes.Ldarg_1);
+                ilcursor.Emit(OpCodes.Ldloc_1);
+                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
+                    if (itemCount > 0) {
+                        var procChainMask = damageInfo.procChainMask;
+                        procChainMask.AddProc(ProcType.HealOnHit);
+                        attackerBody.healthComponent.Heal(Mathf.Sqrt(damageInfo.damage * damageInfo.procCoefficient * Leech * itemCount), procChainMask, true);
+                    }
+                });
+                ilcursor.Emit(OpCodes.Ldc_I4_0);
+            } else {
+                Main.Logger.LogError("Seed :: Hook Failed!");
             }
         }
     }

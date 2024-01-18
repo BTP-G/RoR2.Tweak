@@ -2,6 +2,7 @@
 using BtpTweak.Utils;
 using R2API.Utils;
 using RoR2;
+using System.Runtime.Serialization;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -21,6 +22,7 @@ namespace BtpTweak {
             Run.onRunStartGlobal += OnRunStart;
             SceneCatalog.onMostRecentSceneDefChanged += OnMostRecentSceneDefChanged;
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += OnBrotherTrueDeath;
+            ProperSaveSupport.AddSaveDataType<SaveData>();
         }
 
         private static void OnBrotherTrueDeath(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
@@ -45,6 +47,50 @@ namespace BtpTweak {
             位于天文馆 = mostRecentSceneIndex == SceneIndexes.VoidRaid;
             位于时之墓 = mostRecentSceneIndex == SceneIndexes.BulwarksHaunt_GhostWave;
             位于月球商店 = mostRecentSceneIndex == SceneIndexes.Bazaar;
+        }
+
+        private struct SaveData : ISaveData {
+
+            [DataMember(Name = "m")]
+            public bool 位于月球;
+
+            [DataMember(Name = "a")]
+            public bool 位于隔间;
+
+            [DataMember(Name = "v")]
+            public bool 位于天文馆;
+
+            [DataMember(Name = "t")]
+            public bool 位于时之墓;
+
+            [DataMember(Name = "b")]
+            public bool 位于月球商店;
+
+            [DataMember(Name = "c")]
+            public bool 是否选择造物难度;
+
+            [DataMember(Name = "d")]
+            public bool 造物主的试炼;
+
+            readonly void ISaveData.LoadData() {
+                RunInfo.位于月球 = 位于月球;
+                RunInfo.位于隔间 = 位于隔间;
+                RunInfo.位于天文馆 = 位于天文馆;
+                RunInfo.位于时之墓 = 位于时之墓;
+                RunInfo.位于月球商店 = 位于月球商店;
+                RunInfo.是否选择造物难度 = 是否选择造物难度;
+                RunInfo.造物主的试炼 = 造物主的试炼;
+            }
+
+            void ISaveData.SaveData() {
+                位于月球 = RunInfo.位于月球;
+                位于隔间 = RunInfo.位于隔间;
+                位于天文馆 = RunInfo.位于天文馆;
+                位于时之墓 = RunInfo.位于时之墓;
+                位于月球商店 = RunInfo.位于月球商店;
+                是否选择造物难度 = RunInfo.是否选择造物难度;
+                造物主的试炼 = RunInfo.造物主的试炼;
+            }
         }
     }
 }

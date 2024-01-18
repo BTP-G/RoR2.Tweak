@@ -43,7 +43,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             procChainMask = damageInfo.procChainMask,
                             targetBody = victimBody,
                         };
-                        simpleProjectileInfo.procChainMask.AddYellowProcs();
                         FireFountain.RentPool(victimBody.gameObject).AddProjectile(simpleProjectileInfo,
                                                                                    Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }

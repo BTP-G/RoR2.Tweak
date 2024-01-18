@@ -14,7 +14,7 @@ namespace BtpTweak.Tweaks {
             var inventory = sender.inventory;
             if (inventory) {
                 var itemCount = inventory.GetItemCount(RoR2Content.Items.FlatHealth.itemIndex);
-                float levelMaxHealthAdd = sender.levelMaxHealth / 9f * itemCount;
+                var levelMaxHealthAdd = sender.levelMaxHealth * 0.2f * itemCount;
                 if (BodyIndexToNameIndex.TryGetValue((int)sender.bodyIndex, out BodyNameIndex loc)) {
                     switch (loc) {
                         case BodyNameIndex.ArbiterBody: {
@@ -79,8 +79,8 @@ namespace BtpTweak.Tweaks {
                     }
                 }
                 itemCount = inventory.GetItemCount(RoR2Content.Items.Knurl.itemIndex);
-                float regenFraction = 0.016f * itemCount;
-                levelMaxHealthAdd += sender.levelMaxHealth * 0.5f * itemCount;
+                var regenFraction = 0.016f * itemCount;
+                levelMaxHealthAdd += sender.levelMaxHealth * 1.6f * itemCount;
                 args.levelHealthAdd += levelMaxHealthAdd;
                 args.critAdd += 5 * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);

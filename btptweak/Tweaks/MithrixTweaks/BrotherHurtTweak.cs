@@ -39,7 +39,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             if (NetworkServer.active) {
                 var body = self.outer.commonComponents.characterBody;
                 var dotInfo = new InflictDotInfo {
-                    attackerObject = body.gameObject,
+                    attackerObject = null,
                     damageMultiplier = 1,
                     dotIndex = DotController.DotIndex.Helfire,
                     duration = float.MaxValue,
@@ -47,9 +47,9 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 };
                 body.SetBuffCount(DLC1Content.Buffs.ImmuneToDebuffReady.buffIndex, 0);
                 DotController.InflictDot(ref dotInfo);
-                var dotStack = DotController.FindDotController(body.gameObject)?.dotStackList.FirstOrDefault(dotStack => dotStack.dotIndex == dotInfo.dotIndex);
+                var dotStack = DotController.FindDotController(body.gameObject)?.dotStackList.LastOrDefault(dotStack => dotStack.dotIndex == dotInfo.dotIndex);
                 if (dotStack != null) {
-                    dotStack.damageType |= DamageType.BypassArmor;
+                    dotStack.damageType |= DamageType.BypassArmor | DamageType.NonLethal | DamageType.Silent;
                 }
                 body.RecalculateStats();
                 var healthComponent = body.healthComponent;
@@ -114,11 +114,10 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     On.RoR2.HealthComponent.Heal += HealthComponent_Heal;
                     On.RoR2.HealthComponent.RechargeShield += HealthComponent_RechargeShield;
                     On.RoR2.HealthComponent.AddBarrier += HealthComponent_AddBarrier;
+                    On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
                 }
-                if (RunInfo.位于时之墓
-                    && LunarWingsTweak.LunarWingsBehavior.Instance
-                    && LunarWingsTweak.GoNextState(LunarWingsState.过去时)) {
-                    LunarWingsTweak.LunarWingsBehavior.SendLunarWingsMessage();
+                if (RunInfo.位于时之墓 && LunarWingsTweak.LunarWingsBehavior.Instance) {
+                    LunarWingsTweak.UpgradeLunarWings(LunarWingsState.过去完成时);
                 }
             }
 
@@ -184,6 +183,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     On.RoR2.HealthComponent.Heal -= HealthComponent_Heal;
                     On.RoR2.HealthComponent.RechargeShield -= HealthComponent_RechargeShield;
                     On.RoR2.HealthComponent.AddBarrier -= HealthComponent_AddBarrier;
+                    On.RoR2.HealthComponent.TakeDamage -= HealthComponent_TakeDamage;
                 }
             }
 
@@ -228,6 +228,13 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     return;
                 }
                 orig(self, value);
+            }
+
+            private void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
+                if (damageInfo.attacker == gameObject) {
+                    damageInfo.damage = Mathf.Max(self.fullCombinedHealth * Mathf.Max(0.01f, 0.1f * damageInfo.procCoefficient), damageInfo.damage);
+                }
+                orig(self, damageInfo);
             }
         }
     }

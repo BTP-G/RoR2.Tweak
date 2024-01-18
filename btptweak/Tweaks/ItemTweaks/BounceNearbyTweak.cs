@@ -1,5 +1,4 @@
 ﻿using BtpTweak.Pools.OrbPools;
-using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -37,7 +36,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             procChainMask = damageInfo.procChainMask,
                             target = victimBody.mainHurtBox,
                         };
-                        simpleOrbInfo.procChainMask.AddRedProcs();
+                        simpleOrbInfo.procChainMask.AddYellowProcs();
                         BounceOrbPool.RentPool(simpleOrbInfo.target.gameObject).AddOrb(simpleOrbInfo,
                                                                             Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
                     }

@@ -1,5 +1,6 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BtpTweak.Pools;
+using BtpTweak.Pools.ProjectilePools;
+using BtpTweak.RoR2Indexes;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -44,75 +45,52 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             return;
                         }
                         attackerBody.RemoveBuff(RoR2Content.Buffs.ElementalRingsReady.buffIndex);
-                        var cooldown = (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor ? 1f : 10f) * Mathf.Pow(0.9f, iceRingCount < fireRingCount ? fireRingCount : iceRingCount);
+                        var cooldown = (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor ? 1f : 10f) * Mathf.Pow(0.9f, iceRingCount < fireRingCount ? iceRingCount : fireRingCount);
                         while (cooldown > 0) {
                             attackerBody.AddTimedBuff(RoR2Content.Buffs.ElementalRingsCooldown, cooldown--);
                         }
                         var ringProcChainMask = damageInfo.procChainMask;
-                        ringProcChainMask.AddProc(ProcType.Rings);
-                        ringProcChainMask.AddGreenProcs();
+                        ringProcChainMask.AddRYProcs();
                         if (iceRingCount > 0) {
-                            var blastAttack = new BlastAttack {
+                            var attackInfo = new IceBlastPoolKey {
                                 attacker = damageInfo.attacker,
-                                baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, IceRingDamageCoefficient * iceRingCount),
-                                canRejectForce = true,
                                 crit = damageInfo.crit,
-                                damageColorIndex = DamageColorIndex.Item,
-                                damageType = DamageType.AOE,
-                                falloffModel = BlastAttack.FalloffModel.None,
-                                position = damageInfo.position,
                                 procChainMask = ringProcChainMask,
-                                procCoefficient = 1f,
-                                radius = 12f,
                                 teamIndex = attackerBody.teamComponent.teamIndex,
                             };
-                            foreach (var hitPoint in blastAttack.Fire().hitPoints) {
-                                var healthComponent = hitPoint.hurtBox.healthComponent;
-                                if (healthComponent.alive) {
-                                    healthComponent.body.AddTimedBuff(RoR2Content.Buffs.Slow80, IceRingSlow80BuffDuration * iceRingCount);
-                                }
-                            }
-                            EffectManager.SpawnEffect(AssetReferences.affixWhiteExplosion, new EffectData() {
-                                origin = blastAttack.position,
-                                scale = blastAttack.radius,
-                            }, true);
+                            IceBlastPool.RentPool(damageInfo.attacker).AddIceBlast(attackInfo,
+                                                                                 damageInfo.position,
+                                                                                 Util.OnHitProcDamage(damageInfo.damage, 0, IceRingDamageCoefficient * iceRingCount));
                         }
                         if (fireRingCount > 0) {
-                            ProjectileManager.instance.FireProjectile(new FireProjectileInfo {
-                                crit = damageInfo.crit,
-                                damage = Util.OnHitProcDamage(damageInfo.damage, 0, FireRingDamageCoefficient * fireRingCount * 0.1f),
-                                damageColorIndex = DamageColorIndex.Item,
-                                damageTypeOverride = DamageType.IgniteOnHit,
-                                owner = damageInfo.attacker,
-                                position = damageInfo.position,
+                            var simpleProjectileInfo = new ProjectilePoolKey {
+                                attacker = damageInfo.attacker,
+                                isCrit = damageInfo.crit,
                                 procChainMask = ringProcChainMask,
-                                projectilePrefab = AssetReferences.fireTornado,
-                                rotation = Quaternion.identity,
-                            });
+                            };
+                            FireTornadoPool.RentPool(damageInfo.attacker).AddProjectile(simpleProjectileInfo,
+                                                                                           damageInfo.position,
+                                                                                           Util.OnHitProcDamage(damageInfo.damage, 0, FireRingDamageCoefficient * iceRingCount));
                         }
                     } else if (attackerBody.HasBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex)) {
                         if (damageInfo.damage < 4 * attackerBody.damage) {
                             return;
                         }
-                        int voidRingCount = inventory.GetItemCount(DLC1Content.Items.ElementalRingVoid.itemIndex);
+                        var voidRingCount = inventory.GetItemCount(DLC1Content.Items.ElementalRingVoid.itemIndex);
                         attackerBody.RemoveBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex);
                         var cooldown = (attackerBody.bodyIndex == BodyIndexes.VoidSurvivor ? 2f : 20f) * Mathf.Pow(0.9f, voidRingCount - 1);
                         while (cooldown > 0) {
                             attackerBody.AddTimedBuff(DLC1Content.Buffs.ElementalRingVoidCooldown, cooldown--);
                         }
-                        var fireProjectileInfo = new FireProjectileInfo {
-                            crit = damageInfo.crit,
-                            damage = Util.OnHitProcDamage(damageInfo.damage, 0, voidRingCount),
-                            damageColorIndex = DamageColorIndex.Void,
-                            force = 6000f,
-                            owner = damageInfo.attacker,
-                            position = damageInfo.position,
+                        var simpleProjectileInfo = new ProjectilePoolKey {
+                            attacker = damageInfo.attacker,
+                            isCrit = damageInfo.crit,
                             procChainMask = damageInfo.procChainMask,
-                            projectilePrefab = AssetReferences.elementalRingVoidBlackHole,
                         };
-                        fireProjectileInfo.procChainMask.AddProc(ProcType.Rings);
-                        fireProjectileInfo.procChainMask.AddGreenProcs();
-                        ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+                        simpleProjectileInfo.procChainMask.AddRYProcs();
+                        ElementalRingVoidBlackHolePool.RentPool(damageInfo.attacker).AddProjectile(simpleProjectileInfo,
+                                                                                                   damageInfo.position,
+                                                                                                   Util.OnHitProcDamage(damageInfo.damage, 0, voidRingCount));
                     }
                 });
                 cursor.Emit(OpCodes.Ldc_I4_1);

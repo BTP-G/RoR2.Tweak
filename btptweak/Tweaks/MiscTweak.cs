@@ -55,9 +55,9 @@ namespace BtpTweak.Tweaks {
             if (NetworkServer.active) {
                 foreach (var player in PlayerCharacterMasterController.instances) {
                     var inventory = player.master.inventory;
-                    int itemCount = inventory.GetItemCount(RoR2Content.Items.TonicAffliction);
+                    int itemCount = inventory.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex);
                     if (itemCount > 0) {
-                        inventory.RemoveItem(RoR2Content.Items.TonicAffliction, itemCount);
+                        inventory.RemoveItem(RoR2Content.Items.TonicAffliction.itemIndex, itemCount);
                     }
                 }
             }

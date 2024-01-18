@@ -14,6 +14,7 @@ namespace BtpTweak {
 
         public static class Buffs {
             public static BuffDef VoidFire { get; private set; }
+            public static BuffDef DroneCommanderSpawnCooldown { get; private set; }
 
             [RuntimeInitializeOnLoadMethod]
             private static void InitBuffs() {
@@ -27,6 +28,17 @@ namespace BtpTweak {
                 VoidFire.isCooldown = false;
                 if (!ContentAddition.AddBuffDef(VoidFire)) {
                     Main.Logger.LogError("Buff '" + VoidFire.name + "' failed to be added!");
+                }
+                DroneCommanderSpawnCooldown = ScriptableObject.CreateInstance<BuffDef>();
+                DroneCommanderSpawnCooldown.name = "DroneCommander SpawnCooldown";
+                DroneCommanderSpawnCooldown.iconSprite = Texture2DPaths.texDroneWeaponsIcon.Load<Sprite>();
+                //DroneCommanderSpawnCooldown.buffColor = Color.gray;
+                DroneCommanderSpawnCooldown.canStack = false;
+                DroneCommanderSpawnCooldown.isHidden = false;
+                DroneCommanderSpawnCooldown.isDebuff = false;
+                DroneCommanderSpawnCooldown.isCooldown = true;
+                if (!ContentAddition.AddBuffDef(DroneCommanderSpawnCooldown)) {
+                    Main.Logger.LogError("Buff '" + DroneCommanderSpawnCooldown.name + "' failed to be added!");
                 }
             }
         }

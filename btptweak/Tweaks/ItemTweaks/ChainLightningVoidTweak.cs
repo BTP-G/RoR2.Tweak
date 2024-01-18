@@ -36,7 +36,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             procChainMask = damageInfo.procChainMask,
                             target = victimBody.mainHurtBox,
                         };
-                        simpleOrbInfo.procChainMask.AddGreenProcs();
+                        simpleOrbInfo.procChainMask.AddRYProcs();
                         VoidLightningOrbPool.RentPool(simpleOrbInfo.target.gameObject).AddOrb(simpleOrbInfo,
                                                                                     Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }

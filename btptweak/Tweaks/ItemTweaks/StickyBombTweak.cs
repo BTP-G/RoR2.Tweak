@@ -32,7 +32,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldloc_2);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) => {
                     if (itemCount > 0
-                    && !damageInfo.procChainMask.HasProc(ProcType.Count)
+                    && !damageInfo.procChainMask.HasProc(ProcChainTweak.StickyBombOnHit)
                     && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerMaster)) {
                         var simpleProjectileInfo = new ProjectilePoolKey {
                             attacker = damageInfo.attacker,
@@ -40,7 +40,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             procChainMask = damageInfo.procChainMask,
                             targetBody = victimBody,
                         };
-                        simpleProjectileInfo.procChainMask.AddWhiteProcs();
+                        simpleProjectileInfo.procChainMask.AddGRYProcs();
                         StickyBombFountain.RentPool(victimBody.gameObject).AddProjectile(simpleProjectileInfo,
                                                                                          Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
                     }

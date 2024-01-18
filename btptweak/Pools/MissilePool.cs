@@ -32,7 +32,6 @@ namespace BtpTweak.Pools {
 
         protected override void OnTimeOut(in MissilePoolKey info1, in MissileInfo info2) {
             var attackerBody = info1.attackerBody;
-            int itemCount = attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile);
             var fireProjectileInfo = new FireProjectileInfo {
                 crit = info1.isCrit,
                 damage = info2.damage,
@@ -45,6 +44,7 @@ namespace BtpTweak.Pools {
                 target = info2.target,
             };
             fireProjectileInfo.procChainMask.AddProc(ProcType.Missile);
+            var itemCount = attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile);
             if (itemCount > 0) {
                 fireProjectileInfo.damage *= (itemCount + 1) * 0.5f;
                 var axis = attackerBody.inputBank.aimDirection;

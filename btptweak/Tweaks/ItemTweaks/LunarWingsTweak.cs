@@ -1,14 +1,16 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.Messages;
+using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using R2API.Utils;
 using RoR2;
+using System.Runtime.Serialization;
 using TPDespair.ZetArtifacts;
 using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
-    public enum LunarWingsState {
-        Default = 0,
+    public enum LunarWingsState : byte {
+        Default,
         过去时,
         过去完成时,
         现在时,
@@ -37,6 +39,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         void IOnModLoadBehavior.OnModLoad() {
             Run.onRunStartGlobal += OnRunStartGlobal;
             CharacterBody.onBodyInventoryChangedGlobal += CharacterBody_onBodyInventoryChangedGlobal;
+            ProperSaveSupport.AddSaveDataType<SaveData>();
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -61,12 +64,13 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             Localizer.AddOverlay(DescToken, DefaultDesc);
         }
 
-        internal static bool GoNextState(LunarWingsState currentState) {
-            if (_state == currentState) {
-                UpdateLunarWingsState(_state + 1);
-                return true;
+        internal static void UpgradeLunarWings(LunarWingsState newState) {
+            if (_state < newState) {
+                UpdateLunarWingsState(newState);
+                if (NetworkServer.active) {
+                    ChatMessage.Send($"你感觉耳边响起了{"亡灵".ToDeath()}的低语。");
+                }
             }
-            return false;
         }
 
         internal static void UpdateLunarWingsState(LunarWingsState newState) {
@@ -108,6 +112,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 default:
                     break;
             }
+            Main.Logger.LogMessage($"LunarWingsState changed {_state} => {newState}");
             _state = newState;
         }
 
@@ -124,7 +129,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private static void 全属性上升Hook(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
             if (sender.inventory) {
-                var itemCount = sender.inventory.GetItemCount(LunarWingsTweak.特拉法梅的祝福);
+                var itemCount = sender.inventory.GetItemCount(特拉法梅的祝福);
                 if (itemCount > 0) {
                     args.attackSpeedMultAdd += itemCount;
                     args.damageMultAdd += itemCount;
@@ -146,51 +151,48 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             UpdateLunarWingsState(LunarWingsState.Default);
         }
 
+        private struct SaveData : ISaveData {
+
+            [DataMember(Name = "s")]
+            public byte _state_sd;
+
+            readonly void ISaveData.LoadData() {
+                var state = (LunarWingsState)_state_sd;
+                UpdateLunarWingsState(state);
+                state.同步特拉法梅的祝福();
+            }
+
+            void ISaveData.SaveData() {
+                _state_sd = (byte)_state;
+            }
+        }
+
         public class LunarWingsBehavior : CharacterBody.ItemBehavior {
             public static LunarWingsBehavior Instance { get; private set; }
 
-            public static void SendLunarWingsMessage() {
-                if (NetworkServer.active) {
-                    ChatMessage.Send($"你感觉耳边响起了{"亡灵".ToDeath()}的低语。");
-                }
-            }
-
             private void Start() {
                 if (Instance) {
-                    Main.Logger.LogError("LunarWingsBehavior Exception!!!");
+                    Main.Logger.LogError("Singleton class 'LunarWingsBehavior' was instantiated twice!!!");
                 }
                 Instance = this;
-                if (GoNextState(LunarWingsState.Default)) {
-                    SendLunarWingsMessage();
+                UpgradeLunarWings(LunarWingsState.过去时);
+                if (!RunInfo.位于时之墓) {
+                    UpgradeLunarWings(LunarWingsState.现在时);
                 }
                 if (_state < LunarWingsState.现在完成时) {
                     On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter += FadeOut_OnEnter;
-                    if (_state < LunarWingsState.现在时) {
-                        SceneCatalog.onMostRecentSceneDefChanged += SceneCatalog_onMostRecentSceneDefChanged;
-                    }
-                }
-            }
-
-            private void SceneCatalog_onMostRecentSceneDefChanged(SceneDef sceneDef) {
-                SceneCatalog.onMostRecentSceneDefChanged -= SceneCatalog_onMostRecentSceneDefChanged;
-                GoNextState(LunarWingsState.过去时);
-                if (GoNextState(LunarWingsState.过去完成时)) {
-                    SendLunarWingsMessage();
                 }
             }
 
             private void FadeOut_OnEnter(On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.orig_OnEnter orig, EntityStates.Missions.LunarScavengerEncounter.FadeOut self) {
                 orig(self);
                 On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
-                if (GoNextState(LunarWingsState.现在时)) {
-                    SendLunarWingsMessage();
-                }
+                UpgradeLunarWings(LunarWingsState.现在完成时);
             }
 
             private void OnDestroy() {
                 Instance = null;
                 On.EntityStates.Missions.LunarScavengerEncounter.FadeOut.OnEnter -= FadeOut_OnEnter;
-                SceneCatalog.onMostRecentSceneDefChanged -= SceneCatalog_onMostRecentSceneDefChanged;
             }
         }
     }

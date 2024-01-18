@@ -26,7 +26,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="R2API" Version="5.0.5" />
-    <PackageReference Include="R2API.ContentManagement" Version="1.0.3" />
+    <PackageReference Include="R2API.ContentManagement" Version="1.0.4" />
     <PackageReference Include="R2API.Core" Version="5.0.11" />
     <PackageReference Include="R2API.Elites" Version="1.0.3" />
     <PackageReference Include="R2API.Language" Version="1.0.1" />
@@ -83,6 +83,9 @@
     <Reference Include="ProBuilderMeshOps">
       <HintPath>libs\ProBuilderMeshOps.dll</HintPath>
       <Private>false</Private>
+    </Reference>
+    <Reference Include="ProperSave">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\KingEnderBrine-ProperSave\ProperSave\ProperSave.dll</HintPath>
     </Reference>
     <Reference Include="Rewired_Windows_Lib">
       <HintPath>libs\Rewired_Windows_Lib.dll</HintPath>

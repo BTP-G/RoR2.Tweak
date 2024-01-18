@@ -26,12 +26,7 @@ namespace BtpTweak.Tweaks {
 
         private void OnPlayerFirstCreatedServer(Run run, PlayerCharacterMasterController player) {
             if (run.selectedDifficulty == BtpContent.Difficulties.造物索引) {
-                var master = player.master;
-                master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
-                var inventory = master.inventory;
-                inventory.GiveItem(RoR2Content.Items.ExtraLife.itemIndex);
-                inventory.GiveItem(RoR2Content.Items.Infusion.itemIndex);
-                inventory.GiveItem(RoR2Content.Items.HealWhileSafe.itemIndex);
+                player.master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
             }
         }
 
@@ -62,17 +57,20 @@ namespace BtpTweak.Tweaks {
                                 case 1: {
                                     inventory.GiveItem(BtpContent.Items.MoonscourgeAccursedItem);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
+                                    body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     break;
                                 }
                                 case 2: {
                                     inventory.GiveItem(BtpContent.Items.StormscourgeAccursedItem);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
+                                    body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     break;
                                 }
                                 case 3: {
                                     inventory.GiveItem(BtpContent.Items.HelscourgeAccursedItemDef);
                                     body.baseAcceleration *= Run.instance.participatingPlayerCount;
                                     body.AddBuff(RoR2Content.Buffs.LunarShell.buffIndex);
+                                    body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
                                     break;
                                 }
@@ -117,9 +115,15 @@ namespace BtpTweak.Tweaks {
         }
 
         private void 造物难度_OnPlayerBodyFirstStartServer(CharacterBody body) {
+            if (Run.instance.stageClearCount != 0) {
+                return;
+            }
             var master = body.master;
             var inventory = body.inventory;
             master.onBodyStart -= 造物难度_OnPlayerBodyFirstStartServer;
+            inventory.GiveItem(RoR2Content.Items.ExtraLife.itemIndex);
+            inventory.GiveItem(RoR2Content.Items.Infusion.itemIndex);
+            inventory.GiveItem(RoR2Content.Items.HealWhileSafe.itemIndex);
             if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
                 switch (nameIndex) {
                     case BodyNameIndex.ArbiterBody: {

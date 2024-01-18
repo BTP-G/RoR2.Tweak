@@ -82,7 +82,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate((EntityStates.Railgunner.Reload.Reloading reloading) => {
                     var body = reloading.characterBody;
-                    reloading.attackSpeedStat = Mathf.Max(0.01f, reloading.attackSpeedStat - body.baseAttackSpeed * 0.15f * body.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine.itemIndex));
+                    reloading.attackSpeedStat = Mathf.Max(0.001f, reloading.attackSpeedStat - body.baseAttackSpeed * 0.15f * body.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine.itemIndex));
                 });
             } else {
                 Main.Logger.LogError("Railgunner ReloadingOnEnter Hook Failed!");

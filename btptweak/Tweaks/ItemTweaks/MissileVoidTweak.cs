@@ -1,5 +1,4 @@
 ﻿using BtpTweak.Pools.OrbPools;
-using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -48,7 +47,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         target = victimBody.mainHurtBox,
                         通用浮点数 = attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile.itemIndex),
                     };
-                    simpleOrbInfo.procChainMask.AddGreenProcs();
+                    simpleOrbInfo.procChainMask.AddRYProcs();
                     MissileVoidOrbPool.RentPool(simpleOrbInfo.target.gameObject).AddOrb(simpleOrbInfo,
                                                                               Util.OnHitProcDamage(damageInfo.damage, 0, shieldFraction * DamageCoefficient * itemCount));
                 });

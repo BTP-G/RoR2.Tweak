@@ -22,7 +22,7 @@ namespace BtpTweak {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "2.3.7";
+        public const string PluginVersion = "2.4.1";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
         internal new static ManualLogSource Logger { get; private set; }
@@ -31,16 +31,18 @@ namespace BtpTweak {
             Logger = base.Logger;
             ModConfig.InitConfig(Config);
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
-                if (!type.IsAbstract && type.IsSubclassOf(typeof(TweakBase)) && !type.IsDefined(typeof(ObsoleteAttribute))) {
-                    var tweakBase = Activator.CreateInstance(type);
-                    if (tweakBase is IOnModLoadBehavior enableBehavior) {
-                        onModLoadBehaviors.Add(enableBehavior);
-                    }
-                    if (tweakBase is IOnModUnloadBehavior disableBehavior) {
-                        onModUnloadBehaviors.Add(disableBehavior);
-                    }
-                    if (tweakBase is IOnRoR2LoadedBehavior ror2LoadedBehavior) {
-                        RoR2Application.onLoad += ror2LoadedBehavior.OnRoR2Loaded;
+                if (!type.IsAbstract && !type.IsDefined(typeof(ObsoleteAttribute))) {
+                    if (type.IsSubclassOf(typeof(TweakBase))) {
+                        var tweakBase = Activator.CreateInstance(type);
+                        if (tweakBase is IOnModLoadBehavior enableBehavior) {
+                            onModLoadBehaviors.Add(enableBehavior);
+                        }
+                        if (tweakBase is IOnModUnloadBehavior disableBehavior) {
+                            onModUnloadBehaviors.Add(disableBehavior);
+                        }
+                        if (tweakBase is IOnRoR2LoadedBehavior ror2LoadedBehavior) {
+                            RoR2Application.onLoad += ror2LoadedBehavior.OnRoR2Loaded;
+                        }
                     }
                 }
                 var staticMethodInfos = type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);

@@ -51,7 +51,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             target = victim,
                             attackerBody = attackerBody,
                         };
-                        missileInfo.procChainMask.AddGreenProcs();
+                        missileInfo.procChainMask.AddRYProcs();
                         MissilePool.RentPool(damageInfo.attacker).AddMissile(missileInfo,
                                                                              Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }

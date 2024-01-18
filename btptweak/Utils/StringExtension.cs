@@ -80,21 +80,21 @@ namespace BtpTweak.Utils {
             return value.ToPct().ToStk(prefix_suffix);
         }
 
-        public static string ToBaseAndStk<T>(this T baseValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            return baseValue + baseValue.ToStk("（每层+_）");
+        public static string ToBaseAndStk<T>(this T baseValue, string stk_prefix_suffix = "（每层+_）") where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return baseValue + baseValue.ToStk(stk_prefix_suffix);
         }
 
-        public static string ToBaseWithStk<T>(this T baseValue, T stackValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            return baseValue + stackValue.ToStk("（每层+_）");
+        public static string ToBaseWithStk<T>(this T baseValue, T stackValue, string stk_prefix_suffix = "（每层+_）") where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return baseValue + stackValue.ToStk(stk_prefix_suffix);
         }
 
-        public static string ToBaseAndStkPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+        public static string ToBaseAndStkPct<T>(this T value, string stk_prefix_suffix = "（每层+_）") where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
             var pctStr = value.ToPct();
-            return pctStr + pctStr.ToStk("（每层+_）");
+            return pctStr + pctStr.ToStk(stk_prefix_suffix);
         }
 
-        public static string ToBaseWithStkPct<T>(this T baseValue, T stackValue) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
-            return baseValue.ToPct() + stackValue.ToPct().ToStk("（每层+_）");
+        public static string ToBaseWithStkPct<T>(this T baseValue, T stackValue, string stk_prefix_suffix = "（每层+_）") where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {
+            return baseValue.ToPct() + stackValue.ToPct().ToStk(stk_prefix_suffix);
         }
 
         public static string ToPct<T>(this T value) where T : struct, IComparable, IFormattable, IConvertible, IComparable<T>, IEquatable<T> {

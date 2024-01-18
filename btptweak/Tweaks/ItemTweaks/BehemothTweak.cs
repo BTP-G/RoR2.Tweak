@@ -1,50 +1,8 @@
-﻿using BtpTweak.Pools;
-using BtpTweak.Utils;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using RoR2;
-using System;
+﻿namespace BtpTweak.Tweaks.ItemTweaks {
 
-namespace BtpTweak.Tweaks.ItemTweaks {
-
-    [Obsolete]
-    internal class BehemothTweak : TweakBase<BehemothTweak>, IOnModLoadBehavior {
+    internal class BehemothTweak {
         public const int Radius = 3;
         public const float BaseDamageCoefficient = 0.6f;
         public const float Interval = 0.1f;
-
-        public void OnModLoad() {
-            //IL.RoR2.GlobalEventManager.OnHitAll += GlobalEventManager_OnHitAll;
-        }
-
-        private void GlobalEventManager_OnHitAll(ILContext il) {
-            var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(MoveType.After,
-                                     x => x.MatchLdsfld(typeof(RoR2Content.Items), "Behemoth"),
-                                     x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
-                ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldloc_0);
-                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
-                    if (itemCount > 0) {
-                        var attackInfo = new BehemothPoolKey {
-                            crit = damageInfo.crit,
-                            damageType = damageInfo.damageType,
-                            procCoefficient = damageInfo.procCoefficient,
-                            radius = Radius * itemCount,
-                            attacker = damageInfo.attacker,
-                            procChainMask = damageInfo.procChainMask,
-                            teamIndex = attackerBody.teamComponent.teamIndex,
-                        };
-                        attackInfo.procChainMask.AddWhiteProcs();
-                        BehemothPool.RentPool(damageInfo.attacker).AddBlastAttack(attackInfo,
-                                                                             damageInfo.position,
-                                                                             Util.OnHitProcDamage(damageInfo.damage, 0, BaseDamageCoefficient));
-                    }
-                });
-                ilcursor.Emit(OpCodes.Ldc_I4_0);
-            } else {
-                Main.Logger.LogError("Behemoth :: Hook Failed!");
-            }
-        }
     }
 }

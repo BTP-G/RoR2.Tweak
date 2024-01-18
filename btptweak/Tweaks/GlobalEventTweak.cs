@@ -2,7 +2,6 @@
 using BtpTweak.Pools.ProjectilePools;
 using BtpTweak.RoR2Indexes;
 using BtpTweak.Tweaks.ItemTweaks;
-using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -41,7 +40,7 @@ namespace BtpTweak.Tweaks {
                     procChainMask = damageInfo.procChainMask,
                     teamIndex = attackerBody.teamComponent.teamIndex,
                 };
-                attackInfo.procChainMask.AddWhiteProcs();
+                attackInfo.procChainMask.AddWGRYProcs();
                 BehemothPool.RentPool(attackInfo.attacker).AddBlastAttack(attackInfo,
                                                                      damageInfo.position,
                                                                      Util.OnHitProcDamage(damageInfo.damage, 0, BehemothTweak.BaseDamageCoefficient));
@@ -53,7 +52,7 @@ namespace BtpTweak.Tweaks {
                     damageCoefficient *= Configuration.AspectBlueMonsterDamageMult.Value;
                 }
                 LightningStakePool.RentPool(damageInfo.attacker).AddProjectile(
-                    new() { attacker = damageInfo.attacker, isCrit = damageInfo.crit, },
+                    new() { attacker = damageInfo.attacker, isCrit = damageInfo.crit, procChainMask = damageInfo.procChainMask },
                     damageInfo.position,
                     Util.OnHitProcDamage(damageInfo.damage, 0, damageCoefficient));
             }
@@ -73,21 +72,13 @@ namespace BtpTweak.Tweaks {
             EffectManager.SimpleImpactEffect(body.critMultiplier > 2f ? AssetReferences.critsparkHeavy : AssetReferences.critspark, damageInfo?.position ?? body.corePosition, Vector3.up, transmit: true);
             if (procCoefficient > 0f) {
                 var inventory = master.inventory;
-                if (!procChainMask.HasProc(ProcType.HealOnCrit)) {
-                    procChainMask.AddProc(ProcType.HealOnCrit);
-                    int itemCount = inventory.GetItemCount(RoR2Content.Items.HealOnCrit);
-                    if (itemCount > 0 && (bool)body.healthComponent) {
-                        Util.PlaySound("Play_item_proc_crit_heal", body.gameObject);
-                        body.healthComponent.Heal((4f + itemCount * 4f) * procCoefficient, procChainMask);
-                    }
-                }
                 if (inventory.GetItemCount(RoR2Content.Items.AttackSpeedOnCrit) > 0) {
                     body.AddTimedBuff(RoR2Content.Buffs.AttackSpeedOnCrit, 3f * procCoefficient);
                 }
                 int itemCount2 = inventory.GetItemCount(JunkContent.Items.CooldownOnCrit);
-                if (itemCount2 > 0) {
+                if (itemCount2 > 0 && body.skillLocator) {
                     Util.PlaySound("Play_item_proc_crit_cooldown", body.gameObject);
-                    body.skillLocator?.DeductCooldownFromAllSkillsServer(itemCount2 * procCoefficient);
+                    body.skillLocator.DeductCooldownFromAllSkillsServer(itemCount2 * procCoefficient);
                 }
             }
         }
@@ -100,7 +91,7 @@ namespace BtpTweak.Tweaks {
                 }
                 if (damageReport.victimTeamIndex == TeamIndex.Monster
                     && victimBody.inventory.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex) == 0) {
-                    victimBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, 20);
+                    victimBody.AddTimedBuff(RoR2Content.Buffs.TonicBuff, victimBody.isBoss ? 40f : 20f);
                     victimBody.inventory.GiveItem(RoR2Content.Items.TonicAffliction.itemIndex);
                     Util.CleanseBody(victimBody, true, false, false, false, true, false);
                 } else if (damageReport.victimTeamIndex == TeamIndex.Void

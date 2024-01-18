@@ -1,4 +1,5 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BtpTweak.Tweaks;
+using BtpTweak.Tweaks.ItemTweaks;
 using UnityEngine;
 
 namespace BtpTweak.Pools.ProjectilePools {
@@ -9,7 +10,7 @@ namespace BtpTweak.Pools.ProjectilePools {
         protected override float Interval => StickyBombTweak.Interval;
 
         protected override void OnTimeOut(in ProjectilePoolKey key, in ProjectileInfo projectileInfo) {
-            projectileInfo.info.procChainMask.AddProc(RoR2.ProcType.Count);
+            projectileInfo.info.procChainMask.AddProc(ProcChainTweak.StickyBombOnHit);
             projectileInfo.info.useFuseOverride = false;
             projectileInfo.info.speedOverride *= 0.33f;
             base.OnTimeOut(key, projectileInfo);

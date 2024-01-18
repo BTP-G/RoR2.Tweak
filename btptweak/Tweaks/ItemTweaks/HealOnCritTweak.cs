@@ -3,23 +3,25 @@
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior {
-        public const float RegenDuration = 0.1f;
+        public const float BaseCrit = 0.1f;
+        public const float StackCrit = 0.05f;
+        public const float HealFraction = 0.02f;
 
         void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
         }
 
         private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {
-            if (!damageReport.damageInfo.crit) {
-                return;
-            }
             var attackerBody = damageReport.attackerBody;
-            if (!attackerBody) {
+            if (!attackerBody || !attackerBody.inventory) {
                 return;
             }
-            var itemCount = attackerBody.inventory?.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex) ?? 0;
-            if (itemCount > 0) {
-                attackerBody.AddTimedBuff(RoR2Content.Buffs.CrocoRegen, RegenDuration * itemCount);
+            var itemCount = attackerBody.inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
+            var procChainMask = damageReport.damageInfo.procChainMask;
+            if (itemCount > 0 && !procChainMask.HasProc(ProcType.HealOnCrit)) {
+                procChainMask.AddProc(ProcType.HealOnCrit);
+                attackerBody.healthComponent.HealFraction(HealFraction * itemCount * (damageReport.damageInfo.crit ? attackerBody.critMultiplier : 1f), procChainMask);
+                Util.PlaySound("Play_item_proc_crit_heal", attackerBody.gameObject);
             }
         }
     }

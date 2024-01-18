@@ -1,12 +1,11 @@
-﻿using RoR2;
-using RoR2.Projectile;
-using TPDespair.ZetAspects;
+﻿using RoR2.Projectile;
+using RoR2;
 using UnityEngine;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
-    internal class LightningStakePool : Pool<LightningStakePool, ProjectilePoolKey, ProjectileInfo> {
-        protected override float Interval => 0.1f;
+    internal class ElementalRingVoidBlackHolePool : Pool<ElementalRingVoidBlackHolePool, ProjectilePoolKey, ProjectileInfo> {
+        protected override float Interval => 1f;
 
         public void AddProjectile(in ProjectilePoolKey simpleProjectileInfo, in Vector3 position, float damageValue) {
             if (pool.TryGetValue(simpleProjectileInfo, out var projectileInfo)) {
@@ -17,19 +16,19 @@ namespace BtpTweak.Pools.ProjectilePools {
                     info = new FireProjectileInfo {
                         crit = simpleProjectileInfo.isCrit,
                         damage = damageValue,
-                        damageColorIndex = DamageColorIndex.Item,
-                        fuseOverride = Configuration.AspectBlueBombDuration.Value,
+                        damageColorIndex = DamageColorIndex.Void,
+                        force = 6000f,
                         owner = simpleProjectileInfo.attacker,
                         position = position,
                         procChainMask = simpleProjectileInfo.procChainMask,
-                        projectilePrefab = AssetReferences.lightningStake,
-                        useFuseOverride = true,
+                        projectilePrefab = AssetReferences.elementalRingVoidBlackHole,
                     }
                 });
             }
         }
 
         protected override void OnTimeOut(in ProjectilePoolKey key, in ProjectileInfo projectileInfo) {
+            projectileInfo.info.procChainMask.AddProc(ProcType.Rings);
             ProjectileManager.instance.FireProjectile(projectileInfo.info);
         }
     }

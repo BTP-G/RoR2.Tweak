@@ -39,7 +39,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             target = victimBody.mainHurtBox,
                             通用浮点数 = BaseRadius + StackRadius * (itemCount - 1),
                         };
-                        simpleOrbInfo.procChainMask.AddGreenProcs();
+                        simpleOrbInfo.procChainMask.AddRYProcs();
                         LightningOrbPool.RentPool(simpleOrbInfo.target.gameObject).AddOrb(simpleOrbInfo,
                                                                  Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
                     }

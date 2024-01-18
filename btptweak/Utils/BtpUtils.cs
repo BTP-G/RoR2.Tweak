@@ -17,6 +17,12 @@ namespace BtpTweak.Utils {
 
         public static float 简单逼近(float 基数, float 半数, float 目标) => 目标 * 基数 / (基数 + 半数);
 
+        public static void TryApplyTag(this ItemDef itemDef, ItemTag itemTag) {
+            if (itemDef && itemDef.DoesNotContainTag(itemTag)) {
+                R2API.ItemAPI.ApplyTagToItem(itemTag, itemDef);
+            }
+        }
+
         public static bool SpawnLunarPortal(Vector3 position) {
             var directorPlacementRule = new DirectorPlacementRule {
                 minDistance = 0,
@@ -43,7 +49,7 @@ namespace BtpTweak.Utils {
                 }
             }
             if (fieldNameToNewFieldValues.Count != 0) {
-                Main.Logger.LogError($"set fields '{string.Join("|", fieldNameToNewFieldValues.Keys)}' not found!");
+                Main.Logger.LogError($"set {configuration.targetType.assemblyQualifiedName} fields '{string.Join("|", fieldNameToNewFieldValues.Keys)}' not found!");
                 fieldNameToNewFieldValues.Clear();
             }
         }
@@ -57,7 +63,7 @@ namespace BtpTweak.Utils {
                     return;
                 }
             }
-            Main.Logger.LogError($"set field '{fieldName}' not found!");
+            Main.Logger.LogError($"set {configuration.targetType.assemblyQualifiedName} field '{fieldName}' not found!");
         }
     }
 }

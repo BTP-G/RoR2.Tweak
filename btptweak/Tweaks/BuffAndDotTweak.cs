@@ -160,7 +160,7 @@ namespace BtpTweak.Tweaks {
             var victimBody = dotController.victimBody;
             var dotStackList = dotController.dotStackList;
             var lastDotStack = dotStackList.Last();
-            if (attackerBody != null) {
+            if (attackerBody) {
                 if (attackerBody.bodyIndex == BodyIndexes.Croco) {
                     lastDotStack.timer *= 1 + 0.4f * attackerBody.inventory.GetItemCount(RoR2Content.Items.DeathMark.itemIndex);
                 } else if (victimBody.bodyIndex == BodyIndexes.Mage) {
