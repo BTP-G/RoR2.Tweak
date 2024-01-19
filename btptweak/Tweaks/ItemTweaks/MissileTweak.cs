@@ -11,7 +11,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class MissileTweak : TweakBase<MissileTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BasePercnetChance = 10f;
         public const float 半数 = 9;
-        public const float DamageCoefficient = 1.5f;
+        public const float DamageCoefficient = 1f;
         public const float Interval = 1f;
 
         void IOnModLoadBehavior.OnModLoad() {

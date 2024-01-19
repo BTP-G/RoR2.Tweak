@@ -31,6 +31,7 @@ namespace BtpTweak.RoR2Indexes {
             RailgunnerBody,
             RedMistBody,
             RobPaladinBody,
+            ShopkeeperBody,
             SniperClassicBody,
             ToolbotBody,
             TreebotBody,

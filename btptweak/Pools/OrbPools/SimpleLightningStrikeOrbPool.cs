@@ -20,7 +20,7 @@ namespace BtpTweak.Pools.OrbPools {
                     damageValue = damageValue,
                     isCrit = simpleOrbInfo.isCrit,
                     procChainMask = simpleOrbInfo.procChainMask,
-                    procCoefficient = 0.5f,
+                    procCoefficient = LightningStrikeOnHitTweak.ProcCoefficient,
                     target = simpleOrbInfo.target,
                     teamIndex = simpleOrbInfo.attackerBody.teamComponent.teamIndex,
                 });

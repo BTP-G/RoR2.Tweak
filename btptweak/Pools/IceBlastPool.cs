@@ -12,7 +12,7 @@ namespace BtpTweak.Pools {
     }
 
     internal class IceBlastPool : Pool<IceBlastPool, IceBlastPoolKey, BlastAttack> {
-        protected override float Interval => 1f;
+        protected override float Interval => RingsTweak.IceRingInterval;
 
         public void AddIceBlast(in IceBlastPoolKey attackInfo, in Vector3 position, float damageValue) {
             if (pool.TryGetValue(attackInfo, out var blastAttack)) {
@@ -29,8 +29,8 @@ namespace BtpTweak.Pools {
                     falloffModel = BlastAttack.FalloffModel.None,
                     position = position,
                     procChainMask = attackInfo.procChainMask,
-                    procCoefficient = 1f,
-                    radius = 12f,
+                    procCoefficient = RingsTweak.IceRingProcCoefficient,
+                    radius = RingsTweak.IceRingRadius,
                     teamIndex = attackInfo.teamIndex,
                 });
             }
@@ -44,9 +44,9 @@ namespace BtpTweak.Pools {
                     healthComponent.body.AddTimedBuff(RoR2Content.Buffs.Slow80, RingsTweak.IceRingSlow80BuffDuration);
                 }
             }
-            EffectManager.SpawnEffect(AssetReferences.affixWhiteExplosion, new EffectData() {
+            EffectManager.SpawnEffect(AssetReferences.iceRingExplosion, new EffectData {
                 origin = blastAttack.position,
-                scale = blastAttack.radius,
+                scale = blastAttack.radius
             }, true);
         }
     }

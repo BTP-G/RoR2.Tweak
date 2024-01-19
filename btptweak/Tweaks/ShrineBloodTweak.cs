@@ -42,7 +42,7 @@ namespace BtpTweak.Tweaks {
                 pickupIndex = rng.NextElementUniform(Run.instance.availableTier3DropList);
             }
             if (pickupIndex == PickupIndex.none) {
-                ChatMessage.Send("供奉后什么也没有发生".ToDeath());
+                ChatMessage.Send("供奉后什么也没有发生。".ToShrine());
                 return;
             }
             PickupDropletController.CreatePickupDroplet(pickupIndex, interactor.transform.position, Vector3.up * 30f);
@@ -52,7 +52,7 @@ namespace BtpTweak.Tweaks {
                 for (int i = 0; i < permanentCurseBuffCount; ++i) {
                     body.AddBuff(RoR2Content.Buffs.PermanentCurse.buffIndex);
                 }
-                ChatMessage.Send($"{body.GetColoredUserName()}感觉到一阵疼痛，获得了奖励和{permanentCurseBuffCount}层诅咒。".ToDeath());
+                ChatMessage.Send($"{body.GetColoredUserName()}感觉到一阵灼热的疼痛，获得了奖励和{permanentCurseBuffCount}层诅咒。".ToShrine());
             }
         }
 

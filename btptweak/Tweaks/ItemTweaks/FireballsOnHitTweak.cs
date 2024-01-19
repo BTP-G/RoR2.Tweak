@@ -10,7 +10,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class FireballsOnHitTweak : TweakBase<FireballsOnHitTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BasePercentChance = 10;
         public const float 半数 = 9;
-        public const float DamageCoefficient = 0.7f;
+        public const float DamageCoefficient = 0.6f;
         public const float Interval = 0.3f;
 
         void IOnModLoadBehavior.OnModLoad() {

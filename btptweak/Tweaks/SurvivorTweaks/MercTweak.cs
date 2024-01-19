@@ -51,7 +51,9 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         private void GroundLight2_OnEnter(On.EntityStates.Merc.Weapon.GroundLight2.orig_OnEnter orig, GroundLight2 self) {
             orig(self);
-            self.overlapAttack.damage *= self.attackSpeedStat;
+            if (self.isAuthority) {
+                self.overlapAttack.damage *= self.attackSpeedStat;
+            }
             self.durationBeforeInterruptable = self.isComboFinisher
                 ? GroundLight2.comboFinisherBaseDurationBeforeInterruptable
                 : GroundLight2.baseDurationBeforeInterruptable;

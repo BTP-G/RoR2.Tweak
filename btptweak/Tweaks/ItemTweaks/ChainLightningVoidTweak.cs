@@ -9,7 +9,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 20;
         public const float 半数 = 4;
-        public const float DamageCoefficient = 0.3f;
+        public const float DamageCoefficient = 0.15f;
         public const int TotalStrikes = 3;
         public const float Interval = 0.2f;
 
@@ -18,7 +18,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdsfld(typeof(DLC1Content.Items).GetField("ChainLightningVoid")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {

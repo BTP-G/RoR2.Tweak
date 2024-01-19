@@ -1,20 +1,12 @@
 ﻿using BtpTweak.Utils;
-using HG;
 using RoR2;
-using RoR2.Projectile;
-using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ItemMiscTweak : TweakBase<ItemMiscTweak>, IOnRoR2LoadedBehavior {
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            var blackHoleAction = AssetReferences.elementalRingVoidBlackHole.AddComponent<ElementalRingVoidBlackHoleAction>();
-            blackHoleAction.projectileExplosion = AssetReferences.elementalRingVoidBlackHole.GetComponent<ProjectileExplosion>();
-            blackHoleAction.projectileFuse = AssetReferences.elementalRingVoidBlackHole.GetComponent<ProjectileFuse>();
-            blackHoleAction.radialForce = AssetReferences.elementalRingVoidBlackHole.GetComponent<RadialForce>();
             AssetReferences.bonusMoneyPack.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
             DLC1Content.Items.ExtraLifeVoid.TryApplyTag(ItemTag.CannotSteal);
             DLC1Content.Items.ImmuneToDebuff.TryApplyTag(ItemTag.AIBlacklist);
@@ -42,21 +34,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             tags.Remove(ItemTag.CannotSteal);
             RoR2Content.Items.TonicAffliction.tags = [.. tags];
             RoR2Content.Items.FlatHealth.tags = [ItemTag.Healing];
-        }
-
-        private class ElementalRingVoidBlackHoleAction : MonoBehaviour {
-            public ProjectileExplosion projectileExplosion;
-            public ProjectileFuse projectileFuse;
-            public RadialForce radialForce;
-
-            private void FixedUpdate() {
-                if (projectileFuse.fuse - Time.fixedDeltaTime <= 0) {
-                    var hurtBoxes = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
-                    radialForce.SearchForTargets(hurtBoxes);
-                    projectileExplosion.blastDamageCoefficient *= hurtBoxes.Count;
-                    CollectionPool<HurtBox, List<HurtBox>>.ReturnCollection(hurtBoxes);
-                }
-            }
         }
     }
 }

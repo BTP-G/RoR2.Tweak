@@ -1,11 +1,12 @@
 ﻿using RoR2.Projectile;
 using RoR2;
 using UnityEngine;
+using BtpTweak.Tweaks.ItemTweaks;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
     internal class FireTornadoPool : Pool<FireTornadoPool, ProjectilePoolKey, ProjectileInfo> {
-        protected override float Interval => 1f;
+        protected override float Interval => RingsTweak.FireRingInterval;
 
         public void AddProjectile(in ProjectilePoolKey simpleProjectileInfo, in Vector3 position, float damageValue) {
             if (pool.TryGetValue(simpleProjectileInfo, out var projectileInfo)) {

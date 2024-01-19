@@ -42,8 +42,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 });
                 master.inventory.AddItemsFrom(self.body.inventory);
                 master.inventory.GiveItem(RoR2Content.Items.HealthDecay.itemIndex, 60);
-                master.inventory.ResetItem(RoR2Content.Items.ExtraLife);
-                master.inventory.ResetItem(DLC1Content.Items.ExtraLifeVoid);
+                master.inventory.ResetItem(RoR2Content.Items.ExtraLife.itemIndex);
+                master.inventory.ResetItem(DLC1Content.Items.ExtraLifeVoid.itemIndex);
+                master.inventory.ResetItem(RoR2Content.Items.UseAmbientLevel.itemIndex);
             }
         }
     }

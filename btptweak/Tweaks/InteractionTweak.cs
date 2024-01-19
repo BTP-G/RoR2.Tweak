@@ -34,6 +34,9 @@ namespace BtpTweak.Tweaks {
             InteractableSpawnCardPaths.iscShrineChance.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
             InteractableSpawnCardPaths.iscShrineChanceSandy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
             InteractableSpawnCardPaths.iscShrineChanceSnowy.Load<InteractableSpawnCard>().skipSpawnWhenSacrificeArtifactEnabled = false;
+            InteractableSpawnCardPaths.iscShrineBoss.Load<InteractableSpawnCard>().maxSpawnsPerStage = 3;
+            InteractableSpawnCardPaths.iscShrineBossSandy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 3;
+            InteractableSpawnCardPaths.iscShrineBossSnowy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 3;
         }
 
         private void PurchaseInteraction_Awake(On.RoR2.PurchaseInteraction.orig_Awake orig, PurchaseInteraction self) {

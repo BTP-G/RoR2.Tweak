@@ -9,7 +9,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class LightningStrikeOnHitTweak : TweakBase<LightningStrikeOnHitTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 10;
         public const float 半数 = 9f;
-        public const int DamageCoefficient = 3;
+        public const int DamageCoefficient = 2;
+        public const float ProcCoefficient = 0.5f;
         public const float Interval = 0.5f;
 
         void IOnModLoadBehavior.OnModLoad() {

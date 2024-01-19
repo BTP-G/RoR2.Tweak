@@ -1,4 +1,5 @@
 ﻿using BtpTweak.RoR2Indexes;
+using R2API;
 using RoR2;
 using UnityEngine;
 
@@ -18,12 +19,12 @@ namespace BtpTweak.Tweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            R2API.EliteAPI.AddCustomEliteTier(new CombatDirector.EliteTierDef() {
-                costMultiplier = CombatDirector.baseEliteCostMultiplier,
+            EliteAPI.AddCustomEliteTier(new CombatDirector.EliteTierDef() {
+                costMultiplier = CombatDirector.baseEliteCostMultiplier * 10f,
                 eliteTypes = EliteCatalog.eliteDefs,
                 isAvailable = (SpawnCard.EliteRules rules) => Run.instance.loopClearCount > 1 && rules == SpawnCard.EliteRules.Default,
                 canSelectWithoutAvailableEliteDef = false
-            });
+            }, -1);
             TeamCatalog.GetTeamDef(TeamIndex.Player).softCharacterLimit = 40;
         }
 
@@ -35,11 +36,15 @@ namespace BtpTweak.Tweaks {
         private void CombatDirector_Awake(On.RoR2.CombatDirector.orig_Awake orig, CombatDirector self) {
             orig(self);
             self.ignoreTeamSizeLimit = false;
+            if (Random.value < 0.5f) {
+                self.skipSpawnIfTooCheap = false;
+            }
         }
 
         private void CombatDirector_SetNextSpawnAsBoss(On.RoR2.CombatDirector.orig_SetNextSpawnAsBoss orig, CombatDirector self) {
             orig(self);
             self.ignoreTeamSizeLimit = true;
+            self.skipSpawnIfTooCheap = false;
         }
 
         private bool CombatDirector_Spawn(On.RoR2.CombatDirector.orig_Spawn orig, CombatDirector self, SpawnCard spawnCard, EliteDef eliteDef, Transform spawnTarget, DirectorCore.MonsterSpawnDistance spawnDistance, bool preventOverhead, float valueMultiplier, DirectorPlacementRule.PlacementMode placementMode) {

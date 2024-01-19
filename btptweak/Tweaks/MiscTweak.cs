@@ -13,6 +13,9 @@ namespace BtpTweak.Tweaks {
             On.EntityStates.BaseState.RollCrit += BaseState_RollCrit;
             On.RoR2.CharacterBody.RollCrit += CharacterBody_RollCrit;
             On.RoR2.Util.CheckRoll_float_float_CharacterMaster += Util_CheckRoll_float_float_CharacterMaster;
+            On.RoR2.LevelUpEffectManager.OnCharacterLevelUp += LevelUpEffectManager_OnCharacterLevelUp;
+            On.RoR2.LevelUpEffectManager.OnTeamLevelUp += LevelUpEffectManager_OnTeamLevelUp;
+            On.RoR2.LevelUpEffectManager.OnRunAmbientLevelUp += LevelUpEffectManager_OnRunAmbientLevelUp;
             Stage.onStageStartGlobal += Stage_onStageStartGlobal;
         }
 
@@ -25,6 +28,27 @@ namespace BtpTweak.Tweaks {
 
         public void Stage_onStageStartGlobal(Stage stage) {
             BtpContent.Difficulties.造物.scalingValue = 3f + Run.instance.stageClearCount * ModConfig.每关难度增加量.Value / 50f;
+        }
+
+        private void LevelUpEffectManager_OnCharacterLevelUp(On.RoR2.LevelUpEffectManager.orig_OnCharacterLevelUp orig, CharacterBody characterBody) {
+            if (characterBody.level > 99) {
+                return;
+            }
+            orig(characterBody);
+        }
+
+        private void LevelUpEffectManager_OnTeamLevelUp(On.RoR2.LevelUpEffectManager.orig_OnTeamLevelUp orig, TeamIndex teamIndex) {
+            if (TeamManager.instance.GetTeamLevel(teamIndex) > 99) {
+                return;
+            }
+            orig(teamIndex);
+        }
+
+        private void LevelUpEffectManager_OnRunAmbientLevelUp(On.RoR2.LevelUpEffectManager.orig_OnRunAmbientLevelUp orig, Run run) {
+            if (run.ambientLevel > 99) {
+                return;
+            }
+            orig(run);
         }
 
         private bool CharacterBody_RollCrit(On.RoR2.CharacterBody.orig_RollCrit orig, CharacterBody self) {

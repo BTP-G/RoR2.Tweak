@@ -9,7 +9,7 @@ using static BtpTweak.RoR2Indexes.BodyIndexes;
 
 namespace BtpTweak.Tweaks {
 
-    internal class CharacterBodyStartTweak : TweakBase<CharacterBodyStartTweak>, IOnModLoadBehavior {
+    internal class CharacterBodyStartTweak : TweakBase<CharacterBodyStartTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private int _造物难度敌人血量提升物品数量;
 
         void IOnModLoadBehavior.OnModLoad() {
@@ -20,7 +20,17 @@ namespace BtpTweak.Tweaks {
             Run.onRunStartGlobal += OnRunStartGlobal;
         }
 
-        public void OnRunStartGlobal(Run run) {
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            var body = BodyCatalog.GetBodyPrefabBodyComponent(BodyCatalog.FindBodyIndex(BodyNameIndex.ShopkeeperBody.ToString()));
+            body.baseMaxHealth = 1E+30f;
+            body.levelMaxHealth = 0f;
+            body.baseRegen = 0f;
+            body.levelRegen = 0f;
+            body.baseArmor = 0f;
+            body.levelArmor = 0f;
+        }
+
+        private void OnRunStartGlobal(Run run) {
             _造物难度敌人血量提升物品数量 = 0;
         }
 
@@ -89,7 +99,6 @@ namespace BtpTweak.Tweaks {
                             if (inventory.GetItemCount(DLC1Content.Items.VoidMegaCrabItem.itemIndex) > 0) {
                                 return;
                             }
-                            inventory.GiveItem(DLC1Content.Items.VoidMegaCrabItem.itemIndex, 3);
                             inventory.GiveItem(DLC1Content.Items.BearVoid.itemIndex, 4);
                             inventory.GiveItem(DLC1Content.Items.BleedOnHitVoid.itemIndex, 5);
                             inventory.GiveItem(DLC1Content.Items.ChainLightningVoid.itemIndex, 4);

@@ -16,6 +16,8 @@ namespace BtpTweak.Utils {
 
         public static string ToDeath(this string str) => "<style=cDeath>" + str + "</style>";
 
+        public static string ToShrine(this string str) => "<style=cShrine>" + str + "</style>";
+
         public static string ToDmg(this object obj, string prefix_suffix = "") {
             if (obj == null) {
                 return string.Empty;

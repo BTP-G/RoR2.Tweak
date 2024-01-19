@@ -13,10 +13,12 @@ using static RoR2.BulletAttack;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class LaserTurbineTweak : TweakBase<LaserTurbineTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float MainBeamDamageCoefficient = 3f;
+        public const float SecondBombDamageCoefficient = 6f;
         public const int ChargeDuration = 10;
         public const int ChargesRequired = 0;
         public const float ChargeCoefficient = 0.025f;
-        public const float ChargeCoefficientPerKill = 0.025f;
+        public const float ChargeCoefficientPerKill = 0.01f;
 
         private static readonly BullseyeSearch _search = new() {
             sortMode = BullseyeSearch.SortMode.Distance,
@@ -38,7 +40,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             AimState.targetAcquisitionRadius = float.MaxValue;
             ReadyState.baseDuration = 0.5f;
             FireMainBeamState.baseDuration = 0.1f;
-            FireMainBeamState.mainBeamMaxDistance = float.MaxValue;
+            FireMainBeamState.mainBeamDamageCoefficient = MainBeamDamageCoefficient;
+            FireMainBeamState.secondBombDamageCoefficient = SecondBombDamageCoefficient;
         }
 
         private void LaserTurbineController_FixedUpdate(On.RoR2.LaserTurbineController.orig_FixedUpdate orig, LaserTurbineController self) {
@@ -106,7 +109,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 if (laserTurbineBounceOrb.target = laserTurbineBounceOrb.PickNextTarget(laserTurbineBounceOrb.origin)) {
                     laserTurbineBounceOrb.secondProjectileInfo = new() {
                         crit = laserTurbineBounceOrb.isCrit,
-                        damage = laserTurbineBounceOrb.damageValue * FireMainBeamState.secondBombDamageCoefficient,
+                        damage = laserTurbineBounceOrb.damageValue * SecondBombDamageCoefficient,
                         damageColorIndex = DamageColorIndex.Item,
                         fuseOverride = 0f,
                         owner = laserTurbineBounceOrb.ownerBody.gameObject,
@@ -115,6 +118,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         useFuseOverride = true,
                     };
                     OrbManager.instance.AddOrb(laserTurbineBounceOrb);
+                    self.laserTurbineController.ExpendCharge();
                 }
             }
         }
@@ -175,7 +179,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 }
                 var targetPosition = target.healthComponent.body.corePosition;
                 bulletAttack.aimVector = (targetPosition - origin).normalized;
-                bulletAttack.damage = damageValue * FireMainBeamState.mainBeamDamageCoefficient;
+                bulletAttack.damage = damageValue * MainBeamDamageCoefficient;
                 bulletAttack.isCrit = isCrit;
                 bulletAttack.maxDistance = Vector3.Distance(origin, targetPosition) + target.healthComponent.body.bestFitRadius;
                 bulletAttack.origin = origin;

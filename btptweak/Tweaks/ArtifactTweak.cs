@@ -22,10 +22,10 @@ namespace BtpTweak.Tweaks {
             }
             float baseDropChancePercent = ModConfig.牺牲基础掉率.Value + _牺牲保底概率 - _牺牲衰减概率;
             if (damageReport.victimIsChampion) {
-                baseDropChancePercent *= 2f;
+                baseDropChancePercent *= 1.5f;
             }
             if (damageReport.victimIsElite) {
-                baseDropChancePercent *= 1.5f;
+                baseDropChancePercent *= 1.25f;
             }
             float expAdjustedDropChancePercent = Util.GetExpAdjustedDropChancePercent(baseDropChancePercent, damageReport.victim.gameObject);
             Debug.LogFormat("Drop chance from {0} == {1}", damageReport.victimBody, expAdjustedDropChancePercent);
@@ -40,11 +40,11 @@ namespace BtpTweak.Tweaks {
                             break;
 
                         case ItemTier.Tier2:
-                            itemScore = 0.04f;
+                            itemScore = 0.03f;
                             break;
 
                         case ItemTier.Tier3:
-                            itemScore = 0.2f;
+                            itemScore = 0.16f;
                             break;
                     }
                     if (itemScore > 0f) {

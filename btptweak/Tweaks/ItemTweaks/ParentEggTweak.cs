@@ -13,7 +13,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdarg(0),
                                      x => x.MatchLdflda<HealthComponent>("itemCounts"),

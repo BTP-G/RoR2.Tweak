@@ -17,13 +17,18 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         public const int 每次最大电击数 = 10;
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            SteppedSkillDef mageFireFirebolt = SteppedSkillDefPaths.MageBodyFireFirebolt.Load<SteppedSkillDef>();
+            //===火焰弹===//
+            var mageFireFirebolt = SteppedSkillDefPaths.MageBodyFireFirebolt.Load<SteppedSkillDef>();
             mageFireFirebolt.baseRechargeInterval = 0;
             mageFireFirebolt.baseMaxStock = 1;
-            SteppedSkillDef mageFireLightningBolt = SteppedSkillDefPaths.MageBodyFireLightningBolt.Load<SteppedSkillDef>();
+            //===闪电弹===//
+            var mageFireLightningBolt = SteppedSkillDefPaths.MageBodyFireLightningBolt.Load<SteppedSkillDef>();
             mageFireLightningBolt.baseRechargeInterval = 0;
             mageFireLightningBolt.baseMaxStock = 1;
+            //===冰枪===//
             GameObjectPaths.MageIceBombProjectile.Load<GameObject>().AddComponent<IceExplosion>();
+            SkillDefPaths.MageBodyIceBomb.Load<SkillDef>().mustKeyPress = false;
+            //===雷电球===//
             GameObject mageLightningBomb = GameObjectPaths.MageLightningBombProjectile.Load<GameObject>();
             mageLightningBomb.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
             var mageProximityBeamController = mageLightningBomb.GetComponent<ProjectileProximityBeamController>();
@@ -34,8 +39,13 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             mageProximityBeamController.inheritDamageType = true;
             mageProximityBeamController.listClearInterval = 0.2f;
             mageProximityBeamController.procCoefficient = 0.3f;
-            SkillDefPaths.MageBodyIceBomb.Load<SkillDef>().mustKeyPress = false;
             SkillDefPaths.MageBodyNovaBomb.Load<SkillDef>().mustKeyPress = false;
+            //===角色===//
+            var body = RoR2Content.Survivors.Mage.bodyPrefab.GetComponent<CharacterBody>();
+            body.baseMoveSpeed = 10f;
+            body.baseJumpPower = 20f;
+            var motor = RoR2Content.Survivors.Mage.bodyPrefab.GetComponent<CharacterMotor>();
+            motor.airControl = 1.25f;
         }
 
         private class IceExplosion : MonoBehaviour {
@@ -62,7 +72,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 delayBlast.explosionEffect = AssetReferences.affixWhiteExplosion;
                 delayBlast.delayEffect = AssetReferences.affixWhiteDelayEffect;
                 delayBlast.damageType = DamageType.Freeze2s;
-                iceExplosion.GetComponent<TeamFilter>().teamIndex = projectileController.teamFilter.teamIndex;
+                delayBlast.teamFilter.teamIndex = projectileController.teamFilter.teamIndex;
             }
         }
 
