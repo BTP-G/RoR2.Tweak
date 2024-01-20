@@ -14,30 +14,30 @@ namespace BtpTweak {
         public static bool 位于天文馆 { get; private set; }
         public static bool 位于时之墓 { get; private set; }
         public static bool 位于月球商店 { get; private set; }
-        public static bool 是否选择造物难度 { get; private set; }
+        public static bool 已选择造物难度 { get; private set; }
         public static bool 造物主的试炼 { get; private set; }
 
         [RuntimeInitializeOnLoadMethod]
         private static void Init() {
-            Run.onRunStartGlobal += OnRunStart;
+            Run.onRunSetRuleBookGlobal += OnRunSetRuleBookGlobal;
             SceneCatalog.onMostRecentSceneDefChanged += OnMostRecentSceneDefChanged;
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += OnBrotherTrueDeath;
             ProperSaveSupport.AddSaveDataType<SaveData>();
         }
 
+        private static void OnRunSetRuleBookGlobal(Run run, RuleBook ruleBook) {
+            造物主的试炼 = false;
+            已选择造物难度 = run.selectedDifficulty == BtpContent.Difficulties.造物索引;
+        }
+
         private static void OnBrotherTrueDeath(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
-            if (是否选择造物难度 && !造物主的试炼) {
+            if (已选择造物难度 && !造物主的试炼) {
                 造物主的试炼 = true;
                 if (NetworkServer.active) {
                     ChatMessage.Send("世界不再是你熟悉的那样！！！".ToRainbowWavy());
                 }
             }
-        }
-
-        private static void OnRunStart(Run run) {
-            造物主的试炼 = false;
-            是否选择造物难度 = run.selectedDifficulty == BtpContent.Difficulties.造物索引;
         }
 
         private static void OnMostRecentSceneDefChanged(SceneDef mostRecentSceneDef) {
@@ -78,7 +78,7 @@ namespace BtpTweak {
                 RunInfo.位于天文馆 = 位于天文馆;
                 RunInfo.位于时之墓 = 位于时之墓;
                 RunInfo.位于月球商店 = 位于月球商店;
-                RunInfo.是否选择造物难度 = 是否选择造物难度;
+                RunInfo.已选择造物难度 = 是否选择造物难度;
                 RunInfo.造物主的试炼 = 造物主的试炼;
             }
 
@@ -88,7 +88,7 @@ namespace BtpTweak {
                 位于天文馆 = RunInfo.位于天文馆;
                 位于时之墓 = RunInfo.位于时之墓;
                 位于月球商店 = RunInfo.位于月球商店;
-                是否选择造物难度 = RunInfo.是否选择造物难度;
+                是否选择造物难度 = RunInfo.已选择造物难度;
                 造物主的试炼 = RunInfo.造物主的试炼;
             }
         }

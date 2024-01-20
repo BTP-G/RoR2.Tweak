@@ -10,16 +10,16 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class RingsTweak : TweakBase<RingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        public const float FireRingDamageCoefficient = 1.5f;
+        public const float FireRingDamageCoefficient = 1f;
         public const float FireRingProcCoefficientPerTick = 0.2f;
         public const float FireRingInterval = 1f;
-        public const float IceRingDamageCoefficient = 1.5f;
+        public const float IceRingDamageCoefficient = 1f;
         public const float IceRingSlow80BuffDuration = 4f;
         public const float IceRingRadius = 4f;
         public const float IceRingInterval = 1f;
         public const float IceRingProcCoefficient = 1f;
-        public const float VoidRingDamageCoefficient = 1.5f;
-        public const float VoidRingProcCoefficient = 1.5f;
+        public const float VoidRingDamageCoefficient = 1f;
+        public const float VoidRingProcCoefficient = 1f;
         public const float VoidRingInterval = 1f;
         public const float VoidRingBaseRadius = 15f;
         public const float VoidRingStackRadius = 3f;
@@ -81,7 +81,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                             };
                             FireTornadoPool.RentPool(damageInfo.attacker).AddProjectile(simpleProjectileInfo,
                                                                                            damageInfo.position,
-                                                                                           Util.OnHitProcDamage(damageInfo.damage, 0, FireRingDamageCoefficient * iceRingCount));
+                                                                                           Util.OnHitProcDamage(damageInfo.damage, 0, FireRingDamageCoefficient * fireRingCount));
                         }
                     } else if (attackerBody.HasBuff(DLC1Content.Buffs.ElementalRingVoidReady.buffIndex)) {
                         var voidRingCount = inventory.GetItemCount(DLC1Content.Items.ElementalRingVoid.itemIndex);

@@ -4,7 +4,7 @@ using RoR2.Items;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class IcicleTweak : TweakBase<IcicleTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        public const float DamageCoefficient = 6f;
+        public const float DamageCoefficient = 3f;
         public const float DamageCoefficientPerIcicle = 1f;
         public const float IcicleDuration = 3;
         public const float BaseRadius = 6;
@@ -12,7 +12,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const int BaseIcicleMin = 1;
         public const int StacIcicleMin = 1;
         public const int BaseIcicleMax = 6;
-        public const int StackicicleMax = 6;
+        public const int StackicicleMax = 3;
 
         void IOnModLoadBehavior.OnModLoad() {
             On.RoR2.Items.IcicleBodyBehavior.OnEnable += IcicleBodyBehavior_OnEnable;

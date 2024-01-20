@@ -22,9 +22,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldloc_1);
                 cursor.EmitDelegate((float armor, HealthComponent healthComponent, CharacterBody attackerBody) => {
-                    if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && attackerBody) {
-                        var itemCount = attackerBody.inventory?.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex) ?? 0f;
-                        armor -= BtpUtils.简单逼近(itemCount, 半数, armor > 0 ? armor : -armor);
+                    if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && attackerBody && attackerBody.inventory) {
+                        return armor - BtpUtils.简单逼近(attackerBody.inventory.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex), 半数, armor > 0 ? armor : -armor);
                     }
                     return armor;
                 });

@@ -1,7 +1,7 @@
 ﻿namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class SiphonOnLowHealthTweak : TweakBase<SiphonOnLowHealthTweak>, IOnModLoadBehavior {
-        public const float DamageCoefficient = 3f;
+        public const float DamageCoefficient = 1.5f;
         public const int BaseRadius = 15;
         public const int StackRadius = 5;
         public const int MaxTargets = 1;

@@ -36,6 +36,7 @@ namespace BtpTweak.Pools.OrbPools {
             BounceOrb.SearchForTargets(search, orb.teamIndex, position, BounceNearbyTweak.BaseRadius, BounceNearbyTweak.BaseMaxTargets, dest, 排除项);
             CollectionPool<HealthComponent, List<HealthComponent>>.ReturnCollection(排除项);
             if (dest.Count > 0) {
+                orb.origin = position;
                 orb.target = dest[0];
                 OrbManager.instance.AddOrb(orb);
             }

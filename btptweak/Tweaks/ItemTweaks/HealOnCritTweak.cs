@@ -3,8 +3,8 @@
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior {
-        public const float BaseCrit = 0.1f;
-        public const float StackCrit = 0.05f;
+        public const int BaseCrit = 10;
+        public const int StackCrit = 5;
         public const float HealFraction = 0.02f;
 
         void IOnModLoadBehavior.OnModLoad() {

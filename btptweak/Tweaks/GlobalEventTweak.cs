@@ -84,7 +84,7 @@ namespace BtpTweak.Tweaks {
         }
 
         private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
-            if (RunInfo.是否选择造物难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex != TeamIndex.Player) {
+            if (RunInfo.已选择造物难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex != TeamIndex.Player) {
                 var victimBody = damageReport.victimBody;
                 if (!victimBody.inventory) {
                     return;

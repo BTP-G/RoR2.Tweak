@@ -3,6 +3,7 @@ using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates;
 using EntityStates.GlobalSkills.LunarNeedle;
+using R2API;
 using RoR2;
 using RoR2.Projectile;
 using RoR2.Skills;
@@ -29,6 +30,14 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             directionalTargetFinder.lookCone = 30f;
             directionalTargetFinder.lookRange = 30f;
             FireLunarNeedle.projectilePrefab.GetComponent<ProjectileSimple>().lifetime *= 2;
+            RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Heretic, RecalculateHereticStats);
+        }
+
+        private void RecalculateHereticStats(CharacterBody body, Inventory inventory, RecalculateStatsAPI.StatHookEventArgs args) {
+            args.cooldownReductionAdd += 2 * inventory.GetItemCount(RoR2Content.Items.LunarPrimaryReplacement.itemIndex);
+            args.attackSpeedMultAdd += 0.1f * inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
+            args.moveSpeedMultAdd += 0.1f * inventory.GetItemCount(RoR2Content.Items.LunarUtilityReplacement.itemIndex);
+            args.healthMultAdd += 0.1f * inventory.GetItemCount(RoR2Content.Items.LunarSpecialReplacement.itemIndex);
         }
 
         private void Detonate_OnEnter(On.EntityStates.GlobalSkills.LunarDetonator.Detonate.orig_OnEnter orig, EntityStates.GlobalSkills.LunarDetonator.Detonate self) {

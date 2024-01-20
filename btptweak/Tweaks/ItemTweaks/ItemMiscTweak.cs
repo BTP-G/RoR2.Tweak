@@ -10,6 +10,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             AssetReferences.bonusMoneyPack.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
             DLC1Content.Items.ExtraLifeVoid.TryApplyTag(ItemTag.CannotSteal);
             DLC1Content.Items.ImmuneToDebuff.TryApplyTag(ItemTag.AIBlacklist);
+            DLC1Content.Items.RegeneratingScrap.TryApplyTag(ItemTag.AIBlacklist);
             DLC1Content.Items.MinorConstructOnKill.TryApplyTag(ItemTag.BrotherBlacklist);
             RoR2Content.Items.BeetleGland.TryApplyTag(ItemTag.BrotherBlacklist);
             RoR2Content.Items.Behemoth.TryApplyTag(ItemTag.BrotherBlacklist);

@@ -6,10 +6,10 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior {
-        public const int BaseRadius = 25;
-        public const int StackRadius = 25;
-        public const float BaseDamageCoefficient = 2.5f;
-        public const float StackDamageCoefficient = 2.5f;
+        public const int BaseRadius = 20;
+        public const int StackRadius = 10;
+        public const float BaseDamageCoefficient = 2f;
+        public const float StackDamageCoefficient = 2f;
         public const float Interval = 0.1f;
 
         void IOnModLoadBehavior.OnModLoad() {

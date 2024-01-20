@@ -13,11 +13,11 @@ using static RoR2.BulletAttack;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class LaserTurbineTweak : TweakBase<LaserTurbineTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        public const float MainBeamDamageCoefficient = 3f;
-        public const float SecondBombDamageCoefficient = 6f;
+        public const float MainBeamDamageCoefficient = 1f;
+        public const float SecondBombDamageCoefficient = 3f;
         public const int ChargeDuration = 10;
         public const int ChargesRequired = 0;
-        public const float ChargeCoefficient = 0.025f;
+        public const float ChargeCoefficient = 0.01f;
         public const float ChargeCoefficientPerKill = 0.01f;
 
         private static readonly BullseyeSearch _search = new() {
@@ -78,9 +78,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 cursor.EmitDelegate((bool isAuthority, AimState aimState) => {
                     if (isAuthority) {
                         _search.searchOrigin = aimState.transform.position;
-                        _search.teamMaskFilter = TeamMask.GetEnemyTeams(aimState.ownerBody.teamComponent.teamIndex);
+                        _search.teamMaskFilter = TeamMask.all;
                         _search.viewer = aimState.ownerBody;
                         _search.RefreshCandidates();
+                        _search.FilterOutGameObject(aimState.ownerBody.gameObject);
                         var targetHurtBox = _search.GetResults().FirstOrDefault();
                         if (targetHurtBox) {
                             aimState.simpleRotateToDirection.targetRotation = Quaternion.LookRotation(targetHurtBox.transform.position - _search.searchOrigin);

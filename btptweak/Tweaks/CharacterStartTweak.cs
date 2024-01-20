@@ -9,15 +9,15 @@ using static BtpTweak.RoR2Indexes.BodyIndexes;
 
 namespace BtpTweak.Tweaks {
 
-    internal class CharacterBodyStartTweak : TweakBase<CharacterBodyStartTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class CharacterStartTweak : TweakBase<CharacterStartTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private int _造物难度敌人血量提升物品数量;
 
         void IOnModLoadBehavior.OnModLoad() {
-            CharacterBody.onBodyStartGlobal += OnBodyStartGlobal;
             CharacterMaster.onStartGlobal += OnMasterStartGlobal;
-            Run.onPlayerFirstCreatedServer += OnPlayerFirstCreatedServer;
-            Run.onRunAmbientLevelUp += RecalculateBoostHpCount;
-            Run.onRunStartGlobal += OnRunStartGlobal;
+            CharacterBody.onBodyStartGlobal += OnBodyStartGlobal;
+            Run.onPlayerFirstCreatedServer += (_, player) => player.master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
+            Run.onRunAmbientLevelUp += (run) => _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.造物主的试炼 ? 1f + 0.1f * run.stageClearCount : 1f), 100000000)); ;
+            Run.onRunStartGlobal += (_) => _造物难度敌人血量提升物品数量 = 0;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -30,13 +30,9 @@ namespace BtpTweak.Tweaks {
             body.levelArmor = 0f;
         }
 
-        private void OnRunStartGlobal(Run run) {
-            _造物难度敌人血量提升物品数量 = 0;
-        }
-
-        private void OnPlayerFirstCreatedServer(Run run, PlayerCharacterMasterController player) {
-            if (run.selectedDifficulty == BtpContent.Difficulties.造物索引) {
-                player.master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
+        private void OnMasterStartGlobal(CharacterMaster master) {
+            if (NetworkServer.active && RunInfo.已选择造物难度 && master.teamIndex != TeamIndex.Player) {
+                master.inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
             }
         }
 
@@ -115,28 +111,19 @@ namespace BtpTweak.Tweaks {
             }
         }
 
-        private void OnMasterStartGlobal(CharacterMaster master) {
-            if (NetworkServer.active
-                && RunInfo.是否选择造物难度
-                && master.teamIndex != TeamIndex.Player) {
-                master.inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
-            }
-        }
-
         private void 造物难度_OnPlayerBodyFirstStartServer(CharacterBody body) {
-            if (Run.instance.stageClearCount != 0) {
+            body.master.onBodyStart -= 造物难度_OnPlayerBodyFirstStartServer;
+            if (!RunInfo.已选择造物难度 || Run.instance.stageClearCount != 0) {
                 return;
             }
-            var master = body.master;
             var inventory = body.inventory;
-            master.onBodyStart -= 造物难度_OnPlayerBodyFirstStartServer;
             inventory.GiveItem(RoR2Content.Items.ExtraLife.itemIndex);
             inventory.GiveItem(RoR2Content.Items.Infusion.itemIndex);
             inventory.GiveItem(RoR2Content.Items.HealWhileSafe.itemIndex);
             if (BodyIndexToNameIndex.TryGetValue((int)body.bodyIndex, out var nameIndex)) {
                 switch (nameIndex) {
                     case BodyNameIndex.ArbiterBody: {
-                        if (Random.value > 0.5f) {
+                        if (Random.value < 0.5f) {
                             inventory.GiveItem(DLC1Content.Items.AttackSpeedAndMoveSpeed.itemIndex);
                             inventory.GiveItem(RoR2Content.Items.SprintBonus.itemIndex, 2);
                         } else {
@@ -159,7 +146,7 @@ namespace BtpTweak.Tweaks {
                         break;
                     }
                     case BodyNameIndex.CommandoBody: {
-                        if (Random.value > 0.5f) {
+                        if (Random.value < 0.5f) {
                             inventory.GiveItem(RoR2Content.Items.Syringe.itemIndex, 2);
                             inventory.GiveItem(RoR2Content.Items.SecondarySkillMagazine.itemIndex);
                         } else {
@@ -190,7 +177,7 @@ namespace BtpTweak.Tweaks {
                         break;
                     }
                     case BodyNameIndex.MageBody: {
-                        if (Random.value > 0.5f || body.skillLocator.secondary.skillDef.skillName == "IceBomb") {
+                        if (Random.value < 0.5f || body.skillLocator.secondary.skillDef.skillName == "IceBomb") {
                             inventory.GiveItem(RoR2Content.Items.IceRing.itemIndex);
                         } else {
                             inventory.GiveItem(RoR2Content.Items.FireRing.itemIndex);
@@ -236,10 +223,6 @@ namespace BtpTweak.Tweaks {
                     }
                 }
             }
-        }
-
-        private void RecalculateBoostHpCount(Run run) {
-            _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.造物主的试炼 ? 1f + 0.1f * run.stageClearCount : 1f), 100000000));
         }
     }
 }

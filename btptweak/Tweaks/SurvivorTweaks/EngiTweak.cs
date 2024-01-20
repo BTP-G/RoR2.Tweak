@@ -1,9 +1,11 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Engi.EngiBubbleShield;
 using EntityStates.Engi.EngiWeapon;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using R2API;
 using RoR2;
 using RoR2.CharacterAI;
 using RoR2.Projectile;
@@ -41,6 +43,13 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             skillDef.baseMaxStock = 2;
             skillDef.requiredStock = 2;
             skillDef.stockToConsume = 2;
+            RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Engi, RecalculateEngiStats);
+            RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.EngiTurret, RecalculateEngiStats);
+            RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.EngiWalkerTurret, RecalculateEngiStats);
+        }
+
+        private void RecalculateEngiStats(CharacterBody body, Inventory inventory, RecalculateStatsAPI.StatHookEventArgs args) {
+            args.armorAdd += 10 * inventory.GetItemCount(RoR2Content.Items.ArmorPlate.itemIndex);
         }
 
         private void FireGrenades_OnExit(On.EntityStates.Engi.EngiWeapon.FireGrenades.orig_OnExit orig, FireGrenades self) {

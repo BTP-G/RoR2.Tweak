@@ -11,7 +11,7 @@ namespace BtpTweak.Tweaks {
 
         private void HoldoutZoneController_Awake(On.RoR2.HoldoutZoneController.orig_Awake orig, HoldoutZoneController self) {
             orig(self);
-            if (RunInfo.是否选择造物难度) {
+            if (RunInfo.已选择造物难度) {
                 self.minimumRadius = Mathf.Max(7f, self.minimumRadius);
                 self.dischargeRate = 0.5f / self.baseChargeDuration;
                 self.calcRadius += (ref float radius) => {

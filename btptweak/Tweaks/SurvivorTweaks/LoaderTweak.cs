@@ -23,7 +23,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         public const float ChargeFistMaxLungeSpeed = 90f;
         public const float GroundSlamBaseDamageCoefficient = 10f;
         public const float GroundSlamYVelocityDamageCoefficient = 0.03f;
-        public const float SwingChargedFistVelocityDamageCoefficient = 0.05f;
+        public const float SwingChargedFistVelocityDamageCoefficient = 0.04f;
         public const float pow = 1.5f;
         public const float PylonDamageCoefficient = 1f;
         public const float PylonRange = 25f;

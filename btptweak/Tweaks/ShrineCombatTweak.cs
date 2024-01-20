@@ -9,13 +9,18 @@ namespace BtpTweak.Tweaks {
     internal class ShrineCombatTweak : TweakBase<ShrineCombatTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
         void IOnModLoadBehavior.OnModLoad() {
+            On.RoR2.Util.DirectorCardIsReasonableChoice += Util_DirectorCardIsReasonableChoice;
             ShrineCombatBehavior.onDefeatedServerGlobal += ShrineCombatBehavior_onDefeatedServerGlobal;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            GameObjectPaths.ShrineCombat.LoadComponent<ShrineCombatBehavior>().baseMonsterCredit *= 100;
-            GameObjectPaths.ShrineCombatSandyVariant.LoadComponent<ShrineCombatBehavior>().baseMonsterCredit *= 100;
-            GameObjectPaths.ShrineCombatSnowyVariant.LoadComponent<ShrineCombatBehavior>().baseMonsterCredit *= 100;
+            GameObjectPaths.ShrineCombat.LoadComponent<CombatDirector>().ignoreTeamSizeLimit = false;
+            GameObjectPaths.ShrineCombatSandyVariant.LoadComponent<CombatDirector>().ignoreTeamSizeLimit = false;
+            GameObjectPaths.ShrineCombatSnowyVariant.LoadComponent<CombatDirector>().ignoreTeamSizeLimit = false;
+        }
+
+        private bool Util_DirectorCardIsReasonableChoice(On.RoR2.Util.orig_DirectorCardIsReasonableChoice orig, float availableCredit, int maximumNumberToSpawnBeforeSkipping, int minimumToSpawn, DirectorCard card, float combatDirectorHighestEliteCostMultiplier) {
+            return card.IsAvailable() && card.cost * minimumToSpawn <= availableCredit;
         }
 
         private void ShrineCombatBehavior_onDefeatedServerGlobal(ShrineCombatBehavior shrine) {

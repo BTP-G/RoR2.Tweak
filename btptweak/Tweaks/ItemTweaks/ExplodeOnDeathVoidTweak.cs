@@ -22,7 +22,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             delayBlast.baseForce = 0f;
             delayBlast.damageColorIndex = DamageColorIndex.Void;
             delayBlast.damageType = DamageType.AOE;
-            delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
+            delayBlast.falloffModel = BlastAttack.FalloffModel.None;
             delayBlast.inflictor = null;
             delayBlast.maxTimer = 0.25f;
         }

@@ -29,7 +29,7 @@ namespace BtpTweak.Tweaks {
                 ilcursor.Emit(OpCodes.Ldarg, 1);
                 ilcursor.Emit(OpCodes.Ldloc, 6);
                 ilcursor.EmitDelegate((HealthComponent healthComponent, DamageInfo damageInfo, float damage) => {
-                    if (RunInfo.是否选择造物难度) {
+                    if (RunInfo.已选择造物难度) {
                         if (RunInfo.位于天文馆) {
                             var victimBody = healthComponent.body;
                             if (victimBody.bodyIndex >= BodyIndexes.MiniVoidRaidCrabBodyPhase1 && victimBody.bodyIndex <= BodyIndexes.MiniVoidRaidCrabBodyPhase3) {  // 虚灵

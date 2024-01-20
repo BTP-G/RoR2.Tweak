@@ -34,6 +34,7 @@ namespace BtpTweak {
         public static readonly GameObject omniRecycleEffect = GameObjectPaths.OmniRecycleEffect.Load<GameObject>();
         public static readonly GameObject shrineUseEffect = GameObjectPaths.ShrineUseEffect.Load<GameObject>();
         public static readonly GameObject stickyBombProjectile = GameObjectPaths.StickyBomb1.Load<GameObject>();
+        public static readonly GameObject teamWarCryActivation = GameObjectPaths.TeamWarCryActivation.Load<GameObject>();
         public static readonly Material helscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/LunarWisp/matLunarWispFlames.mat").WaitForCompletion();
         public static readonly Material moonscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matSkyboxMoon.mat").WaitForCompletion();
         public static readonly Material stormscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Mage/matMageCalibrateLightning.mat").WaitForCompletion();

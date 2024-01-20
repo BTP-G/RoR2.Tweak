@@ -1,5 +1,7 @@
-﻿using BtpTweak.Utils;
+﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using R2API;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
@@ -22,13 +24,13 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            GameObject captainTazer = GameObjectPaths.CaptainTazer31.Load<GameObject>();
+            var captainTazer = GameObjectPaths.CaptainTazer31.Load<GameObject>();
             captainTazer.AddComponent<ChainLightning>();
             captainTazer.GetComponent<ProjectileSimple>().lifetime = 6f;
-            ProjectileImpactExplosion impactExplosion = captainTazer.GetComponent<ProjectileImpactExplosion>();
+            var impactExplosion = captainTazer.GetComponent<ProjectileImpactExplosion>();
             impactExplosion.lifetimeAfterImpact = 6f;
             impactExplosion.lifetime = 6f;
-            SkillDef prepAirstrikeAlt = CaptainOrbitalSkillDefPaths.PrepAirstrikeAlt.Load<SkillDef>();
+            var prepAirstrikeAlt = CaptainOrbitalSkillDefPaths.PrepAirstrikeAlt.Load<SkillDef>();
             prepAirstrikeAlt.baseRechargeInterval = 10;
             prepAirstrikeAlt.baseMaxStock = 4;
             prepAirstrikeAlt.requiredStock = 4;
@@ -39,6 +41,13 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             foreach (var sceneDef in SceneCatalog.allSceneDefs) {
                 sceneDef.blockOrbitalSkills = false;
             }
+            RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Captain, RecalculateCaptainStats);
+        }
+
+        private void RecalculateCaptainStats(CharacterBody body, Inventory inventory, RecalculateStatsAPI.StatHookEventArgs args) {
+            var itemCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnKill.itemIndex);
+            args.baseShieldAdd += 10 * itemCount;
+            args.shieldMultAdd += 0.1f * itemCount;
         }
 
         private bool CaptainSupplyDropFinaleServerAchievement_DoesDamageQualify(On.RoR2.Achievements.Captain.CaptainSupplyDropFinaleAchievement.CaptainSupplyDropFinaleServerAchievement.orig_DoesDamageQualify orig, RoR2.Achievements.BaseServerAchievement self, DamageReport damageReport) {

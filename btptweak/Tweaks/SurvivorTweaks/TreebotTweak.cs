@@ -7,6 +7,7 @@ using BtpTweak.Utils.RoR2ResourcesPaths;
 using BtpTweak.Utils;
 using RoR2.Skills;
 using EntityStates.Treebot.Weapon;
+using R2API;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
@@ -24,6 +25,11 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             capsule.height = 4.26f * HurtBoxSizeMultiplier;
             SkillDefPaths.TreebotBodyPlantSonicBoom.Load<SkillDef>().baseRechargeInterval = 2.5f;
             FirePlantSonicBoom.damageCoefficient = FirePlantSonicBoomDamageCoefficient;
+            RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Treebot, RecalculateTreebotStats);
+        }
+
+        private void RecalculateTreebotStats(CharacterBody body, Inventory inventory, RecalculateStatsAPI.StatHookEventArgs args) {
+            args.cooldownMultAdd -= 1f - Mathf.Pow(0.9f, inventory.GetItemCount(RoR2Content.Items.EquipmentMagazine.itemIndex));
         }
 
         private void HealthComponent_Heal(ILContext il) {
