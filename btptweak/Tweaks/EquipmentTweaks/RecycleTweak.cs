@@ -24,7 +24,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
             if (pickupIndices == null || pickupIndices.Count == 0) {
                 return false;
             }
-            PickupIndex newPickupIndex = Run.instance.treasureRng.NextElementUniform(pickupIndices);
+            var newPickupIndex = self.rng.NextElementUniform(pickupIndices);
             switch (newPickupIndex.pickupDef.itemTier) {
                 case ItemTier.Tier1:
                     if (Util.CheckRoll(5)) {

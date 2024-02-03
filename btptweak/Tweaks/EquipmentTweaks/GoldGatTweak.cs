@@ -23,13 +23,14 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
             float t = Mathf.Clamp01(self.totalStopwatch / GoldGatFire.windUpDuration);
             self.fireFrequency = Mathf.Lerp(GoldGatFire.minFireFrequency, GoldGatFire.maxFireFrequency, t);
             var itemCount = self.bodyMaster.inventory.GetItemCount(DLC1Content.Items.GoldOnHurt.itemIndex);
-            var scaledCost = Run.instance.GetDifficultyScaledCost((GoldGatFire.baseMoneyCostPerBullet + (int)self.totalStopwatch) * (1 + itemCount));
+            var scaledCost = Run.instance.GetDifficultyScaledCost(GoldGatFire.baseMoneyCostPerBullet + (int)self.totalStopwatch);
+            var costToDamage = scaledCost * (1f + CostCoefficientPerGoldOnHurt * itemCount);
             if (self.isAuthority) {
                 if (self.body.aimOriginTransform) {
                     new BulletAttack {
                         aimVector = self.bodyInputBank.aimDirection,
-                        bulletCount = (uint)scaledCost.ToString().Length,
-                        damage = self.body.damage * GoldGatFire.damageCoefficient + scaledCost,
+                        bulletCount = (uint)costToDamage.ToString().Length,
+                        damage = self.body.damage * GoldGatFire.damageCoefficient + costToDamage,
                         damageColorIndex = DamageColorIndex.Item,
                         falloffModel = BulletAttack.FalloffModel.DefaultBullet,
                         force = GoldGatFire.force,
@@ -47,7 +48,7 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
                 }
             }
             if (NetworkServer.active) {
-                self.bodyMaster.money = (uint)Mathf.Max(0f, self.bodyMaster.money - scaledCost);
+                self.bodyMaster.money -= scaledCost > self.bodyMaster.money ? self.bodyMaster.money : (uint)scaledCost;
             }
             self.gunAnimator?.SetFloat("Crank.playbackRate", self.fireFrequency);
             Util.PlaySound(GoldGatFire.attackSoundString, self.gameObject);

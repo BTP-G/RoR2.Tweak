@@ -1,5 +1,6 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using EntityStates.Mage;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
@@ -11,10 +12,14 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
-    internal class MageTweak : TweakBase<MageTweak>, IOnRoR2LoadedBehavior {
+    internal class MageTweak : TweakBase<MageTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float 电击半径 = 25;
         public const float 电击伤害系数 = 0.6f;
         public const int 每次最大电击数 = 10;
+
+        void IOnModLoadBehavior.OnModLoad() {
+            On.EntityStates.Mage.FlyUpState.OnEnter += FlyUpState_OnEnter;
+        }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             //===火焰弹===//
@@ -46,6 +51,12 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             body.baseJumpPower = 20f;
             var motor = RoR2Content.Survivors.Mage.bodyPrefab.GetComponent<CharacterMotor>();
             motor.airControl = 1.25f;
+        }
+
+        private void FlyUpState_OnEnter(On.EntityStates.Mage.FlyUpState.orig_OnEnter orig, FlyUpState self) {
+            orig(self);
+            var body = self.characterBody;
+            self.moveSpeedStat = body.baseMoveSpeed * (body.isSprinting ? 1.5f : 1f);
         }
 
         private class IceExplosion : MonoBehaviour {

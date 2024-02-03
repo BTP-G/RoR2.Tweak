@@ -5,7 +5,7 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BarrierOnKillTweak : TweakBase<BarrierOnKillTweak>, IOnModLoadBehavior {
-        public const float AddBarrierFraction = 0.0015f;
+        public const float AddBarrierFraction = 0.0075f;
 
         public void OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;

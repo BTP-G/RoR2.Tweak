@@ -6,7 +6,7 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class MissileVoidTweak : TweakBase<MissileVoidTweak>, IOnModLoadBehavior {
-        public const float DamageCoefficient = 0.4f;
+        public const float DamageCoefficient = 0.5f;
         public const float Interval = 0.2f;
 
         void IOnModLoadBehavior.OnModLoad() {

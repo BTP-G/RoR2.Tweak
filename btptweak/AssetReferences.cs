@@ -1,5 +1,6 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
+using RoR2;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -35,6 +36,9 @@ namespace BtpTweak {
         public static readonly GameObject shrineUseEffect = GameObjectPaths.ShrineUseEffect.Load<GameObject>();
         public static readonly GameObject stickyBombProjectile = GameObjectPaths.StickyBomb1.Load<GameObject>();
         public static readonly GameObject teamWarCryActivation = GameObjectPaths.TeamWarCryActivation.Load<GameObject>();
+        public static readonly GameObject coinImpact = GameObjectPaths.CoinImpact.Load<GameObject>();
+        public static readonly GameObject titanGoldPreFistProjectile = GameObjectPaths.TitanGoldPreFistProjectile.Load<GameObject>();
+        public static readonly GameObject randomEquipmentTriggerProcEffect = GameObjectPaths.RandomEquipmentTriggerProcEffect.Load<GameObject>();
         public static readonly Material helscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/LunarWisp/matLunarWispFlames.mat").WaitForCompletion();
         public static readonly Material moonscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/moon2/matSkyboxMoon.mat").WaitForCompletion();
         public static readonly Material stormscourgeMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/Mage/matMageCalibrateLightning.mat").WaitForCompletion();

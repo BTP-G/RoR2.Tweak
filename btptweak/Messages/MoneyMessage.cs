@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 
 namespace BtpTweak.Messages {
 
-    internal struct MoneyMessage(CharacterMaster master, uint amount, bool changeToRemoveMoney = true) : INetMessage, ISerializableObject {
+    internal struct MoneyMessage(CharacterMaster master, uint amount, bool changeToRemoveMoney = true) : INetMessage {
         private CharacterMaster _master = master;
         private uint _amount = amount;
         private bool _changeToRemoveMoney = changeToRemoveMoney;
@@ -18,9 +18,9 @@ namespace BtpTweak.Messages {
 
         public readonly void OnReceived() {
             if (_changeToRemoveMoney) {
-                _master.money -= _amount;
+                _master.money -= _amount > _master.money ? _master.money : _amount;
             } else {
-                _master.money += _amount;
+                _master.GiveMoney(_amount);
             }
         }
 

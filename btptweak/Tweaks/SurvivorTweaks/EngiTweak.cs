@@ -11,11 +11,13 @@ using RoR2.CharacterAI;
 using RoR2.Projectile;
 using RoR2.Skills;
 using System;
+using UnityEngine;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {
 
     internal class EngiTweak : TweakBase<EngiTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        public const float BubbleShieldLifetime = 600f;
+        public static float BubbleShieldLifetime;
+        public static float BubbleShieldRaius;
         private const float Interval = 0.2f;
 
         private static readonly BlastAttack _blastAttack = new() {
@@ -29,6 +31,29 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             On.EntityStates.Engi.EngiBubbleShield.Deployed.FixedUpdate += Deployed_FixedUpdate;
             On.EntityStates.Engi.EngiWeapon.FireGrenades.OnExit += FireGrenades_OnExit;
             IL.RoR2.CharacterMaster.GetDeployableSameSlotLimit += CharacterMaster_GetDeployableSameSlotLimit;
+            BubbleShieldLifetime = ModConfig.AddSliderOption(Main.Config,
+                "工程师",
+                "泡泡护盾持续时间",
+                600f,
+                0f,
+                1000f,
+                "泡泡护盾持续时间。修改后立即生效，但汉化在下次启动时更改。",
+                onChanged: (newValue) => {
+                    BubbleShieldLifetime = newValue;
+                    GameObjectPaths.EngiBubbleShield.LoadComponent<BeginRapidlyActivatingAndDeactivating>().delayBeforeBeginningBlinking = newValue * 0.9f;
+                    Deployed.lifetime = newValue;
+                }).Value;
+            BubbleShieldRaius = ModConfig.AddSliderOption(Main.Config,
+                "工程师",
+                "泡泡护盾半径",
+                15f,
+                0f,
+                100f,
+                "泡泡护盾半径。",
+                onChanged: (newValue) => {
+                    BubbleShieldRaius = newValue;
+                    GameObjectPaths.EngiBubbleShield.LoadComponent<ChildLocator>().FindChild(Deployed.childLocatorString).transform.localScale = BubbleShieldRaius * 2 * Vector3.one;
+                }).Value;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -36,7 +61,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
             Array.Find(GameObjectPaths.EngiTurretMaster.LoadComponents<AISkillDriver>(), match => match.customName == "FireAtEnemy").maxDistance *= 2;
             GameObjectPaths.EngiBubbleShield.LoadComponent<BeginRapidlyActivatingAndDeactivating>().delayBeforeBeginningBlinking = BubbleShieldLifetime * 0.9f;
-            GameObjectPaths.EngiBubbleShield.LoadComponent<ChildLocator>().FindChild(Deployed.childLocatorString).transform.localScale = new UnityEngine.Vector3(30f, 30f, 30f);
+            GameObjectPaths.EngiBubbleShield.LoadComponent<ChildLocator>().FindChild(Deployed.childLocatorString).transform.localScale = new Vector3(30f, 30f, 30f);
             Deployed.lifetime = BubbleShieldLifetime;
             var skillDef = SkillDefPaths.EngiBodyPlaceBubbleShield.Load<SkillDef>();
             skillDef.baseRechargeInterval = 10;

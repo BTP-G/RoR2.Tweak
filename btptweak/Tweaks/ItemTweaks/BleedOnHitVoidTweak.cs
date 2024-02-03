@@ -1,14 +1,14 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using TPDespair.ZetAspects;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BleedOnHitVoidTweak : TweakBase<BleedOnHitVoidTweak>, IOnModLoadBehavior {
         public const int PercnetChance = 10;
-        public const float BaseDamageCoefficient = 0.44f;
-        public const float 每层熵的破裂伤害叠加系数 = 0.11f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
@@ -23,16 +23,36 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.Emit(OpCodes.Ldloc, 1);
                 ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
-                    if (itemCount > 0 && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
+                    if (attackerBody.TryGetAspectStackMagnitude(DLC1Content.Buffs.EliteVoid.buffIndex, out var stack)) {
+                        var damageCoefficient = Configuration.AspectVoidBaseCollapseDamage.Value + Configuration.AspectVoidStackCollapseDamage.Value * (stack - 1f);
+                        if (itemCount > 0 && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
+                            damageCoefficient *= 2f;
+                        }
+                        if (attackerBody.teamComponent.teamIndex != TeamIndex.Player) {
+                            damageCoefficient *= Configuration.AspectVoidMonsterDamageMult.Value;
+                        }
                         var dotInfo = new InflictDotInfo {
                             attackerObject = damageInfo.attacker,
                             dotIndex = DotController.DotIndex.Fracture,
                             duration = 3f,
                             victimObject = victim,
-                            damageMultiplier = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, BaseDamageCoefficient + 每层熵的破裂伤害叠加系数 * TPDespair.ZetAspects.Catalog.GetStackMagnitude(attackerBody, DLC1Content.Buffs.EliteVoid))
-                                                                    * (damageInfo.crit ? attackerBody.critMultiplier : 1f)
-                                                                    / (attackerBody.damage * 4f)
+                            totalDamage = Configuration.AspectVoidUseBase.Value
+                                ? damageCoefficient * attackerBody.damage
+                                : damageCoefficient * damageInfo.damage * (damageInfo.crit ? attackerBody.critMultiplier : 1f)
                         };
+                        dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                        DotController.InflictDot(ref dotInfo);
+                    } else if (itemCount > 0 && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
+                        var dotInfo = new InflictDotInfo {
+                            attackerObject = damageInfo.attacker,
+                            dotIndex = DotController.DotIndex.Fracture,
+                            duration = 3f,
+                            victimObject = victim,
+                            totalDamage = Configuration.AspectVoidUseBase.Value
+                               ? Configuration.AspectVoidBaseCollapseDamage.Value * attackerBody.damage
+                               : Configuration.AspectVoidBaseCollapseDamage.Value * damageInfo.damage * (damageInfo.crit ? attackerBody.critMultiplier : 1f)
+                        };
+                        dotInfo.InflictTotalDamageWithinDuration(attackerBody);
                         DotController.InflictDot(ref dotInfo);
                     }
                 });

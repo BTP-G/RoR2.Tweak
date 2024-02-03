@@ -1,15 +1,28 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using BtpTweak.Utils.RoR2ResourcesPaths;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BleedOnHitAndExplodeTweak : TweakBase<BleedOnHitAndExplodeTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BaseRadius = 16;
         public const int StackRadius = 8;
-        public const int DamageCoefficient = 4;
+        public const int DamageCoefficient = 1;
+        public const float 半数 = 1f;
+
+        public static readonly GameObject explosionEffect = GameObjectPaths.BleedOnHitAndExplodeExplosion.Load<GameObject>();
+
+        private static readonly BlastAttack blastAttack = new() {
+            crit = false,
+            damageColorIndex = DamageColorIndex.Item,
+            damageType = DamageType.AOE,
+            falloffModel = BlastAttack.FalloffModel.SweetSpot,
+            procChainMask = default,
+            procCoefficient = 0,
+        };
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
@@ -22,7 +35,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             delayBlast.damageColorIndex = DamageColorIndex.Item;
             delayBlast.damageType = DamageType.AOE | DamageType.BleedOnHit;
             delayBlast.falloffModel = BlastAttack.FalloffModel.SweetSpot;
-            delayBlast.inflictor = null;
             delayBlast.maxTimer = 0.1f;
         }
 
@@ -34,18 +46,24 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldloc_2);
                 ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody victimBody) => {
-                    if (itemCount > 0 && (victimBody.HasBuff(RoR2Content.Buffs.Bleeding.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.SuperBleed.buffIndex))) {
+                    if (itemCount > 0 && (victimBody.HasBuff(RoR2Content.Buffs.SuperBleed.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.Bleeding.buffIndex))) {
+                        var baseDamage = 0f;
+                        foreach (var dotStack in DotController.FindDotController(victimBody.gameObject).dotStackList) {
+                            if (dotStack.dotIndex == DotController.DotIndex.Bleed || dotStack.dotIndex == DotController.DotIndex.SuperBleed) {
+                                baseDamage += dotStack.damage * Mathf.Ceil(dotStack.timer / dotStack.dotDef.interval);
+                            }
+                        }
+                        blastAttack.attacker = damageReport.attacker;
+                        blastAttack.baseDamage = Util.OnKillProcDamage(baseDamage, BtpUtils.简单逼近1(itemCount, 半数));
+                        blastAttack.position = damageReport.damageInfo.position;
+                        blastAttack.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.6f * victimBody.bestFitRadius;
+                        blastAttack.teamIndex = damageReport.attackerTeamIndex;
+                        blastAttack.Fire();
+                        EffectManager.SpawnEffect(explosionEffect, new EffectData {
+                            origin = blastAttack.position,
+                            scale = blastAttack.radius
+                        }, true);
                         Util.PlaySound("Play_bleedOnCritAndExplode_explode", victimBody.gameObject);
-                        GameObject bleedExplode = Object.Instantiate(GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect, victimBody.corePosition, Quaternion.identity);
-                        bleedExplode.GetComponent<TeamFilter>().teamIndex = damageReport.attackerTeamIndex;
-                        DelayBlast delayBlast = bleedExplode.GetComponent<DelayBlast>();
-                        delayBlast.attacker = damageReport.attacker;
-                        delayBlast.baseDamage = Util.OnKillProcDamage(damageReport.attackerBody.damage, DamageCoefficient * itemCount);
-                        delayBlast.crit = damageReport.attackerBody.RollCrit();
-                        delayBlast.position = damageReport.damageInfo.position;
-                        delayBlast.procCoefficient = damageReport.damageInfo.procCoefficient;
-                        delayBlast.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.6f * victimBody.bestFitRadius;
-                        NetworkServer.Spawn(bleedExplode);
                     }
                 });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);

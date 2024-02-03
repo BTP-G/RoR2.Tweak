@@ -5,26 +5,29 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class CritGlassesVoidTweak : TweakBase<CritGlassesVoidTweak>, IOnModLoadBehavior {
-        public const float PercentChance = 1f;
+        public const float CritDamageMultAdd = 0.0666f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
-            ILCursor ilcursor = new(il);
-            if (ilcursor.TryGotoNext(MoveType.After,
-                                     x => x.MatchLdsfld(typeof(DLC1Content.Items).GetField("CritGlassesVoid")),
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(x => x.MatchLdsfld(typeof(DLC1Content.Items).GetField("CritGlassesVoid")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {  // 1359
-                ilcursor.Emit(OpCodes.Ldarg_0);
-                ilcursor.EmitDelegate((int itemCount, HealthComponent healthComponent) => {
-                    if (Util.CheckRoll(itemCount)) {
-                        healthComponent.body.AddBuff(RoR2Content.Buffs.PermanentCurse.buffIndex);
-                    }
-                });
-                ilcursor.Emit(OpCodes.Ldc_I4_0);
+                cursor.GotoPrev(c => c.MatchLdarg(0),
+                                c => c.MatchLdfld<HealthComponent>("body"));
+                cursor.Index += 1;
+                cursor.RemoveRange(2).Emit(OpCodes.Pop).Emit(OpCodes.Ldc_I4_1);
             } else {
                 Main.Logger.LogError("CritGlassesVoid Hook Failed!");
+            }
+        }
+
+        private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, R2API.RecalculateStatsAPI.StatHookEventArgs args) {
+            if (sender.inventory) {
+                args.critDamageMultAdd += CritDamageMultAdd * sender.inventory.GetItemCount(DLC1Content.Items.CritGlassesVoid.itemIndex);
             }
         }
     }

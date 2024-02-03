@@ -30,8 +30,8 @@ namespace BtpTweak.Tweaks {
                 color = Color.red
             }, true);
             var rng = new Xoroshiro128Plus(Run.instance.treasureRng.nextUlong);
+            var random = rng.RangeInt(0, 26);
             PickupIndex pickupIndex;
-            var random = Random.Range(0, 26);
             if (random < 15) {
                 pickupIndex = rng.NextElementUniform(Run.instance.availableTier1DropList);
             } else if (random < 20) {

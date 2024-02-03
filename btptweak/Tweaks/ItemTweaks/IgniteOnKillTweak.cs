@@ -1,12 +1,21 @@
 ﻿using RoR2;
+using UnityEngine;
 
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class IgniteOnKillTweak : TweakBase<IgniteOnKillTweak>, IOnModLoadBehavior {
-        public const float ExplosionBaseDamageCoefficient = 1.5f;
-        public const float IgniteDamageCoefficient = 0.75f;
+        public const float ExplosionBaseDamageCoefficient = 1.2f;
+        public const float IgniteDamageCoefficient = 0.6f;
         public const int BaseRadius = 12;
-        public const int StackRadius = 4;
+        public const int StackRadius = 6;
+
+        private static readonly BlastAttack _blastAttack = new() {
+            attackerFiltering = AttackerFiltering.Default,
+            damageColorIndex = DamageColorIndex.Item,
+            damageType = DamageType.AOE,
+            falloffModel = BlastAttack.FalloffModel.Linear,
+            procCoefficient = 0f,
+        };
 
         public void OnModLoad() {
             On.RoR2.GlobalEventManager.ProcIgniteOnKill += GlobalEventManager_ProcIgniteOnKill;
@@ -14,40 +23,32 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private void GlobalEventManager_ProcIgniteOnKill(On.RoR2.GlobalEventManager.orig_ProcIgniteOnKill orig, DamageReport damageReport, int igniteOnKillCount, CharacterBody victimBody, TeamIndex attackerTeamIndex) {
             var attackerBody = damageReport.attackerBody;
-            var blastAttack = new BlastAttack {
-                attacker = damageReport.attacker,
-                attackerFiltering = AttackerFiltering.Default,
-                baseDamage = Util.OnKillProcDamage(attackerBody.damage, ExplosionBaseDamageCoefficient),
-                crit = attackerBody.RollCrit(),
-                damageColorIndex = DamageColorIndex.Item,
-                damageType = DamageType.AOE,
-                falloffModel = BlastAttack.FalloffModel.Linear,
-                position = damageReport.damageInfo.position,
-                procCoefficient = damageReport.damageInfo.procCoefficient,
-                radius = BaseRadius + StackRadius * (igniteOnKillCount - 1) + 0.4f * victimBody.bestFitRadius,
-                teamIndex = attackerTeamIndex,
-            };
+            _blastAttack.attacker = damageReport.attacker;
+            _blastAttack.baseDamage = Util.OnKillProcDamage(attackerBody.damage, ExplosionBaseDamageCoefficient);
+            _blastAttack.crit = attackerBody.RollCrit();
+            _blastAttack.position = damageReport.damageInfo.position;
+            _blastAttack.radius = BaseRadius + StackRadius * (igniteOnKillCount - 1) + 0.4f * victimBody.bestFitRadius;
+            _blastAttack.teamIndex = attackerTeamIndex;
+            var result = _blastAttack.Fire();
             EffectManager.SpawnEffect(GlobalEventManager.CommonAssets.igniteOnKillExplosionEffectPrefab, new EffectData {
-                origin = blastAttack.position,
-                scale = blastAttack.radius,
-                rotation = default,
+                origin = _blastAttack.position,
+                scale = _blastAttack.radius,
             }, true);
-            var result = blastAttack.Fire();
             if (result.hitCount > 0) {
-                var baseInflictDotInfo = new InflictDotInfo {
+                var baseDotInfo = new InflictDotInfo {
                     attackerObject = damageReport.attacker,
-                    totalDamage = attackerBody.damage * IgniteDamageCoefficient * igniteOnKillCount,
+                    damageMultiplier = IgniteDamageCoefficient * igniteOnKillCount,
                     dotIndex = DotController.DotIndex.Burn,
-                    damageMultiplier = 1f
+                    totalDamage = Util.OnHitProcDamage(_blastAttack.baseDamage, attackerBody.damage, IgniteDamageCoefficient * igniteOnKillCount * (_blastAttack.crit ? attackerBody.critMultiplier : 1f)),
                 };
-                StrengthenBurnUtils.CheckDotForUpgrade(attackerBody.inventory, ref baseInflictDotInfo);
+                StrengthenBurnUtils.CheckDotForUpgrade(attackerBody.inventory, ref baseDotInfo);
                 foreach (var hitPoint in result.hitPoints) {
-                    var healthComponent = hitPoint.hurtBox.healthComponent;
-                    if (healthComponent.alive) {
-                        var inflictDotInfo = baseInflictDotInfo;
-                        inflictDotInfo.victimObject = healthComponent.gameObject;
-                        DotController.InflictDot(ref inflictDotInfo);
-                    }
+                    var dotInfo = baseDotInfo;
+                    dotInfo.victimObject = hitPoint.hurtBox.healthComponent.gameObject;
+                    var reduceCoefficient = 1f - Mathf.Clamp01(Mathf.Sqrt(hitPoint.distanceSqr) / _blastAttack.radius);
+                    dotInfo.damageMultiplier *= reduceCoefficient;
+                    dotInfo.totalDamage *= reduceCoefficient;
+                    DotController.InflictDot(ref dotInfo);
                 }
             }
         }

@@ -25,6 +25,9 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
             projectileSimple.lifetime = 66.6f;
             RoR2Content.Equipment.LifestealOnHit.cooldown = 40f;
             DLC1Content.Equipment.Molotov.cooldown = 30f;
+            foreach (var equipment in EquipmentCatalog.equipmentDefs) {
+                equipment.pickupToken = equipment.descriptionToken;
+            }
         }
     }
 }

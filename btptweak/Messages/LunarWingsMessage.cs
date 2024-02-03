@@ -1,5 +1,6 @@
 ﻿using BtpTweak.Tweaks.ItemTweaks;
 using R2API.Networking.Interfaces;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BtpTweak.Messages {
@@ -17,6 +18,15 @@ namespace BtpTweak.Messages {
 
         public readonly void Serialize(NetworkWriter writer) {
             writer.Write(_state);
+        }
+
+        [RuntimeInitializeOnLoadMethod]
+        private static void Register() {
+            if (R2API.Networking.NetworkingAPI.RegisterMessageType<LunarWingsMessage>()) {
+                Main.Logger.LogMessage("LunarWingsMessage Register Successd!");
+            } else {
+                Main.Logger.LogError("LunarWingsMessage Register Failed!");
+            }
         }
     }
 }

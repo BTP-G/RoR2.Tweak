@@ -22,8 +22,8 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         public const float ChargeFistMinLungeSpeed = 20f;
         public const float ChargeFistMaxLungeSpeed = 90f;
         public const float GroundSlamBaseDamageCoefficient = 10f;
-        public const float GroundSlamYVelocityDamageCoefficient = 0.03f;
-        public const float SwingChargedFistVelocityDamageCoefficient = 0.04f;
+        public const float GroundSlamYVelocityDamageCoefficient = 0.05f;
+        public const float SwingChargedFistVelocityDamageCoefficient = 0.05f;
         public const float pow = 1.5f;
         public const float PylonDamageCoefficient = 1f;
         public const float PylonRange = 25f;
@@ -55,8 +55,8 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             var steppedSkillDef2 = SteppedSkillDefPaths.ChargeFist.Load<SteppedSkillDef>();
             LanguageAPI.Add("SKILL_FIST_MINCHARGE_NAME", $"拳击(无充能)");
             LanguageAPI.Add("SKILL_FIST_MAXCHARGE_NAME", $"拳击(满充能)");
-            BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef2.skillName, "SKILL_FIST_MINCHARGE_NAME", ChargeFistMinChargeProcCoefficient);
-            BetterUI.ProcCoefficientCatalog.AddToSkill(steppedSkillDef2.skillName, "SKILL_FIST_MAXCHARGE_NAME", ChargeFistMaxChargeProcCoefficient);
+            //BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef2.skillName, "SKILL_FIST_MINCHARGE_NAME", ChargeFistMinChargeProcCoefficient);
+            //BetterUI.ProcCoefficientCatalog.AddToSkill(steppedSkillDef2.skillName, "SKILL_FIST_MAXCHARGE_NAME", ChargeFistMaxChargeProcCoefficient);
             //===雷冲===//
             var steppedSkillDef = SteppedSkillDefPaths.ChargeZapFist.Load<SteppedSkillDef>();
             steppedSkillDef.baseRechargeInterval = 3f;
@@ -64,7 +64,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             proximityBeamController.attackRange *= 2;
             proximityBeamController.bounces = 1;
             proximityBeamController.damageCoefficient = 0.5f;
-            BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef.skillName, "SKILL_FIST_NAME", ChargeZapFistProcCoefficient);
+            //BetterUI.ProcCoefficientCatalog.AddSkill(steppedSkillDef.skillName, "SKILL_FIST_NAME", ChargeZapFistProcCoefficient);
             //===电塔===//
             var pylon = GameObjectPaths.LoaderPylon.Load<GameObject>();
             pylon.AddComponent<M551PylonStartAction>();

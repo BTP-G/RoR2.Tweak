@@ -1,4 +1,5 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using BtpTweak.Tweaks;
 using RoR2;
@@ -22,14 +23,16 @@ namespace BtpTweak {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "2.4.2";
+        public const string PluginVersion = "2.4.3";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
         internal new static ManualLogSource Logger { get; private set; }
+        internal new static ConfigFile Config { get; private set; }
 
         private void Awake() {
+            Config = base.Config;
             Logger = base.Logger;
-            ModConfig.InitConfig(Config);
+            ModConfig.InitConfig(base.Config);
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
                 if (!type.IsAbstract && !type.IsDefined(typeof(ObsoleteAttribute))) {
                     if (type.IsSubclassOf(typeof(TweakBase))) {

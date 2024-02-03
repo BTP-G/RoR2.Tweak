@@ -43,13 +43,10 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private void CharacterBody_RecalculateStats(ILContext il) {
             var c = new ILCursor(il);
-            if (c.TryGotoNext(MoveType.After,
-                              x => x.MatchLdsfld(typeof(RoR2Content.Buffs), "WarCryBuff"),
-                              x => x.MatchCall<CharacterBody>("HasBuff"))) {
-                c.RemoveRange(4);
-            } else {
-                Main.Logger.LogError("WarCryBuff Hook Failed!");
-            }
+            c.GotoNext(x => x.MatchLdsfld(typeof(RoR2Content.Buffs), "WarCryBuff"), x => x.MatchCall<CharacterBody>("HasBuff"));
+            c.RemoveRange(4);
+            c.GotoNext(x => x.MatchLdsfld(typeof(RoR2Content.Buffs), "WarCryBuff"), x => x.MatchCall<CharacterBody>("HasBuff"));
+            c.RemoveRange(4);
         }
     }
 }

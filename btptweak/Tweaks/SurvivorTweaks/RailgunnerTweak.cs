@@ -1,4 +1,4 @@
-﻿using BetterUI;
+﻿//using BetterUI;
 using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using HG;
@@ -36,8 +36,8 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             });
             EntityStateConfigurationPaths.EntityStatesRailgunnerWeaponFireSnipeSuper.Load<EntityStateConfiguration>().Set("damageCoefficient", SuperchargeDamageCoefficient.ToString());
             EntityStateConfigurationPaths.EntityStatesRailgunnerWeaponFireSnipeCryo.Load<EntityStateConfiguration>().Set("procCoefficient", CryochargeProcCoefficient.ToString());
-            ProcCoefficientCatalog.AddSkill("RailgunnerBodyChargeSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
-            ProcCoefficientCatalog.AddSkill("RailgunnerBodyFireSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
+            //ProcCoefficientCatalog.AddSkill("RailgunnerBodyChargeSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
+            //ProcCoefficientCatalog.AddSkill("RailgunnerBodyFireSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {

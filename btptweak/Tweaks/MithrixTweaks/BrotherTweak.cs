@@ -1,7 +1,5 @@
 ﻿using BtpTweak.RoR2Indexes;
-
 using BtpTweak.Utils;
-
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using RoR2;
 using RoR2.CharacterAI;

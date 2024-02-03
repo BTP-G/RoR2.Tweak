@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Messages;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using System.Collections.Generic;
@@ -44,7 +45,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         private void ReadyState_OnDamaged(On.EntityStates.VagrantNovaItem.ReadyState.orig_OnDamaged orig, EntityStates.VagrantNovaItem.ReadyState self, DamageReport report) {
             if (report.victimBody == self.attachedBody) {
                 if ((damagePool[self] += report.damageDealt) > self.attachedHealthComponent.fullCombinedHealth * 0.75f) {
-                    self.outer.SetNextState(new EntityStates.VagrantNovaItem.ChargeState());
+                    self.outer.SetNextStateServer(new EntityStates.VagrantNovaItem.ChargeState());
                 }
             }
         }

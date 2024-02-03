@@ -46,6 +46,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             On.EntityStates.BrotherMonster.WeaponSlam.FixedUpdate += WeaponSlam_FixedUpdate;
             On.EntityStates.BrotherMonster.SprintBash.OnEnter += SprintBash_OnEnter;
             On.EntityStates.BrotherMonster.UltChannelState.FireWave += UltChannelState_FireWave;
+            EntityStateConfigurationPaths.EntityStatesBrotherMonsterWeaponFireLunarShardsHurt.Load<EntityStateConfiguration>().Set("damageCoefficient", "0.1");
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -64,7 +65,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 var body = self.characterBody;
                 var projectileInfo = new FireProjectileInfo {
                     crit = body.RollCrit(),
-                    damage = self.damageStat * self.damageCoefficient,
+                    damage = self.damageStat * 0.3f,
                     force = FireTwinShots.force,
                     owner = body.gameObject,
                     position = aimRay.origin,

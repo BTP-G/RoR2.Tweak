@@ -24,12 +24,11 @@ namespace BtpTweak.Tweaks {
         }
 
         private void ShrineCombatBehavior_onDefeatedServerGlobal(ShrineCombatBehavior shrine) {
-            var livingPlayerCount = Run.instance.livingPlayerCount;
             var rng = new Xoroshiro128Plus(Run.instance.treasureRng.nextUlong);
-            var pickupIndex = PickupIndex.none;
-            if (Random.value < 0.75f) {
-                if (Random.value < 0.25f) {
-                    if (Random.value < 0.1f) {
+            PickupIndex pickupIndex;
+            if (rng.nextNormalizedFloat < 0.6f) {
+                if (rng.nextNormalizedFloat < 0.3f) {
+                    if (rng.nextNormalizedFloat < 0.2f) {
                         pickupIndex = rng.NextElementUniform(Run.instance.availableTier3DropList);
                     } else {
                         pickupIndex = rng.NextElementUniform(Run.instance.availableTier2DropList);
@@ -37,15 +36,18 @@ namespace BtpTweak.Tweaks {
                 } else {
                     pickupIndex = rng.NextElementUniform(Run.instance.availableTier1DropList);
                 }
+            } else {
+                pickupIndex = PickupCatalog.FindPickupIndex(RoR2Content.MiscPickups.LunarCoin.miscPickupIndex);
             }
             if (pickupIndex == PickupIndex.none) {
                 ChatMessage.Send("挑战完成后什么也没有发生。".ToShrine());
                 return;
             }
+            var playerCount = Run.instance.participatingPlayerCount;
             var position = shrine.transform.position + (Vector3.up * 6);
             var velocity = Quaternion.AngleAxis(Random.Range(0, 360f), Vector3.up) * (Vector3.up * 40f + Vector3.forward * 2.5f);
-            var rotation = Quaternion.AngleAxis(360f / livingPlayerCount, Vector3.up);
-            for (int i = 0; i < livingPlayerCount; ++i) {
+            var rotation = Quaternion.AngleAxis(360f / playerCount, Vector3.up);
+            for (int i = 0; i < playerCount; ++i) {
                 PickupDropletController.CreatePickupDroplet(pickupIndex, position, velocity);
                 velocity = rotation * velocity;
             }

@@ -28,6 +28,7 @@ namespace BtpTweak.Tweaks {
             body.levelRegen = 0f;
             body.baseArmor = 0f;
             body.levelArmor = 0f;
+            body.bodyFlags |= CharacterBody.BodyFlags.ImmuneToExecutes;
         }
 
         private void OnMasterStartGlobal(CharacterMaster master) {

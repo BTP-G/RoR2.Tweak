@@ -1,4 +1,5 @@
-﻿using Mono.Cecil.Cil;
+﻿using BtpTweak.Utils;
+using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
@@ -6,13 +7,10 @@ using UnityEngine;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class BleedTweak : TweakBase<BleedTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        public const int LifeSteal_SeedStackBleedChance = 10;
-        public const int LifeStealBaseBleedChance = 10;
-        public const float BleedDamageCoefficient = 0.5f;
+        public const float BleedDamageCoefficient = 0.1f;
         public const float BleedDuration = 5f;
-        public const float SurperBleedDamageCoefficient = 1.5f;
-        public const float SurperBleedDuration = 15f;
-        public const float BoostDamageMultiplierPerBleedOnHitAndExplode = 1f;
+        public const float SurperBleedDamageCoefficient = 0.2f;
+        public const float SurperBleedDuration = 10f;
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
@@ -34,68 +32,68 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 ilcursor.Emit(OpCodes.Ldarg_1);
                 ilcursor.Emit(OpCodes.Ldarg_2);
                 ilcursor.Emit(OpCodes.Ldloc, 1);
-                ilcursor.Emit(OpCodes.Ldloc, 5);
                 ilcursor.Emit(OpCodes.Ldloc, 0);
-                ilcursor.EmitDelegate((bool hasProc, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody, Inventory inventory, uint? maxStacksFromAttacker) => {
+                ilcursor.EmitDelegate((bool hasProc, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody, uint? maxStacksFromAttacker) => {
                     if (hasProc) {
                         return;
                     }
-                    var itemCount = inventory.GetItemCount(RoR2Content.Items.BleedOnHitAndExplode);
-                    var bleedCount = 0;
-                    var superBleedCount = 0;
                     if (damageInfo.crit) {
-                        if (itemCount > 0) {
+                        var superBleedCount = 0f;
+                        if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal)) {
                             ++superBleedCount;
                         }
-                        if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal) && Util.CheckRoll((LifeStealBaseBleedChance + LifeSteal_SeedStackBleedChance * inventory.GetItemCount(RoR2Content.Items.Seed)) * damageInfo.procCoefficient, attackerBody.master)) {
+                        if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
                             ++superBleedCount;
                         }
                         if (damageInfo.damageType.HasFlag(DamageType.SuperBleedOnCrit)) {
                             ++superBleedCount;
                         }
+                        if (superBleedCount > 0) {
+                            var dotInfo = new InflictDotInfo {
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DotController.DotIndex.SuperBleed,
+                                duration = SurperBleedDuration,
+                                maxStacksFromAttacker = maxStacksFromAttacker,
+                                totalDamage = superBleedCount * damageInfo.damage * SurperBleedDamageCoefficient * attackerBody.critMultiplier,
+                                victimObject = victim,
+                            };
+                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                            DotController.InflictDot(ref dotInfo);
+                        }
+                        if (damageInfo.damageType.HasFlag(DamageType.BleedOnHit)) {
+                            var dotInfo = new InflictDotInfo {
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DotController.DotIndex.Bleed,
+                                duration = BleedDuration,
+                                maxStacksFromAttacker = maxStacksFromAttacker,
+                                totalDamage = damageInfo.damage * BleedDamageCoefficient * attackerBody.critMultiplier,
+                                victimObject = victim,
+                            };
+                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                            DotController.InflictDot(ref dotInfo);
+                        }
                     } else {
-                        if (itemCount > 0) {
+                        var bleedCount = 0;
+                        if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal)) {
                             ++bleedCount;
                         }
-                        if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal) && Util.CheckRoll((LifeStealBaseBleedChance + LifeSteal_SeedStackBleedChance * inventory.GetItemCount(RoR2Content.Items.Seed)) * damageInfo.procCoefficient, attackerBody.master)) {
+                        if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
                             ++bleedCount;
                         }
-                    }
-                    if (damageInfo.damageType.HasFlag(DamageType.BleedOnHit)) {
-                        ++bleedCount;
-                    }
-                    if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
-                        if (Util.CheckRoll(attackerBody.bleedChance * 0.2f * damageInfo.procCoefficient, attackerBody.master)) {
-                            ++superBleedCount;
+                        if (damageInfo.damageType.HasFlag(DamageType.BleedOnHit)) {
+                            ++bleedCount;
                         }
-                        ++bleedCount;
-                    }
-                    if (bleedCount > 0) {
-                        var bleedDotInfo = new InflictDotInfo {
-                            attackerObject = damageInfo.attacker,
-                            damageMultiplier = 1 + itemCount,
-                            dotIndex = DotController.DotIndex.Bleed,
-                            duration = BleedDuration,
-                            maxStacksFromAttacker = maxStacksFromAttacker,
-                            victimObject = victim,
-                        };
-                        while (bleedCount-- > 0) {
-                            var d = bleedDotInfo;
-                            DotController.InflictDot(ref d);
-                        }
-                    }
-                    if (superBleedCount > 0) {
-                        var superBleedDotInfo = new InflictDotInfo {
-                            attackerObject = damageInfo.attacker,
-                            damageMultiplier = 1 + itemCount,
-                            dotIndex = DotController.DotIndex.SuperBleed,
-                            duration = SurperBleedDuration,
-                            maxStacksFromAttacker = maxStacksFromAttacker,
-                            victimObject = victim,
-                        };
-                        while (superBleedCount-- > 0) {
-                            var d = superBleedDotInfo;
-                            DotController.InflictDot(ref d);
+                        if (bleedCount > 0) {
+                            var dotInfo = new InflictDotInfo {
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DotController.DotIndex.Bleed,
+                                duration = BleedDuration,
+                                maxStacksFromAttacker = maxStacksFromAttacker,
+                                totalDamage = bleedCount * damageInfo.damage * BleedDamageCoefficient,
+                                victimObject = victim,
+                            };
+                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                            DotController.InflictDot(ref dotInfo);
                         }
                     }
                 });

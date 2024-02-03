@@ -14,11 +14,12 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
 
     internal class BrotherHurtTweak : TweakBase<BrotherHurtTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int missileCountPerFire = 5;
-        public const float missileSpeed = 60;
+        public const float missileSpeed = 60f;
+        public const float missileFuse = 20f;
         public const float missileTurretPitchFrequency = 0.5f;
         public const float missileTurretPitchMagnitude = 20;
         public const float missileTurretYawFrequency = 0.5f;
-        public const float fireInterval = 0.05f;
+        public const float fireInterval = 0.3f;
         private float fireTimer;
 
         void IOnModLoadBehavior.OnModLoad() {
@@ -27,78 +28,82 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            var component = GameObjectPaths.BrotherHurtBody.LoadComponent<CharacterBody>().AddComponent<BrotherHurtBodyComponent>();
+            var body = GameObjectPaths.BrotherHurtBody.LoadComponent<CharacterBody>();
+            body.GetComponent<SetStateOnHurt>().canBeFrozen = false;
+            var component = body.AddComponent<BrotherHurtBodyComponent>();
             var meteorStormController = GameObjectPaths.MeteorStorm.LoadComponent<MeteorStormController>();
             component.warningEffectPrefab = meteorStormController.warningEffectPrefab;
             component.impactEffectPrefab = meteorStormController.impactEffectPrefab;
             component.travelEffectPrefab = meteorStormController.travelEffectPrefab;
+            FistSlam.healthCostFraction = 0;
         }
 
         private void SpellChannelExitState_OnEnter(On.EntityStates.BrotherMonster.SpellChannelExitState.orig_OnEnter orig, SpellChannelExitState self) {
             orig(self);
             if (NetworkServer.active) {
                 var body = self.outer.commonComponents.characterBody;
+                body.RecalculateStats();
+                foreach (var c in CharacterBody.readOnlyInstancesList) {
+                    c.healthComponent.Networkhealth = c.healthComponent.fullHealth;
+                    c.healthComponent.RechargeShieldFull();
+                }
                 var dotInfo = new InflictDotInfo {
-                    attackerObject = null,
-                    damageMultiplier = 1,
+                    attackerObject = body.gameObject,
+                    damageMultiplier = 1f,
                     dotIndex = DotController.DotIndex.Helfire,
                     duration = float.MaxValue,
                     victimObject = body.gameObject,
                 };
                 body.SetBuffCount(DLC1Content.Buffs.ImmuneToDebuffReady.buffIndex, 0);
                 DotController.InflictDot(ref dotInfo);
-                var dotStack = DotController.FindDotController(body.gameObject)?.dotStackList.LastOrDefault(dotStack => dotStack.dotIndex == dotInfo.dotIndex);
-                if (dotStack != null) {
-                    dotStack.damageType |= DamageType.BypassArmor | DamageType.NonLethal | DamageType.Silent;
-                }
-                body.RecalculateStats();
-                var healthComponent = body.healthComponent;
-                healthComponent.Networkhealth = healthComponent.fullHealth;
-                healthComponent.RechargeShieldFull();
-                dotStack.damage = Mathf.Min(dotStack.damage, healthComponent.fullCombinedHealth * 0.001f);
+                var dotStack = DotController.FindDotController(body.gameObject).dotStackList.Last(dotStack => dotStack.dotIndex == dotInfo.dotIndex);
+                dotStack.damageType |= DamageType.BypassArmor | DamageType.NonLethal | DamageType.Silent;
+                dotStack.damage = body.healthComponent.fullCombinedHealth * 0.001f;
             }
         }
 
         private void TrueDeathState_FixedUpdate(On.EntityStates.BrotherMonster.TrueDeathState.orig_FixedUpdate orig, TrueDeathState self) {
             orig(self);
-            if (!NetworkServer.active || !RunInfo.位于月球) {
+            if (!NetworkServer.active || !RunInfo.位于月球 || !self.dissolving || (fireTimer -= Time.fixedDeltaTime) > 0) {
                 return;
             }
-            if ((fireTimer -= Time.fixedDeltaTime) < 0) {
-                fireTimer = fireInterval;
-                var body = self.characterBody;
-                var aimRay = new Ray() {
-                    origin = body.footPosition,
-                    direction = body.transform.forward
-                };
-                var projectileInfo = new FireProjectileInfo {
-                    projectilePrefab = AssetReferences.lunarMissilePrefab,
-                    owner = body.gameObject,
-                    damage = self.damageStat * body.level,
-                    useSpeedOverride = true,
-                    speedOverride = missileSpeed,
-                };
-                for (int i = 0; i < missileCountPerFire; ++i) {
-                    float bonusYaw = (float)(360.0 / missileCountPerFire * i + 360.0 * missileTurretYawFrequency * self.fixedAge);
-                    Vector3 forward = Util.ApplySpread(aimRay.direction, 0.0f, 0.0f, 1f, 1f, bonusYaw, Mathf.Sin(6.283185f * missileTurretPitchFrequency * self.fixedAge) * missileTurretPitchMagnitude);
-                    projectileInfo.position = aimRay.origin + ((self.fixedAge + 3) * 2 * Vector3.up);
-                    projectileInfo.rotation = Util.QuaternionSafeLookRotation(forward);
-                    ProjectileManager.instance.FireProjectile(projectileInfo);
-                }
+            fireTimer = Mathf.Lerp(fireInterval, 0.06f, self.fixedAge / 5f);
+            var body = self.characterBody;
+            var aimRay = new Ray() {
+                origin = body.corePosition,
+                direction = new Vector3(1f, Random.Range(-0.5f, 1.5f), 0),
+            };
+            var projectileInfo = new FireProjectileInfo {
+                projectilePrefab = AssetReferences.lunarMissilePrefab,
+                owner = body.gameObject,
+                damage = self.damageStat * (1 + Run.instance.stageClearCount),
+                useSpeedOverride = true,
+                speedOverride = missileSpeed,
+                useFuseOverride = true,
+                fuseOverride = missileFuse,
+            };
+            for (int i = 0; i < missileCountPerFire; ++i) {
+                var bonusYaw = (float)(360.0 / missileCountPerFire * i + 360.0 * missileTurretYawFrequency * self.fixedAge);
+                var forward = Util.ApplySpread(aimRay.direction, 0.0f, 0.0f, 1f, 1f, bonusYaw, Mathf.Sin(6.283185f * missileTurretPitchFrequency * self.fixedAge) * missileTurretPitchMagnitude);
+                projectileInfo.position = aimRay.origin + new Vector3(0, self.fixedAge, 0);
+                projectileInfo.rotation = Util.QuaternionSafeLookRotation(forward);
+                ProjectileManager.instance.FireProjectile(projectileInfo);
             }
         }
 
         private class BrotherHurtBodyComponent : MonoBehaviour {
-            public const float blastDamageCoefficient = 6;
+            public const float blastDamageCoefficient = 3;
             public const float blastForce = 4000;
             public const float blastRadius = 8;
             public const float impactDelay = 2;
             public const float travelEffectDuration = 2;
-            public const float waveInterval = 1f;
+            public const float waveInterval = 6f;
 
             public GameObject warningEffectPrefab;
             public GameObject travelEffectPrefab;
             public GameObject impactEffectPrefab;
+
+            private BlastAttack _blastAttack;
 
             private CharacterBody characterBody;
             private List<MeteorStormController.Meteor> meteorList;
@@ -108,7 +113,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             private void Awake() {
                 if (enabled = NetworkServer.active) {
                     characterBody = GetComponent<CharacterBody>();
-                    GetComponent<HealthComponent>().ospTimer += 3f;
+                    characterBody.healthComponent.ospTimer += 3f;
                     meteorList = [];
                     waveList = [];
                     On.RoR2.HealthComponent.Heal += HealthComponent_Heal;
@@ -124,6 +129,20 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             private void Start() {
                 characterBody.master.teamIndex = TeamIndex.Lunar;
                 characterBody.teamComponent.teamIndex = TeamIndex.Lunar;
+                _blastAttack = new BlastAttack {
+                    attacker = gameObject,
+                    attackerFiltering = AttackerFiltering.Default,
+                    baseDamage = blastDamageCoefficient * characterBody.damage,
+                    baseForce = blastForce,
+                    bonusForce = Vector3.zero,
+                    crit = characterBody.RollCrit(),
+                    damageColorIndex = DamageColorIndex.Default,
+                    falloffModel = BlastAttack.FalloffModel.Linear,
+                    procChainMask = default,
+                    procCoefficient = 1f,
+                    radius = blastRadius,
+                    teamIndex = characterBody.teamComponent.teamIndex
+                };
                 Util.CleanseBody(characterBody, true, false, true, true, true, true);
             }
 
@@ -132,7 +151,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     return;
                 }
                 if ((waveTimer -= Time.fixedDeltaTime) <= 0) {
-                    waveTimer = waveInterval;
+                    waveTimer = waveInterval / (1 + Run.instance.stageClearCount);
                     waveList.Add(new MeteorStormController.MeteorWave(CharacterBody.readOnlyInstancesList.Where(body => body.isPlayerControlled).ToArray(), transform.position) {
                         hitChance = 0.1f,
                     });
@@ -141,7 +160,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     var meteorWave = waveList[i];
                     meteorWave.timer -= Time.fixedDeltaTime;
                     if (meteorWave.timer <= 0f) {
-                        meteorWave.timer = waveInterval;
+                        meteorWave.timer = waveInterval / (1 + Run.instance.stageClearCount);
                         var nextMeteor = meteorWave.GetNextMeteor();
                         if (nextMeteor == null) {
                             waveList.RemoveAt(i);
@@ -169,8 +188,8 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                     if (meteor.startTime < num) {
                         meteorList.RemoveAt(j);
                         DetonateMeteor(meteor);
-                        if (Random.value > 0.5f) {
-                            ProjectileManager.instance.FireProjectile(AssetReferences.brotherUltLineProjectileStatic, meteor.impactPosition, Quaternion.Euler(0, Random.Range(0f, 180f), 0), gameObject, characterBody.damage * UltChannelState.waveProjectileDamageCoefficient, UltChannelState.waveProjectileForce, characterBody.RollCrit());
+                        if (Random.value < 0.5f) {
+                            ProjectileManager.instance.FireProjectile(AssetReferences.brotherUltLineProjectileStatic, meteor.impactPosition, Quaternion.Euler(0, Random.Range(0f, 180f), 0), gameObject, characterBody.damage * UltChannelState.waveProjectileDamageCoefficient * 0.5f, UltChannelState.waveProjectileForce, characterBody.RollCrit());
                         } else {
                             ProjectileManager.instance.FireProjectile(WeaponSlam.pillarProjectilePrefab, meteor.impactPosition, Quaternion.identity, gameObject, characterBody.damage * WeaponSlam.pillarDamageCoefficient, 0f, characterBody.RollCrit());
                         }
@@ -188,51 +207,43 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
             }
 
             private void DetonateMeteor(MeteorStormController.Meteor meteor) {
-                var effectData = new EffectData {
+                _blastAttack.position = meteor.impactPosition;
+                _blastAttack.Fire();
+                EffectManager.SpawnEffect(impactEffectPrefab, new EffectData {
                     origin = meteor.impactPosition
-                };
-                EffectManager.SpawnEffect(impactEffectPrefab, effectData, true);
-                new BlastAttack {
-                    baseDamage = blastDamageCoefficient * characterBody.damage,
-                    baseForce = blastForce,
-                    attackerFiltering = AttackerFiltering.Default,
-                    crit = characterBody.RollCrit(),
-                    falloffModel = BlastAttack.FalloffModel.Linear,
-                    attacker = gameObject,
-                    bonusForce = Vector3.zero,
-                    damageColorIndex = DamageColorIndex.Default,
-                    position = meteor.impactPosition,
-                    procChainMask = default,
-                    procCoefficient = 1f,
-                    teamIndex = characterBody.teamComponent.teamIndex,
-                    radius = blastRadius
-                }.Fire();
+                }, true);
             }
 
             private float HealthComponent_Heal(On.RoR2.HealthComponent.orig_Heal orig, HealthComponent self, float amount, ProcChainMask procChainMask, bool nonRegen) {
-                if (self.body.bodyIndex == BodyIndexes.BrotherHurt) {
+                if (self.body.bodyIndex == BodyIndexes.BrotherHurt || RunInfo.位于月球) {
                     return 0f;
                 }
                 return orig(self, amount, procChainMask, nonRegen);
             }
 
             private void HealthComponent_RechargeShield(On.RoR2.HealthComponent.orig_RechargeShield orig, HealthComponent self, float value) {
-                if (self.body.bodyIndex == BodyIndexes.BrotherHurt) {
+                if (self.body.bodyIndex == BodyIndexes.BrotherHurt || RunInfo.位于月球) {
                     return;
                 }
                 orig(self, value);
             }
 
             private void HealthComponent_AddBarrier(On.RoR2.HealthComponent.orig_AddBarrier orig, HealthComponent self, float value) {
-                if (self.body.bodyIndex == BodyIndexes.BrotherHurt) {
+                if (self.body.bodyIndex == BodyIndexes.BrotherHurt || RunInfo.位于月球) {
                     return;
                 }
                 orig(self, value);
             }
 
             private void HealthComponent_TakeDamage(On.RoR2.HealthComponent.orig_TakeDamage orig, HealthComponent self, DamageInfo damageInfo) {
-                if (damageInfo.attacker == gameObject) {
-                    damageInfo.damage = Mathf.Max(self.fullCombinedHealth * Mathf.Max(0.01f, 0.1f * damageInfo.procCoefficient), damageInfo.damage);
+                if (damageInfo.attacker) {
+                    if (self.gameObject == gameObject) {
+                        if (damageInfo.attacker != gameObject && damageInfo.attacker.TryGetComponent<CharacterBody>(out var attackerBody)) {
+                            damageInfo.damage = Mathf.Max(self.combinedHealth * 0.01f * (damageInfo.damage / attackerBody.damage) * damageInfo.procCoefficient / (1 + Run.instance.stageClearCount), damageInfo.damage);
+                        }
+                    } else if (damageInfo.attacker == gameObject) {
+                        damageInfo.damage = Mathf.Max((self.fullCombinedHealth + self.barrier) * 0.0075f * (damageInfo.damage / characterBody.damage) * damageInfo.procCoefficient * (1 + Run.instance.stageClearCount), damageInfo.damage);
+                    }
                 }
                 orig(self, damageInfo);
             }

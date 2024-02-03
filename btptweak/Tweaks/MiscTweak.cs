@@ -1,5 +1,8 @@
 ﻿using EntityStates.Missions.LunarScavengerEncounter;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using RoR2;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -12,11 +15,13 @@ namespace BtpTweak.Tweaks {
             On.EntityStates.StunState.PlayStunAnimation += StunState_PlayStunAnimation;
             On.EntityStates.BaseState.RollCrit += BaseState_RollCrit;
             On.RoR2.CharacterBody.RollCrit += CharacterBody_RollCrit;
+            IL.RoR2.CharacterMaster.GiveMoney += CharacterMaster_GiveMoney;
             On.RoR2.Util.CheckRoll_float_float_CharacterMaster += Util_CheckRoll_float_float_CharacterMaster;
             On.RoR2.LevelUpEffectManager.OnCharacterLevelUp += LevelUpEffectManager_OnCharacterLevelUp;
             On.RoR2.LevelUpEffectManager.OnTeamLevelUp += LevelUpEffectManager_OnTeamLevelUp;
             On.RoR2.LevelUpEffectManager.OnRunAmbientLevelUp += LevelUpEffectManager_OnRunAmbientLevelUp;
-            Stage.onStageStartGlobal += Stage_onStageStartGlobal;
+            IL.RoR2.Run.RecalculateDifficultyCoefficentInternal += Run_RecalculateDifficultyCoefficentInternal;
+            On.RoR2.CharacterMasterNotificationQueue.PushNotification += CharacterMasterNotificationQueue_PushNotification;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -26,8 +31,28 @@ namespace BtpTweak.Tweaks {
             EntityStates.BrotherMonster.SpellChannelState.maxDuration = 180f;
         }
 
-        public void Stage_onStageStartGlobal(Stage stage) {
-            BtpContent.Difficulties.造物.scalingValue = 3f + Run.instance.stageClearCount * ModConfig.每关难度增加量.Value / 50f;
+        private void CharacterMaster_GiveMoney(ILContext il) {
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(c => c.MatchAdd())) {
+                cursor.Remove();
+                cursor.EmitDelegate(HGMath.UintSafeAdd);
+            } else {
+                Main.Logger.LogError("CharacterMaster_GiveMoney Hook Failed!");
+            }
+        }
+
+        private void Run_RecalculateDifficultyCoefficentInternal(ILContext il) {
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(c => c.MatchLdloc(7),
+                                   c => c.MatchLdloc(0))) {
+                cursor.Index += 1;
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldloc, 6);
+                cursor.EmitDelegate((Run run, float num6) => RunInfo.已选择造物难度 ? 0.0506f * ModConfig.每关难度增加量.Value / 50f * run.stageClearCount * num6 : 0f);
+                cursor.Emit(OpCodes.Add);
+            } else {
+                Main.Logger.LogError("Run_RecalculateDifficultyCoefficentInternal Hook Failed!");
+            }
         }
 
         private void LevelUpEffectManager_OnCharacterLevelUp(On.RoR2.LevelUpEffectManager.orig_OnCharacterLevelUp orig, CharacterBody characterBody) {
@@ -101,6 +126,14 @@ namespace BtpTweak.Tweaks {
                 }
             }
             return false;
+        }
+
+        private void CharacterMasterNotificationQueue_PushNotification(On.RoR2.CharacterMasterNotificationQueue.orig_PushNotification orig, CharacterMasterNotificationQueue self, CharacterMasterNotificationQueue.NotificationInfo info, float duration) {
+            var notification = self.notifications.FirstOrDefault();
+            if (notification != null && notification.notification != info) {
+                notification.duration = 0f;
+            }
+            orig(self, info, duration);
         }
     }
 }

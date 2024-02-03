@@ -1,4 +1,5 @@
 ﻿using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using GrooveSaladSpikestripContent.Content;
 using HG;
 using Mono.Cecil.Cil;
@@ -6,7 +7,6 @@ using MonoMod.Cil;
 using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using static RoR2.DotController;
@@ -14,6 +14,7 @@ using static RoR2.DotController;
 namespace BtpTweak.Tweaks {
 
     internal class BuffAndDotTweak : TweakBase<BuffAndDotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+        public const float BurnDuration = 4f;
         public static readonly DamageType CoroDamageType = DamageType.PoisonOnHit | DamageType.BlightOnHit;
         public static int DeepRotSkillIndex { get; private set; }
         public static BuffIndex DeepRotBuffIndex { get; private set; }
@@ -23,14 +24,18 @@ namespace BtpTweak.Tweaks {
             onDotInflictedServerGlobal += DotController_onDotInflictedServerGlobal;
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
             On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.GlobalEventManager_OnHitEnemy += DeepRot_GlobalEventManager_OnHitEnemy;
+            On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.DotController_AddDot += DeepRot_DotController_AddDot;
             IL.RoR2.DotController.FixedUpdate += DotController_FixedUpdate;
             IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+            IL.RoR2.DotController.AddDot += DotController_AddDot;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             PlatedElite.damageReductionBuff.canStack = false;
             RoR2Content.Buffs.LunarDetonationCharge.isDebuff = false;
             RoR2Content.Buffs.WarCryBuff.canStack = true;
+            DotController.GetDotDef(DotIndex.Burn).terminalTimedBuff = null;
+            DotController.GetDotDef(DotIndex.StrongerBurn).terminalTimedBuff = null;
             DeepRotSkillIndex = DeepRot.instance.GetSkillDef().skillIndex;
             DeepRotBuffIndex = DeepRot.scriptableObject.buffs[0].buffIndex;
             VoidPoisonBuffIndex = DeepRot.scriptableObject.buffs[1].buffIndex;
@@ -95,7 +100,7 @@ namespace BtpTweak.Tweaks {
                     return;
                 }
                 if (!dotController.victimObject) {
-                    Object.Destroy(dotController.gameObject);
+                    UnityEngine.Object.Destroy(dotController.gameObject);
                     return;
                 }
                 for (DotIndex dotIndex = DotIndex.Bleed; dotIndex < DotIndex.Count; ++dotIndex) {
@@ -115,7 +120,7 @@ namespace BtpTweak.Tweaks {
                     dotController.dotTimers[(int)dotIndex] = num2;
                 }
                 if (dotController.dotStackList.Count == 0) {
-                    Object.Destroy(dotController.gameObject);
+                    UnityEngine.Object.Destroy(dotController.gameObject);
                 }
             });
             cursor.Emit(OpCodes.Ret);
@@ -133,7 +138,13 @@ namespace BtpTweak.Tweaks {
                         damageInfo.damageType &= ~CoroDamageType;
                         victimBody.AddTimedBuff(VoidPoisonBuffIndex, 20f);
                         if (victimBody.GetBuffCount(VoidPoisonBuffIndex) >= 3 * (victimBody.GetBuffCount(DeepRotBuffIndex) + 1)) {
-                            InflictDot(victimBody.gameObject, damageInfo.attacker, DeepRot.deepRotDOT, 20f);
+                            var dotInfo = new InflictDotInfo {
+                                victimObject = victimBody.gameObject,
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DeepRot.deepRotDOT,
+                                duration = 20f,
+                            };
+                            InflictDot(ref dotInfo);
                             victimBody.ClearTimedBuffs(VoidPoisonBuffIndex);
                         }
                     }
@@ -147,6 +158,10 @@ namespace BtpTweak.Tweaks {
             (orig2 as On.RoR2.GlobalEventManager.orig_OnHitEnemy)(self2, damageInfo, victim);
         }
 
+        private void DeepRot_DotController_AddDot(On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.orig_DotController_AddDot orig, DeepRot self, object orig2, DotController self2, GameObject attackerObject, float duration, DotIndex dotIndex, float damageMultiplier, uint? maxStacksFromAttacker, float? totalDamage, DotIndex? preUpgradeDotIndex) {
+            (orig2 as On.RoR2.DotController.orig_AddDot)(self2, attackerObject, duration, dotIndex, damageMultiplier, maxStacksFromAttacker, totalDamage, preUpgradeDotIndex);
+        }
+
         private void CharacterBody_AddTimedBuff_BuffDef_float(On.RoR2.CharacterBody.orig_AddTimedBuff_BuffDef_float orig, CharacterBody self, BuffDef buffDef, float duration) {
             if (buffDef.buffIndex == RoR2Content.Buffs.Nullified.buffIndex
                 && (self.isBoss || self.teamComponent.teamIndex == TeamIndex.Void)) {
@@ -156,48 +171,100 @@ namespace BtpTweak.Tweaks {
         }
 
         private void DotController_onDotInflictedServerGlobal(DotController dotController, ref InflictDotInfo inflictDotInfo) {
-            var attackerBody = inflictDotInfo.attackerObject?.GetComponent<CharacterBody>();
             var victimBody = dotController.victimBody;
             var dotStackList = dotController.dotStackList;
-            var lastDotStack = dotStackList.Last();
-            if (attackerBody) {
-                if (attackerBody.bodyIndex == BodyIndexes.Croco) {
-                    lastDotStack.timer *= 1 + 0.4f * attackerBody.inventory.GetItemCount(RoR2Content.Items.DeathMark.itemIndex);
-                } else if (victimBody.bodyIndex == BodyIndexes.Mage) {
-                    lastDotStack.damage *= 0.5f;
-                }
+            var lastDotStack = dotStackList[dotStackList.Count - 1];
+            if (victimBody.bodyIndex == BodyIndexes.Mage) {
+                lastDotStack.damage *= 0.5f;
             }
             if (victimBody.healthComponent.shield > 0) {
-                lastDotStack.damage *= victimBody.HasBuff(RoR2Content.Buffs.AffixLunar.buffIndex) ? 0.25f : 0.5f;
+                lastDotStack.damage *= victimBody.HasBuff(RoR2Content.Buffs.AffixLunar.buffIndex) ? 0.1f : 0.2f;
             }
-            var dotIndex = inflictDotInfo.dotIndex;
-            switch (dotIndex) {
-                case DotIndex.Bleed:
-                case DotIndex.SuperBleed: {
-                    if (victimBody.GetBuffCount(lastDotStack.dotDef.associatedBuff) > 1) {
-                        for (int i = dotStackList.Count - 2; i >= 0; --i) {
-                            var dotStack = dotStackList[i];
-                            if (dotStack.dotIndex == dotIndex) {
-                                dotStack.damage += lastDotStack.damage;
-                                dotController.RemoveDotStackAtServer(dotStackList.Count - 1);
-                                break;
-                            }
+            switch (inflictDotInfo.dotIndex) {
+                case DotIndex.Burn:
+                case DotIndex.StrongerBurn: {
+                    for (int i = dotStackList.Count - 2; i > -1; --i) {
+                        var dotStack = dotStackList[i];
+                        if (dotStack.dotIndex == lastDotStack.dotIndex && dotStack.attackerObject == lastDotStack.attackerObject) {
+                            var interval = lastDotStack.dotDef.interval;
+                            var allStackTotalDamage = (inflictDotInfo.totalDamage ?? lastDotStack.damage * Mathf.Ceil(lastDotStack.timer / interval)) + dotStack.damage * Mathf.Ceil(dotStack.timer / interval);
+                            var tickCount = Mathf.Ceil(allStackTotalDamage / (lastDotStack.damage + dotStack.damage));
+                            dotStack.timer = tickCount * interval;
+                            dotStack.damage = allStackTotalDamage / tickCount;
+                            dotController.RemoveDotStackAtServer(dotStackList.Count - 1);
+                            break;
                         }
                     }
                     break;
                 }
+                case DotIndex.Fracture:
                 case DotIndex.Poison:
                 case DotIndex.Blight: {
                     lastDotStack.damageType |= DamageType.BypassArmor;
                     break;
                 }
                 default: {
-                    if (dotIndex == DeepRot.deepRotDOT) {
+                    if (inflictDotInfo.dotIndex == DeepRot.deepRotDOT) {
+                        lastDotStack.damage = Mathf.Max(lastDotStack.damage, victimBody.healthComponent.fullCombinedHealth * 0.025f * lastDotStack.dotDef.interval);
                         lastDotStack.damageType |= DamageType.BypassArmor;
                     }
                     break;
                 }
             }
+        }
+
+        private void DotController_AddDot(ILContext il) {
+            var cursor = new ILCursor(il);
+            //===============流血===============//
+            cursor.GotoNext(c => c.MatchLdcI4(0), c => c.MatchStloc(9));
+            var labels = cursor.IncomingLabels;
+            cursor.RemoveRange(33).Emit(OpCodes.Ldarg_0).Emit(OpCodes.Ldloc, 5).EmitDelegate((DotController dotController, DotStack newDotStack) => {
+                var dotStackList = dotController.dotStackList;
+                for (int i = dotStackList.Count - 1; i > -1; --i) {
+                    var oldDotStack = dotStackList[i];
+                    if (oldDotStack.dotIndex == newDotStack.dotIndex && oldDotStack.attackerObject == newDotStack.attackerObject) {
+                        newDotStack.damage += oldDotStack.damage;
+                        if (newDotStack.timer < oldDotStack.timer) {
+                            newDotStack.timer = oldDotStack.timer;
+                        }
+                        dotController.RemoveDotStackAtServer(i);
+                        break;
+                    }
+                }
+            });
+            cursor.GotoPrev(x => x.MatchLdarg(0));
+            foreach (var label in labels) {
+                cursor.MarkLabel(label);
+            }
+            ////===============燃烧===============//
+            //cursor.GotoNext(c => c.MatchLdloc(5), c => c.MatchLdloc(5));
+            //labels = cursor.IncomingLabels;
+            //cursor.RemoveRange(13).Emit(OpCodes.Ldarg_0).Emit(OpCodes.Ldloc, 5).EmitDelegate((DotController dotController, DotStack newDotStack) => {
+            //    var dotStackList = dotController.dotStackList;
+            //    for (int i = dotStackList.Count - 1; i > -1; --i) {
+            //        var oldDotStack = dotStackList[i];
+            //        if (oldDotStack.dotIndex == newDotStack.dotIndex && oldDotStack.attackerObject == newDotStack.attackerObject) {
+            //            var interval = newDotStack.dotDef.interval;
+            //            var stackDamagePerTick = newDotStack.damage + oldDotStack.damage;
+            //            var totalDamage = (newDotStack.damage * Mathf.Ceil(newDotStack.timer / interval) + oldDotStack.damage * Mathf.Ceil(oldDotStack.timer / interval));
+            //            $"total damage before stack == {totalDamage}".Qlog();
+            //            newDotStack.timer = Mathf.Ceil(totalDamage / stackDamagePerTick) * interval;
+            //            $"total damage after stack == {stackDamagePerTick * Mathf.Ceil(newDotStack.timer / interval)}".Qlog();
+            //            newDotStack.damage = stackDamagePerTick;
+            //            dotController.RemoveDotStackAtServer(i);
+            //            break;
+            //        }
+            //    }
+            //});
+            //cursor.GotoPrev(x => x.MatchLdarg(0));
+            //foreach (var label in labels) {
+            //    cursor.MarkLabel(label);
+            //}
+            //===========移除不必要判断===========//
+            cursor.GotoNext(c => c.MatchLdloc(5),
+                            c => c.MatchLdfld<DotStack>("damage"),
+                            c => c.MatchLdcR4(0f));
+            cursor.RemoveRange(4);
         }
     }
 }

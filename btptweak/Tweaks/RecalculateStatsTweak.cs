@@ -43,7 +43,7 @@ namespace BtpTweak.Tweaks {
                     action.Invoke(sender, inventory, args);
                 }
             }
-            if (sender.HasBuff(RoR2Content.Buffs.FullCrit.buffIndex)) {
+            if (sender.HasBuff(RoR2Content.Buffs.FullCrit.buffIndex) && sender.crit > 100f) {
                 args.critDamageMultAdd += (sender.crit - 100f) * 0.01f;
             }
             if (RunInfo.已选择造物难度 && sender.teamComponent.teamIndex != TeamIndex.Player) {

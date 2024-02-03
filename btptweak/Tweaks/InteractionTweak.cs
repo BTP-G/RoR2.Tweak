@@ -14,7 +14,6 @@ namespace BtpTweak.Tweaks {
 
         void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.OnInteractionsGlobal += GlobalEventManager_OnInteractionsGlobal;
-            On.RoR2.PurchaseInteraction.Awake += PurchaseInteraction_Awake;
             IL.EntityStates.Duplicator.Duplicating.DropDroplet += Duplicating_DropDroplet;
         }
 
@@ -26,6 +25,7 @@ namespace BtpTweak.Tweaks {
             GameObjectPaths.DuplicatorLarge.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorMilitary.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorWild.Load<GameObject>().RemoveComponent<DelayedEvent>();
+            GameObjectPaths.LunarCauldronWhiteToGreen.LoadComponent<ShopTerminalBehavior>().bannedItemTag = ItemTag.Scrap;
             InteractableSpawnCardPaths.iscScrapper.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineGoldshoresAccess.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineCleanse.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
@@ -37,14 +37,6 @@ namespace BtpTweak.Tweaks {
             InteractableSpawnCardPaths.iscShrineBoss.Load<InteractableSpawnCard>().maxSpawnsPerStage = 3;
             InteractableSpawnCardPaths.iscShrineBossSandy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 3;
             InteractableSpawnCardPaths.iscShrineBossSnowy.Load<InteractableSpawnCard>().maxSpawnsPerStage = 3;
-        }
-
-        private void PurchaseInteraction_Awake(On.RoR2.PurchaseInteraction.orig_Awake orig, PurchaseInteraction self) {
-            orig(self);
-            if (self.name.StartsWith("LunarCauldron, RedToWhite Variant")) {
-                self.costType = CostTypeIndex.GreenItem;
-                self.Networkcost = 2;
-            }
         }
 
         private void GlobalEventManager_OnInteractionsGlobal(Interactor interactor, IInteractable interactable, GameObject interaction) {

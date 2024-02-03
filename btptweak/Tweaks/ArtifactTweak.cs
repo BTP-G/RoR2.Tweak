@@ -23,8 +23,7 @@ namespace BtpTweak.Tweaks {
             float baseDropChancePercent = ModConfig.牺牲基础掉率.Value + _牺牲保底概率 - _牺牲衰减概率;
             if (damageReport.victimIsChampion) {
                 baseDropChancePercent *= 1.5f;
-            }
-            if (damageReport.victimIsElite) {
+            } else if (damageReport.victimIsElite) {
                 baseDropChancePercent *= 1.25f;
             }
             float expAdjustedDropChancePercent = Util.GetExpAdjustedDropChancePercent(baseDropChancePercent, damageReport.victim.gameObject);
@@ -36,15 +35,15 @@ namespace BtpTweak.Tweaks {
                     var itemScore = 0f;
                     switch (PickupCatalog.GetPickupDef(pickupIndex).itemTier) {
                         case ItemTier.Tier1:
-                            itemScore = 0.01f;
+                            itemScore = 0.02f;
                             break;
 
                         case ItemTier.Tier2:
-                            itemScore = 0.03f;
+                            itemScore = 0.06f;
                             break;
 
                         case ItemTier.Tier3:
-                            itemScore = 0.16f;
+                            itemScore = 0.3f;
                             break;
                     }
                     if (itemScore > 0f) {
@@ -53,7 +52,7 @@ namespace BtpTweak.Tweaks {
                     }
                 }
             } else {
-                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.04f * Run.instance.participatingPlayerCount;
+                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.02f * Run.instance.participatingPlayerCount;
             }
         }
 

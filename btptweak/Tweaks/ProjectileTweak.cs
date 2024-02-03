@@ -14,7 +14,6 @@ namespace BtpTweak.Tweaks {
             var daggerProjectile = GameObjectPaths.DaggerProjectile.Load<GameObject>();
             daggerProjectile.GetComponent<ProjectileController>().procCoefficient = 0.33f;
             daggerProjectile.GetComponent<ProjectileSimple>().lifetime = 10f;
-            GameObjectPaths.DeathProjectile18.LoadComponent<ProjectileController>().procCoefficient = 0;
             WeaponSlam.pillarProjectilePrefab.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;
             WeaponSlam.pillarProjectilePrefab.AddComponent<BrotherPillarProjectileAwakeAction>();
             EditLunarMissile();
@@ -29,6 +28,7 @@ namespace BtpTweak.Tweaks {
             var lunarMissileTargetFinder = lunarMissilePrefab.GetComponent<ProjectileDirectionalTargetFinder>();
             lunarMissileTargetFinder.lookRange = 60f;
             lunarMissileTargetFinder.lookCone = 120f;
+            lunarMissileTargetFinder.targetSearchInterval = 0.1f;
             lunarMissileTargetFinder.allowTargetLoss = false;
         }
 

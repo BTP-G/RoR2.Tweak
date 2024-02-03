@@ -20,7 +20,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float IceRingProcCoefficient = 1f;
         public const float VoidRingDamageCoefficient = 1f;
         public const float VoidRingProcCoefficient = 1f;
-        public const float VoidRingInterval = 1f;
+        public const float VoidRingInterval = 2f;
         public const float VoidRingBaseRadius = 15f;
         public const float VoidRingStackRadius = 3f;
         public const float RingDamageRequired = 1f;
