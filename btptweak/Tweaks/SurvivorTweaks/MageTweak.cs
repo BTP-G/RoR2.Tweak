@@ -1,6 +1,7 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Mage;
+using EntityStates.Mage.Weapon;
 using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
@@ -16,20 +17,30 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         public const float 电击半径 = 25;
         public const float 电击伤害系数 = 0.6f;
         public const int 每次最大电击数 = 10;
+        public const float NavoBombMinDamageCoefficient = 5;
+        public const float NavoBombMaxDamageCoefficient = 25;
+        public const float IcebombMinDamageCoefficient = 4;
+        public const float IcebombMaxDamageCoefficient = 16;
 
         void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.Mage.FlyUpState.OnEnter += FlyUpState_OnEnter;
+            EntityStateConfigurationPaths.EntityStatesMageWeaponFireFireBolt.Load<EntityStateConfiguration>().Set("baseDuration", "0.5");
+            EntityStateConfigurationPaths.EntityStatesMageWeaponFireLightningBolt.Load<EntityStateConfiguration>().Set("baseDuration", "0.5");
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             //===火焰弹===//
             var mageFireFirebolt = SteppedSkillDefPaths.MageBodyFireFirebolt.Load<SteppedSkillDef>();
             mageFireFirebolt.baseRechargeInterval = 0;
-            mageFireFirebolt.baseMaxStock = 1;
+            mageFireFirebolt.baseMaxStock = 0;
+            mageFireFirebolt.requiredStock = 0;
+            mageFireFirebolt.stockToConsume = 0;
             //===闪电弹===//
             var mageFireLightningBolt = SteppedSkillDefPaths.MageBodyFireLightningBolt.Load<SteppedSkillDef>();
             mageFireLightningBolt.baseRechargeInterval = 0;
-            mageFireLightningBolt.baseMaxStock = 1;
+            mageFireLightningBolt.baseMaxStock = 0;
+            mageFireLightningBolt.requiredStock = 0;
+            mageFireLightningBolt.stockToConsume = 0;
             //===冰枪===//
             GameObjectPaths.MageIceBombProjectile.Load<GameObject>().AddComponent<IceExplosion>();
             SkillDefPaths.MageBodyIceBomb.Load<SkillDef>().mustKeyPress = false;
@@ -45,6 +56,9 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             mageProximityBeamController.listClearInterval = 0.2f;
             mageProximityBeamController.procCoefficient = 0.3f;
             SkillDefPaths.MageBodyNovaBomb.Load<SkillDef>().mustKeyPress = false;
+            //===火焰喷射器===//
+            Flamethrower.totalDamageCoefficient = 30f;
+            Flamethrower.ignitePercentChance = 100f;
             //===角色===//
             var body = RoR2Content.Survivors.Mage.bodyPrefab.GetComponent<CharacterBody>();
             body.baseMoveSpeed = 10f;

@@ -7,7 +7,6 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak>, IOnModLoadBehavior {
-        public const int BasePercentChance = 20;
         public const float 半数 = 4;
         public const float DamageCoefficient = 0.15f;
         public const int TotalStrikes = 3;

@@ -14,7 +14,7 @@ namespace BtpTweak.Pools {
         public TeamIndex teamIndex;
     }
 
-    internal class BehemothPool : Pool<BehemothPool, BehemothPoolKey, BlastAttack> {
+    internal sealed class BehemothPool : Pool<BehemothPool, BehemothPoolKey, BlastAttack> {
         protected override float Interval => BehemothTweak.Interval;
 
         public void AddBlastAttack(in BehemothPoolKey attackInfo, in Vector3 position, float damageValue) {

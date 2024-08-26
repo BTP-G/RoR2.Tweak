@@ -5,7 +5,7 @@ using BtpTweak.Tweaks.ItemTweaks;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
-    internal class FireTornadoPool : Pool<FireTornadoPool, ProjectilePoolKey, ProjectileInfo> {
+    internal sealed class FireTornadoPool : Pool<FireTornadoPool, ProjectilePoolKey, ProjectileInfo> {
         protected override float Interval => RingsTweak.FireRingInterval;
 
         public void AddProjectile(in ProjectilePoolKey simpleProjectileInfo, in Vector3 position, float damageValue) {

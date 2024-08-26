@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
-    internal class FireFountain : ProjectileFountain<FireFountain> {
+    internal sealed class FireFountain : ProjectileFountain<FireFountain> {
         protected override float Interval => FireballsOnHitTweak.Interval;
 
         protected override GameObject ProjectilePrefab => AssetReferences.fireMeatBallProjectile;

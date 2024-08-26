@@ -33,6 +33,7 @@
     <PackageReference Include="R2API.Language" Version="1.0.1" />
     <PackageReference Include="R2API.Networking" Version="1.0.2" />
     <PackageReference Include="R2API.RecalculateStats" Version="1.3.0" />
+    <PackageReference Include="UniTask" Version="2.5.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -87,6 +88,9 @@
     </Reference>
     <Reference Include="ProperSave">
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\KingEnderBrine-ProperSave\ProperSave\ProperSave.dll</HintPath>
+    </Reference>
+    <Reference Include="RedGuyMod">
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\rob_gaming-Ravager\RedGuyMod.dll</HintPath>
     </Reference>
     <Reference Include="Rewired_Windows_Lib">
       <HintPath>libs\Rewired_Windows_Lib.dll</HintPath>

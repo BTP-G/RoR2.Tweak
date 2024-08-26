@@ -31,6 +31,7 @@ namespace BtpTweak.RoR2Indexes {
             RailgunnerBody,
             RedMistBody,
             RobPaladinBody,
+            RobRavagerBody,
             ShopkeeperBody,
             SniperClassicBody,
             ToolbotBody,
@@ -58,6 +59,7 @@ namespace BtpTweak.RoR2Indexes {
         public static BodyIndex Merc { get; private set; }
         public static BodyIndex Pathfinder { get; private set; }
         public static BodyIndex Railgunner { get; private set; }
+        public static BodyIndex RobRavager { get; private set; }
         public static BodyIndex RedMist { get; private set; }
         public static BodyIndex RobPaladin { get; private set; }
         public static BodyIndex SniperClassic { get; private set; }
@@ -79,7 +81,7 @@ namespace BtpTweak.RoR2Indexes {
             for (BodyNameIndex bodyNameIndex = BodyNameIndex.None + 1; bodyNameIndex < BodyNameIndex.Count; ++bodyNameIndex) {
                 var bodyIndex = BodyCatalog.FindBodyIndex(bodyNameIndex.ToString());
                 if (bodyIndex == BodyIndex.None) {
-                    Debug.LogWarning(bodyNameIndex.ToString() + " not found!");
+                    Debug.LogError(bodyNameIndex.ToString() + " not found!");
                 } else {
                     BodyIndexToNameIndex.Add((int)bodyIndex, bodyNameIndex);
                 }
@@ -102,17 +104,18 @@ namespace BtpTweak.RoR2Indexes {
             Loader = BodyCatalog.FindBodyIndex("LoaderBody");
             Mage = BodyCatalog.FindBodyIndex("MageBody");
             Merc = BodyCatalog.FindBodyIndex("MercBody");
+            MiniVoidRaidCrabBodyPhase1 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase1");
+            MiniVoidRaidCrabBodyPhase2 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase2");
+            MiniVoidRaidCrabBodyPhase3 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase3");
             Pathfinder = BodyCatalog.FindBodyIndex("PathfinderBody");
             Railgunner = BodyCatalog.FindBodyIndex("RailgunnerBody");
             RedMist = BodyCatalog.FindBodyIndex("RedMistBody");
             RobPaladin = BodyCatalog.FindBodyIndex("RobPaladinBody");
+            RobRavager = BodyCatalog.FindBodyIndex("RobRavagerBody");
             SniperClassic = BodyCatalog.FindBodyIndex("SniperClassicBody");
             Toolbot = BodyCatalog.FindBodyIndex("ToolbotBody");
             Treebot = BodyCatalog.FindBodyIndex("TreebotBody");
             VoidSurvivor = BodyCatalog.FindBodyIndex("VoidSurvivorBody");
-            MiniVoidRaidCrabBodyPhase1 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase1");
-            MiniVoidRaidCrabBodyPhase2 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase2");
-            MiniVoidRaidCrabBodyPhase3 = BodyCatalog.FindBodyIndex("MiniVoidRaidCrabBodyPhase3");
         }
     }
 }

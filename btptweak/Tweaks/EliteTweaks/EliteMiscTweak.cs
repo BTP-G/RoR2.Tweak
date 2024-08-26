@@ -37,7 +37,7 @@ namespace BtpTweak.Tweaks.EliteTweaks {
 
         private void On_StageStartGlobal(Stage stage) {
             DropHooks.runDropCount = 0;
-            var monsterMult = 1 + 0.5f * Mathf.Pow(Run.instance.stageClearCount, 1.25f);
+            var monsterMult = 1 /*+ 0.5f * Mathf.Pow(Run.instance.stageClearCount, 1.25f)*/;
             Configuration.AspectWhiteMonsterDamageMult.Value = (float)Configuration.AspectWhiteMonsterDamageMult.DefaultValue * monsterMult;
             Configuration.AspectBlueMonsterDamageMult.Value = (float)Configuration.AspectBlueMonsterDamageMult.DefaultValue * monsterMult;
             Configuration.AspectRedMonsterDamageMult.Value = (float)Configuration.AspectRedMonsterDamageMult.DefaultValue * monsterMult;

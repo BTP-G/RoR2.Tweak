@@ -52,7 +52,7 @@ namespace BtpTweak.Tweaks {
                     }
                 }
             } else {
-                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.02f * Run.instance.participatingPlayerCount;
+                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.04f * Run.instance.participatingPlayerCount;
             }
         }
 

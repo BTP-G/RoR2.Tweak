@@ -9,7 +9,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
     internal class ChainLightningTweak : TweakBase<ChainLightningTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 0.3f;
         public const float 半数 = 4;
-        public const int BasePercentChance = 20;
         public const int BaseRadius = 18;
         public const int Bounces = 2;
         public const int StackRadius = 3;

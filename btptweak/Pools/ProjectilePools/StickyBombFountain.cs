@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
-    internal class StickyBombFountain : ProjectileFountain<StickyBombFountain> {
+    internal sealed class StickyBombFountain : ProjectileFountain<StickyBombFountain> {
         protected override GameObject ProjectilePrefab => AssetReferences.stickyBombProjectile;
 
         protected override float Interval => StickyBombTweak.Interval;

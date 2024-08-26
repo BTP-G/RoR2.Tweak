@@ -71,6 +71,14 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Engi, RecalculateEngiStats);
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.EngiTurret, RecalculateEngiStats);
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.EngiWalkerTurret, RecalculateEngiStats);
+            var body = BodyCatalog.GetBodyPrefabBodyComponent(BodyIndexes.EngiTurret);
+            body.baseMaxShield = body.baseMaxHealth;
+            body.baseArmor = 50f;
+            body.PerformAutoCalculateLevelStats();
+            body = BodyCatalog.GetBodyPrefabBodyComponent(BodyIndexes.EngiWalkerTurret);
+            body.baseMaxShield = body.baseMaxHealth;
+            body.baseArmor = 50f;
+            body.PerformAutoCalculateLevelStats();
         }
 
         private void RecalculateEngiStats(CharacterBody body, Inventory inventory, RecalculateStatsAPI.StatHookEventArgs args) {

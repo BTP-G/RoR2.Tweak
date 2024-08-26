@@ -5,7 +5,7 @@ using BtpTweak.Tweaks.ItemTweaks;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
-    internal class ElementalRingVoidBlackHolePool : Pool<ElementalRingVoidBlackHolePool, ProjectilePoolKey, ProjectileInfo> {
+    internal sealed class ElementalRingVoidBlackHolePool : Pool<ElementalRingVoidBlackHolePool, ProjectilePoolKey, ProjectileInfo> {
         protected override float Interval => RingsTweak.VoidRingInterval;
 
         public void AddProjectile(in ProjectilePoolKey simpleProjectileInfo, in Vector3 position, float damageValue) {

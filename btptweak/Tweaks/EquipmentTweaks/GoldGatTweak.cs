@@ -2,11 +2,12 @@
 using RoR2;
 using UnityEngine.Networking;
 using UnityEngine;
+using BtpTweak.Utils;
 
 namespace BtpTweak.Tweaks.EquipmentTweaks {
 
     internal class GoldGatTweak : TweakBase<GoldGatTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        public const float CostCoefficientPerGoldOnHurt = 1f;
+        public const float 半数 = 3f;
 
         void IOnModLoadBehavior.OnModLoad() {
             On.EntityStates.GoldGat.GoldGatFire.FireBullet += GoldGatFire_FireBullet;
@@ -24,12 +25,12 @@ namespace BtpTweak.Tweaks.EquipmentTweaks {
             self.fireFrequency = Mathf.Lerp(GoldGatFire.minFireFrequency, GoldGatFire.maxFireFrequency, t);
             var itemCount = self.bodyMaster.inventory.GetItemCount(DLC1Content.Items.GoldOnHurt.itemIndex);
             var scaledCost = Run.instance.GetDifficultyScaledCost(GoldGatFire.baseMoneyCostPerBullet + (int)self.totalStopwatch);
-            var costToDamage = scaledCost * (1f + CostCoefficientPerGoldOnHurt * itemCount);
+            var costToDamage = BtpUtils.简单逼近(1 + itemCount, 半数, scaledCost);
             if (self.isAuthority) {
                 if (self.body.aimOriginTransform) {
                     new BulletAttack {
                         aimVector = self.bodyInputBank.aimDirection,
-                        bulletCount = (uint)costToDamage.ToString().Length,
+                        bulletCount = (uint)((int)costToDamage).ToString().Length,
                         damage = self.body.damage * GoldGatFire.damageCoefficient + costToDamage,
                         damageColorIndex = DamageColorIndex.Item,
                         falloffModel = BulletAttack.FalloffModel.DefaultBullet,

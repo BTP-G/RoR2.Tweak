@@ -1,6 +1,7 @@
 ﻿using BtpTweak.Utils;
 using BtpTweak.Utils.RoR2ResourcesPaths;
 using EntityStates.Scrapper;
+using HG;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.EntityLogic;
@@ -25,7 +26,7 @@ namespace BtpTweak.Tweaks {
             GameObjectPaths.DuplicatorLarge.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorMilitary.Load<GameObject>().RemoveComponent<DelayedEvent>();
             GameObjectPaths.DuplicatorWild.Load<GameObject>().RemoveComponent<DelayedEvent>();
-            GameObjectPaths.LunarCauldronWhiteToGreen.LoadComponent<ShopTerminalBehavior>().bannedItemTag = ItemTag.Scrap;
+            ArrayUtils.ArrayAppend(ref (GameObjectPaths.LunarCauldronWhiteToGreen.LoadComponent<ShopTerminalBehavior>().dropTable as BasicPickupDropTable).bannedItemTags, ItemTag.PriorityScrap);
             InteractableSpawnCardPaths.iscScrapper.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineGoldshoresAccess.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;
             InteractableSpawnCardPaths.iscShrineCleanse.Load<InteractableSpawnCard>().maxSpawnsPerStage = 1;

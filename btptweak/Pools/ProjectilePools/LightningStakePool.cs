@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace BtpTweak.Pools.ProjectilePools {
 
-    internal class LightningStakePool : Pool<LightningStakePool, ProjectilePoolKey, ProjectileInfo> {
+    internal sealed class LightningStakePool : Pool<LightningStakePool, ProjectilePoolKey, ProjectileInfo> {
         protected override float Interval => 0.1f;
 
         public void AddProjectile(in ProjectilePoolKey simpleProjectileInfo, in Vector3 position, float damageValue) {

@@ -127,5 +127,7 @@ namespace BtpTweak.Utils {
         public static string ToVoid(this string str) => "<style=cIsVoid>" + str + "</style>";
 
         public static string ToYellow(this string str) => "<color=yellow>" + str + "</color>";
+
+        public static string ToBaseAndStkBy逼近Pct(this float 半数) => $"{BtpUtils.简单逼近1(1, 半数).ToPct()}<style=cStack>（结果 = 100%x(层数/(层数+{半数})）</style>";
     }
 }

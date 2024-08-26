@@ -11,7 +11,7 @@ namespace BtpTweak.Pools {
         public TeamIndex teamIndex;
     }
 
-    internal class IceBlastPool : Pool<IceBlastPool, IceBlastPoolKey, BlastAttack> {
+    internal sealed class IceBlastPool : Pool<IceBlastPool, IceBlastPoolKey, BlastAttack> {
         protected override float Interval => RingsTweak.IceRingInterval;
 
         public void AddIceBlast(in IceBlastPoolKey attackInfo, in Vector3 position, float damageValue) {

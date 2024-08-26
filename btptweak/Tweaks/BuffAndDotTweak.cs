@@ -6,6 +6,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -31,14 +32,14 @@ namespace BtpTweak.Tweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            PlatedElite.damageReductionBuff.canStack = false;
             RoR2Content.Buffs.LunarDetonationCharge.isDebuff = false;
             RoR2Content.Buffs.WarCryBuff.canStack = true;
-            DotController.GetDotDef(DotIndex.Burn).terminalTimedBuff = null;
-            DotController.GetDotDef(DotIndex.StrongerBurn).terminalTimedBuff = null;
             DeepRotSkillIndex = DeepRot.instance.GetSkillDef().skillIndex;
             DeepRotBuffIndex = DeepRot.scriptableObject.buffs[0].buffIndex;
             VoidPoisonBuffIndex = DeepRot.scriptableObject.buffs[1].buffIndex;
+            PlatedElite.damageReductionBuff.canStack = false;
+            DotController.GetDotDef(DotIndex.Burn).terminalTimedBuff = null;
+            DotController.GetDotDef(DotIndex.StrongerBurn).terminalTimedBuff = null;
         }
 
         private bool BetterEvaluateDotStacksForType(DotController self, DotDef dotDef, DotIndex dotIndex) {

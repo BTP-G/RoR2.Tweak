@@ -1,6 +1,7 @@
 ﻿using BtpTweak.Pools;
 using BtpTweak.Pools.ProjectilePools;
 using BtpTweak.RoR2Indexes;
+using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -30,7 +31,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>().overlapProcCoefficient = FireRingProcCoefficientPerTick;
+            var projectileOverlapAttack = AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>();
+            projectileOverlapAttack.overlapProcCoefficient = FireRingProcCoefficientPerTick;
+            projectileOverlapAttack.SetDamageCoefficient(0.1f);
             AssetReferences.fireTornado.GetComponent<ProjectileSimple>().lifetime = 3f;
             AssetReferences.elementalRingVoidBlackHole.AddComponent<ElementalRingVoidBlackHoleAction>();
         }

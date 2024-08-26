@@ -4,7 +4,7 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Pools.OrbPools {
 
-    internal class VoidLightningOrbPool : Pool<VoidLightningOrbPool, OrbPoolKey, VoidLightningOrb> {
+    internal sealed class VoidLightningOrbPool : Pool<VoidLightningOrbPool, OrbPoolKey, VoidLightningOrb> {
         protected override float Interval => ChainLightningVoidTweak.Interval;
 
         public void AddOrb(in OrbPoolKey simpleOrbInfo, float damageValue) {

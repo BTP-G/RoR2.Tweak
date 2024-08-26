@@ -4,7 +4,7 @@ using RoR2.Orbs;
 
 namespace BtpTweak.Pools.OrbPools {
 
-    internal class FrostBladeOrbPool : Pool<FrostBladeOrbPool, OrbPoolKey, LightningOrb> {
+    internal sealed class FrostBladeOrbPool : Pool<FrostBladeOrbPool, OrbPoolKey, LightningOrb> {
         protected override float Interval => IceTweak.Interval;
 
         public void AddOrb(in OrbPoolKey simpleOrbInfo, float damageValue) {

@@ -5,14 +5,16 @@ using BtpTweak.Utils;
 using EntityStates.Commando.CommandoWeapon;
 using EntityStates.GoldGat;
 using EntityStates.Huntress;
+using EntityStates.Mage.Weapon;
 using EntityStates.Merc;
 using EntityStates.Treebot.TreebotFlower;
 using EntityStates.Treebot.Weapon;
-using HIFUArtificerTweaks.Skills;
+using RedGuyMod.SkillStates.Ravager;
 using RoR2;
 using RoR2.Items;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TPDespair.ZetAspects;
 using UnityEngine;
 
@@ -29,13 +31,18 @@ namespace BtpTweak {
         public const string 额外 = "<style=cIsDamage>额外</style>";
         public const string 焚烧 = "<color=#f25d25>焚烧</color>";
         public const string 攻击速度 = "<style=cIsDamage>攻击速度</style>";
+        public const string 护盾 = "<style=cIsHealing>护盾</style>";
+        public const string 护甲 = "<style=cIsHealing>护甲</style>";
         public const string 基础护盾百分比再生速度 = "<style=cIsHealing>基础护盾<color=yellow>百分比</color>再生速度</style>";
         public const string 基础伤害 = "<style=cIsDamage>基础伤害</style>";
         public const string 基础生命值百分比再生速度 = "<style=cIsHealing>基础生命值<color=yellow>百分比</color>再生速度</style>";
         public const string 基础生命值再生速度 = "<style=cIsHealing>基础生命值再生速度</style>";
+        public const string 金钱 = "<color=yellow>金钱</color>";
+        public const string 冷却时间 = "<style=cIsUtility>冷却时间</style>";
         public const string 流血 = "<style=cIsDamage>流血</style>";
         public const string 燃烧 = "<style=cIsDamage>燃烧</style>";
         public const string 伤害 = "<style=cIsDamage>伤害</style>";
+        public const string 眩晕 = "<style=cIsUtility>眩晕</style>";
         public const string 移动速度 = "<style=cIsUtility>移动速度</style>";
         public const string 总伤害 = "<style=cIsDamage>总伤害</style>";
 
@@ -61,7 +68,7 @@ namespace BtpTweak {
 
         [RuntimeInitializeOnLoadMethod]
         private static void Init() {
-            On.RoR2.UI.MainMenu.MainMenuController.Start += MainMenuController_Start;
+            On.RoR2.UI.MainMenu.MainMenuController.Start += OnMainMenuControllerFirstStart;
             //On.RoR2.Language.GetLocalizedStringByToken += Language_GetLocalizedStringByToken;
         }
 
@@ -84,6 +91,8 @@ namespace BtpTweak {
             //AddOverlay("VOIDCRID_ENTROPY_DESC", "<style=cArtifact>Void.</style> <style=cIsDamage>Agile.</style> <style=cIsHealing>Poisonous.</style> <style=cIsDamage>Unstable.</style> Reorganize your cells, <style=cIsHealing>healing</style> for <style=cIsDamage>25%</style> or <style=cDeath>harming</style> yourself for <style=cIsDamage>15%</style> health to damage for <style=cIsDamage>400% x 3</style> damage or <style=cIsHealing>poison</style> enemies. If held, creates a temporary <style=cArtifact>black hole</style>, <style=cDeath>choking</style> everyone inside and applies your <style=cIsHealing>Passive</style> on exiting.", "zh-CN");
             //AddOverlay("VV_ITEM_CORNUCOPIACELL_ITEM_DESCRIPTION", "A <style=cIsVoid>special</style> delivery containing items (<color=#FFFFFF>31.6%</color>/<color=#9CE562>8%</color>/<color=#E58262>0.4%</color>/<color=#DD7AC6>47.4%</color>/<color=#CE5CB2>12%</color>/<color=#BC499F>0.6%</color>) will appear in a random location <style=cIsUtility>on each stage</style>. <style=cStack>(Increases rarity chances of the items per stack).</style> <style=cIsVoid>Corrupts all 运输申请单s</style>.", "zh-CN");
             //AddOverlay("ITEM_FIREWORK_DESC", $"{"激活装备".ToUtil()}时向{"烟花发射池".ToUtil()}里添加{FireworkTweak.FireCount.ToBaseAndStk().ToDmg()}枚烟花{0.125f.ToStk("（发射间隔：_秒）")}。每枚合计造成{FireworkTweak.BaseDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+            AddOverlay("ITEM_JUMPBOOST_DESC", $"<style=cIsUtility>奔跑时</style><style=cIsUtility>跳跃</style>可以增加<style=cIsUtility>10米</style><style=cStack>（每层增加10米）</style>的距离。<color=#FFFF00>掠夺者特殊效果：跳跃能力提高{RavagerTweak.JumpPowerMultCoefficient.ToBaseAndStkPct()}</color>", "zh-CN");
+
             AddOverlay("ITEM_RANDOMEQUIPMENTTRIGGER_DESC", $"每隔{RandomEquipmentTriggerTweak.RandomEquipmentTriggerBehavior.transformInterval.ToUtil("_秒")}，{"随机选择".ToUtil()}你的一件物品转化为{"相同品质".ToUtil()}的一件随机物品，每次转化的数量最多{RandomEquipmentTriggerTweak.RandomEquipmentTriggerBehavior.transformCountPerStack.ToBaseAndStk().ToUtil("_个")}。", "zh-CN");
             AddOverlay("EQUIPMENT_SAWMERANG_DESC", $"投掷<style=cIsDamage>三个穿透性的回旋锯</style>，每个造成{SawTweak.DamageCoefficient.ToDmgPct("_的基础伤害")}，同时锯伤敌人，造成额外的<style=cIsDamage>每秒100％的基础伤害</style>，并使其{流血}，在{BleedTweak.BleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.BleedDamageCoefficient.ToDmgPct("_的总伤害")}；若造成{暴击}，则{额外}造成{出血}，在{BleedTweak.SurperBleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的总伤害")}。", "zh-CN");
             AddOverlay("KEYWORD_SUPERBLEED", $"<style=cKeywordName>出血</style><style=cSub>造成每秒{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的基础伤害")}。<i>出血可以叠加。</i></style>", "zh-CN");
@@ -172,7 +181,7 @@ namespace BtpTweak {
             AddOverlay("EQUIPMENT_CRITONUSE_DESC", $"<style=cIsDamage>暴击几率增加100%</style>，并使超过{"100%".ToDmg()}的{"暴击几率".ToDmg()}转换为{"暴击伤害".ToDmg()}，持续8秒。", "zh-CN");
             AddOverlay("EQUIPMENT_CRITONUSE_PICKUP", $"获得100%暴击几率，并使超过100%的暴击几率转换为暴击伤害，持续8秒。", "zh-CN");
             AddOverlay("EQUIPMENT_FIREBALLDASH_DESC", $"变成<style=cIsDamage>龙之火球</style>持续<style=cIsDamage>6</style>秒，受击可造成<style=cIsDamage>500%的伤害</style>，飞行时持续喷射造成{"300%".ToDmg() + "（每层熔融钻机+300%）".ToDmg()}基础伤害的岩浆球。结束时会引爆，造成<style=cIsDamage>800%的伤害</style>。", "zh-CN");
-            AddOverlay("EQUIPMENT_GOLDGAT_DESC", $"发射一阵钱雨，<style=cIsDamage>每颗子弹均造成{GoldGatFire.damageCoefficient.ToDmgPct()}，外加等同于消耗金钱的伤害</style>{GoldGatTweak.CostCoefficientPerGoldOnHurt.ToStkPct("（每层成卷的零钱使金钱转化的伤害+_）")}。。每颗子弹消耗{GoldGatFire.baseMoneyCostPerBullet.ToDmg("_枚")}金钱，价格随{"开火时间".ToDmg()}和{"游戏时间".ToUtil()}不断上升。", "zh-CN");
+            AddOverlay("EQUIPMENT_GOLDGAT_DESC", $"发射一阵钱雨，<style=cIsDamage>每颗子弹均造成{GoldGatFire.damageCoefficient.ToDmgPct()}，外加等同于消耗金钱的{GoldGatTweak.半数.ToBaseAndStkBy逼近Pct()}{"（此处层数=成卷的零钱层数+1）".ToStk()}的伤害</style>。每颗子弹消耗{GoldGatFire.baseMoneyCostPerBullet.ToDmg("_枚")}金钱，价格随{"开火时间".ToDmg()}和{"游戏时间".ToUtil()}不断上升。", "zh-CN");
             AddOverlay("EQUIPMENT_LIFESTEALONHIT_DESC", $"击中敌人时<style=cIsHealing>恢复</style>等同于你造成<style=cIsDamage>伤害</style><style=cIsHealing>20%</style>的生命值，并且使其{流血}，在{BleedTweak.BleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.BleedDamageCoefficient.ToDmgPct("_的总伤害")}；若此次攻击造成{暴击}，则改为使敌人{出血}，在{BleedTweak.SurperBleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的总伤害")}{不与其他流血和出血重复}。效果持续<style=cIsHealing>8</style>秒。", "zh-CN");
             AddOverlay("EQUIPMENT_LIFESTEALONHIT_PICKUP", $"击中敌人时造成流血或出血，并恢复等同于你造成伤害的一定比例的生命值，持续8秒。", "zh-CN");
             AddOverlay("EQUIPMENT_LIGHTNING_DESC", $"召唤雷电攻击目标敌人，造成<style=cIsDamage>3000%的基础伤害</style>并<style=cIsDamage>眩晕</style>附近的敌人。", "zh-CN");
@@ -226,7 +235,7 @@ namespace BtpTweak {
             AddOverlay("ITEM_AbyssalMedkit_DESCRIPTION", "<style=cIsUtility>消耗品</style>，抵挡<style=cIsUtility>10次</style>减益后失效。每一次抵挡都有<style=cIsHealing>10%</style>概率给予你<style=cIsHealing>“祝·福”</style>。每个<style=cIsHealing>祝福</style>可使你<style=cIsUtility>所有属性提升3%</style>。<style=cIsVoid>使所有医疗包无效化</style>", "zh-CN");
             AddOverlay("ITEM_AbyssalMedkit_PICKUP", "消耗品，可以替你抵挡10次减益，每一次抵挡都有概率给予你“祝·福”", "zh-CN");
             //AddOverlay("ITEM_ANCIENT_SCEPTER_DESCRIPTION", $"{"原始：来自原始传送器。".ToRed()}\n改变你的某个<style=cIsUtility>技能</style>。<style=cStack>（具体效果见技能介绍，对某些角色无效果）</style>。", "zh-CN");
-            AddOverlay("ITEM_ARMORREDUCTIONONHIT_DESC", $"{"2秒".ToUtil()}内命中敌人{"5次".ToDmg()}造成{"粉碎".ToDmg()}减益，将对方<style=cIsDamage>护甲</style>降低<style=cIsDamage>60</style>点，持续<style=cIsDamage>8秒</style><style=cStack>（每层+8秒）</style>。你的攻击将{"穿透".ToDmg()}被{"粉碎"}的敌人{ArmorReductionOnHitTweak.基础破甲率.ToDmgPct() + ToStk简单逼近百分百字符串(ArmorReductionOnHitTweak.半数)}的护甲。", "zh-CN");
+            AddOverlay("ITEM_ARMORREDUCTIONONHIT_DESC", $"{"2秒".ToUtil()}内命中敌人{"5次".ToDmg()}造成{"粉碎".ToDmg()}减益，将对方<style=cIsDamage>护甲</style>降低<style=cIsDamage>60</style>点，持续<style=cIsDamage>8秒</style><style=cStack>（每层+8秒）</style>。你的攻击将{"穿透".ToDmg()}被{"粉碎".ToDmg()}的敌人{ArmorReductionOnHitTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg()}的护甲。", "zh-CN");
             AddOverlay("ITEM_ATTACKSPEEDANDMOVESPEED_DESC", $"使<style=cIsDamage>攻击速度</style>提高<style=cIsDamage>7.5%</style><style=cStack>（每层+7.5%）</style>，使<style=cIsUtility>移动速度</style>提高<style=cIsUtility>7%</style><style=cStack>（每层+7%）</style>。<color=#FFFF00>加里翁特殊效果：最大生命值和基础生命值再生速度速度增加5%<style=cStack>（每层+5%）</style>。</color>", "zh-CN");
             AddOverlay("ITEM_AUTOCASTEQUIPMENT_DESC", $"<style=cIsUtility>使装备冷却时间减少</style><style=cIsUtility>50%</style><style=cStack>（每层增加15%）</style>，但会使装备增加{"0.15秒强制冷却时间".ToUtil() + "（每层+0.15秒）".ToStk()}。装备会在<style=cIsUtility>冷却时间</style>结束时被迫自动<style=cIsUtility>激活</style>。", "zh-CN");
             AddOverlay("ITEM_BARRIERONKILL_DESC", $"击败敌人时可获得一道<style=cIsHealing>临时屏障</style>，相当于增加<style=cIsHealing>15<style=cStack>（每层增加15）</style>点外加{BarrierOnKillTweak.AddBarrierFraction.ToBaseAndStkPct().ToHealing()}的最大生命值</style>。</style><color=#FFFF00>船长特殊效果：给予10点<style=cStack>（每层+10点）</style>最大护盾值，外加最大护盾值增加10%<style=cStack>（每层+10%）</style>。</color>", "zh-CN");
@@ -235,17 +244,17 @@ namespace BtpTweak {
             AddOverlay("ITEM_BEARVOID_DESC", $"有<style=cIsHealing>50%</style>概率<style=cIsUtility>（成为虚空的象征+50%概率）</style><style=cIsHealing>格挡</style>一次来袭的伤害。充能时间<style=cIsUtility>15秒</style><style=cStack>（每层-10%）</style>。<style=cIsVoid>使所有更艰难的时光无效化</style>。", "zh-CN");
             AddOverlay("ITEM_BEHEMOTH_DESC", $"你的所有<style=cIsDamage>攻击均会产生爆炸</style>{BehemothTweak.Interval.ToStk("（爆炸间隔：_秒）")}，爆炸将{"继承".ToUtil()}这次攻击的{"所有属性".ToUtil()}，对{BehemothTweak.Radius.ToBaseAndStk().ToDmg("_米")}范围内的敌人合计造成{BehemothTweak.BaseDamageCoefficient.ToDmgPct()}的额外伤害。<color=#FFFF00>船长特殊效果：关于“火神霰弹枪”（详情看技能介绍）。</color>", "zh-CN");
             AddOverlay("ITEM_BLEEDONHIT_DESC", $"命中敌人时有<style=cIsDamage>10%</style><style=cStack>（每层+10%）</style>的几率使其{流血}，在{BleedTweak.BleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.BleedDamageCoefficient.ToDmgPct("_的总伤害")}；若造成{暴击}，则改为{出血}，在{BleedTweak.SurperBleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的总伤害")}{不与其他流血和出血重复}。", "zh-CN");
-            AddOverlay("ITEM_BLEEDONHITANDEXPLODE_DESC", $"使{流血}或{出血}的敌人将会在死亡时产生半径{BleedOnHitAndExplodeTweak.BaseRadius.ToBaseWithStk(BleedOnHitAndExplodeTweak.StackRadius).ToDmg("_米") + "（具体范围与敌人体型相关）".ToUtil()}的<style=cIsDamage>鲜血爆炸</style>，造成等同于敌人身上剩余{流血}和{出血}伤害的{BtpUtils.简单逼近1(1f, BleedOnHitAndExplodeTweak.半数).ToDmgPct("_的伤害") + BleedOnHitAndExplodeTweak.半数.ToStk简单逼近百分百字符串()}。", "zh-CN");
+            AddOverlay("ITEM_BLEEDONHITANDEXPLODE_DESC", $"使{流血}或{出血}的敌人将会在死亡时产生半径{BleedOnHitAndExplodeTweak.BaseRadius.ToBaseWithStk(BleedOnHitAndExplodeTweak.StackRadius).ToDmg("_米") + "（具体范围与敌人体型相关）".ToUtil()}的<style=cIsDamage>鲜血爆炸</style>，造成等同于敌人身上剩余{流血}和{出血}伤害的{BleedOnHitAndExplodeTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg("_的伤害")}。", "zh-CN");
             AddOverlay("ITEM_BLEEDONHITVOID_DESC", $"攻击有{BleedOnHitVoidTweak.PercnetChance.ToBaseAndStk().ToDmg("_%的几率")}<style=cIsDamage>瓦解</style>敌人{不与其他瓦解重复}，造成{Configuration.AspectVoidBaseCollapseDamage.Value.ToBaseWithStkPct(Configuration.AspectVoidStackCollapseDamage.Value, "（每层熵的破裂+_）").ToDmg(Configuration.AspectVoidUseBase.Value ? "_的基础伤害" : "_的总伤害")}。<style=cIsVoid>使所有三尖匕首无效化</style>。", "zh-CN");
             AddOverlay("ITEM_BLESSING_NAME_DESCRIPTION", $"凝视深渊过久，深渊将回以凝视！\n<style=cIsVoid>所有属性提升3%</style><style=cStack>（每层+3%）</style>\n<style=cIsVoid>祝·福深入灵魂，将伴随你一生</style>。", "zh-CN");
             AddOverlay("ITEM_BONUSGOLDPACKONKILL_DESC", $"<style=cIsDamage>击杀敌人</style>时有{BonusGoldPackOnKillTweak.DropPercentChance.ToBaseAndStk().ToUtil("_%")}的几率掉落价值<style=cIsUtility>25{BonusGoldPackOnKillTweak.StackMoney.ToStk("（每层+_）")}<color=yellow>金钱</color></style>的宝物<style=cIsUtility>（价值随时间变化）</style>。", "zh-CN");
             AddOverlay("ITEM_BOSSDAMAGEBONUS_DESC", $"对<style=cIsHealing>护盾</style>和<style=cIsHealing>临时屏障</style>额外造成<style=cIsDamage>20%</style>的伤害<style=cStack>（每层增加20%）</style>。<color=#FFFF00>指挥官特殊效果：基础伤害增加2点<style=cStack>（每层+2点）</style>。</color>", "zh-CN");
-            AddOverlay("ITEM_BOUNCENEARBY_DESC", $"命中敌人时有{BounceNearbyTweak.BasePercentChance.ToBaseWithStk(BounceNearbyTweak.StackPercentChance).ToDmg("_%")}的几率向周围{BounceNearbyTweak.BaseRadius.ToUtil("_米")}内最多<style=cIsDamage>{BounceNearbyTweak.BaseMaxTargets}名</style>敌人发射<style=cIsDamage>追踪钩爪</style>{BounceNearbyTweak.Interval.ToStk("（发射间隔：_秒）")}，合计造成{BounceNearbyTweak.BaseDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+            AddOverlay("ITEM_BOUNCENEARBY_DESC", $"命中敌人时有{BounceNearbyTweak.BasePercentChance.ToBaseWithStk(BounceNearbyTweak.StackPercentChance).ToDmg("_%")}的几率向周围{BounceNearbyTweak.BaseRadius.ToUtil("_米")}内最多<style=cIsDamage>{BounceNearbyTweak.BaseMaxTargets}名</style>敌人发射<style=cIsDamage>追踪钩爪</style>{BounceNearbyTweak.Interval.ToStk("（发射间隔：_秒）")}，合计造成{BounceNearbyTweak.BaseDamageCoefficient.ToDmgPct("_的总伤害")}。", "zh-CN");
             AddOverlay("ITEM_BULWARKSHAUNT_SWORD_DESC", $"神秘声音在你的脑海中回荡，低语着：<link=\"BulwarksHauntWavy\">\"方尖碑...方尖碑...\"</link>，看样子它好像想让你带它去方尖碑处。", "zh-CN");
             AddOverlay("ITEM_BULWARKSHAUNT_SWORD_UNLEASHED_DESC", $"神秘声音在你的脑海中回荡，低语着：<link=\"BulwarksHauntWavy\">\"方尖碑...方尖碑...\"</link>，看样子它好像想让你带它去方尖碑处。", "zh-CN");
             AddOverlay("ITEM_CARTRIDGECONSUMED_DESCRIPTION", $"他曾梦想成为一名艺术家...", "zh-CN");
-            AddOverlay("ITEM_CHAINLIGHTNING_DESC", $"有{ChainLightningTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(ChainLightningTweak.半数)}的几率发射<style=cIsDamage>连锁闪电</style>{ChainLightningTweak.Interval.ToStk("（发射间隔：_秒）")}，对{ChainLightningTweak.BaseRadius.ToBaseWithStk(ChainLightningTweak.StackRadius).ToUtil("_米")}内的最多<style=cIsDamage>{ChainLightningTweak.Bounces + 1}个</style>目标合计造成{ChainLightningTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。", "zh-CN");
-            AddOverlay("ITEM_CHAINLIGHTNINGVOID_DESC", $"有{ChainLightningVoidTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(ChainLightningVoidTweak.半数)}的几率发射<style=cIsDamage>虚空闪电</style>{ChainLightningVoidTweak.Interval.ToStk("（发射间隔：_秒）")}，对同一个敌人合计造成{ChainLightningVoidTweak.TotalStrikes.ToDmg()}x{ChainLightningVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。<style=cIsVoid>使所有尤克里里无效化</style>。", "zh-CN");
+            AddOverlay("ITEM_CHAINLIGHTNING_DESC", $"有{ChainLightningTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg()}的几率发射<style=cIsDamage>连锁闪电</style>{ChainLightningTweak.Interval.ToStk("（发射间隔：_秒）")}，对{ChainLightningTweak.BaseRadius.ToBaseWithStk(ChainLightningTweak.StackRadius).ToUtil("_米")}内的最多<style=cIsDamage>{ChainLightningTweak.Bounces + 1}个</style>目标合计造成{ChainLightningTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。", "zh-CN");
+            AddOverlay("ITEM_CHAINLIGHTNINGVOID_DESC", $"有{ChainLightningVoidTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg()}的几率发射<style=cIsDamage>虚空闪电</style>{ChainLightningVoidTweak.Interval.ToStk("（发射间隔：_秒）")}，对同一个敌人合计造成{ChainLightningVoidTweak.TotalStrikes.ToDmg()}x{ChainLightningVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。<style=cIsVoid>使所有尤克里里无效化</style>。", "zh-CN");
             AddOverlay("ITEM_CLOVER_DESC", $"所有随机效果的概率提升<style=cIsUtility>25%</style>{"（叠加公式：幸运提升概率 = 原概率x(运气/(|运气|+3))）".ToStk()}。", "zh-CN");
             AddOverlay("ITEM_CRITDAMAGE_DESC", $"<style=cIsDamage>暴击伤害</style>增加<style=cIsDamage>100%</style><style=cStack>（每层+100%）</style>。<color=#FFFF00>磁轨炮手特殊效果：敌人弱点范围增加100%<style=cStack>（每层+100%）</style>（弱点框不再变大，防止遮挡视野）。</color>", "zh-CN");
             AddOverlay("ITEM_CRITGLASSESVOID_DESC", $"<style=cIsDamage>暴击伤害</style>增加{CritGlassesVoidTweak.CritDamageMultAdd.ToBaseAndStkPct().ToDmg()}。<style=cIsVoid>使所有透镜制作者的眼镜无效化</style>。", "zh-CN");
@@ -256,11 +265,11 @@ namespace BtpTweak {
             AddOverlay("ITEM_EQUIPMENTMAGAZINE_DESC", $"获得1次<style=cStack>（每层增加1次）</style><style=cIsUtility>额外的装备充能</style>。<style=cIsUtility>将装备冷却时间减少</style><style=cIsUtility>15%</style><style=cStack>（每层增加15%）</style>。<color=#FFFF00>雷克斯特殊效果：技能<style=cIsUtility>冷却时间</style>减少<style=cIsUtility>10%</style><style=cStack>（每层+10%）</style>。</color>", "zh-CN");
             AddOverlay("ITEM_ESSENCEOFTAR_DESC", $"成为焦油的象征，<style=cDeath>生命不再自然恢复</style>。攻击敌人可<style=cIsHealing>吸收他们的生命</style>。<style=cDeath>移除将导致你直接死亡</style>", "zh-CN");
             AddOverlay("ITEM_EXECUTELOWHEALTHELITE_DESC", $"立即击败生命值低于<style=cIsHealth>10%的精英怪物</style><style=cStack>（叠加公式：斩杀线 = 50%x(层数÷(层数+4))）</style>。", "zh-CN");
-            AddOverlay("ITEM_EXPLODEONDEATH_DESC", $"使{燃烧}或{焚烧}的敌人将会在死亡时召唤<style=cIsDamage>鬼火</style>，产生半径<style=cIsDamage>{ExplodeOnDeathTweak.BaseRadius}米</style>{ExplodeOnDeathTweak.StackRadius.ToStk("（每层+_米）") + "（具体范围与敌人体型相关）".ToUtil()}的{"火焰冲击波".ToFire()}点燃敌人，造成将敌人身上剩余{燃烧}和{焚烧}伤害的{BtpUtils.简单逼近1(1f, ExplodeOnDeathTweak.半数).ToDmgPct("_的持续伤害")}{ExplodeOnDeathTweak.半数.ToStk简单逼近百分百字符串()}。", "zh-CN");
-            AddOverlay("ITEM_EXPLODEONDEATHVOID_DESC", $"当你对敌人造成{"第一次".ToUtil()}伤害时将<style=cIsDamage>引爆</style>它们，产生半径{ExplodeOnDeathVoidTweak.BaseRadius.ToBaseWithStk(ExplodeOnDeathVoidTweak.StackRadius).ToUtil("_米") + "（具体范围与敌人体型和剩余血量相关）".ToUtil()}的爆炸，合计造成{"敌方剩余百分比生命值".ToHealth()}x{ExplodeOnDeathVoidTweak.BaseDamageCoefficient.ToDmgPct() + ExplodeOnDeathVoidTweak.半数.ToStk简单逼近百分百字符串()}的总伤害。<style=cIsVoid>使所有鬼火无效化</style>。", "zh-CN");
+            AddOverlay("ITEM_EXPLODEONDEATH_DESC", $"使{燃烧}或{焚烧}的敌人将会在死亡时召唤<style=cIsDamage>鬼火</style>，产生半径<style=cIsDamage>{ExplodeOnDeathTweak.BaseRadius}米</style>{ExplodeOnDeathTweak.StackRadius.ToStk("（每层+_米）") + "（具体范围与敌人体型相关）".ToUtil()}的{"火焰冲击波".ToFire()}点燃敌人，造成将敌人身上剩余{燃烧}和{焚烧}伤害的{ExplodeOnDeathTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg("_的持续伤害")}。", "zh-CN");
+            AddOverlay("ITEM_EXPLODEONDEATHVOID_DESC", $"当你对敌人造成{"第一次".ToUtil()}伤害时将<style=cIsDamage>引爆</style>它们，产生半径{ExplodeOnDeathVoidTweak.BaseRadius.ToBaseWithStk(ExplodeOnDeathVoidTweak.StackRadius).ToUtil("_米") + "（具体范围与敌人体型和剩余血量相关）".ToUtil()}的爆炸，合计造成{"敌方剩余百分比生命值".ToHealth()}x{ExplodeOnDeathVoidTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg("_的总伤害")}。<style=cIsVoid>使所有鬼火无效化</style>。", "zh-CN");
             AddOverlay("ITEM_EXTRALIFE_DESC", $"<style=cIsUtility>倒下后</style>，该物品将被<style=cIsUtility>消耗</style>，你将<style=cIsHealing>起死回生</style>并获得<style=cIsHealing>3秒的无敌时间</style>。\n<style=cIsUtility>死去的迪奥将在过关时复活。\n此物品不会被米斯历克斯偷走</style>。", "zh-CN");
             AddOverlay("ITEM_FALLBOOTSVOID_DESC", $"按住'E'可<style=cIsUtility>漂浮</style>并吸收<style=cIsUtility>引力波</style>。松开创造一个半径<style=cIsUtility>30米</style>的<style=cIsUtility>反重力区</style>，持续<style=cIsUtility>15</style>秒。之后进入<style=cIsUtility>20</style><style=cStack>（每层-50%）</style>秒的充能时间，反重力区中心会吸引周围敌人并造成<style=cIsDamage>200-2000%</style>的基础伤害。<style=cIsVoid>使所有H3AD-5T v2无效化</style>。", "zh-CN");
-            AddOverlay("ITEM_FIREBALLSONHIT_DESC", $"命中敌人时有{FireballsOnHitTweak.BasePercentChance.ToDmg("_%") + ToStk简单逼近百分百字符串(FireballsOnHitTweak.半数)}的几率向敌人的{"岩浆球喷泉".ToFire()}中添加{"3颗岩浆球".ToFire() + FireballsOnHitTweak.Interval.ToStk("（喷射间隔：_秒）")}，每颗合计造成{FireballsOnHitTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}，并<style=cIsDamage>点燃</style>敌人。", "zh-CN");
+            AddOverlay("ITEM_FIREBALLSONHIT_DESC", $"命中敌人时有{FireballsOnHitTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg()}的几率向敌人的{"岩浆球喷泉".ToFire()}中添加{"3颗岩浆球".ToFire() + FireballsOnHitTweak.Interval.ToStk("（喷射间隔：_秒）")}，每颗合计造成{FireballsOnHitTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}，并<style=cIsDamage>点燃</style>敌人。", "zh-CN");
             AddOverlay("ITEM_FIRERING_DESC", $"充能完毕后，<style=cIsDamage>不低于{RingsTweak.RingDamageRequired.ToBaseAndStkPct("（取双环中层数高的每层+_）")}伤害的攻击</style>击中敌人时会产生一道{"符文火焰龙卷风".ToFire()}轰击敌人，造成{RingsTweak.FireRingDamageCoefficient.ToBaseAndStkPct().ToDmg()}的总持续伤害，同时<style=cIsDamage>点燃</style>敌人。充能时间<style=cIsUtility>10秒</style><style=cStack>（每双手环减少10%）</style>。<color=#FFFF00>工匠特殊效果：基础充能时间降低至1秒，并无视伤害要求。</color>", "zh-CN");
             AddOverlay("ITEM_FLATHEALTH_DESC", $"<style=cIsHealing>最大生命值</style>增加<style=cIsHealing>25</style>点<style=cStack>（每层+25点）</style>。升级获得的<style=cIsHealing>最大生命值</style>增加{FlatHealthTweak.LevelHealthAddCoefficient.ToBaseAndStkPct().ToHealing()}。<color=#FFFF00>厨师特殊效果：野牛肉排的效果翻倍。</color>", "zh-CN");
             AddOverlay("ITEM_FRAGILEDAMAGEBONUS_DESC", $"使造成的伤害提高<style=cIsDamage>20%</style><style=cStack>（每层+20%）</style>。受到伤害导致生命值降到<style=cIsHealth>25%</style>以下时，该物品会<style=cIsUtility>损坏</style>。\n<style=cIsUtility>损坏的手表将在过关时修复</style>。", "zh-CN");
@@ -273,7 +282,7 @@ namespace BtpTweak {
             AddOverlay("ITEM_IMMUNETODEBUFF_DESC", $"防止<style=cIsUtility>1<style=cStack>（每层+1）</style>个</style><style=cIsDamage>减益效果</style>并施加一道<style=cIsHealing>临时屏障</style>，数值为<style=cIsHealing>最大生命值</style>的<style=cIsHealing>10%</style>。每<style=cIsUtility>5</style>秒充能一次</style>。", "zh-CN");
             AddOverlay("ITEM_INFUSION_DESC", $"每击败一名敌人后使{"自身外加主人".ToHealing() + "（如果有）".ToStk()}<style=cIsHealing>永久性</style>增加<style=cIsHealing>1点</style><style=cStack>（每层+1点）</style>最大生命值，最多增加<style=cIsHealing>自身等级x自身基础血量x{InfusionTweak.基础生命值占比.ToPct()}x全队层数</style>点。", "zh-CN");
             AddOverlay("ITEM_KNURL_DESC", $"{"最大生命值".ToHealing()}增加{40.ToBaseAndStk().ToHealing()}点，外加升级获得的{"最大生命值".ToHealing()}增加{KnurlTweak.LevelHealthAddCoefficient.ToBaseAndStkPct().ToHealing()}。{"基础生命值再生速度".ToHealing()}增加{1.6f.ToBaseAndStk().ToHealing("_hp/s")}，外加{"基础生命值<color=yellow>百分比</color>再生速度".ToHealing()}增加{KnurlTweak.RegenFraction.ToBaseAndStkPct().ToHealing("_hp/s")}。", "zh-CN");
-            AddOverlay("ITEM_LIGHTNINGSTRIKEONHIT_DESC", $"命中敌人时有{LightningStrikeOnHitTweak.BasePercentChance.ToDmg("_%") + LightningStrikeOnHitTweak.半数.ToStk简单逼近百分百字符串()}的几率向敌人的{"雷电召唤池".ToLightning()}中添加{"1次雷击".ToLightning() + LightningStrikeOnHitTweak.Interval.ToStk("（召唤间隔：_秒）")}，合计造成{LightningStrikeOnHitTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。<color=#FFFF00>装卸工特殊效果：关于“雷霆拳套”（详情看 权杖 技能介绍）。</color>", "zh-CN");
+            AddOverlay("ITEM_LIGHTNINGSTRIKEONHIT_DESC", $"命中敌人时有{LightningStrikeOnHitTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg()}的几率向敌人的{"雷电召唤池".ToLightning()}中添加{"1次雷击".ToLightning() + LightningStrikeOnHitTweak.Interval.ToStk("（召唤间隔：_秒）")}，合计造成{LightningStrikeOnHitTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。<color=#FFFF00>装卸工特殊效果：关于“雷霆拳套”（详情看 权杖 技能介绍）。</color>", "zh-CN");
             AddOverlay("ITEM_LUNARBADLUCK_DESC", $"所有技能冷却时间缩短<style=cIsUtility>2</style><style=cStack>（每层+1）</style>秒。所有随机效果的概率降低<style=cIsUtility>25%</style>{"（叠加公式：幸运降低概率 = 原概率x(运气/(|运气|+3))）".ToStk()}。", "zh-CN");
             AddOverlay("ITEM_LUNARPRIMARYREPLACEMENT_DESC", "<style=cIsUtility>替换主要技能</style>为<style=cIsUtility>渴望凝视</style>。\n\n发射一批会延迟引爆的<style=cIsUtility>追踪碎片</style>，造成<style=cIsDamage>120%</style>的基础伤害。最多充能12次<style=cStack>（每层增加12次）</style>，2秒后重新充能<style=cStack>（每层增加2秒）</style>。\n<style=cIsLunar>异教徒：追踪能力加强。每层使技能冷却降低2秒。</style>", "zh-CN");
             AddOverlay("ITEM_LUNARSECONDARYREPLACEMENT_DESC", $"<style=cIsUtility>将你的次要技能替换为</style><style=cIsUtility>万刃风暴</style>。\n\n充能并射出一发子弹，对附近的敌人造成<style=cIsDamage>每秒175%的伤害</style>，并在<style=cIsUtility>3</style>秒后爆炸，造成<style=cIsDamage>700%的伤害</style>{"（异教徒：每层+50%爆炸范围）".ToLunar()}，并使敌人<style=cIsDamage>定身</style><style=cIsUtility>3</style><style=cStack>（每层增加+3秒）</style>秒。5秒<style=cStack>（每层增加5秒）</style>后充能。\n<style=cIsLunar>异教徒：每层使攻击速度增加10%</style>。", "zh-CN");
@@ -283,11 +292,11 @@ namespace BtpTweak {
             AddOverlay("ITEM_LUNARUTILITYREPLACEMENT_DESC", "<style=cIsUtility>将你的辅助技能替换</style>为<style=cIsUtility>影逝</style>。\n\n隐去身形，进入<style=cIsUtility>隐形状态</style>并获得<style=cIsUtility>30%移动速度加成</style>。<style=cIsHealing>治疗</style><style=cIsHealing>25%<style=cStack>（每层增加25%）</style>的最大生命值</style>。持续3<style=cStack>（每层加3）</style>秒。\n<style=cIsLunar>异教徒：可通过技能按键切换形态。每层使移动速度增加10%。</style>", "zh-CN");
             AddOverlay("ITEM_LUNARWINGS_NAME", "特拉法梅的祝福", "zh-CN");
             AddOverlay("ITEM_LUNARWINGS_PICKUP", "一双翅膀。", "zh-CN");
-            AddOverlay("ITEM_MISSILE_DESC", $"有{MissileTweak.BasePercnetChance.ToDmg("_%") + ToStk简单逼近百分百字符串(MissileTweak.半数)}几率向{"导弹发射池".ToUtil()}里添加一枚导弹{MissileTweak.Interval.ToStk("（发射间隔：_秒）")}。每枚合计造成{MissileTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。", "zh-CN");
+            AddOverlay("ITEM_MISSILE_DESC", $"有{MissileTweak.半数.ToBaseAndStkBy逼近Pct().ToDmg()}几率向{"导弹发射池".ToUtil()}里添加一枚导弹{MissileTweak.Interval.ToStk("（发射间隔：_秒）")}。每枚合计造成{MissileTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。", "zh-CN");
             AddOverlay("ITEM_MISSILEVOID_DESC", $"获得一个相当于你最大生命值<style=cIsHealing>{10}%</style>的<style=cIsHealing>护盾</style>。命中敌人时有{"护盾/总护盾".ToHealing()}x{"100%".ToDmg()}几率{此处忽略触发系数}向敌人发射{"1".ToDmg()}发虾米{MissileVoidTweak.Interval.ToStk("（发射间隔：_秒）")}，合计造成{"护盾/总护盾".ToHealing()}x{MissileVoidTweak.DamageCoefficient.ToBaseAndStkPct().ToDmg("_的总伤害")}。<style=cIsVoid>使所有AtG导弹MK.1无效化</style>。", "zh-CN");
             AddOverlay("ITEM_MOVESPEEDONKILL_DESC", $"击杀敌人会使<style=cIsUtility>移动速度</style>提高<style=cIsUtility>125%</style>，在<style=cIsUtility>1</style><style=cStack>（每层+0.5）</style>秒内逐渐失效。<color=#FFFF00>女猎人特殊效果：锁敌距离增加10米{"（每层+10米）".ToStk()}。</color>", "zh-CN");
             AddOverlay("ITEM_NEARBYDAMAGEBONUS_DESC", $"对<style=cIsDamage>{13}米</style>内的敌人伤害增加{20}%<style=cStack>（每层+{20}%）</style>.", "zh-CN");
-            AddOverlay("ITEM_NOVAONHEAL_DESC", $"将{1.ToBaseAndStkPct().ToHealing()}的治疗量储存为<style=cIsHealing>灵魂能量</style>，最大储量等同于<style=cIsHealing>最大生命值</style>的{1f.ToHealPct()}。当<style=cIsHealing>灵魂能量</style>达到<style=cIsHealing>最大生命值</style>的{NovaOnHealTweak.BaseThresholdFraction.ToHealPct() + ToStk简单逼近百分百字符串(NovaOnHealTweak.半数)}时，自动向周围<style=cIsDamage>{NovaOnHealTweak.BaseRadius}</style>米内的敌人<style=cIsDamage>发射一颗头骨</style>，造成相当于{NovaOnHealTweak.BaseDamageCoefficient.ToDmgPct()}<style=cIsHealing>灵魂能量</style>的伤害。", "zh-CN");
+            AddOverlay("ITEM_NOVAONHEAL_DESC", $"将{1.ToBaseAndStkPct().ToHealing()}的治疗量储存为<style=cIsHealing>灵魂能量</style>，最大储量等同于<style=cIsHealing>最大生命值</style>的{1f.ToHealPct()}。当<style=cIsHealing>灵魂能量</style>达到<style=cIsHealing>最大生命值</style>的{NovaOnHealTweak.半数.ToBaseAndStkBy逼近Pct().ToHealing()}时，自动向周围<style=cIsDamage>{NovaOnHealTweak.BaseRadius}</style>米内的敌人<style=cIsDamage>发射一颗头骨</style>，造成相当于{NovaOnHealTweak.BaseDamageCoefficient.ToDmgPct()}<style=cIsHealing>灵魂能量</style>的伤害。", "zh-CN");
             AddOverlay("ITEM_PARENTEGG_DESC", $"在<style=cIsDamage>受到伤害时</style>回复{ParentEggTweak.HealAmount.ToBaseAndStk().ToHealing("_点")}，外加<style=cIsHealing>受到伤害x{ParentEggTweak.HealFractionFromDamage.ToBaseAndStkPct()}</style>的生命值。</color><color=#FFFF00>（圣骑士）太阳特殊效果：火焰伤害增加{1.ToBaseAndStkPct()}。</color>", "zh-CN");
             AddOverlay("ITEM_PERMANENTDEBUFFONHIT_DESC", $"命中敌人时有<style=cIsDamage>100%</style>几率使<style=cIsDamage>护甲</style>永久降低<style=cIsDamage>2点</style><style=cStack>（每层+2点）</style>。", "zh-CN");
             AddOverlay("ITEM_PERSONALSHIELD_DESC", $"获得一个相当于你最大生命值<style=cIsHealing>8%</style><style=cStack>（每层+8%）</style>的<style=cIsHealing>护盾</style>。脱险后可重新充能。\n<style=cIsLunar>（<style=cIsHealing>护盾</style>受到的<style=cIsDamage>Dot伤害</style>降低80%，成为完美的象征再降低10%）</style>", "zh-CN");
@@ -328,10 +337,10 @@ namespace BtpTweak {
             AddOverlay("LUNARVAULT_NAME", "月球库", "zh-CN");
             AddOverlay("MAGE_PRIMARY_FIRE_DESCRIPTION", "<style=cIsDamage>点燃</style>。发射一枚火炎弹，造成<style=cIsDamage>220%的伤害</style>。</style>", "zh-CN");
             AddOverlay("MAGE_PRIMARY_LIGHTNING_DESCRIPTION", $"发射一枚闪电弹，造成<style=cIsDamage>300%的伤害</style>并<style=cIsDamage>引爆</style>小片区域。</style>", "zh-CN");
-            AddOverlay("MAGE_SECONDARY_ICE_DESCRIPTION", $"<style=cIsUtility>冰冻</style>。使用拥有<style=cIsDamage>穿透</style>效果的纳米枪发动攻击，充能后能造成{CastNanoSpear.minDamage.ToDmgPct()}-{CastNanoSpear.maxDamage.ToDmgPct("_的伤害")}。爆炸后留下一个<style=cIsUtility>冰冻炸弹</style>，2秒后爆炸并<style=cIsUtility>冰冻</style>附近{"12米".ToUtil()}的敌人，合计造成{"100%".ToDmg("_的总伤害")}。", "zh-CN");
-            AddOverlay("MAGE_SECONDARY_LIGHTNING_DESCRIPTION", $"<style=cIsDamage>眩晕</style>。发射一枚纳米炸弹，如果充能将造成{ChargedNanoBomb.minDamage.ToDmgPct()}-{ChargedNanoBomb.maxDamage.ToDmgPct("_的伤害")}。飞行期间电击周围<style=cIsUtility>{MageTweak.电击半径}</style>米内最多{MageTweak.每次最大电击数.ToDmg("_个")}敌人，每秒合计造成{MageTweak.电击伤害系数.ToDmgPct("_的伤害")}。", "zh-CN");
-            AddOverlay("MAGE_SPECIAL_FIRE_DESCRIPTION", $"<style=cIsDamage>点燃</style>。灼烧面前的所有敌人，对其造成每秒{(Flamethrower.Damage + Flamethrower.Damage / (1f / (Flamethrower.BurnChance / 100f))).ToDmgPct("_的伤害")}。", "zh-CN");
-            AddOverlay("MAGE_UTILITY_ICE_DESCRIPTION", $"<style=cIsUtility>冰冻</style>。创造一道能够对敌人造成{Snapfreeze.damage.ToDmgPct()}伤害的屏障。", "zh-CN");
+            AddOverlay("MAGE_SECONDARY_ICE_DESCRIPTION", $"<style=cIsUtility>冰冻</style>。使用拥有<style=cIsDamage>穿透</style>效果的纳米枪发动攻击，充能后能造成{MageTweak.IcebombMinDamageCoefficient.ToDmgPct()}-{MageTweak.IcebombMaxDamageCoefficient.ToDmgPct("_的伤害")}。爆炸后留下一个<style=cIsUtility>冰冻炸弹</style>，2秒后爆炸并<style=cIsUtility>冰冻</style>附近{"12米".ToUtil()}的敌人，合计造成{"100%".ToDmg("_的总伤害")}。", "zh-CN");
+            AddOverlay("MAGE_SECONDARY_LIGHTNING_DESCRIPTION", $"<style=cIsDamage>眩晕</style>。发射一枚纳米炸弹，如果充能将造成{MageTweak.NavoBombMinDamageCoefficient.ToDmgPct()}-{MageTweak.NavoBombMaxDamageCoefficient.ToDmgPct("_的伤害")}。飞行期间电击周围<style=cIsUtility>{MageTweak.电击半径}</style>米内最多{MageTweak.每次最大电击数.ToDmg("_个")}敌人，每秒合计造成{MageTweak.电击伤害系数.ToDmgPct("_的伤害")}。", "zh-CN");
+            AddOverlay("MAGE_SPECIAL_FIRE_DESCRIPTION", $"<style=cIsDamage>点燃</style>。灼烧面前的所有敌人，对其造成{(Flamethrower.totalDamageCoefficient / Flamethrower.baseFlamethrowerDuration).ToDmgPct("每秒_的伤害")}。", "zh-CN");
+            AddOverlay("MAGE_UTILITY_ICE_DESCRIPTION", $"<style=cIsUtility>冰冻</style>。创造一道能够对敌人造成{PrepWall.damageCoefficient.ToDmgPct()}伤害的屏障。", "zh-CN");
             AddOverlay("MERC_PRIMARY_DESCRIPTION", "<style=cIsDamage>一闪</style>。<style=cIsUtility>灵巧</style>。向前挥砍并造成<style=cIsDamage>130%的伤害</style>。第三次攻击的范围将会变大并<style=cIsUtility>暴露</style>敌人。", "zh-CN");
             AddOverlay("MERC_SECONDARY_ALT1_DESCRIPTION", $"<style=cIsDamage>一闪</style>。释放一个裂片上勾拳，造成{Uppercut.baseDamageCoefficient.ToDmgPct("_的伤害")}，并将你送到半空。", "zh-CN");
             AddOverlay("MERC_SECONDARY_DESCRIPTION", "<style=cIsDamage>一闪</style>。快速横斩两次，造成<style=cIsDamage>2x200%的伤害</style>，若位于空中，则改为竖斩。", "zh-CN");
@@ -685,6 +694,94 @@ namespace BtpTweak {
             AddOverlay(str2 + "DESCRIPTION", $"探路者是一位灵活的、善于使用游击战术的游侠，通常与他可靠的猎鹰伙伴——狂风一同作战。<color=#CCD3E0>\n\n< ! > 与其他近战角色相比，你更加脆弱。好好利用你的移动手段、远距离攻击以及你的猎鹰狂风来分散敌人的注意力以生存下去。\n\n< ! > 轮流使用旋风腿和标枪投掷来投出尽可能多的标枪，但请确保至少留有一次充能以在必要时进行闪避。\n\n< ! > 闪电套索是一次性封锁大群敌人的好方法，同时如果有增加滞空时间的道具，撕裂之爪可以提供巨额伤害。\n\n< ! > 狂风是非常强大的伙伴，你可以在任何时候对他下令。优先考虑增加攻击速度和暴击几率以帮助更快充能。</color>", "zh-CN");
         }
 
+        private static void 破坏者汉化() {
+            string str = "ROB_RAVAGER_BODY_";
+            string text = "The Ravager is an agile melee bruiser who heals off slain foes to stay in the thick of it.<color=#CCD3E0>" + Environment.NewLine + Environment.NewLine;
+            text = text + "< ! > Charging wall jumps is the best way to deal with flying enemies." + Environment.NewLine + Environment.NewLine;
+            text = text + "< ! > Cleave is handy for cancelling high damage attacks as well as keeping up the damage output." + Environment.NewLine + Environment.NewLine;
+            text = text + "< ! > Coagulate can be helpful in a pinch if you're not sure you can get the Blood Well filled, but it can also be used passively to stay topped off." + Environment.NewLine + Environment.NewLine;
+            text = text + "< ! > Brutalize heals on demand so be sure to grab and consume something if you're getting low." + Environment.NewLine + Environment.NewLine;
+            string text2 = "..于是他离开了，去亵渎下一片土地。";
+            string text3 = "..于是他消失了，他荒谬的暴行终于结束了";
+            string text4 = "掠夺者并非天生就拥有特殊的力量...\n\n";
+            text4 += "...相反，他生来就有一把被诅咒的饮血太刀，但有一天他去了普普次元，遇到了一个邪恶的.....\n\n";
+            text4 += "最终他离开了普普次元，并亲自挥舞着掠夺来的可怕的邪恶力量，然后他去了Petrichor V并摧毁了它\n";
+            AddOverlay(str + "NAME", "掠夺者", "zh-CN");
+            AddOverlay(str + "DESCRIPTION", text, "zh-CN");
+            AddOverlay(str + "SUBTITLE", "无情的掠夺者", "zh-CN");
+            AddOverlay(str + "LORE", text4, "zh-CN");
+            AddOverlay(str + "OUTRO_FLAVOR", text2, "zh-CN");
+            AddOverlay(str + "OUTRO_FAILURE", text3, "zh-CN");
+            AddOverlay(str + "DEFAULT_SKIN_NAME", "默认", "zh-CN");
+            AddOverlay(str + "MONSOON_SKIN_NAME", "虚空触碰", "zh-CN");
+            AddOverlay(str + "TYPHOON_SKIN_NAME", "???", "zh-CN");
+            AddOverlay(str + "VOID_SKIN_NAME", "虚空诞生", "zh-CN");
+            AddOverlay(str + "MAHORAGA_SKIN_NAME", "神圣", "zh-CN");
+            AddOverlay(str + "MINECRAFT_SKIN_NAME", "我的世界", "zh-CN");
+            AddOverlay(str + "BLOODWELL_NAME", "血井", "zh-CN");
+            AddOverlay(str + "BLOODWELL_DESCRIPTION", $"掠夺者每获得1点{"浸剂".ToHealing()}的{"生命值奖励".ToHealing()}将增加{RavagerTweak.InfusionToDamageCoefficient}点{"基础伤害".ToDmg()}。掠夺者在击中敌人时会储存<style=cIsHealth>血液</style>，填满{"血井".ToHealth()}后进入{"鲜血迸发".ToHealth()}，{"恢复".ToHealing()}自身<style=cIsHealing>75%的失去的生命值</style>并<style=cIsDamage>暂时强化你的技能</style>。", "zh-CN");
+            AddOverlay(str + "BLOODWELL2_NAME", "灵液罐", "zh-CN");
+            AddOverlay(str + "BLOODWELL2_DESCRIPTION", $"掠夺者每获得1点{"浸剂".ToHealing()}的{"生命值奖励".ToHealing()}将增加{RavagerTweak.InfusionToDamageCoefficient}点{"基础伤害".ToDmg()}。掠夺者在击中敌人时会储存<style=cIsHealth>血液</style>，填满{"灵液罐".ToHealth()}后进入{"灵液迸发".ToHealth()}，{"恢复".ToHealing()}自身<style=cIsHealing>100%的最大生命值</style>并<style=cIsDamage>暂时强化你的技能</style>。<style=cIsHealth>攻击时消耗速度更快。</style>", "zh-CN");
+            AddOverlay(str + "PASSIVE_NAME", "体能", "zh-CN");
+            AddOverlay(str + "PASSIVE_DESCRIPTION", "掠夺者可以<style=cIsUtility>蹬墙</style>和<style=cIsHealth>踩头</style>。<style=cIsUtility><style=cIsDamage>蓄力</style>蹬墙</style>将跳得更远。", "zh-CN");
+            AddOverlay(str + "PASSIVE2_NAME", "扭曲突变", "zh-CN");
+            AddOverlay(str + "PASSIVE2_DESCRIPTION", "<style=cIsHealth>消耗10%的生命值。</style>在空中跳跃将<style=cIsUtility>向前突进</style>一段距离。落地或<style=cIsDamage>近战击中敌人</style>可刷新此能力。", "zh-CN");
+            AddOverlay(str + "CONFIRM_NAME", "确认", "zh-CN");
+            AddOverlay(str + "CONFIRM_DESCRIPTION", "继续当前技能。", "zh-CN");
+            AddOverlay(str + "CANCEL_NAME", "取消", "zh-CN");
+            AddOverlay(str + "CANCEL_DESCRIPTION", "取消当前技能。", "zh-CN");
+            AddOverlay(str + "PRIMARY_SLASH_NAME", "挥舞", "zh-CN");
+            AddOverlay(str + "PRIMARY_SLASH_DESCRIPTION", $"向前挥舞武器造成{Slash._damageCoefficient.ToDmgPct("_的伤害")}。在<style=cIsUtility>蹬墙</style>时可进入<style=cIsDamage>蓄力姿态</style>。", "zh-CN");
+            AddOverlay(str + "PRIMARY_SLASHCOMBO_NAME", "解体", "zh-CN");
+            AddOverlay(str + "PRIMARY_SLASHCOMBO_DESCRIPTION", $"向前挥舞武器造成{SlashCombo._damageCoefficient.ToDmgPct("_的伤害")}。第三次攻击将<style=cIsUtility>眩晕</style>并造成{SlashCombo.finisherDamageCoefficient.ToDmgPct("_的伤害")}.", "zh-CN");
+            AddOverlay(str + "SECONDARY_SPINSLASH_NAME", "劈裂", "zh-CN");
+            AddOverlay(str + "SECONDARY_SPINSLASH_DESCRIPTION", $"向前跃起，进行<style=cIsUtility>大范围</style>斩击造成{SpinSlash._damageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+            AddOverlay(str + "UTILITY_BEAM_NAME", "吞噬", "zh-CN");
+            AddOverlay(str + "UTILITY_BEAM_DESCRIPTION", $"<style=cIsHealth>吞噬</style>来袭的<style=cIsUtility>弹幕</style>为一发{"毁灭轰击".ToDeath()}充能，可造成{ChargeBeam.minDamageCoefficient.ToDmgPct("_-")}{(ChargeBeam.maxDamageCoefficient * 0.5f).ToDmgPct("_的伤害")}，一半充能以上时轰击将转化为造成{FireBeam.damageCoefficientPerSecond.ToDmgPct("每秒_伤害的持续性激光")}。", "zh-CN");
+            AddOverlay(str + "UTILITY_HEAL_NAME", "凝结", "zh-CN");
+            AddOverlay(str + "UTILITY_HEAL_DESCRIPTION", "立即排空<style=cIsHealth>血液</style>用于<style=cIsHealing>治疗自身</style>。", "zh-CN");
+            AddOverlay(str + "UTILITY_SWAP_NAME", "Boogie Woogie", "zh-CN");
+            AddOverlay(str + "UTILITY_SWAP_DESCRIPTION", "与<style=cIsUtility>任意实体</style>交换位置。", "zh-CN");
+            AddOverlay(str + "UTILITY_SNATCH_NAME", "抓取", "zh-CN");
+            AddOverlay(str + "UTILITY_SNATCH_DESCRIPTION", "向前伸出你的<style=cIsDamage>麒麟臂</style>抓住敌人，并<style=cIsUtility>将你拉向目标物体</style>。", "zh-CN");
+            AddOverlay(str + "SPECIAL_GRAB_NAME", "狂暴", "zh-CN");
+            AddOverlay(str + "SPECIAL_GRAB_DESCRIPTION", $"向前跃进<style=cIsUtility>抓住</style>敌人，然后猛扑造成{DashGrab.groundSlamDamageCoefficient.ToDmgPct("_的伤害")}。如果击杀敌人，则<style=cIsHealth>消耗</style>它们以{"恢复".ToHealing()}自身<style=cIsHealing>15%的最大生命值</style>。", "zh-CN");
+            AddOverlay(str + "SPECIAL_GRAB_SCEPTER_NAME", "野蛮冲锋", "zh-CN");
+            AddOverlay(str + "SPECIAL_TRANSFIGURE_NAME", "狂暴", "zh-CN");
+            AddOverlay(str + "SPECIAL_GRAB_DESCRIPTION", $"向前跃进<style=cIsUtility>抓住</style>敌人，然后猛扑造成{DashGrab.groundSlamDamageCoefficient.ToDmgPct("_的伤害")}。如果击杀敌人，则<style=cIsHealth>消耗</style>它们以{"恢复".ToHealing()}自身<style=cIsHealing>10%的最大生命值</style>。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_M12", $"<style=cKeywordName>蓄力姿态</style><style=cSub>释放后向前{"横扫".ToDmg()}，至少造成{Slash._damageCoefficient.ToDmgPct()}的伤害，根据斩击时的移动速度提升伤害。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_M1", "<style=cKeywordName>强化效果</style><style=cSub>挥舞得更快。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_M2", $"<style=cKeywordName>强化效果</style><style=cSub>跃进速度提升，并对{"低生命".ToHealth()}的敌人造成{"更多伤害".ToDmg()}。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_HEAL", $"<style=cKeywordName>强化效果</style><style=cSub>产生{"鲜血爆炸".ToHealth()}造成{Heal.maxDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_BEAM", "<style=cKeywordName>强化效果</style><style=cSub>充能更快。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_GRAB", $"<style=cKeywordName>强化效果</style><style=cSub>可以抓取更大的目标，并且将目标{"按在地上摩擦".ToDeath()}。", "zh-CN");
+            AddOverlay("KEYWORD_REDGUY_GRAB2", "<style=cKeywordName>Bosses</style><style=cSub>可打击Boss，<style=cIsDamage>击打</style>它们造成相同的伤害。", "zh-CN");
+            AddOverlay(str + "UNLOCKABLE_UNLOCKABLE_NAME", "把这一切抛在脑后的人", "zh-CN");
+            AddOverlay(str + "UNLOCKABLE_ACHIEVEMENT_NAME", "把这一切抛在脑后的人", "zh-CN");
+            AddOverlay(str + "UNLOCKABLE_ACHIEVEMENT_DESC", "对一名敌人施加50层流血。", "zh-CN");
+            AddOverlay(str + "MONSOONUNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：精通", "zh-CN");
+            AddOverlay(str + "MONSOONUNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：精通", "zh-CN");
+            AddOverlay(str + "MONSOONUNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在季风难度下通关游戏或抹除自己。", "zh-CN");
+            AddOverlay(str + "TYPHOON_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：大师", "zh-CN");
+            AddOverlay(str + "TYPHOON_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：大师", "zh-CN");
+            AddOverlay(str + "TYPHOON_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在台风或日食难度下通关游戏或抹除自己。\n<color=#8888>(台风或者更高难度)</color>", "zh-CN");
+            AddOverlay(str + "THROW_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：在火焰轨迹中", "zh-CN");
+            AddOverlay(str + "THROW_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：在火焰轨迹中", "zh-CN");
+            AddOverlay(str + "THROW_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在一次抓取中将敌人猛砸到地上5次以上。", "zh-CN");
+            AddOverlay(str + "BEAM_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：平静如海", "zh-CN");
+            AddOverlay(str + "BEAM_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：平静如海", "zh-CN");
+            AddOverlay(str + "BEAM_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，完成一个关卡而不填充血井。", "zh-CN");
+            AddOverlay(str + "WALLJUMP_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：吉吉国王", "zh-CN");
+            AddOverlay(str + "WALLJUMP_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：吉吉国王", "zh-CN");
+            AddOverlay(str + "WALLJUMP_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在不落地的情况下跳了20次。", "zh-CN");
+            AddOverlay(str + "SUIT_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：我所有的伙伴", "zh-CN");
+            AddOverlay(str + "SUIT_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：我所有的伙伴", "zh-CN");
+            AddOverlay(str + "SUIT_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，同时拥有15个盟友。", "zh-CN");
+            AddOverlay(str + "VOID_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：从无到有", "zh-CN");
+            AddOverlay(str + "VOID_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：从无到有", "zh-CN");
+            AddOverlay(str + "VOID_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，逃离天文馆。", "zh-CN");
+        }
+
         private static void 象征汉化() {
             TPDespair.ZetAspects.Language.targetLanguage = "zh-CN";
             TPDespair.ZetAspects.Language.tokens["zh-CN"]["ITEM_SHIELDONLY_DESC"] += $"\n{基础护盾百分比再生速度}增加{0.01f.ToBaseAndStkPct().ToHealing("_hp/s")}";
@@ -703,16 +800,15 @@ namespace BtpTweak {
             return result;
         }
 
-        private static string ToStk简单逼近百分百字符串(this float 半数) => $"<style=cStack>（叠加公式：100%x(层数/(层数+{半数})）</style>";
-
-        private static void MainMenuController_Start(On.RoR2.UI.MainMenu.MainMenuController.orig_Start orig, RoR2.UI.MainMenu.MainMenuController self) {
+        private static void OnMainMenuControllerFirstStart(On.RoR2.UI.MainMenu.MainMenuController.orig_Start orig, RoR2.UI.MainMenu.MainMenuController self) {
             orig(self);
-            On.RoR2.UI.MainMenu.MainMenuController.Start -= MainMenuController_Start;
-            基础汉化();
-            权杖技能汉化();
-            圣骑士汉化();
-            探路者汉化();
-            象征汉化();
+            On.RoR2.UI.MainMenu.MainMenuController.Start -= OnMainMenuControllerFirstStart;
+            Task.Run(基础汉化);
+            Task.Run(权杖技能汉化);
+            Task.Run(圣骑士汉化);
+            Task.Run(探路者汉化);
+            Task.Run(象征汉化);
+            Task.Run(破坏者汉化);
         }
     }
 }

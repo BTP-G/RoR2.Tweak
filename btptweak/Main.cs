@@ -23,7 +23,7 @@ namespace BtpTweak {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "2.4.3";
+        public const string PluginVersion = "2.4.4";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
         internal new static ManualLogSource Logger { get; private set; }

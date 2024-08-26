@@ -13,7 +13,7 @@ namespace BtpTweak.Pools {
         public ProcChainMask procChainMask;
     }
 
-    internal class MissilePool : Pool<MissilePool, MissilePoolKey, MissilePool.MissileInfo> {
+    internal sealed class MissilePool : Pool<MissilePool, MissilePoolKey, MissilePool.MissileInfo> {
         protected override float Interval => MissileTweak.Interval;
 
         public void AddMissile(in MissilePoolKey missileInfo, float damageValue) {

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace BtpTweak.Pools.OrbPools {
 
-    internal class BounceOrbPool : Pool<BounceOrbPool, OrbPoolKey, BounceOrb> {
+    internal sealed class BounceOrbPool : Pool<BounceOrbPool, OrbPoolKey, BounceOrb> {
         private static readonly BullseyeSearch search = new();
         protected override float Interval => BounceNearbyTweak.Interval;
 

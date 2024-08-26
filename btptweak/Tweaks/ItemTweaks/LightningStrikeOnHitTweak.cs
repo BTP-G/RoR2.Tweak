@@ -7,7 +7,6 @@ using RoR2;
 namespace BtpTweak.Tweaks.ItemTweaks {
 
     internal class LightningStrikeOnHitTweak : TweakBase<LightningStrikeOnHitTweak>, IOnModLoadBehavior {
-        public const int BasePercentChance = 10;
         public const float 半数 = 9f;
         public const int DamageCoefficient = 2;
         public const float ProcCoefficient = 0.5f;
