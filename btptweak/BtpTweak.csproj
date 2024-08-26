@@ -21,25 +21,21 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.18.0">
+    <PackageReference Include="Microsoft.Unity.Analyzers" Version="1.20.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MMHOOK.RoR2" Version="2022.9.20" />
+    <PackageReference Include="MMHOOK.RoR2" Version="2024.5.24" />
     <PackageReference Include="R2API" Version="5.0.5" />
     <PackageReference Include="R2API.ContentManagement" Version="1.0.4" />
-    <PackageReference Include="R2API.Core" Version="5.0.12" />
+    <PackageReference Include="R2API.Core" Version="5.1.0" />
     <PackageReference Include="R2API.Elites" Version="1.0.3" />
     <PackageReference Include="R2API.Language" Version="1.0.1" />
     <PackageReference Include="R2API.Networking" Version="1.0.2" />
     <PackageReference Include="R2API.RecalculateStats" Version="1.3.0" />
-    <PackageReference Include="UniTask" Version="2.5.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BetterUI">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\XoXFaby-BetterUI\BetterUI\BetterUI.dll</HintPath>
-    </Reference>
     <Reference Include="Facepunch.Steamworks">
       <HintPath>libs\Facepunch.Steamworks.dll</HintPath>
       <Private>false</Private>
@@ -90,14 +86,14 @@
       <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\KingEnderBrine-ProperSave\ProperSave\ProperSave.dll</HintPath>
     </Reference>
     <Reference Include="RedGuyMod">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\rob_gaming-Ravager\RedGuyMod.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\rob_gaming-Ravager\rob_gaming-Ravager\RedGuyMod.dll</HintPath>
     </Reference>
     <Reference Include="Rewired_Windows_Lib">
       <HintPath>libs\Rewired_Windows_Lib.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="RiskOfOptions">
-      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Rune580-Risk_Of_Options\RiskOfOptions.dll</HintPath>
+      <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-2.0\BepInEx\plugins\Rune580-Risk_Of_Options\RiskOfOptions\RiskOfOptions.dll</HintPath>
     </Reference>
     <Reference Include="SimpleJSON">
       <HintPath>libs\SimpleJSON.dll</HintPath>

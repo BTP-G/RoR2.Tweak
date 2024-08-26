@@ -1,5 +1,4 @@
-﻿using Cysharp.Threading.Tasks;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
