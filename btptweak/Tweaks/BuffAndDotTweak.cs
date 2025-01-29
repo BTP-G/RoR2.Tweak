@@ -27,7 +27,7 @@ namespace BtpTweak.Tweaks {
             On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.GlobalEventManager_OnHitEnemy += DeepRot_GlobalEventManager_OnHitEnemy;
             On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.DotController_AddDot += DeepRot_DotController_AddDot;
             IL.RoR2.DotController.FixedUpdate += DotController_FixedUpdate;
-            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+            IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
             IL.RoR2.DotController.AddDot += DotController_AddDot;
         }
 
@@ -174,7 +174,7 @@ namespace BtpTweak.Tweaks {
         private void DotController_onDotInflictedServerGlobal(DotController dotController, ref InflictDotInfo inflictDotInfo) {
             var victimBody = dotController.victimBody;
             var dotStackList = dotController.dotStackList;
-            var lastDotStack = dotStackList[dotStackList.Count - 1];
+            var lastDotStack = dotStackList[^1];
             if (victimBody.bodyIndex == BodyIndexes.Mage) {
                 lastDotStack.damage *= 0.5f;
             }

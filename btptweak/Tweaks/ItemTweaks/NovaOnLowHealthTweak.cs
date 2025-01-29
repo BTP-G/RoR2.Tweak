@@ -19,19 +19,19 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         private void DetonateState_OnEnter(ILContext il) {
             var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(c => c.MatchMul(), c => c.MatchStfld<BlastAttack>("baseDamage"))) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate((EntityStates.VagrantNovaItem.DetonateState state) => {
-                    state.duration /= state.attachedBody.attackSpeed;
-                    return (float)state.GetItemStack();
-                });
+                cursor.Emit(OpCodes.Ldarg_0)
+                      .EmitDelegate((EntityStates.VagrantNovaItem.DetonateState state) => {
+                          state.duration /= state.attachedBody.attackSpeed;
+                          return (float)state.GetItemStack();
+                      });
                 cursor.Emit(OpCodes.Mul);
             } else {
                 Main.Logger.LogError(GetType().FullName + " add hook 'DetonateState_OnEnter1' failed!");
             }
             if (cursor.TryGotoNext(c => c.MatchStfld<BlastAttack>("damageType"))) {
-                cursor.Index -= 1;
-                cursor.Remove();
-                cursor.Emit(OpCodes.Ldc_I4, (int)DamageType.Shock5s);
+                cursor.Index -= 2;
+                cursor.Remove()
+                      .Emit(OpCodes.Ldc_I4, (int)DamageType.Shock5s);
             } else {
                 Main.Logger.LogError(GetType().FullName + " add hook 'DetonateState_OnEnter2' failed!");
             }

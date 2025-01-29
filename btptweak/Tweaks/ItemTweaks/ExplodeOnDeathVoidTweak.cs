@@ -22,7 +22,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         };
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -36,36 +36,36 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdsfld(typeof(DLC1Content.Items).GetField("ExplodeOnDeathVoid")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {  //378
-                ilcursor.Emit(OpCodes.Ldarg, 0);
-                ilcursor.Emit(OpCodes.Ldarg, 1);
-                ilcursor.Emit(OpCodes.Ldloc, 1);
-                ilcursor.EmitDelegate((int itemCount, HealthComponent healthComponent, DamageInfo damageInfo, CharacterBody attacterBody) => {
-                    if (itemCount > 0) {
-                        var victimBody = healthComponent.body;
-                        if (victimBody.HasBuff(BtpContent.Buffs.VoidFire)) {
-                            return;
-                        }
-                        victimBody.AddBuff(BtpContent.Buffs.VoidFire);
-                        var combinedHealthFraction = Mathf.Clamp01(healthComponent.combinedHealthFraction);
-                        _blastAttack.attacker = damageInfo.attacker;
-                        _blastAttack.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, BtpUtils.简单逼近(itemCount, 半数, combinedHealthFraction));
-                        _blastAttack.crit = damageInfo.crit;
-                        _blastAttack.position = damageInfo.position;
-                        _blastAttack.procChainMask = damageInfo.procChainMask;
-                        _blastAttack.procCoefficient = combinedHealthFraction;
-                        _blastAttack.radius = combinedHealthFraction * (BaseRadius + StackRadius * (itemCount - 1) + victimBody.bestFitRadius);
-                        _blastAttack.teamIndex = attacterBody.teamComponent.teamIndex;
-                        _blastAttack.Fire();
-                        EffectManager.SpawnEffect(explosionEffect, new EffectData {
-                            origin = _blastAttack.position,
-                            scale = _blastAttack.radius,
-                        }, true);
-                    }
-                });
+                ilcursor.Emit(OpCodes.Ldarg, 0)
+                        .Emit(OpCodes.Ldarg, 1)
+                        .Emit(OpCodes.Ldloc, 1)
+                        .EmitDelegate((int itemCount, HealthComponent healthComponent, DamageInfo damageInfo, CharacterBody attacterBody) => {
+                            if (itemCount > 0) {
+                                var victimBody = healthComponent.body;
+                                if (victimBody.HasBuff(BtpContent.Buffs.VoidFire)) {
+                                    return;
+                                }
+                                victimBody.AddBuff(BtpContent.Buffs.VoidFire);
+                                var combinedHealthFraction = Mathf.Clamp01(healthComponent.combinedHealthFraction);
+                                _blastAttack.attacker = damageInfo.attacker;
+                                _blastAttack.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, BtpUtils.简单逼近(itemCount, 半数, combinedHealthFraction));
+                                _blastAttack.crit = damageInfo.crit;
+                                _blastAttack.position = damageInfo.position;
+                                _blastAttack.procChainMask = damageInfo.procChainMask;
+                                _blastAttack.procCoefficient = combinedHealthFraction;
+                                _blastAttack.radius = combinedHealthFraction * (BaseRadius + StackRadius * (itemCount - 1) + victimBody.bestFitRadius);
+                                _blastAttack.teamIndex = attacterBody.teamComponent.teamIndex;
+                                _blastAttack.Fire();
+                                EffectManager.SpawnEffect(explosionEffect, new EffectData {
+                                    origin = _blastAttack.position,
+                                    scale = _blastAttack.radius,
+                                }, true);
+                            }
+                        });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("ExplodeOnDeathVoid Hook Failed!");

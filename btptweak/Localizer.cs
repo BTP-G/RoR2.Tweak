@@ -9,7 +9,6 @@ using EntityStates.Mage.Weapon;
 using EntityStates.Merc;
 using EntityStates.Treebot.TreebotFlower;
 using EntityStates.Treebot.Weapon;
-using RedGuyMod.SkillStates.Ravager;
 using RoR2;
 using RoR2.Items;
 using System;
@@ -91,7 +90,7 @@ namespace BtpTweak {
             //AddOverlay("VOIDCRID_ENTROPY_DESC", "<style=cArtifact>Void.</style> <style=cIsDamage>Agile.</style> <style=cIsHealing>Poisonous.</style> <style=cIsDamage>Unstable.</style> Reorganize your cells, <style=cIsHealing>healing</style> for <style=cIsDamage>25%</style> or <style=cDeath>harming</style> yourself for <style=cIsDamage>15%</style> health to damage for <style=cIsDamage>400% x 3</style> damage or <style=cIsHealing>poison</style> enemies. If held, creates a temporary <style=cArtifact>black hole</style>, <style=cDeath>choking</style> everyone inside and applies your <style=cIsHealing>Passive</style> on exiting.", "zh-CN");
             //AddOverlay("VV_ITEM_CORNUCOPIACELL_ITEM_DESCRIPTION", "A <style=cIsVoid>special</style> delivery containing items (<color=#FFFFFF>31.6%</color>/<color=#9CE562>8%</color>/<color=#E58262>0.4%</color>/<color=#DD7AC6>47.4%</color>/<color=#CE5CB2>12%</color>/<color=#BC499F>0.6%</color>) will appear in a random location <style=cIsUtility>on each stage</style>. <style=cStack>(Increases rarity chances of the items per stack).</style> <style=cIsVoid>Corrupts all 运输申请单s</style>.", "zh-CN");
             //AddOverlay("ITEM_FIREWORK_DESC", $"{"激活装备".ToUtil()}时向{"烟花发射池".ToUtil()}里添加{FireworkTweak.FireCount.ToBaseAndStk().ToDmg()}枚烟花{0.125f.ToStk("（发射间隔：_秒）")}。每枚合计造成{FireworkTweak.BaseDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
-            AddOverlay("ITEM_JUMPBOOST_DESC", $"<style=cIsUtility>奔跑时</style><style=cIsUtility>跳跃</style>可以增加<style=cIsUtility>10米</style><style=cStack>（每层增加10米）</style>的距离。<color=#FFFF00>掠夺者特殊效果：跳跃能力提高{RavagerTweak.JumpPowerMultCoefficient.ToBaseAndStkPct()}</color>", "zh-CN");
+            AddOverlay("ITEM_JUMPBOOST_DESC", $"<style=cIsUtility>奔跑时</style><style=cIsUtility>跳跃</style>可以增加<style=cIsUtility>10米</style><style=cStack>（每层增加10米）</style>的距离。"/*<color=#FFFF00>掠夺者特殊效果：跳跃能力提高{RavagerTweak.JumpPowerMultCoefficient.ToBaseAndStkPct()}</color>*/, "zh-CN");
 
             AddOverlay("ITEM_RANDOMEQUIPMENTTRIGGER_DESC", $"每隔{RandomEquipmentTriggerTweak.RandomEquipmentTriggerBehavior.transformInterval.ToUtil("_秒")}，{"随机选择".ToUtil()}你的一件物品转化为{"相同品质".ToUtil()}的一件随机物品，每次转化的数量最多{RandomEquipmentTriggerTweak.RandomEquipmentTriggerBehavior.transformCountPerStack.ToBaseAndStk().ToUtil("_个")}。", "zh-CN");
             AddOverlay("EQUIPMENT_SAWMERANG_DESC", $"投掷<style=cIsDamage>三个穿透性的回旋锯</style>，每个造成{SawTweak.DamageCoefficient.ToDmgPct("_的基础伤害")}，同时锯伤敌人，造成额外的<style=cIsDamage>每秒100％的基础伤害</style>，并使其{流血}，在{BleedTweak.BleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.BleedDamageCoefficient.ToDmgPct("_的总伤害")}；若造成{暴击}，则{额外}造成{出血}，在{BleedTweak.SurperBleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的总伤害")}。", "zh-CN");
@@ -195,11 +194,11 @@ namespace BtpTweak {
             AddOverlay("FOGBOUND_SCENEDEF_SUBTITLE_TOKEN", $"冥河浅滩", "zh-CN");
             AddOverlay("FROSTWISP_BODY_NAME", "冰霜幽魂", "zh-CN");
             AddOverlay("FRUJO_SKIN_PARDOFELISDEFINITION_NAME", "帕朵菲莉丝 喵~", "zh-CN");
-            AddOverlay("GOLDENKNURL_DESC", $"{"最大生命值".ToHealing()}增加{GoldenCoastPlus.GoldenCoastPlus.KnurlHealth.Value.ToBaseAndStkPct().ToHealing()}，{"基础生命值再生速度".ToHealing()}增加{GoldenCoastPlus.GoldenCoastPlus.KnurlRegen.Value.ToBaseAndStk().ToHealing("_hp/s")}，外加{"生命值再生速度".ToHealing()}提升{"50%".ToHealing()}，{"护甲".ToUtil()}增加{GoldenCoastPlus.GoldenCoastPlus.KnurlArmor.Value.ToBaseAndStk().ToHealing("_点")}。", "zh-CN");
+            AddOverlay("GOLDENKNURL_DESC", $"{"最大生命值".ToHealing()}增加{GoldenCoastPlusRevived.GoldenCoastPlusPlugin.KnurlHealth.Value.ToBaseAndStkPct().ToHealing()}，{"基础生命值再生速度".ToHealing()}增加{GoldenCoastPlusRevived.GoldenCoastPlusPlugin.KnurlRegen.Value.ToBaseAndStk().ToHealing("_hp/s")}，外加{"生命值再生速度".ToHealing()}提升{"50%".ToHealing()}，{"护甲".ToUtil()}增加{GoldenCoastPlusRevived.GoldenCoastPlusPlugin.KnurlArmor.Value.ToBaseAndStk().ToHealing("_点")}。", "zh-CN");
             AddOverlay("GOLDENKNURL_NAME", "<color=yellow>黄金隆起</color>", "zh-CN");
             AddOverlay("GOLDENKNURL_PICKUP", "增加最大生命值、生命值再生和护甲。", "zh-CN");
-            AddOverlay(HIFUArtificerTweaks.Skilldefs.FlamewallSD.nameToken.Replace("NAME", "DESCRIPTION"), $"<style=cIsUtility>灵巧</style>。<style=cIsDamage>点燃</style>。向前冲刺，在身后召唤每秒造成{HIFUArtificerTweaks.Main.flamewallDamage.Value.ToDmgPct("_的伤害")}的火柱</style>。", "zh-CN");
-            AddOverlay(HIFUArtificerTweaks.Skilldefs.FlamewallSD.nameToken, "火墙", "zh-CN");
+            //AddOverlay(HIFUArtificerTweaks.Skilldefs.FlamewallSD.nameToken.Replace("NAME", "DESCRIPTION"), $"<style=cIsUtility>灵巧</style>。<style=cIsDamage>点燃</style>。向前冲刺，在身后召唤每秒造成{HIFUArtificerTweaks.Main.flamewallDamage.Value.ToDmgPct("_的伤害")}的火柱</style>。", "zh-CN");
+            //AddOverlay(HIFUArtificerTweaks.Skilldefs.FlamewallSD.nameToken, "火墙", "zh-CN");
             AddOverlay("HIDDENGOLDBUFFITEM_NAME", "奥利雷奥尼特的祝福", "zh-CN");
             AddOverlay("HUNTRESS_PRIMARY_ALT_DESCRIPTION", $"<style=cIsUtility>灵巧</style>。瞄准{HuntressTweak.基础射程.ToUtil("_米") + HuntressTweak.猎人的鱼叉叠加射程.ToStk("（每层猎人的鱼叉+_米）")}内的敌人，拉弓射出<style=cIsDamage>{3}枚</style>跟踪箭，每枚造成{HuntressTweak.FlurryDamageCoefficient.ToDmgPct("_的伤害")}。如果暴击则发射<style=cIsDamage>{6}</style>枚跟踪箭。", "zh-CN");
             AddOverlay("HUNTRESS_PRIMARY_DESCRIPTION", $"<style=cIsUtility>灵巧</style>。瞄准{HuntressTweak.基础射程.ToUtil("_米") + HuntressTweak.猎人的鱼叉叠加射程.ToStk("（每层猎人的鱼叉+_米）")}内的敌人，快速射出一枚能够造成{HuntressTweak.StrafeDamageCoefficient.ToDmgPct()}伤害的跟踪箭。", "zh-CN");
@@ -694,121 +693,121 @@ namespace BtpTweak {
             AddOverlay(str2 + "DESCRIPTION", $"探路者是一位灵活的、善于使用游击战术的游侠，通常与他可靠的猎鹰伙伴——狂风一同作战。<color=#CCD3E0>\n\n< ! > 与其他近战角色相比，你更加脆弱。好好利用你的移动手段、远距离攻击以及你的猎鹰狂风来分散敌人的注意力以生存下去。\n\n< ! > 轮流使用旋风腿和标枪投掷来投出尽可能多的标枪，但请确保至少留有一次充能以在必要时进行闪避。\n\n< ! > 闪电套索是一次性封锁大群敌人的好方法，同时如果有增加滞空时间的道具，撕裂之爪可以提供巨额伤害。\n\n< ! > 狂风是非常强大的伙伴，你可以在任何时候对他下令。优先考虑增加攻击速度和暴击几率以帮助更快充能。</color>", "zh-CN");
         }
 
-        private static void 破坏者汉化() {
-            string str = "ROB_RAVAGER_BODY_";
-            string text = "The Ravager is an agile melee bruiser who heals off slain foes to stay in the thick of it.<color=#CCD3E0>" + Environment.NewLine + Environment.NewLine;
-            text = text + "< ! > Charging wall jumps is the best way to deal with flying enemies." + Environment.NewLine + Environment.NewLine;
-            text = text + "< ! > Cleave is handy for cancelling high damage attacks as well as keeping up the damage output." + Environment.NewLine + Environment.NewLine;
-            text = text + "< ! > Coagulate can be helpful in a pinch if you're not sure you can get the Blood Well filled, but it can also be used passively to stay topped off." + Environment.NewLine + Environment.NewLine;
-            text = text + "< ! > Brutalize heals on demand so be sure to grab and consume something if you're getting low." + Environment.NewLine + Environment.NewLine;
-            string text2 = "..于是他离开了，去亵渎下一片土地。";
-            string text3 = "..于是他消失了，他荒谬的暴行终于结束了";
-            string text4 = "掠夺者并非天生就拥有特殊的力量...\n\n";
-            text4 += "...相反，他生来就有一把被诅咒的饮血太刀，但有一天他去了普普次元，遇到了一个邪恶的.....\n\n";
-            text4 += "最终他离开了普普次元，并亲自挥舞着掠夺来的可怕的邪恶力量，然后他去了Petrichor V并摧毁了它\n";
-            AddOverlay(str + "NAME", "掠夺者", "zh-CN");
-            AddOverlay(str + "DESCRIPTION", text, "zh-CN");
-            AddOverlay(str + "SUBTITLE", "无情的掠夺者", "zh-CN");
-            AddOverlay(str + "LORE", text4, "zh-CN");
-            AddOverlay(str + "OUTRO_FLAVOR", text2, "zh-CN");
-            AddOverlay(str + "OUTRO_FAILURE", text3, "zh-CN");
-            AddOverlay(str + "DEFAULT_SKIN_NAME", "默认", "zh-CN");
-            AddOverlay(str + "MONSOON_SKIN_NAME", "虚空触碰", "zh-CN");
-            AddOverlay(str + "TYPHOON_SKIN_NAME", "???", "zh-CN");
-            AddOverlay(str + "VOID_SKIN_NAME", "虚空诞生", "zh-CN");
-            AddOverlay(str + "MAHORAGA_SKIN_NAME", "神圣", "zh-CN");
-            AddOverlay(str + "MINECRAFT_SKIN_NAME", "我的世界", "zh-CN");
-            AddOverlay(str + "BLOODWELL_NAME", "血井", "zh-CN");
-            AddOverlay(str + "BLOODWELL_DESCRIPTION", $"掠夺者每获得1点{"浸剂".ToHealing()}的{"生命值奖励".ToHealing()}将增加{RavagerTweak.InfusionToDamageCoefficient}点{"基础伤害".ToDmg()}。掠夺者在击中敌人时会储存<style=cIsHealth>血液</style>，填满{"血井".ToHealth()}后进入{"鲜血迸发".ToHealth()}，{"恢复".ToHealing()}自身<style=cIsHealing>75%的失去的生命值</style>并<style=cIsDamage>暂时强化你的技能</style>。", "zh-CN");
-            AddOverlay(str + "BLOODWELL2_NAME", "灵液罐", "zh-CN");
-            AddOverlay(str + "BLOODWELL2_DESCRIPTION", $"掠夺者每获得1点{"浸剂".ToHealing()}的{"生命值奖励".ToHealing()}将增加{RavagerTweak.InfusionToDamageCoefficient}点{"基础伤害".ToDmg()}。掠夺者在击中敌人时会储存<style=cIsHealth>血液</style>，填满{"灵液罐".ToHealth()}后进入{"灵液迸发".ToHealth()}，{"恢复".ToHealing()}自身<style=cIsHealing>100%的最大生命值</style>并<style=cIsDamage>暂时强化你的技能</style>。<style=cIsHealth>攻击时消耗速度更快。</style>", "zh-CN");
-            AddOverlay(str + "PASSIVE_NAME", "体能", "zh-CN");
-            AddOverlay(str + "PASSIVE_DESCRIPTION", "掠夺者可以<style=cIsUtility>蹬墙</style>和<style=cIsHealth>踩头</style>。<style=cIsUtility><style=cIsDamage>蓄力</style>蹬墙</style>将跳得更远。", "zh-CN");
-            AddOverlay(str + "PASSIVE2_NAME", "扭曲突变", "zh-CN");
-            AddOverlay(str + "PASSIVE2_DESCRIPTION", "<style=cIsHealth>消耗10%的生命值。</style>在空中跳跃将<style=cIsUtility>向前突进</style>一段距离。落地或<style=cIsDamage>近战击中敌人</style>可刷新此能力。", "zh-CN");
-            AddOverlay(str + "CONFIRM_NAME", "确认", "zh-CN");
-            AddOverlay(str + "CONFIRM_DESCRIPTION", "继续当前技能。", "zh-CN");
-            AddOverlay(str + "CANCEL_NAME", "取消", "zh-CN");
-            AddOverlay(str + "CANCEL_DESCRIPTION", "取消当前技能。", "zh-CN");
-            AddOverlay(str + "PRIMARY_SLASH_NAME", "挥舞", "zh-CN");
-            AddOverlay(str + "PRIMARY_SLASH_DESCRIPTION", $"向前挥舞武器造成{Slash._damageCoefficient.ToDmgPct("_的伤害")}。在<style=cIsUtility>蹬墙</style>时可进入<style=cIsDamage>蓄力姿态</style>。", "zh-CN");
-            AddOverlay(str + "PRIMARY_SLASHCOMBO_NAME", "解体", "zh-CN");
-            AddOverlay(str + "PRIMARY_SLASHCOMBO_DESCRIPTION", $"向前挥舞武器造成{SlashCombo._damageCoefficient.ToDmgPct("_的伤害")}。第三次攻击将<style=cIsUtility>眩晕</style>并造成{SlashCombo.finisherDamageCoefficient.ToDmgPct("_的伤害")}.", "zh-CN");
-            AddOverlay(str + "SECONDARY_SPINSLASH_NAME", "劈裂", "zh-CN");
-            AddOverlay(str + "SECONDARY_SPINSLASH_DESCRIPTION", $"向前跃起，进行<style=cIsUtility>大范围</style>斩击造成{SpinSlash._damageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
-            AddOverlay(str + "UTILITY_BEAM_NAME", "吞噬", "zh-CN");
-            AddOverlay(str + "UTILITY_BEAM_DESCRIPTION", $"<style=cIsHealth>吞噬</style>来袭的<style=cIsUtility>弹幕</style>为一发{"毁灭轰击".ToDeath()}充能，可造成{ChargeBeam.minDamageCoefficient.ToDmgPct("_-")}{(ChargeBeam.maxDamageCoefficient * 0.5f).ToDmgPct("_的伤害")}，一半充能以上时轰击将转化为造成{FireBeam.damageCoefficientPerSecond.ToDmgPct("每秒_伤害的持续性激光")}。", "zh-CN");
-            AddOverlay(str + "UTILITY_HEAL_NAME", "凝结", "zh-CN");
-            AddOverlay(str + "UTILITY_HEAL_DESCRIPTION", "立即排空<style=cIsHealth>血液</style>用于<style=cIsHealing>治疗自身</style>。", "zh-CN");
-            AddOverlay(str + "UTILITY_SWAP_NAME", "Boogie Woogie", "zh-CN");
-            AddOverlay(str + "UTILITY_SWAP_DESCRIPTION", "与<style=cIsUtility>任意实体</style>交换位置。", "zh-CN");
-            AddOverlay(str + "UTILITY_SNATCH_NAME", "抓取", "zh-CN");
-            AddOverlay(str + "UTILITY_SNATCH_DESCRIPTION", "向前伸出你的<style=cIsDamage>麒麟臂</style>抓住敌人，并<style=cIsUtility>将你拉向目标物体</style>。", "zh-CN");
-            AddOverlay(str + "SPECIAL_GRAB_NAME", "狂暴", "zh-CN");
-            AddOverlay(str + "SPECIAL_GRAB_DESCRIPTION", $"向前跃进<style=cIsUtility>抓住</style>敌人，然后猛扑造成{DashGrab.groundSlamDamageCoefficient.ToDmgPct("_的伤害")}。如果击杀敌人，则<style=cIsHealth>消耗</style>它们以{"恢复".ToHealing()}自身<style=cIsHealing>15%的最大生命值</style>。", "zh-CN");
-            AddOverlay(str + "SPECIAL_GRAB_SCEPTER_NAME", "野蛮冲锋", "zh-CN");
-            AddOverlay(str + "SPECIAL_TRANSFIGURE_NAME", "狂暴", "zh-CN");
-            AddOverlay(str + "SPECIAL_GRAB_DESCRIPTION", $"向前跃进<style=cIsUtility>抓住</style>敌人，然后猛扑造成{DashGrab.groundSlamDamageCoefficient.ToDmgPct("_的伤害")}。如果击杀敌人，则<style=cIsHealth>消耗</style>它们以{"恢复".ToHealing()}自身<style=cIsHealing>10%的最大生命值</style>。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_M12", $"<style=cKeywordName>蓄力姿态</style><style=cSub>释放后向前{"横扫".ToDmg()}，至少造成{Slash._damageCoefficient.ToDmgPct()}的伤害，根据斩击时的移动速度提升伤害。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_M1", "<style=cKeywordName>强化效果</style><style=cSub>挥舞得更快。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_M2", $"<style=cKeywordName>强化效果</style><style=cSub>跃进速度提升，并对{"低生命".ToHealth()}的敌人造成{"更多伤害".ToDmg()}。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_HEAL", $"<style=cKeywordName>强化效果</style><style=cSub>产生{"鲜血爆炸".ToHealth()}造成{Heal.maxDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_BEAM", "<style=cKeywordName>强化效果</style><style=cSub>充能更快。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_GRAB", $"<style=cKeywordName>强化效果</style><style=cSub>可以抓取更大的目标，并且将目标{"按在地上摩擦".ToDeath()}。", "zh-CN");
-            AddOverlay("KEYWORD_REDGUY_GRAB2", "<style=cKeywordName>Bosses</style><style=cSub>可打击Boss，<style=cIsDamage>击打</style>它们造成相同的伤害。", "zh-CN");
-            AddOverlay(str + "UNLOCKABLE_UNLOCKABLE_NAME", "把这一切抛在脑后的人", "zh-CN");
-            AddOverlay(str + "UNLOCKABLE_ACHIEVEMENT_NAME", "把这一切抛在脑后的人", "zh-CN");
-            AddOverlay(str + "UNLOCKABLE_ACHIEVEMENT_DESC", "对一名敌人施加50层流血。", "zh-CN");
-            AddOverlay(str + "MONSOONUNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：精通", "zh-CN");
-            AddOverlay(str + "MONSOONUNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：精通", "zh-CN");
-            AddOverlay(str + "MONSOONUNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在季风难度下通关游戏或抹除自己。", "zh-CN");
-            AddOverlay(str + "TYPHOON_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：大师", "zh-CN");
-            AddOverlay(str + "TYPHOON_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：大师", "zh-CN");
-            AddOverlay(str + "TYPHOON_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在台风或日食难度下通关游戏或抹除自己。\n<color=#8888>(台风或者更高难度)</color>", "zh-CN");
-            AddOverlay(str + "THROW_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：在火焰轨迹中", "zh-CN");
-            AddOverlay(str + "THROW_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：在火焰轨迹中", "zh-CN");
-            AddOverlay(str + "THROW_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在一次抓取中将敌人猛砸到地上5次以上。", "zh-CN");
-            AddOverlay(str + "BEAM_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：平静如海", "zh-CN");
-            AddOverlay(str + "BEAM_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：平静如海", "zh-CN");
-            AddOverlay(str + "BEAM_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，完成一个关卡而不填充血井。", "zh-CN");
-            AddOverlay(str + "WALLJUMP_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：吉吉国王", "zh-CN");
-            AddOverlay(str + "WALLJUMP_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：吉吉国王", "zh-CN");
-            AddOverlay(str + "WALLJUMP_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在不落地的情况下跳了20次。", "zh-CN");
-            AddOverlay(str + "SUIT_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：我所有的伙伴", "zh-CN");
-            AddOverlay(str + "SUIT_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：我所有的伙伴", "zh-CN");
-            AddOverlay(str + "SUIT_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，同时拥有15个盟友。", "zh-CN");
-            AddOverlay(str + "VOID_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：从无到有", "zh-CN");
-            AddOverlay(str + "VOID_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：从无到有", "zh-CN");
-            AddOverlay(str + "VOID_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，逃离天文馆。", "zh-CN");
-        }
+        //private static void 破坏者汉化() {
+        //    string str = "ROB_RAVAGER_BODY_";
+        //    string text = "The Ravager is an agile melee bruiser who heals off slain foes to stay in the thick of it.<color=#CCD3E0>" + Environment.NewLine + Environment.NewLine;
+        //    text = text + "< ! > Charging wall jumps is the best way to deal with flying enemies." + Environment.NewLine + Environment.NewLine;
+        //    text = text + "< ! > Cleave is handy for cancelling high damage attacks as well as keeping up the damage output." + Environment.NewLine + Environment.NewLine;
+        //    text = text + "< ! > Coagulate can be helpful in a pinch if you're not sure you can get the Blood Well filled, but it can also be used passively to stay topped off." + Environment.NewLine + Environment.NewLine;
+        //    text = text + "< ! > Brutalize heals on demand so be sure to grab and consume something if you're getting low." + Environment.NewLine + Environment.NewLine;
+        //    string text2 = "..于是他离开了，去亵渎下一片土地。";
+        //    string text3 = "..于是他消失了，他荒谬的暴行终于结束了";
+        //    string text4 = "掠夺者并非天生就拥有特殊的力量...\n\n";
+        //    text4 += "...相反，他生来就有一把被诅咒的饮血太刀，但有一天他去了普普次元，遇到了一个邪恶的.....\n\n";
+        //    text4 += "最终他离开了普普次元，并亲自挥舞着掠夺来的可怕的邪恶力量，然后他去了Petrichor V并摧毁了它\n";
+        //    AddOverlay(str + "NAME", "掠夺者", "zh-CN");
+        //    AddOverlay(str + "DESCRIPTION", text, "zh-CN");
+        //    AddOverlay(str + "SUBTITLE", "无情的掠夺者", "zh-CN");
+        //    AddOverlay(str + "LORE", text4, "zh-CN");
+        //    AddOverlay(str + "OUTRO_FLAVOR", text2, "zh-CN");
+        //    AddOverlay(str + "OUTRO_FAILURE", text3, "zh-CN");
+        //    AddOverlay(str + "DEFAULT_SKIN_NAME", "默认", "zh-CN");
+        //    AddOverlay(str + "MONSOON_SKIN_NAME", "虚空触碰", "zh-CN");
+        //    AddOverlay(str + "TYPHOON_SKIN_NAME", "???", "zh-CN");
+        //    AddOverlay(str + "VOID_SKIN_NAME", "虚空诞生", "zh-CN");
+        //    AddOverlay(str + "MAHORAGA_SKIN_NAME", "神圣", "zh-CN");
+        //    AddOverlay(str + "MINECRAFT_SKIN_NAME", "我的世界", "zh-CN");
+        //    AddOverlay(str + "BLOODWELL_NAME", "血井", "zh-CN");
+        //    AddOverlay(str + "BLOODWELL_DESCRIPTION", $"掠夺者每获得1点{"浸剂".ToHealing()}的{"生命值奖励".ToHealing()}将增加{RavagerTweak.InfusionToDamageCoefficient}点{"基础伤害".ToDmg()}。掠夺者在击中敌人时会储存<style=cIsHealth>血液</style>，填满{"血井".ToHealth()}后进入{"鲜血迸发".ToHealth()}，{"恢复".ToHealing()}自身<style=cIsHealing>75%的失去的生命值</style>并<style=cIsDamage>暂时强化你的技能</style>。", "zh-CN");
+        //    AddOverlay(str + "BLOODWELL2_NAME", "灵液罐", "zh-CN");
+        //    AddOverlay(str + "BLOODWELL2_DESCRIPTION", $"掠夺者每获得1点{"浸剂".ToHealing()}的{"生命值奖励".ToHealing()}将增加{RavagerTweak.InfusionToDamageCoefficient}点{"基础伤害".ToDmg()}。掠夺者在击中敌人时会储存<style=cIsHealth>血液</style>，填满{"灵液罐".ToHealth()}后进入{"灵液迸发".ToHealth()}，{"恢复".ToHealing()}自身<style=cIsHealing>100%的最大生命值</style>并<style=cIsDamage>暂时强化你的技能</style>。<style=cIsHealth>攻击时消耗速度更快。</style>", "zh-CN");
+        //    AddOverlay(str + "PASSIVE_NAME", "体能", "zh-CN");
+        //    AddOverlay(str + "PASSIVE_DESCRIPTION", "掠夺者可以<style=cIsUtility>蹬墙</style>和<style=cIsHealth>踩头</style>。<style=cIsUtility><style=cIsDamage>蓄力</style>蹬墙</style>将跳得更远。", "zh-CN");
+        //    AddOverlay(str + "PASSIVE2_NAME", "扭曲突变", "zh-CN");
+        //    AddOverlay(str + "PASSIVE2_DESCRIPTION", "<style=cIsHealth>消耗10%的生命值。</style>在空中跳跃将<style=cIsUtility>向前突进</style>一段距离。落地或<style=cIsDamage>近战击中敌人</style>可刷新此能力。", "zh-CN");
+        //    AddOverlay(str + "CONFIRM_NAME", "确认", "zh-CN");
+        //    AddOverlay(str + "CONFIRM_DESCRIPTION", "继续当前技能。", "zh-CN");
+        //    AddOverlay(str + "CANCEL_NAME", "取消", "zh-CN");
+        //    AddOverlay(str + "CANCEL_DESCRIPTION", "取消当前技能。", "zh-CN");
+        //    AddOverlay(str + "PRIMARY_SLASH_NAME", "挥舞", "zh-CN");
+        //    AddOverlay(str + "PRIMARY_SLASH_DESCRIPTION", $"向前挥舞武器造成{Slash._damageCoefficient.ToDmgPct("_的伤害")}。在<style=cIsUtility>蹬墙</style>时可进入<style=cIsDamage>蓄力姿态</style>。", "zh-CN");
+        //    AddOverlay(str + "PRIMARY_SLASHCOMBO_NAME", "解体", "zh-CN");
+        //    AddOverlay(str + "PRIMARY_SLASHCOMBO_DESCRIPTION", $"向前挥舞武器造成{SlashCombo._damageCoefficient.ToDmgPct("_的伤害")}。第三次攻击将<style=cIsUtility>眩晕</style>并造成{SlashCombo.finisherDamageCoefficient.ToDmgPct("_的伤害")}.", "zh-CN");
+        //    AddOverlay(str + "SECONDARY_SPINSLASH_NAME", "劈裂", "zh-CN");
+        //    AddOverlay(str + "SECONDARY_SPINSLASH_DESCRIPTION", $"向前跃起，进行<style=cIsUtility>大范围</style>斩击造成{SpinSlash._damageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+        //    AddOverlay(str + "UTILITY_BEAM_NAME", "吞噬", "zh-CN");
+        //    AddOverlay(str + "UTILITY_BEAM_DESCRIPTION", $"<style=cIsHealth>吞噬</style>来袭的<style=cIsUtility>弹幕</style>为一发{"毁灭轰击".ToDeath()}充能，可造成{ChargeBeam.minDamageCoefficient.ToDmgPct("_-")}{(ChargeBeam.maxDamageCoefficient * 0.5f).ToDmgPct("_的伤害")}，一半充能以上时轰击将转化为造成{FireBeam.damageCoefficientPerSecond.ToDmgPct("每秒_伤害的持续性激光")}。", "zh-CN");
+        //    AddOverlay(str + "UTILITY_HEAL_NAME", "凝结", "zh-CN");
+        //    AddOverlay(str + "UTILITY_HEAL_DESCRIPTION", "立即排空<style=cIsHealth>血液</style>用于<style=cIsHealing>治疗自身</style>。", "zh-CN");
+        //    AddOverlay(str + "UTILITY_SWAP_NAME", "Boogie Woogie", "zh-CN");
+        //    AddOverlay(str + "UTILITY_SWAP_DESCRIPTION", "与<style=cIsUtility>任意实体</style>交换位置。", "zh-CN");
+        //    AddOverlay(str + "UTILITY_SNATCH_NAME", "抓取", "zh-CN");
+        //    AddOverlay(str + "UTILITY_SNATCH_DESCRIPTION", "向前伸出你的<style=cIsDamage>麒麟臂</style>抓住敌人，并<style=cIsUtility>将你拉向目标物体</style>。", "zh-CN");
+        //    AddOverlay(str + "SPECIAL_GRAB_NAME", "狂暴", "zh-CN");
+        //    AddOverlay(str + "SPECIAL_GRAB_DESCRIPTION", $"向前跃进<style=cIsUtility>抓住</style>敌人，然后猛扑造成{DashGrab.groundSlamDamageCoefficient.ToDmgPct("_的伤害")}。如果击杀敌人，则<style=cIsHealth>消耗</style>它们以{"恢复".ToHealing()}自身<style=cIsHealing>15%的最大生命值</style>。", "zh-CN");
+        //    AddOverlay(str + "SPECIAL_GRAB_SCEPTER_NAME", "野蛮冲锋", "zh-CN");
+        //    AddOverlay(str + "SPECIAL_TRANSFIGURE_NAME", "狂暴", "zh-CN");
+        //    AddOverlay(str + "SPECIAL_GRAB_DESCRIPTION", $"向前跃进<style=cIsUtility>抓住</style>敌人，然后猛扑造成{DashGrab.groundSlamDamageCoefficient.ToDmgPct("_的伤害")}。如果击杀敌人，则<style=cIsHealth>消耗</style>它们以{"恢复".ToHealing()}自身<style=cIsHealing>10%的最大生命值</style>。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_M12", $"<style=cKeywordName>蓄力姿态</style><style=cSub>释放后向前{"横扫".ToDmg()}，至少造成{Slash._damageCoefficient.ToDmgPct()}的伤害，根据斩击时的移动速度提升伤害。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_M1", "<style=cKeywordName>强化效果</style><style=cSub>挥舞得更快。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_M2", $"<style=cKeywordName>强化效果</style><style=cSub>跃进速度提升，并对{"低生命".ToHealth()}的敌人造成{"更多伤害".ToDmg()}。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_HEAL", $"<style=cKeywordName>强化效果</style><style=cSub>产生{"鲜血爆炸".ToHealth()}造成{Heal.maxDamageCoefficient.ToDmgPct("_的伤害")}。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_BEAM", "<style=cKeywordName>强化效果</style><style=cSub>充能更快。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_GRAB", $"<style=cKeywordName>强化效果</style><style=cSub>可以抓取更大的目标，并且将目标{"按在地上摩擦".ToDeath()}。", "zh-CN");
+        //    AddOverlay("KEYWORD_REDGUY_GRAB2", "<style=cKeywordName>Bosses</style><style=cSub>可打击Boss，<style=cIsDamage>击打</style>它们造成相同的伤害。", "zh-CN");
+        //    AddOverlay(str + "UNLOCKABLE_UNLOCKABLE_NAME", "把这一切抛在脑后的人", "zh-CN");
+        //    AddOverlay(str + "UNLOCKABLE_ACHIEVEMENT_NAME", "把这一切抛在脑后的人", "zh-CN");
+        //    AddOverlay(str + "UNLOCKABLE_ACHIEVEMENT_DESC", "对一名敌人施加50层流血。", "zh-CN");
+        //    AddOverlay(str + "MONSOONUNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：精通", "zh-CN");
+        //    AddOverlay(str + "MONSOONUNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：精通", "zh-CN");
+        //    AddOverlay(str + "MONSOONUNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在季风难度下通关游戏或抹除自己。", "zh-CN");
+        //    AddOverlay(str + "TYPHOON_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：大师", "zh-CN");
+        //    AddOverlay(str + "TYPHOON_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：大师", "zh-CN");
+        //    AddOverlay(str + "TYPHOON_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在台风或日食难度下通关游戏或抹除自己。\n<color=#8888>(台风或者更高难度)</color>", "zh-CN");
+        //    AddOverlay(str + "THROW_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：在火焰轨迹中", "zh-CN");
+        //    AddOverlay(str + "THROW_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：在火焰轨迹中", "zh-CN");
+        //    AddOverlay(str + "THROW_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在一次抓取中将敌人猛砸到地上5次以上。", "zh-CN");
+        //    AddOverlay(str + "BEAM_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：平静如海", "zh-CN");
+        //    AddOverlay(str + "BEAM_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：平静如海", "zh-CN");
+        //    AddOverlay(str + "BEAM_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，完成一个关卡而不填充血井。", "zh-CN");
+        //    AddOverlay(str + "WALLJUMP_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：吉吉国王", "zh-CN");
+        //    AddOverlay(str + "WALLJUMP_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：吉吉国王", "zh-CN");
+        //    AddOverlay(str + "WALLJUMP_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，在不落地的情况下跳了20次。", "zh-CN");
+        //    AddOverlay(str + "SUIT_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：我所有的伙伴", "zh-CN");
+        //    AddOverlay(str + "SUIT_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：我所有的伙伴", "zh-CN");
+        //    AddOverlay(str + "SUIT_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，同时拥有15个盟友。", "zh-CN");
+        //    AddOverlay(str + "VOID_UNLOCKABLE_UNLOCKABLE_NAME", "掠夺者：从无到有", "zh-CN");
+        //    AddOverlay(str + "VOID_UNLOCKABLE_ACHIEVEMENT_NAME", "掠夺者：从无到有", "zh-CN");
+        //    AddOverlay(str + "VOID_UNLOCKABLE_ACHIEVEMENT_DESC", "作为掠夺者，逃离天文馆。", "zh-CN");
+        //}
 
         private static void 象征汉化() {
-            TPDespair.ZetAspects.Language.targetLanguage = "zh-CN";
-            TPDespair.ZetAspects.Language.tokens["zh-CN"]["ITEM_SHIELDONLY_DESC"] += $"\n{基础护盾百分比再生速度}增加{0.01f.ToBaseAndStkPct().ToHealing("_hp/s")}";
-            var oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken];
-            TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
-            oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken];
-            TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
+        //    TPDespair.ZetAspects.Language.targetLanguage = "zh-CN";
+        //    TPDespair.ZetAspects.Language.tokens["zh-CN"]["ITEM_SHIELDONLY_DESC"] += $"\n{基础护盾百分比再生速度}增加{0.01f.ToBaseAndStkPct().ToHealing("_hp/s")}";
+        //    var oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken];
+        //    TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
+        //    oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken];
+        //    TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
         }
 
         private static string Language_GetLocalizedStringByToken(On.RoR2.Language.orig_GetLocalizedStringByToken orig, RoR2.Language self, string token) {
             var result = orig(self, token);
-            if (self.name == "zh-CN" && result.Length > 0 && !strings.Contains(token) && (大小写字母串.Contains(result.Substring(0, 1)) || (result.StartsWith("<") && 大小写字母串.Contains(result.Substring(result.IndexOf('>') + 1, 1))))) {
+            if (self.name == "zh-CN" && result.Length > 0 && !strings.Contains(token) && (大小写字母串.Contains(result[..1]) || (result.StartsWith("<") && 大小写字母串.Contains(result.Substring(result.IndexOf('>') + 1, 1))))) {
                 strings.Add(token);
                 $"AddOverlay(\"{token}\",\"{result}\",\"zh-CN\")".Qlog("");
             }
             return result;
         }
 
-        private static void OnMainMenuControllerFirstStart(On.RoR2.UI.MainMenu.MainMenuController.orig_Start orig, RoR2.UI.MainMenu.MainMenuController self) {
+        private static async void OnMainMenuControllerFirstStart(On.RoR2.UI.MainMenu.MainMenuController.orig_Start orig, RoR2.UI.MainMenu.MainMenuController self) {
             orig(self);
             On.RoR2.UI.MainMenu.MainMenuController.Start -= OnMainMenuControllerFirstStart;
-            Task.Run(基础汉化);
-            Task.Run(权杖技能汉化);
-            Task.Run(圣骑士汉化);
-            Task.Run(探路者汉化);
-            Task.Run(象征汉化);
-            Task.Run(破坏者汉化);
+            await Task.Run(基础汉化);
+            await Task.Run(权杖技能汉化);
+            await Task.Run(圣骑士汉化);
+            //await Task.Run(探路者汉化);
+            await Task.Run(象征汉化);
+            //Task.Run(破坏者汉化);
         }
     }
 }

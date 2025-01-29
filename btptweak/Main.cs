@@ -13,8 +13,7 @@ namespace BtpTweak {
     [BepInDependency("com.groovesalad.GrooveSaladSpikestripContent")]
     [BepInDependency("com.plasmacore.PlasmaCoreSpikestripContent")]
     [BepInDependency("com.rune580.riskofoptions")]
-    [BepInDependency("com.Skell.GoldenCoastPlus")]
-    [BepInDependency(HIFUArtificerTweaks.Main.PluginGUID)]
+    [BepInDependency("com.Phreel.GoldenCoastPlusRevived")]
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInDependency(TPDespair.ZetAspects.ZetAspectsPlugin.ModGuid)]
     [BepInDependency(vanillaVoid.vanillaVoidPlugin.ModGuid)]
@@ -23,7 +22,7 @@ namespace BtpTweak {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
         public const string PluginName = "BtpTweak";
-        public const string PluginVersion = "2.4.4";
+        public const string PluginVersion = "3.0.0";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
         internal new static ManualLogSource Logger { get; private set; }

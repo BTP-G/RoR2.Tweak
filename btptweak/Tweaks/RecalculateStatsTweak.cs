@@ -1,4 +1,5 @@
 ﻿using BtpTweak.Tweaks.ItemTweaks;
+using GoldenCoastPlusRevived;
 using R2API;
 using RoR2;
 using System;
@@ -35,7 +36,7 @@ namespace BtpTweak.Tweaks {
                 }
                 args.critAdd += HealOnCritTweak.StackCrit * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.baseRegenAdd += regenFraction * sender.maxHealth + 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
-                args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.goldenKnurlDef);
+                args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlusPlugin.goldenKnurlDef);
                 var barrierOnOverHealCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
                 args.armorAdd += 50 * barrierOnOverHealCount - 10 * sender.GetBuffCount(RoR2Content.Buffs.BeetleJuice.buffIndex);
                 args.levelArmorAdd += barrierOnOverHealCount;

@@ -1,18 +1,11 @@
 ﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour.HookGen;
-using Newtonsoft.Json.Linq;
 using R2API;
-using RedGuyMod.Content;
-using RedGuyMod.Content.Components;
-using RedGuyMod.SkillStates.Ravager;
 using RoR2;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 
 namespace BtpTweak.Tweaks.SurvivorTweaks {

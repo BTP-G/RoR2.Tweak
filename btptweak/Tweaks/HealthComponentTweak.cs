@@ -17,7 +17,7 @@ namespace BtpTweak.Tweaks {
         private float _虚灵触发伤害限制;
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.HealthComponent.TakeDamage += IL_HealthComponent_TakeDamage;
+            IL.RoR2.HealthComponent.TakeDamageProcess += IL_HealthComponent_TakeDamage;
             Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
             Stage.onStageStartGlobal += StageStartAction;
         }

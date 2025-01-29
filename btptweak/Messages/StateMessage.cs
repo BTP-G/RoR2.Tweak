@@ -26,9 +26,7 @@ namespace BtpTweak.Messages {
         }
 
         public readonly void OnReceived() {
-            if (_stateMachine) {
-                _stateMachine.SetNextState(_state);
-            }
+            _stateMachine?.SetNextState(_state);
         }
 
         public readonly void Serialize(NetworkWriter writer) {

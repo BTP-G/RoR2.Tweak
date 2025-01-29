@@ -43,52 +43,52 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("ExplodeOnDeath")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
-                ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldloc_2);
-                ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody victimBody) => {
-                    if (itemCount > 0 && (victimBody.HasBuff(DLC1Content.Buffs.StrongerBurn.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.OnFire.buffIndex))) {
-                        var baseDamage = 0f;
-                        var totalDamage = 0f;
-                        foreach (var dotStack in DotController.FindDotController(victimBody.gameObject).dotStackList) {
-                            if (dotStack.dotIndex == DotController.DotIndex.Burn || dotStack.dotIndex == DotController.DotIndex.StrongerBurn) {
-                                baseDamage += dotStack.damage;
-                                totalDamage += dotStack.damage * Mathf.Ceil(dotStack.timer / dotStack.dotDef.interval);
+                ilcursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldloc_2)
+                        .EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody victimBody) => {
+                            if (itemCount > 0 && (victimBody.HasBuff(DLC1Content.Buffs.StrongerBurn.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.OnFire.buffIndex))) {
+                                var baseDamage = 0f;
+                                var totalDamage = 0f;
+                                foreach (var dotStack in DotController.FindDotController(victimBody.gameObject).dotStackList) {
+                                    if (dotStack.dotIndex == DotController.DotIndex.Burn || dotStack.dotIndex == DotController.DotIndex.StrongerBurn) {
+                                        baseDamage += dotStack.damage;
+                                        totalDamage += dotStack.damage * Mathf.Ceil(dotStack.timer / dotStack.dotDef.interval);
+                                    }
+                                }
+                                var damageCoefficient = BtpUtils.简单逼近1(itemCount, 半数);
+                                _blastAttack.attacker = damageReport.attacker;
+                                _blastAttack.baseDamage = Util.OnKillProcDamage(baseDamage, damageCoefficient);
+                                _blastAttack.position = damageReport.damageInfo.position;
+                                _blastAttack.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.2f * victimBody.bestFitRadius;
+                                _blastAttack.teamIndex = damageReport.attackerTeamIndex;
+                                var result = _blastAttack.Fire();
+                                EffectManager.SpawnEffect(explosionEffect, new EffectData {
+                                    origin = _blastAttack.position,
+                                    scale = _blastAttack.radius,
+                                }, true);
+                                if (result.hitCount > 0) {
+                                    var baseDotInfo = new InflictDotInfo {
+                                        attackerObject = damageReport.attacker,
+                                        damageMultiplier = damageCoefficient * itemCount,
+                                        dotIndex = DotController.DotIndex.Burn,
+                                        totalDamage = Util.OnKillProcDamage(totalDamage, damageCoefficient),
+                                    };
+                                    StrengthenBurnUtils.CheckDotForUpgrade(damageReport.attackerBody.inventory, ref baseDotInfo);
+                                    foreach (var hitPoint in result.hitPoints) {
+                                        var dotInfo = baseDotInfo;
+                                        dotInfo.victimObject = hitPoint.hurtBox.healthComponent.gameObject;
+                                        var reduceCoefficient = 1f - Mathf.Clamp01(Mathf.Sqrt(hitPoint.distanceSqr) / _blastAttack.radius);
+                                        dotInfo.damageMultiplier *= reduceCoefficient;
+                                        dotInfo.totalDamage *= reduceCoefficient;
+                                        DotController.InflictDot(ref dotInfo);
+                                    }
+                                }
                             }
-                        }
-                        var damageCoefficient = BtpUtils.简单逼近1(itemCount, 半数);
-                        _blastAttack.attacker = damageReport.attacker;
-                        _blastAttack.baseDamage = Util.OnKillProcDamage(baseDamage, damageCoefficient);
-                        _blastAttack.position = damageReport.damageInfo.position;
-                        _blastAttack.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.2f * victimBody.bestFitRadius;
-                        _blastAttack.teamIndex = damageReport.attackerTeamIndex;
-                        var result = _blastAttack.Fire();
-                        EffectManager.SpawnEffect(explosionEffect, new EffectData {
-                            origin = _blastAttack.position,
-                            scale = _blastAttack.radius,
-                        }, true);
-                        if (result.hitCount > 0) {
-                            var baseDotInfo = new InflictDotInfo {
-                                attackerObject = damageReport.attacker,
-                                damageMultiplier = damageCoefficient * itemCount,
-                                dotIndex = DotController.DotIndex.Burn,
-                                totalDamage = Util.OnKillProcDamage(totalDamage, damageCoefficient),
-                            };
-                            StrengthenBurnUtils.CheckDotForUpgrade(damageReport.attackerBody.inventory, ref baseDotInfo);
-                            foreach (var hitPoint in result.hitPoints) {
-                                var dotInfo = baseDotInfo;
-                                dotInfo.victimObject = hitPoint.hurtBox.healthComponent.gameObject;
-                                var reduceCoefficient = 1f - Mathf.Clamp01(Mathf.Sqrt(hitPoint.distanceSqr) / _blastAttack.radius);
-                                dotInfo.damageMultiplier *= reduceCoefficient;
-                                dotInfo.totalDamage *= reduceCoefficient;
-                                DotController.InflictDot(ref dotInfo);
-                            }
-                        }
-                    }
-                });
+                        });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("ExplodeOnDeath :: Hook Failed!");

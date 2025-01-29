@@ -15,8 +15,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float Interval = 1f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            On.RoR2.Projectile.MissileController.FixedUpdate += MissileController_FixedUpdate;
-            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+            IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -29,33 +28,28 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             missileController.turbulence = 0;
         }
 
-        private void MissileController_FixedUpdate(On.RoR2.Projectile.MissileController.orig_FixedUpdate orig, MissileController self) {
-            self.torquePID.timer = self.timer + Time.fixedDeltaTime;
-            orig(self);
-        }
-
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Missile")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
-                ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldarg_2);
-                ilcursor.Emit(OpCodes.Ldloc_1);
-                ilcursor.EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
-                    if (itemCount > 0 && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerBody.master)) {
-                        var missileInfo = new MissilePoolKey {
-                            missilePrefab = GlobalEventManager.CommonAssets.missilePrefab,
-                            procChainMask = damageInfo.procChainMask,
-                            isCrit = damageInfo.crit,
-                            target = victim,
-                            attackerBody = attackerBody,
-                        };
-                        missileInfo.procChainMask.AddRYProcs();
-                        MissilePool.RentPool(damageInfo.attacker).AddMissile(missileInfo,
-                                                                             Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
-                    }
-                });
+                ilcursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldarg_2)
+                        .Emit(OpCodes.Ldloc_1)
+                        .EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
+                            if (itemCount > 0 && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerBody.master)) {
+                                var missileInfo = new MissilePoolKey {
+                                    missilePrefab = GlobalEventManager.CommonAssets.missilePrefab,
+                                    procChainMask = damageInfo.procChainMask,
+                                    isCrit = damageInfo.crit,
+                                    target = victim,
+                                    attackerBody = attackerBody,
+                                };
+                                missileInfo.procChainMask.AddRYProcs();
+                                MissilePool.RentPool(damageInfo.attacker).AddMissile(missileInfo,
+                                                                                     Util.OnHitProcDamage(damageInfo.damage, 0, DamageCoefficient * itemCount));
+                            }
+                        });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("Missile :: FireHook Failed!");

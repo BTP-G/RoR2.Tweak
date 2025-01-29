@@ -6,6 +6,7 @@ namespace BtpTweak.Tweaks.MonsterTweaks {
 
         void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
+            Run.ambientLevelCap = int.MaxValue;
         }
 
         private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {

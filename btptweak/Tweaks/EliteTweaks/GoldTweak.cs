@@ -1,7 +1,8 @@
-﻿using MonoMod.Cil;
+﻿using GoldenCoastPlusRevived;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour.HookGen;
-using RoR2.Projectile;
 using RoR2;
+using RoR2.Projectile;
 using System;
 using System.Reflection;
 using UnityEngine;
@@ -16,25 +17,25 @@ namespace BtpTweak.Tweaks.EliteTweaks {
         }
 
         private void RemoveOrigHook() {
-            var targetMethod = typeof(GoldenCoastPlus.GoldenCoastPlus).GetMethod("GlobalEventManager_OnHitEnemy", BindingFlags.NonPublic | BindingFlags.Instance);
+            var targetMethod = typeof(GoldenCoastPlusPlugin).GetMethod("GlobalEventManager_OnHitEnemy", BindingFlags.NonPublic | BindingFlags.Instance);
             HookEndpointManager.Modify<Action<ILContext>>(targetMethod, (ILContext il) => {
                 var cursor = new ILCursor(il);
-                cursor.RemoveRange(204);
+                cursor.RemoveRange(217);
             });
         }
 
         private void BetterEvents_OnHitEnemy(DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) {
-            if (attackerBody.HasBuff(GoldenCoastPlus.GoldenCoastPlus.affixGoldDef)) {
+            if (attackerBody.HasBuff(GoldenCoastPlusPlugin.affixGoldDef)) {
                 attackerBody.master.GiveMoney((uint)(2f * Run.instance.difficultyCoefficient));
             }
-            int itemCount = attackerBody.inventory.GetItemCount(GoldenCoastPlus.GoldenCoastPlus.bigSwordDef);
+            int itemCount = attackerBody.inventory.GetItemCount(GoldenCoastPlusPlugin.bigSwordDef);
             if (itemCount > 0
                 && !damageInfo.procChainMask.HasProc(ProcType.AACannon)
-                && Util.CheckRoll(GoldenCoastPlus.GoldenCoastPlus.SwordChance.Value * damageInfo.procCoefficient, attackerBody.master)
+                && Util.CheckRoll(GoldenCoastPlusPlugin.SwordChance.Value * damageInfo.procCoefficient, attackerBody.master)
                 && Physics.Raycast(damageInfo.position, Vector3.down, out var raycastHit, float.PositiveInfinity, LayerIndex.world.mask)) {
                 var fireProjectileInfo = new FireProjectileInfo {
                     crit = damageInfo.crit,
-                    damage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, itemCount * GoldenCoastPlus.GoldenCoastPlus.SwordDamage.Value),
+                    damage = Util.OnHitProcDamage(damageInfo.damage, attackerBody.damage, itemCount * GoldenCoastPlusPlugin.SwordDamage.Value),
                     damageColorIndex = DamageColorIndex.Item,
                     force = 10000f,
                     fuseOverride = 0.5f,

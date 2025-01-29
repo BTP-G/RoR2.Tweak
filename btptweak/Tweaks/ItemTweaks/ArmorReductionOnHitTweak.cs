@@ -10,25 +10,25 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float 半数 = 1f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
             var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.Before,
-                                   cursor => cursor.MatchLdloc(33),
+                                   cursor => cursor.MatchLdloc(37),
                                    cursor => cursor.MatchLdcR4(0f))) {
                 cursor.Index += 1;
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.Emit(OpCodes.Ldloc_1);
-                cursor.EmitDelegate((float armor, HealthComponent healthComponent, CharacterBody attackerBody) => {
-                    if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && attackerBody && attackerBody.inventory) {
-                        return armor - BtpUtils.简单逼近(attackerBody.inventory.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex), 半数, armor > 0 ? armor : -armor);
-                    }
-                    return armor;
-                });
-                cursor.Emit(OpCodes.Stloc, 33);
-                cursor.Emit(OpCodes.Ldloc, 33);
+                cursor.Emit(OpCodes.Ldarg_0)
+                      .Emit(OpCodes.Ldloc_1)
+                      .EmitDelegate((float armor, HealthComponent healthComponent, CharacterBody attackerBody) => {
+                          if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && attackerBody && attackerBody.inventory) {
+                              return armor - BtpUtils.简单逼近(attackerBody.inventory.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex), 半数, armor > 0 ? armor : -armor);
+                          }
+                          return armor;
+                      });
+                cursor.Emit(OpCodes.Stloc, 37)
+                      .Emit(OpCodes.Ldloc, 37);
             } else {
                 Main.Logger.LogError("ArmorReductionOnHit Hook Failed!");
             }

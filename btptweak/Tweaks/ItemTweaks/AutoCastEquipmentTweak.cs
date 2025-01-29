@@ -13,12 +13,12 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void IL_Inventory_UpdateEquipment(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchStloc(x, 6))) {
-                ilcursor.Emit(OpCodes.Ldarg_0);
-                ilcursor.EmitDelegate((float chargeFinishTime, Inventory inventory) => {
-                    return Mathf.Max(强制冷却时间 * inventory.GetItemCount(RoR2Content.Items.AutoCastEquipment.itemIndex), chargeFinishTime);
-                });
+                ilcursor.Emit(OpCodes.Ldarg_0)
+                        .EmitDelegate((float chargeFinishTime, Inventory inventory) => {
+                            return Mathf.Max(强制冷却时间 * inventory.GetItemCount(RoR2Content.Items.AutoCastEquipment.itemIndex), chargeFinishTime);
+                        });
             } else {
                 Main.Logger.LogError("AutoCastEquipment Hook Failed!");
             }

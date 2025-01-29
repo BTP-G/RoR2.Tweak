@@ -74,21 +74,21 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         private void AimState_OnEnter(ILContext il) {
             var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.After, c => c.MatchCall<EntityState>("get_isAuthority"))) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate((bool isAuthority, AimState aimState) => {
-                    if (isAuthority) {
-                        _search.searchOrigin = aimState.transform.position;
-                        _search.teamMaskFilter = TeamMask.all;
-                        _search.viewer = aimState.ownerBody;
-                        _search.RefreshCandidates();
-                        _search.FilterOutGameObject(aimState.ownerBody.gameObject);
-                        var targetHurtBox = _search.GetResults().FirstOrDefault();
-                        if (targetHurtBox) {
-                            aimState.simpleRotateToDirection.targetRotation = Quaternion.LookRotation(targetHurtBox.transform.position - _search.searchOrigin);
-                            aimState.foundTarget = true;
-                        }
-                    }
-                });
+                cursor.Emit(OpCodes.Ldarg_0)
+                      .EmitDelegate((bool isAuthority, AimState aimState) => {
+                          if (isAuthority) {
+                              _search.searchOrigin = aimState.transform.position;
+                              _search.teamMaskFilter = TeamMask.all;
+                              _search.viewer = aimState.ownerBody;
+                              _search.RefreshCandidates();
+                              _search.FilterOutGameObject(aimState.ownerBody.gameObject);
+                              var targetHurtBox = _search.GetResults().FirstOrDefault();
+                              if (targetHurtBox) {
+                                  aimState.simpleRotateToDirection.targetRotation = Quaternion.LookRotation(targetHurtBox.transform.position - _search.searchOrigin);
+                                  aimState.foundTarget = true;
+                              }
+                          }
+                      });
                 cursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError(GetType().FullName + " add hook 'AimState_OnEnter' failed!");

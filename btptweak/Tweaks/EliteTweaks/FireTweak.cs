@@ -10,14 +10,16 @@ namespace BtpTweak.Tweaks.EliteTweaks {
         public const float DamageCoefficient = 0.2f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.GlobalEventManager.OnHitEnemy += GlobalEventManager_OnHitEnemy;
+            IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
             BetterEvents.OnHitEnemy += BetterEvents_OnHitEnemy;
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
             var curosr = new ILCursor(il);
-            curosr.GotoNext(i => i.MatchStloc(28));
-            curosr.Emit(OpCodes.Ldarg_1).Emit(OpCodes.Ldloc_1).EmitDelegate((DamageInfo damageInfo, CharacterBody attackerBody) => damageInfo.crit ? attackerBody.critMultiplier : 1f);
+            curosr.GotoNext(i => i.MatchStloc(32));
+            curosr.Emit(OpCodes.Ldarg_1)
+                  .Emit(OpCodes.Ldloc_1)
+                  .EmitDelegate((DamageInfo damageInfo, CharacterBody attackerBody) => damageInfo.crit ? attackerBody.critMultiplier : 1f);
             curosr.Emit(OpCodes.Mul);
         }
 

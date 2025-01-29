@@ -65,7 +65,6 @@ namespace BtpTweak {
                 MoonscourgeAccursedItem.pickupToken = "ACCURSEDMITHRIX_ITEM1_PICKUP";
                 MoonscourgeAccursedItem.descriptionToken = "ACCURSEDMITHRIX_ITEM1_DESC";
                 MoonscourgeAccursedItem.tier = ItemTier.NoTier;
-                MoonscourgeAccursedItem.deprecatedTier = ItemTier.NoTier;
                 if (!ContentAddition.AddItemDef(MoonscourgeAccursedItem)) {
                     Main.Logger.LogError("AddItemDef :: MoonscourgeAccursedItem Failed!");
                 }
@@ -78,7 +77,6 @@ namespace BtpTweak {
                 StormscourgeAccursedItem.pickupToken = "ACCURSEDMITHRIX_ITEM2_PICKUP";
                 StormscourgeAccursedItem.descriptionToken = "ACCURSEDMITHRIX_ITEM2_DESC";
                 StormscourgeAccursedItem.tier = ItemTier.NoTier;
-                StormscourgeAccursedItem.deprecatedTier = ItemTier.NoTier;
                 if (!ContentAddition.AddItemDef(StormscourgeAccursedItem)) {
                     Main.Logger.LogError("AddItemDef :: StormscourgeAccursedItem Failed!");
                 }
@@ -91,7 +89,6 @@ namespace BtpTweak {
                 HelscourgeAccursedItemDef.pickupToken = "ACCURSEDMITHRIX_ITEM3_PICKUP";
                 HelscourgeAccursedItemDef.descriptionToken = "ACCURSEDMITHRIX_ITEM3_DESC";
                 HelscourgeAccursedItemDef.tier = ItemTier.NoTier;
-                HelscourgeAccursedItemDef.deprecatedTier = ItemTier.NoTier;
                 if (!ContentAddition.AddItemDef(HelscourgeAccursedItemDef)) {
                     Main.Logger.LogError("AddItemDef :: HelscourgeAccursedItemDef Failed!");
                 }

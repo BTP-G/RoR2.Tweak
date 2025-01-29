@@ -39,33 +39,33 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void GlobalEventManager_OnCharacterDeath(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items), "BleedOnHitAndExplode"),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
-                ilcursor.Emit(OpCodes.Ldarg_1);
-                ilcursor.Emit(OpCodes.Ldloc_2);
-                ilcursor.EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody victimBody) => {
-                    if (itemCount > 0 && (victimBody.HasBuff(RoR2Content.Buffs.SuperBleed.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.Bleeding.buffIndex))) {
-                        var baseDamage = 0f;
-                        foreach (var dotStack in DotController.FindDotController(victimBody.gameObject).dotStackList) {
-                            if (dotStack.dotIndex == DotController.DotIndex.Bleed || dotStack.dotIndex == DotController.DotIndex.SuperBleed) {
-                                baseDamage += dotStack.damage * Mathf.Ceil(dotStack.timer / dotStack.dotDef.interval);
+                ilcursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldloc_2)
+                        .EmitDelegate((int itemCount, DamageReport damageReport, CharacterBody victimBody) => {
+                            if (itemCount > 0 && (victimBody.HasBuff(RoR2Content.Buffs.SuperBleed.buffIndex) || victimBody.HasBuff(RoR2Content.Buffs.Bleeding.buffIndex))) {
+                                var baseDamage = 0f;
+                                foreach (var dotStack in DotController.FindDotController(victimBody.gameObject).dotStackList) {
+                                    if (dotStack.dotIndex == DotController.DotIndex.Bleed || dotStack.dotIndex == DotController.DotIndex.SuperBleed) {
+                                        baseDamage += dotStack.damage * Mathf.Ceil(dotStack.timer / dotStack.dotDef.interval);
+                                    }
+                                }
+                                blastAttack.attacker = damageReport.attacker;
+                                blastAttack.baseDamage = Util.OnKillProcDamage(baseDamage, BtpUtils.简单逼近1(itemCount, 半数));
+                                blastAttack.position = damageReport.damageInfo.position;
+                                blastAttack.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.6f * victimBody.bestFitRadius;
+                                blastAttack.teamIndex = damageReport.attackerTeamIndex;
+                                blastAttack.Fire();
+                                EffectManager.SpawnEffect(explosionEffect, new EffectData {
+                                    origin = blastAttack.position,
+                                    scale = blastAttack.radius
+                                }, true);
+                                Util.PlaySound("Play_bleedOnCritAndExplode_explode", victimBody.gameObject);
                             }
-                        }
-                        blastAttack.attacker = damageReport.attacker;
-                        blastAttack.baseDamage = Util.OnKillProcDamage(baseDamage, BtpUtils.简单逼近1(itemCount, 半数));
-                        blastAttack.position = damageReport.damageInfo.position;
-                        blastAttack.radius = BaseRadius + StackRadius * (itemCount - 1) + 1.6f * victimBody.bestFitRadius;
-                        blastAttack.teamIndex = damageReport.attackerTeamIndex;
-                        blastAttack.Fire();
-                        EffectManager.SpawnEffect(explosionEffect, new EffectData {
-                            origin = blastAttack.position,
-                            scale = blastAttack.radius
-                        }, true);
-                        Util.PlaySound("Play_bleedOnCritAndExplode_explode", victimBody.gameObject);
-                    }
-                });
+                        });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("BleedOnHitAndExplode :: Hook Failed!");

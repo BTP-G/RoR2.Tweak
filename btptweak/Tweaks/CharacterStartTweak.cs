@@ -55,7 +55,6 @@ namespace BtpTweak.Tweaks {
                             kinematicCharacterMotor.MaxStableDenivelationAngle = 180f;
                             kinematicCharacterMotor.MaxStepHeight = 2;
                             kinematicCharacterMotor.MinRequiredStepDepth = 0;
-                            kinematicCharacterMotor.PreventSnappingOnLedges = true;
                             break;
                         }
                         case BodyNameIndex.BrotherBody:

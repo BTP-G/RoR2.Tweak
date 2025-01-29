@@ -97,7 +97,7 @@ namespace BtpTweak.Tweaks {
         }
 
         public class EffectSpawnLimit {
-            private static readonly Dictionary<int, EffectSpawnLimit> _effectIndexToEffectSpawnLimit = new();
+            private static readonly Dictionary<int, EffectSpawnLimit> _effectIndexToEffectSpawnLimit = [];
             private float _lastSpawnTime;
             private float _spawnInterval;
 

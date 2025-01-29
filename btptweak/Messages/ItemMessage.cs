@@ -31,7 +31,7 @@ namespace BtpTweak.Messages {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<ItemMessage>()) {
                 Main.Logger.LogMessage(typeof(ItemMessage).FullName + " Register Successd!");
             } else {
-                Main.Logger.LogError(typeof(ItemMessage).FullName + "MoneyMessage Register Failed!");
+                Main.Logger.LogError(typeof(ItemMessage).FullName + "ItemMessage Register Failed!");
             }
         }
     }

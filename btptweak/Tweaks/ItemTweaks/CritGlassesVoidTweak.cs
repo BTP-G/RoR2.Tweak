@@ -8,7 +8,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float CritDamageMultAdd = 0.0666f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }
 
@@ -19,7 +19,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 cursor.GotoPrev(c => c.MatchLdarg(0),
                                 c => c.MatchLdfld<HealthComponent>("body"));
                 cursor.Index += 1;
-                cursor.RemoveRange(2).Emit(OpCodes.Pop).Emit(OpCodes.Ldc_I4_1);
+                cursor.RemoveRange(2)
+                      .Emit(OpCodes.Pop)
+                      .Emit(OpCodes.Ldc_I4_1);
             } else {
                 Main.Logger.LogError("CritGlassesVoid Hook Failed!");
             }

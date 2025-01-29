@@ -10,7 +10,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float StackDamageCoefficient = 0.08f;
 
         public void OnModLoad() {
-            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
@@ -18,18 +18,17 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
-            var c = new ILCursor(il);
-            if (c.TryGotoNext(MoveType.After,
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.After,
                               x => x.MatchLdsfld(typeof(RoR2Content.Buffs), "DeathMark"),
                               x => x.MatchCallvirt<CharacterBody>("HasBuff"))
-                && c.TryGotoNext(MoveType.After,
-                                 x => x.MatchLdcR4(1.5f))) {
-                c.Emit(OpCodes.Pop);
-                c.Emit(OpCodes.Ldloc_2);
-                c.EmitDelegate((TeamIndex attackTeamIndex) => {
-                    var teaamItemCount = Util.GetItemCountForTeam(attackTeamIndex, RoR2Content.Items.DeathMark.itemIndex, true, false);
-                    return 1f + (teaamItemCount > 0 ? BaseDamageCoefficient + (teaamItemCount - 1) * StackDamageCoefficient : 0f);
-                });
+                && cursor.TryGotoNext(MoveType.After, x => x.MatchLdcR4(1.5f))) {
+                cursor.Emit(OpCodes.Pop)
+                      .Emit(OpCodes.Ldloc_2)
+                      .EmitDelegate((TeamIndex attackTeamIndex) => {
+                          var teaamItemCount = Util.GetItemCountForTeam(attackTeamIndex, RoR2Content.Items.DeathMark.itemIndex, true, false);
+                          return 1f + (teaamItemCount > 0 ? BaseDamageCoefficient + (teaamItemCount - 1) * StackDamageCoefficient : 0f);
+                      });
             } else {
                 Main.Logger.LogError("DeathMark Hook Failed!");
             }

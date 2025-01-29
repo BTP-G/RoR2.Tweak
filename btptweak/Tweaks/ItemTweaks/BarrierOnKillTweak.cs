@@ -17,11 +17,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                    x => x.MatchLdsfld(typeof(RoR2Content.Items), "BarrierOnKill"),
                                    x => x.MatchCallvirt<Inventory>("GetItemCount"))
                 && cursor.TryGotoNext(c => c.MatchCallvirt<HealthComponent>("AddBarrier"))) {
-                cursor.Emit(OpCodes.Ldloc, 15);
-                cursor.Emit(OpCodes.Ldloc, 49);
-                cursor.EmitDelegate((CharacterBody attackerBody, int BarrierOnKillCount) => {
-                    return AddBarrierFraction * attackerBody.maxBarrier * BarrierOnKillCount;
-                });
+                cursor.Emit(OpCodes.Ldloc, 15)
+                      .Emit(OpCodes.Ldloc, 49)
+                      .EmitDelegate((CharacterBody attackerBody, int BarrierOnKillCount) => {
+                          return AddBarrierFraction * attackerBody.maxBarrier * BarrierOnKillCount;
+                      });
                 cursor.Emit(OpCodes.Add);
             } else {
                 Main.Logger.LogError("BarrierOnKill :: Hook Failed!");

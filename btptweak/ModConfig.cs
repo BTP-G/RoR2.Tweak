@@ -59,7 +59,7 @@ namespace BtpTweak {
 
         public static StepSliderOption AddStepSliderOption(ConfigFile config, string section, string key, float defaultValue, float min, float max, float step_size, string description, string formatString = "{0}", Action<float> onChanged = null) {
             var configEntry = config.Bind(section, key, defaultValue, description);
-            var stepSliderOption = new StepSliderOption(configEntry, new StepSliderConfig() { min = min, max = max, increment = step_size, formatString = formatString });
+            var stepSliderOption = new StepSliderOption(configEntry, new StepSliderConfig() { min = min, max = max, increment = step_size, FormatString = formatString });
             var modMetaData = Assembly.GetCallingAssembly().GetModMetaData();
             ModSettingsManager.AddOption(stepSliderOption, modMetaData.Guid, modMetaData.Name);
             if (onChanged != null) {
@@ -72,7 +72,7 @@ namespace BtpTweak {
 
         public static SliderOption AddSliderOption(ConfigFile config, string section, string key, float defaultValue, float min, float max, string description, string formatString = "{0}", Action<float> onChanged = null) {
             var configEntry = config.Bind(section, key, defaultValue, description);
-            var sliderOption = new SliderOption(configEntry, new SliderConfig() { min = min, max = max, formatString = formatString });
+            var sliderOption = new SliderOption(configEntry, new SliderConfig() { min = min, max = max, FormatString = formatString });
             var modMetaData = Assembly.GetCallingAssembly().GetModMetaData();
             ModSettingsManager.AddOption(sliderOption, modMetaData.Guid, modMetaData.Name);
             if (onChanged != null) {

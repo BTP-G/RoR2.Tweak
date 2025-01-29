@@ -27,7 +27,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
         public const int LaserGlaiveBounceCount = 10;
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.HuntressTracker.FixedUpdate += HuntressTracker_FixedUpdate;
+            IL.RoR2.HuntressTracker.MyFixedUpdate += HuntressTracker_FixedUpdate;
             On.RoR2.HuntressTracker.Start += HuntressTracker_Start;
             On.RoR2.HuntressTracker.SearchForTarget += HuntressTracker_SearchForTarget;
             On.EntityStates.Huntress.HuntressWeapon.FireSeekingArrow.FireOrbArrow += FireSeekingArrow_FireOrbArrow;

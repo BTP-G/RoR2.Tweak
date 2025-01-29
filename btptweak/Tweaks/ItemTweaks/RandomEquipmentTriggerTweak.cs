@@ -27,8 +27,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             var cursor = new ILCursor(il);
             cursor.GotoNext(MoveType.After,
                             x => x.MatchLdsfld(typeof(DLC1Content.Items), "RandomEquipmentTrigger"),
-                            x => x.MatchCallvirt<Inventory>("GetItemCount"));
-            cursor.Emit(OpCodes.Pop).Emit(OpCodes.Ldc_I4_0);
+                            x => x.MatchCallvirt<Inventory>("GetItemCount"))
+                  .Emit(OpCodes.Pop)
+                  .Emit(OpCodes.Ldc_I4_0);
         }
 
         public class RandomEquipmentTriggerBehavior : CharacterBody.ItemBehavior {

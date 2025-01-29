@@ -13,11 +13,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void CharacterBody_OnInventoryChanged(ILContext il) {
-            ILCursor ilcursor = new(il);
+            var ilcursor = new ILCursor(il);
             if (ilcursor.TryGotoNext(x => x.MatchCall<CharacterBody>("set_executeEliteHealthFraction"))) {
-                ilcursor.Emit(OpCodes.Pop);
-                ilcursor.Emit(OpCodes.Ldarg_0);
-                ilcursor.EmitDelegate((CharacterBody body) => BtpUtils.简单逼近(body.inventory.GetItemCount(RoR2Content.Items.ExecuteLowHealthElite.itemIndex), 4f, 0.5f));
+                ilcursor.Emit(OpCodes.Pop)
+                        .Emit(OpCodes.Ldarg_0)
+                        .EmitDelegate((CharacterBody body) => BtpUtils.简单逼近(body.inventory.GetItemCount(RoR2Content.Items.ExecuteLowHealthElite.itemIndex), 4f, 0.5f));
             } else {
                 Main.Logger.LogError("ExecuteLowHealthElite Hook Failed!");
             }

@@ -44,7 +44,6 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             特拉法梅的祝福 = ItemDefPaths.LunarWings.Load<ItemDef>();
-            特拉法梅的祝福.deprecatedTier = ItemTier.Lunar;
             特拉法梅的祝福.tier = ItemTier.Lunar;
             特拉法梅的祝福.canRemove = false;
             特拉法梅的祝福.tags = [

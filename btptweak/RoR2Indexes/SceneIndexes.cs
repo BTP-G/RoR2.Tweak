@@ -83,8 +83,8 @@ namespace BtpTweak.RoR2Indexes {
             On.RoR2.SceneCatalog.SetSceneDefs += SceneCatalog_SetSceneDefs;
         }
 
-        private static void SceneCatalog_SetSceneDefs(On.RoR2.SceneCatalog.orig_SetSceneDefs orig, SceneDef[] newSceneDefs) {
-            orig(newSceneDefs);
+        private static System.Collections.IEnumerator SceneCatalog_SetSceneDefs(On.RoR2.SceneCatalog.orig_SetSceneDefs orig, SceneDef[] newSceneDefs) {
+            var a = orig(newSceneDefs);
             AncientLoft = SceneCatalog.FindSceneIndex("ancientloft");
             Arena = SceneCatalog.FindSceneIndex("arena");
             ArtifactWorld = SceneCatalog.FindSceneIndex("artifactworld");
@@ -122,6 +122,7 @@ namespace BtpTweak.RoR2Indexes {
             VoidRaid = SceneCatalog.FindSceneIndex("voidraid");
             VoidStage = SceneCatalog.FindSceneIndex("voidstage");
             WispGraveYard = SceneCatalog.FindSceneIndex("wispgraveyard");
+            return a;
         }
     }
 }

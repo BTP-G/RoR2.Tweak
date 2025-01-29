@@ -18,40 +18,40 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void HealthComponent_ServerFixedUpdate(ILContext il) {
-            ILCursor iLCursor = new(il);
+            var iLCursor = new ILCursor(il);
             if (iLCursor.TryGotoNext(MoveType.Before,
                                      x => x.MatchLdarg(0),
                                      x => x.MatchLdfld<HealthComponent>("devilOrbTimer"),
                                      x => x.MatchLdcR4(0f))) {
                 iLCursor.Index += 2;
-                iLCursor.Emit(OpCodes.Ldarg_0);
-                iLCursor.EmitDelegate((float devilOrbTimer, HealthComponent healthComponent) => {
-                    if (devilOrbTimer <= 0) {
-                        healthComponent.devilOrbTimer = Interval;
-                        var novaOnHealCount = healthComponent.itemCounts.novaOnHeal;
-                        var damageValue = BtpUtils.简单逼近(novaOnHealCount > 0 ? novaOnHealCount : 1, 9f, healthComponent.fullCombinedHealth);
-                        if (healthComponent.devilOrbHealPool >= damageValue) {
-                            var body = healthComponent.body;
-                            var devilOrb = new DevilOrb {
-                                attacker = healthComponent.gameObject,
-                                damageColorIndex = DamageColorIndex.Poison,
-                                damageValue = damageValue,
-                                effectType = DevilOrb.EffectType.Skull,
-                                origin = body.aimOrigin,
-                                procChainMask = default,
-                                procCoefficient = 0.5f,
-                                scale = 1,
-                                teamIndex = body.teamComponent.teamIndex,
-                            };
-                            if (devilOrb.target = devilOrb.PickNextTarget(devilOrb.origin, BaseRadius)) {
-                                devilOrb.procChainMask.AddProc(ProcType.HealNova);
-                                devilOrb.isCrit = body.RollCrit();
-                                OrbManager.instance.AddOrb(devilOrb);
-                                healthComponent.devilOrbHealPool -= damageValue;
+                iLCursor.Emit(OpCodes.Ldarg_0)
+                        .EmitDelegate((float devilOrbTimer, HealthComponent healthComponent) => {
+                            if (devilOrbTimer <= 0) {
+                                healthComponent.devilOrbTimer = Interval;
+                                var novaOnHealCount = healthComponent.itemCounts.novaOnHeal;
+                                var damageValue = BtpUtils.简单逼近(novaOnHealCount > 0 ? novaOnHealCount : 1, 9f, healthComponent.fullCombinedHealth);
+                                if (healthComponent.devilOrbHealPool >= damageValue) {
+                                    var body = healthComponent.body;
+                                    var devilOrb = new DevilOrb {
+                                        attacker = healthComponent.gameObject,
+                                        damageColorIndex = DamageColorIndex.Poison,
+                                        damageValue = damageValue,
+                                        effectType = DevilOrb.EffectType.Skull,
+                                        origin = body.aimOrigin,
+                                        procChainMask = default,
+                                        procCoefficient = 0.5f,
+                                        scale = 1,
+                                        teamIndex = body.teamComponent.teamIndex,
+                                    };
+                                    if (devilOrb.target = devilOrb.PickNextTarget(devilOrb.origin, BaseRadius)) {
+                                        devilOrb.procChainMask.AddProc(ProcType.HealNova);
+                                        devilOrb.isCrit = body.RollCrit();
+                                        OrbManager.instance.AddOrb(devilOrb);
+                                        healthComponent.devilOrbHealPool -= damageValue;
+                                    }
+                                }
                             }
-                        }
-                    }
-                });
+                        });
                 iLCursor.Emit(OpCodes.Ldc_R4, 1f);
             } else {
                 Main.Logger.LogError("NovaOnHeal Hook Failed!");

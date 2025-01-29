@@ -6,7 +6,7 @@ using UnityEngine.AddressableAssets;
 
 namespace BtpTweak {
 
-    public static class AssetReferences {
+    public static class AssetReferences { 
         public static readonly GameObject affixWhiteDelayEffect = GameObjectPaths.AffixWhiteDelayEffect.Load<GameObject>();
         public static readonly GameObject affixWhiteExplosion = GameObjectPaths.AffixWhiteExplosion.Load<GameObject>();
         public static readonly GameObject bonusMoneyPack = GameObjectPaths.BonusMoneyPack.Load<GameObject>();

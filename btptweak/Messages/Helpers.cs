@@ -37,16 +37,15 @@ namespace BtpTweak.Messages {
 
         [Server]
         public static void SetNextStateServer(this EntityStateMachine stateMachine, EntityState nextState = null) {
-            if (!NetworkServer.active
-                || !stateMachine
-                || !stateMachine.networkIdentity
-                || (nextState ??= EntityStateCatalog.InstantiateState(stateMachine.mainStateType)) == null) {
-                return;
-            }
-            if (stateMachine.networkIdentity.hasAuthority) {
-                stateMachine.SetNextState(nextState);
-            } else {
-                new StateMessage(stateMachine, nextState).Send(R2API.Networking.NetworkDestination.Clients);
+            if (NetworkServer.active
+                && stateMachine is not null
+                && stateMachine.networkIdentity is not null
+                && (nextState ??= EntityStateCatalog.InstantiateState(stateMachine.mainStateType.stateType)) != null) {
+                if (stateMachine.networkIdentity.hasAuthority) {
+                    stateMachine.SetNextState(nextState);
+                } else {
+                    new StateMessage(stateMachine, nextState).Send(R2API.Networking.NetworkDestination.Clients);
+                }
             }
         }
     }

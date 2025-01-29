@@ -9,7 +9,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         public const float HealAmount = 20f;
 
         void IOnModLoadBehavior.OnModLoad() {
-            IL.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
+            IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
@@ -18,11 +18,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdarg(0),
                                      x => x.MatchLdflda<HealthComponent>("itemCounts"),
                                      x => x.MatchLdfld(typeof(HealthComponent.ItemCounts), "parentEgg"))) {
-                ilcursor.Emit(OpCodes.Ldarg_0);
-                ilcursor.Emit(OpCodes.Ldloc, 6);
-                ilcursor.EmitDelegate((int itemCount, HealthComponent healthComponent, float damage) => {
-                    healthComponent.Heal(itemCount * (damage * HealFractionFromDamage + HealAmount), default, true);
-                });
+                ilcursor.Emit(OpCodes.Ldarg_0)
+                        .Emit(OpCodes.Ldloc, 7)
+                        .EmitDelegate((int itemCount, HealthComponent healthComponent, float damage) => {
+                            healthComponent.Heal(itemCount * (damage * HealFractionFromDamage + HealAmount), default, true);
+                        });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
                 Main.Logger.LogError("ParentEgg hook error");
