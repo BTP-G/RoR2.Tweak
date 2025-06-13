@@ -1,10 +1,10 @@
-﻿using BtpTweak.Messages;
+﻿using BTP.RoR2Plugin.Messages;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using System.Collections.Generic;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class NovaOnLowHealthTweak : TweakBase<NovaOnLowHealthTweak>, IOnModLoadBehavior {
         private static readonly Dictionary<EntityStates.VagrantNovaItem.ReadyState, float> damagePool = [];
@@ -26,14 +26,14 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                       });
                 cursor.Emit(OpCodes.Mul);
             } else {
-                Main.Logger.LogError(GetType().FullName + " add hook 'DetonateState_OnEnter1' failed!");
+                LogExtensions.LogError(GetType().FullName + " add hook 'DetonateState_OnEnter1' failed!");
             }
             if (cursor.TryGotoNext(c => c.MatchStfld<BlastAttack>("damageType"))) {
                 cursor.Index -= 2;
                 cursor.Remove()
                       .Emit(OpCodes.Ldc_I4, (int)DamageType.Shock5s);
             } else {
-                Main.Logger.LogError(GetType().FullName + " add hook 'DetonateState_OnEnter2' failed!");
+                LogExtensions.LogError(GetType().FullName + " add hook 'DetonateState_OnEnter2' failed!");
             }
         }
 

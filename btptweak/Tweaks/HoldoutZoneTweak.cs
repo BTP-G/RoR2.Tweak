@@ -1,7 +1,7 @@
 ﻿using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class HoldoutZoneTweak : TweakBase<HoldoutZoneTweak>, IOnModLoadBehavior {
 

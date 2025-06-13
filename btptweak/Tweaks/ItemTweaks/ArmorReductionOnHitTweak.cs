@@ -1,9 +1,9 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ArmorReductionOnHitTweak : TweakBase<ArmorReductionOnHitTweak>, IOnModLoadBehavior {
         public const float 基础破甲率 = 0.5f;
@@ -16,21 +16,19 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         private void HealthComponent_TakeDamage(ILContext il) {
             var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.Before,
-                                   cursor => cursor.MatchLdloc(37),
-                                   cursor => cursor.MatchLdcR4(0f))) {
-                cursor.Index += 1;
+                i => i.MatchLdarg(0),
+                i => i.MatchLdfld<HealthComponent>("adaptiveArmorValue"),
+                i => i.MatchAdd())) {
                 cursor.Emit(OpCodes.Ldarg_0)
                       .Emit(OpCodes.Ldloc_1)
-                      .EmitDelegate((float armor, HealthComponent healthComponent, CharacterBody attackerBody) => {
-                          if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && attackerBody && attackerBody.inventory) {
-                              return armor - BtpUtils.简单逼近(attackerBody.inventory.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex), 半数, armor > 0 ? armor : -armor);
+                      .EmitDelegate((float armor, HealthComponent healthComponent, CharacterMaster master) => {
+                          if (healthComponent.body.HasBuff(RoR2Content.Buffs.Pulverized.buffIndex) && master is not null && master.inventory is not null) {
+                              return armor - BtpUtils.简单逼近(master.inventory.GetItemCount(RoR2Content.Items.ArmorReductionOnHit.itemIndex), 半数, armor > 0 ? armor : -armor);
                           }
                           return armor;
                       });
-                cursor.Emit(OpCodes.Stloc, 37)
-                      .Emit(OpCodes.Ldloc, 37);
             } else {
-                Main.Logger.LogError("ArmorReductionOnHit Hook Failed!");
+                "ArmorReductionOnHit Hook Failed!".LogError();
             }
         }
     }

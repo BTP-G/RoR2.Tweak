@@ -1,9 +1,9 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using R2API.Networking.Interfaces;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Messages {
+namespace BTP.RoR2Plugin.Messages {
 
     internal struct LunarWingsMessage(LunarWingsState state) : INetMessage {
         private byte _state = (byte)state;
@@ -23,9 +23,9 @@ namespace BtpTweak.Messages {
         [RuntimeInitializeOnLoadMethod]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<LunarWingsMessage>()) {
-                Main.Logger.LogMessage("LunarWingsMessage Register Successd!");
+                "LunarWingsMessage Register Successd!".LogMessage();
             } else {
-                Main.Logger.LogError("LunarWingsMessage Register Failed!");
+                "LunarWingsMessage Register Failed!".LogError();
             }
         }
     }

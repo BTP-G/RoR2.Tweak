@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates;
 using EntityStates.BrotherMonster;
 using R2API.Utils;
@@ -7,7 +6,7 @@ using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates {
 
     public class ExitCrushingLeap : BaseSkillState {
         public const int cloneCount = 3;

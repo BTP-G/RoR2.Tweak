@@ -3,7 +3,7 @@ using RoR2.Projectile;
 using TPDespair.ZetAspects;
 using UnityEngine;
 
-namespace BtpTweak.Pools.ProjectilePools {
+namespace BTP.RoR2Plugin.Pools.ProjectilePools {
 
     internal sealed class LightningStakePool : Pool<LightningStakePool, ProjectilePoolKey, ProjectileInfo> {
         protected override float Interval => 0.1f;

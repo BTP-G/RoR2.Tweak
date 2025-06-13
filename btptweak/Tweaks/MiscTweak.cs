@@ -1,4 +1,5 @@
-﻿using EntityStates.Missions.LunarScavengerEncounter;
+﻿using BTP.RoR2Plugin.Components;
+using EntityStates.Missions.LunarScavengerEncounter;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -6,7 +7,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class MiscTweak : TweakBase<MiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
@@ -25,8 +26,6 @@ namespace BtpTweak.Tweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            PickupDropletController.pickupDropletPrefab.AddComponent<AutoTeleportGameObject>().SetTeleportWaitingTime(5f);
-            GenericPickupController.pickupPrefab.AddComponent<AutoTeleportGameObject>().SetTeleportWaitingTime(100f);
             FadeOut.duration = 60f;
             EntityStates.BrotherMonster.SpellChannelState.maxDuration = 180f;
         }
@@ -37,7 +36,7 @@ namespace BtpTweak.Tweaks {
                 cursor.Remove();
                 cursor.EmitDelegate(HGMath.UintSafeAdd);
             } else {
-                Main.Logger.LogError("CharacterMaster_GiveMoney Hook Failed!");
+                LogExtensions.LogError("CharacterMaster_GiveMoney Hook Failed!");
             }
         }
 
@@ -48,10 +47,10 @@ namespace BtpTweak.Tweaks {
                 cursor.Index += 1;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldloc, 6);
-                cursor.EmitDelegate((Run run, float num6) => RunInfo.已选择造物难度 ? 0.0506f * ModConfig.每关难度增加量.Value / 50f * run.stageClearCount * num6 : 0f);
+                cursor.EmitDelegate((Run run, float num6) => RunInfo.已选择造物难度 ? 0.0506f * Settings.每关难度增加量.Value / 50f * run.stageClearCount * num6 : 0f);
                 cursor.Emit(OpCodes.Add);
             } else {
-                Main.Logger.LogError("Run_RecalculateDifficultyCoefficentInternal Hook Failed!");
+                LogExtensions.LogError("Run_RecalculateDifficultyCoefficentInternal Hook Failed!");
             }
         }
 
@@ -88,7 +87,7 @@ namespace BtpTweak.Tweaks {
             var modelAnimator = self.GetModelAnimator();
             if (modelAnimator) {
                 int layerIndex = modelAnimator.GetLayerIndex("Body");
-                modelAnimator.CrossFadeInFixedTime((Random.Range(0, 2) == 0) ? "Hurt1" : "Hurt2", 0.1f);
+                modelAnimator.CrossFadeInFixedTime(Random.Range(0, 2) == 0 ? "Hurt1" : "Hurt2", 0.1f);
                 modelAnimator.Update(0f);
                 AnimatorStateInfo nextAnimatorStateInfo = modelAnimator.GetNextAnimatorStateInfo(layerIndex);
                 self.duration = Mathf.Max(self.stunDuration, nextAnimatorStateInfo.length);

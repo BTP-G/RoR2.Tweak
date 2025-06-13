@@ -1,16 +1,16 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates.BrotherMonster;
+using R2API.AddressReferencedAssets;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering.PostProcessing;
 
-namespace BtpTweak.Tweaks.MithrixTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
     internal class PhaseTweak : TweakBase<PhaseTweak>, IOnModLoadBehavior {
         private static readonly SpawnCard brotherSpawnCard = CharacterSpawnCardPaths.cscBrother.Load<CharacterSpawnCard>();
-        private static readonly PostProcessProfile ppMeteorStorm = PostProcessProfilePaths.ppLocalMeteorStorm.Load<PostProcessProfile>();
+        private static readonly AddressReferencedAsset<PostProcessProfile> ppMeteorStorm = "RoR2/Base/title/PostProcessing/ppLocalMeteorStorm.asset";
         private static readonly EntityStateMachine brotherEntityStateMachine = GameObjectPaths.BrotherBody.LoadComponent<EntityStateMachine>();
 
         void IOnModLoadBehavior.OnModLoad() {
@@ -37,6 +37,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
 
         private void Phase3_OnEnter(On.EntityStates.Missions.BrotherEncounter.Phase3.orig_OnEnter orig, EntityStates.Missions.BrotherEncounter.Phase3 self) {
             orig(self);
+            new AddressReferencedAsset<PostProcessProfile>();
             var volume = SceneInfo.instance.gameObject.AddComponent<PostProcessVolume>();
             volume.enabled = true;
             volume.isGlobal = true;

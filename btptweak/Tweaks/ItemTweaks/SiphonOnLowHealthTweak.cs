@@ -1,4 +1,4 @@
-﻿namespace BtpTweak.Tweaks.ItemTweaks {
+﻿namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class SiphonOnLowHealthTweak : TweakBase<SiphonOnLowHealthTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 1.5f;

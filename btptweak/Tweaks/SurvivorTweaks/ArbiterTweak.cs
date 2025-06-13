@@ -1,7 +1,7 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using RoR2;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class ArbiterTweak : TweakBase<ArbiterTweak>, IOnRoR2LoadedBehavior {
         public const float StatUpCoefficient = 0.05f;

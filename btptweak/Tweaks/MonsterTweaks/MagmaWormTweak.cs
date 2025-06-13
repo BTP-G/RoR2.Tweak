@@ -1,9 +1,8 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.MonsterTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
     internal class MagmaWormTweak : TweakBase<MagmaWormTweak>, IOnRoR2LoadedBehavior {
 

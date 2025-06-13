@@ -3,7 +3,7 @@ using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.EquipmentTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
     internal class FireballVehicleTweak : TweakBase<FireballVehicleTweak>, IOnModLoadBehavior {
         public const float FireBallsDamageCoeffcient = 5f;

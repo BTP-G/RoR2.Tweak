@@ -1,6 +1,5 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 using EntityStates;
 using EntityStates.BrotherMonster;
 using R2API;
@@ -8,9 +7,10 @@ using RoR2;
 using RoR2.Skills;
 using UnityEngine;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin {
 
-    public static class BtpContent {
+    /// <summary>新增内容</summary>
+    public static class Content {
 
         public static class Buffs {
             public static BuffDef VoidFire { get; private set; }
@@ -27,7 +27,7 @@ namespace BtpTweak {
                 VoidFire.isDebuff = false;
                 VoidFire.isCooldown = false;
                 if (!ContentAddition.AddBuffDef(VoidFire)) {
-                    Main.Logger.LogError("Buff '" + VoidFire.name + "' failed to be added!");
+                    ("Buff '" + VoidFire.name + "' failed to be added!").LogError();
                 }
                 DroneCommanderSpawnCooldown = ScriptableObject.CreateInstance<BuffDef>();
                 DroneCommanderSpawnCooldown.name = "DroneCommander SpawnCooldown";
@@ -38,7 +38,7 @@ namespace BtpTweak {
                 DroneCommanderSpawnCooldown.isDebuff = false;
                 DroneCommanderSpawnCooldown.isCooldown = true;
                 if (!ContentAddition.AddBuffDef(DroneCommanderSpawnCooldown)) {
-                    Main.Logger.LogError("Buff '" + DroneCommanderSpawnCooldown.name + "' failed to be added!");
+                    ("Buff '" + DroneCommanderSpawnCooldown.name + "' failed to be added!").LogError();
                 }
             }
         }
@@ -64,9 +64,13 @@ namespace BtpTweak {
                 MoonscourgeAccursedItem.nameToken = "ACCURSEDMITHRIX_ITEM1_NAME";
                 MoonscourgeAccursedItem.pickupToken = "ACCURSEDMITHRIX_ITEM1_PICKUP";
                 MoonscourgeAccursedItem.descriptionToken = "ACCURSEDMITHRIX_ITEM1_DESC";
+                MoonscourgeAccursedItem.loreToken = "ACCURSEDMITHRIX_ITEM1_LORE";
                 MoonscourgeAccursedItem.tier = ItemTier.NoTier;
+                MoonscourgeAccursedItem.deprecatedTier = ItemTier.NoTier;
+                MoonscourgeAccursedItem.TryApplyTag(ItemTag.WorldUnique);
+                MoonscourgeAccursedItem.hidden = true;
                 if (!ContentAddition.AddItemDef(MoonscourgeAccursedItem)) {
-                    Main.Logger.LogError("AddItemDef :: MoonscourgeAccursedItem Failed!");
+                    "AddItemDef :: MoonscourgeAccursedItem Failed!".LogError();
                 }
             }
 
@@ -76,9 +80,13 @@ namespace BtpTweak {
                 StormscourgeAccursedItem.nameToken = "ACCURSEDMITHRIX_ITEM2_NAME";
                 StormscourgeAccursedItem.pickupToken = "ACCURSEDMITHRIX_ITEM2_PICKUP";
                 StormscourgeAccursedItem.descriptionToken = "ACCURSEDMITHRIX_ITEM2_DESC";
+                StormscourgeAccursedItem.loreToken = "ACCURSEDMITHRIX_ITEM2_LORE";
                 StormscourgeAccursedItem.tier = ItemTier.NoTier;
+                StormscourgeAccursedItem.deprecatedTier = ItemTier.NoTier;
+                StormscourgeAccursedItem.TryApplyTag(ItemTag.WorldUnique);
+                StormscourgeAccursedItem.hidden = true;
                 if (!ContentAddition.AddItemDef(StormscourgeAccursedItem)) {
-                    Main.Logger.LogError("AddItemDef :: StormscourgeAccursedItem Failed!");
+                    "AddItemDef :: StormscourgeAccursedItem Failed!".LogError();
                 }
             }
 
@@ -88,9 +96,13 @@ namespace BtpTweak {
                 HelscourgeAccursedItemDef.nameToken = "ACCURSEDMITHRIX_ITEM3_NAME";
                 HelscourgeAccursedItemDef.pickupToken = "ACCURSEDMITHRIX_ITEM3_PICKUP";
                 HelscourgeAccursedItemDef.descriptionToken = "ACCURSEDMITHRIX_ITEM3_DESC";
+                HelscourgeAccursedItemDef.loreToken = "ACCURSEDMITHRIX_ITEM3_LORE";
                 HelscourgeAccursedItemDef.tier = ItemTier.NoTier;
+                HelscourgeAccursedItemDef.deprecatedTier = ItemTier.NoTier;
+                HelscourgeAccursedItemDef.TryApplyTag(ItemTag.WorldUnique);
+                HelscourgeAccursedItemDef.hidden = true;
                 if (!ContentAddition.AddItemDef(HelscourgeAccursedItemDef)) {
-                    Main.Logger.LogError("AddItemDef :: HelscourgeAccursedItemDef Failed!");
+                    "AddItemDef :: HelscourgeAccursedItemDef Failed!".LogError();
                 }
             }
 
@@ -120,6 +132,8 @@ namespace BtpTweak {
             private static void CreateUngroundedDash() {
                 UngroundedDash = ScriptableObject.CreateInstance<SkillDef>();
                 UngroundedDash.skillName = "LunarDash";
+                UngroundedDash.skillNameToken = "LUNARDASH_NAME";
+                UngroundedDash.skillDescriptionToken = "LUNARDASH_DESCRIPTION";
                 UngroundedDash.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
                 UngroundedDash.activationStateMachineName = "Body";
                 UngroundedDash.baseMaxStock = 1;
@@ -138,7 +152,7 @@ namespace BtpTweak {
                 if (ContentAddition.AddSkillDef(UngroundedDash)) {
                     return;
                 }
-                Main.Logger.LogError("CreateUngroundedDash failed!");
+                "CreateUngroundedDash failed!".LogError();
             }
         }
 
@@ -157,7 +171,7 @@ namespace BtpTweak {
                                        true);
                 造物索引 = DifficultyAPI.AddDifficulty(造物, Texture2DPaths.texVoidCoinIcon.Load<Sprite>());
                 if (造物索引 == DifficultyIndex.Invalid) {
-                    Main.Logger.LogError($"Difficulties {造物.nameToken} add failed!");
+                    $"Difficulties {造物.nameToken} add failed!".LogError();
                 }
                 Localizer.AddOverlay("DIFFICULTY_CREATION_NAME", "造物");
                 Localizer.AddOverlay("DIFFICULTY_CREATION_DESC", "准备好面对造物主的试炼了吗？\n\n".ToRainbowWavy()

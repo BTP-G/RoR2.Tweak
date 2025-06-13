@@ -3,21 +3,25 @@ using RoR2.Navigation;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin.Components {
 
     public class AutoTeleportGameObject : MonoBehaviour {
-
-        [SerializeField]
-        private float waitingTime;
-
-        public void SetTeleportWaitingTime(float newWaitingTime) => waitingTime = newWaitingTime;
+        private float _teleportTime;
 
         private void Awake() {
             enabled = NetworkServer.active;
         }
 
+        private void OnEnable() {
+            if(RunInfo.位于月球商店) {
+                _teleportTime = Time.time + Settings.商店物品传送时间.Value;
+            } else {
+                _teleportTime = Time.time + Settings.物品传送时间.Value;
+            }
+        }
+
         private void Update() {
-            if ((waitingTime -= Time.deltaTime) < 0) {
+            if (Time.time > _teleportTime) {
                 TeleportDroplet();
                 enabled = false;
             }

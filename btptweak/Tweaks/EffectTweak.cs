@@ -1,16 +1,17 @@
 ﻿using BepInEx;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.Networking;
+using Object = UnityEngine.Object;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class EffectTweak : TweakBase<EffectTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
@@ -23,8 +24,8 @@ namespace BtpTweak.Tweaks {
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             Object.Destroy(GameObjectPaths.SimpleLightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
             Object.Destroy(GameObjectPaths.LightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
-            Object.Destroy(AssetReferences.affixWhiteExplosion.transform.Find("Flash, Blue").gameObject);
-            Object.Destroy(AssetReferences.affixWhiteExplosion.transform.Find("Flash, White").gameObject);
+            Object.Destroy(AssetReferences.affixWhiteExplosion.Asset.transform.Find("Flash, Blue").gameObject);
+            Object.Destroy(AssetReferences.affixWhiteExplosion.Asset.transform.Find("Flash, White").gameObject);
             Object.Destroy(GameObjectPaths.TitanRechargeRocksEffect.LoadComponent<EffectComponent>());
             Object.Destroy(GameObjectPaths.ClayBossPreDeath.LoadComponent<EffectComponent>());
             Object.Destroy(GameObjectPaths.RoboBallBossPreDeath.LoadComponent<EffectComponent>());
@@ -78,13 +79,13 @@ namespace BtpTweak.Tweaks {
         private void EffectManager_SpawnEffect_GameObject_EffectData_bool(On.RoR2.EffectManager.orig_SpawnEffect_GameObject_EffectData_bool orig, GameObject effectPrefab, EffectData effectData, bool transmit) {
             var effectIndex = EffectCatalog.FindEffectIndexFromPrefab(effectPrefab);
             if (effectIndex != EffectIndex.Invalid) {
-                if (ModConfig.关闭所有特效.Value) {
+                if (Settings.关闭所有特效.Value) {
                     return;
                 }
                 if (EffectSpawnLimit.TrySpawnEffect(effectIndex)) {
                     EffectManager.SpawnEffect(effectIndex, effectData, transmit);
-                    if (ModConfig.开启特效生成日志.Value) {
-                        Main.Logger.LogMessage("EffectName == " + effectPrefab?.name + ", EffectIndex(ID) == " + effectIndex);
+                    if (Settings.开启特效生成日志.Value) {
+                        ("EffectName == " + effectPrefab?.name + ", EffectIndex(ID) == " + effectIndex).LogMessage();
                     }
                 }
                 return;
@@ -107,20 +108,20 @@ namespace BtpTweak.Tweaks {
 
             public static void AddLimitToEffect(EffectIndex effectIndex, float interval) {
                 if (effectIndex == EffectIndex.Invalid) {
-                    Main.Logger.LogWarning($"EffectSpawnLimit：effectIndex(ID) Invalid!");
+                    ($"EffectSpawnLimit：effectIndex(ID) Invalid!").LogWarning();
                     return;
                 }
                 if (_effectIndexToEffectSpawnLimit.TryGetValue((int)effectIndex, out var spawnLimit)) {
                     if (interval < 0) {
-                        Main.Logger.LogInfo($"EffectSpawnLimit：已移除 {EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 间隔");
+                        ($"EffectSpawnLimit：已移除 {EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 间隔").LogInfo();
                         _effectIndexToEffectSpawnLimit.Remove((int)effectIndex);
                     } else {
-                        Main.Logger.LogInfo($"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 修改间隔: {spawnLimit._spawnInterval}s -> {interval}s");
+                        $"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 修改间隔: {spawnLimit._spawnInterval}s -> {interval}s".LogInfo();
                         spawnLimit._spawnInterval = interval;
                     }
                 } else if (interval >= 0) {
                     _effectIndexToEffectSpawnLimit.Add((int)effectIndex, new(interval));
-                    Main.Logger.LogInfo($"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 添加间隔: {interval}s");
+                    $"EffectSpawnLimit：{EffectCatalog.GetEffectDef(effectIndex)?.prefabName ?? "null"} 添加间隔: {interval}s".LogInfo();
                 }
             }
 
@@ -133,18 +134,18 @@ namespace BtpTweak.Tweaks {
                 foreach (string text in id_interval_s.Trim().Split(';')) {
                     string[] Index_Interval = text.Split(':');
                     if (Index_Interval.Length != 2) {
-                        Main.Logger.LogWarning($"{text}特效ID:间隔 格式错误！");
+                        $"{text}特效ID:间隔 格式错误！".LogWarning();
                         continue;
                     }
                     if (int.TryParse(Index_Interval[0].Trim(), out int index)) {
                         if (float.TryParse(Index_Interval[1].Trim(), out float interval)) {
                             AddLimitToEffect((EffectIndex)index, interval);
                         } else {
-                            Main.Logger.LogWarning($"特效ID {Index_Interval[0]} 所设置的间隔 {Index_Interval[1]} 无效！");
+                            $"特效ID {Index_Interval[0]} 所设置的间隔 {Index_Interval[1]} 无效！".LogWarning();
                             continue;
                         }
                     } else {
-                        Main.Logger.LogWarning($"特效ID {Index_Interval[0]} 无效！");
+                        $"特效ID {Index_Interval[0]} 无效！".LogWarning();
                         continue;
                     }
                 }
@@ -152,7 +153,7 @@ namespace BtpTweak.Tweaks {
 
             internal static bool TrySpawnEffect(EffectIndex effectIndex) {
                 if (_effectIndexToEffectSpawnLimit.TryGetValue((int)effectIndex, out var spawnLimit)) {
-                    if ((Time.time - spawnLimit._lastSpawnTime) < spawnLimit._spawnInterval) {
+                    if (Time.time - spawnLimit._lastSpawnTime < spawnLimit._spawnInterval) {
                         return false;
                     }
                     spawnLimit._lastSpawnTime = Time.time;

@@ -1,10 +1,10 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class NovaOnHealTweak : TweakBase<NovaOnHealTweak>, IOnModLoadBehavior {
         public const float BaseDamageCoefficient = 1;
@@ -54,7 +54,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 iLCursor.Emit(OpCodes.Ldc_R4, 1f);
             } else {
-                Main.Logger.LogError("NovaOnHeal Hook Failed!");
+                LogExtensions.LogError("NovaOnHeal Hook Failed!");
             }
         }
     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BtpTweak.RoR2Indexes {
+namespace BTP.RoR2Plugin.RoR2Indexes {
 
     public static class BodyIndexes {
 
@@ -81,12 +81,12 @@ namespace BtpTweak.RoR2Indexes {
             for (BodyNameIndex bodyNameIndex = BodyNameIndex.None + 1; bodyNameIndex < BodyNameIndex.Count; ++bodyNameIndex) {
                 var bodyIndex = BodyCatalog.FindBodyIndex(bodyNameIndex.ToString());
                 if (bodyIndex == BodyIndex.None) {
-                    Debug.LogError(bodyNameIndex.ToString() + " not found!");
+                    (bodyNameIndex.ToString() + " not found!").LogError();
                 } else {
                     BodyIndexToNameIndex.Add((int)bodyIndex, bodyNameIndex);
                 }
             }
-            Debug.Log($"class {typeof(BodyIndexes).FullName} has been initialized. 已成功添加{BodyIndexToNameIndex.Count}个映射。");
+            $"class {typeof(BodyIndexes).FullName} has been initialized. 已成功添加{BodyIndexToNameIndex.Count}个映射。".LogInfo();
             Arbiter = BodyCatalog.FindBodyIndex("ArbiterBody");
             Bandit2 = BodyCatalog.FindBodyIndex("Bandit2Body");
             Brother = BodyCatalog.FindBodyIndex("BrotherBody");

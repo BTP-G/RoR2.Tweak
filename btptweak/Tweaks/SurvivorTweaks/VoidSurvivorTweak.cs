@@ -1,10 +1,9 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class VoidSurvivorTweak : TweakBase<VoidSurvivorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float ChargeMegaBlasterBaseDuration = 4f;

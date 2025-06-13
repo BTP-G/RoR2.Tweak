@@ -1,8 +1,8 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Pools.ProjectilePools {
+namespace BTP.RoR2Plugin.Pools.ProjectilePools {
 
     internal sealed class FireFountain : ProjectileFountain<FireFountain> {
         protected override float Interval => FireballsOnHitTweak.Interval;

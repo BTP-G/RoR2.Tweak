@@ -1,7 +1,7 @@
-﻿using BtpTweak.Tweaks.EquipmentTweaks;
-using BtpTweak.Tweaks.ItemTweaks;
-using BtpTweak.Tweaks.SurvivorTweaks;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Tweaks.EquipmentTweaks;
+using BTP.RoR2Plugin.Tweaks.ItemTweaks;
+using BTP.RoR2Plugin.Tweaks.SurvivorTweaks;
+using BTP.RoR2Plugin.Utils;
 using EntityStates.Commando.CommandoWeapon;
 using EntityStates.GoldGat;
 using EntityStates.Huntress;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 using TPDespair.ZetAspects;
 using UnityEngine;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin {
 
     internal static class Localizer {
         public const string 暴击 = "<style=cIsDamage>暴击</style>";
@@ -96,7 +96,7 @@ namespace BtpTweak {
             AddOverlay("EQUIPMENT_SAWMERANG_DESC", $"投掷<style=cIsDamage>三个穿透性的回旋锯</style>，每个造成{SawTweak.DamageCoefficient.ToDmgPct("_的基础伤害")}，同时锯伤敌人，造成额外的<style=cIsDamage>每秒100％的基础伤害</style>，并使其{流血}，在{BleedTweak.BleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.BleedDamageCoefficient.ToDmgPct("_的总伤害")}；若造成{暴击}，则{额外}造成{出血}，在{BleedTweak.SurperBleedDuration.ToUtil("_秒")}内合计造成{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的总伤害")}。", "zh-CN");
             AddOverlay("KEYWORD_SUPERBLEED", $"<style=cKeywordName>出血</style><style=cSub>造成每秒{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的基础伤害")}。<i>出血可以叠加。</i></style>", "zh-CN");
             AddOverlay("BUFF_SUPERBLEED_DESC", $"每秒受到{BleedTweak.SurperBleedDamageCoefficient.ToDmgPct("_的基础伤害")}。", "zh-CN");
-            AddOverlay("ITEM_NOVAONLOWHEALTH_PICKUP", $"受到一定量的伤害后或者处于低生命值时，爆发一次大范围新星。", "zh-CN");
+            AddOverlay("ITEM_NOVAONLOWHEALTH_PICKUP", "受到一定量的伤害后或者处于低生命值时，爆发一次大范围新星。", "zh-CN");
             AddOverlay("ITEM_NOVAONLOWHEALTH_DESC", $"受到的伤害{"累计".ToDmg()}超过{"75%的生命值".ToHealing()}后或者低于<style=cIsHealth>25%的生命值</style>时，以你为中心爆发一次{"闪电新星".ToLightning()}，造成{EntityStates.VagrantNovaItem.DetonateState.blastDamageCoefficient.ToBaseAndStkPct().ToDmg("_的基础伤害")}并{"击晕".ToLightning()}敌人，然后进入<style=cIsUtility>30秒<style=cStack>（每层减少50%）</style></style>冷却阶段。", "zh-CN");
             AddOverlay("ITEM_LASERTURBINE_PICKUP", $"获得一个完全充能后自动发射的共鸣圆盘。", "zh-CN");
             AddOverlay("ITEM_LASERTURBINE_DESC", $"获得一个{"自动".ToUtil()}充能的共鸣圆盘，基础充能速率为{LaserTurbineTweak.ChargeCoefficient.ToBaseAndStkPct().ToUtil("_每秒")}，击杀敌人将给予一层持续{LaserTurbineTweak.ChargeDuration.ToUtil("_秒的充能增益")}，每层增益使充能速率增加{LaserTurbineTweak.ChargeCoefficientPerKill.ToPct().ToUtil("_每秒")}。圆盘充能完毕后{"自动".ToUtil()}发射，在{"可视范围内".ToUtil()}所有个体之间弹射，每一次弹射可造成{LaserTurbineTweak.MainBeamDamageCoefficient.ToBaseAndStkPct().ToDmg("_的基础伤害")}。弹射时圆盘将{"穿透".ToUtil()}沿途所有个体并产生{爆炸}，{爆炸}造成{LaserTurbineTweak.SecondBombDamageCoefficient.ToBaseAndStkPct().ToDmg("_的基础伤害")}。", "zh-CN");
@@ -174,7 +174,7 @@ namespace BtpTweak {
             //AddOverlay("ENGI_SPECIAL_ALT1_DESCRIPTION", $"放置一个<style=cIsUtility>移动</style>炮塔可<style=cIsUtility>继承你所有物品</style>。发射的激光可造成<style=cIsDamage>每秒200%的伤害</style>，并可<style=cIsUtility>减速敌人</style>，最多放置2座。", "zh-CN");
             //AddOverlay("ENGI_SPECIAL_DESCRIPTION", $"放置一个<style=cIsUtility>继承你所有物品</style>的炮塔，发射的炮弹可造成<style=cIsDamage>100%的伤害</style>，最多放置2座。", "zh-CN");
             //AddOverlay("ENGI_SPIDERMINE_DESCRIPTION", $"放置一枚机器人地雷，在敌人走近时自动引爆，造成{SpiderMines.damage.ToDmgPct("_的伤害")}，最多放置{SpiderMines.charges}枚。", "zh-CN");
-            AddOverlay("ENGI_UTILITY_DESCRIPTION", $"放置一个<style=cIsUtility>无法穿透且有击退力的护盾</style>来阻挡弹幕。每个盾需要消耗{2}层充能，存在<style=cIsUtility>{EngiTweak.BubbleShieldLifetime}秒</style>。", "zh-CN");
+            AddOverlay("ENGI_UTILITY_DESCRIPTION", $"放置一个<style=cIsUtility>无法穿透且有击退力的护盾</style>来阻挡弹幕。每个盾需要消耗{2}层充能，存在<style=cIsUtility>{Settings.BubbleShieldLifetime.Value}秒</style>。", "zh-CN");
             AddOverlay("EQUIPMENT_BFG_DESC", $"发射前子卷须，对{"66.6".ToUtil()}米范围内的敌人造成最高<style=cIsDamage>每秒666%的伤害</style>。接触目标并引爆后，会对{20.ToUtil("_米")}范围内的敌人造成<style=cIsDamage>6666%的伤害</style>。", "zh-CN");
             AddOverlay("EQUIPMENT_COMMANDMISSILE_DESC", $"发射一轮包含<style=cIsDamage>12</style>枚导弹的导弹雨，每枚导弹造成<style=cIsDamage>300%的伤害</style>。", "zh-CN");
             AddOverlay("EQUIPMENT_CRITONUSE_DESC", $"<style=cIsDamage>暴击几率增加100%</style>，并使超过{"100%".ToDmg()}的{"暴击几率".ToDmg()}转换为{"暴击伤害".ToDmg()}，持续8秒。", "zh-CN");
@@ -194,7 +194,8 @@ namespace BtpTweak {
             AddOverlay("FOGBOUND_SCENEDEF_SUBTITLE_TOKEN", $"冥河浅滩", "zh-CN");
             AddOverlay("FROSTWISP_BODY_NAME", "冰霜幽魂", "zh-CN");
             AddOverlay("FRUJO_SKIN_PARDOFELISDEFINITION_NAME", "帕朵菲莉丝 喵~", "zh-CN");
-            AddOverlay("GOLDENKNURL_DESC", $"{"最大生命值".ToHealing()}增加{GoldenCoastPlusRevived.GoldenCoastPlusPlugin.KnurlHealth.Value.ToBaseAndStkPct().ToHealing()}，{"基础生命值再生速度".ToHealing()}增加{GoldenCoastPlusRevived.GoldenCoastPlusPlugin.KnurlRegen.Value.ToBaseAndStk().ToHealing("_hp/s")}，外加{"生命值再生速度".ToHealing()}提升{"50%".ToHealing()}，{"护甲".ToUtil()}增加{GoldenCoastPlusRevived.GoldenCoastPlusPlugin.KnurlArmor.Value.ToBaseAndStk().ToHealing("_点")}。", "zh-CN");
+
+            AddOverlay("GOLDENKNURL_DESC", $"{"最大生命值".ToHealing()}增加{0.1f.ToBaseAndStkPct().ToHealing()}，{"基础生命值再生速度".ToHealing()}增加{2.4f.ToBaseAndStk().ToHealing("_hp/s")}，外加{"生命值再生速度".ToHealing()}提升{"50%".ToHealing()}，{"护甲".ToUtil()}增加{20.ToBaseAndStk().ToHealing("_点")}。", "zh-CN");
             AddOverlay("GOLDENKNURL_NAME", "<color=yellow>黄金隆起</color>", "zh-CN");
             AddOverlay("GOLDENKNURL_PICKUP", "增加最大生命值、生命值再生和护甲。", "zh-CN");
             //AddOverlay(HIFUArtificerTweaks.Skilldefs.FlamewallSD.nameToken.Replace("NAME", "DESCRIPTION"), $"<style=cIsUtility>灵巧</style>。<style=cIsDamage>点燃</style>。向前冲刺，在身后召唤每秒造成{HIFUArtificerTweaks.Main.flamewallDamage.Value.ToDmgPct("_的伤害")}的火柱</style>。", "zh-CN");
@@ -322,7 +323,7 @@ namespace BtpTweak {
             AddOverlay("ITEM_UTILITYSKILLMAGAZINE_DESC", $"为<style=cIsUtility>辅助技能</style>增加<style=cIsUtility>2次</style><style=cStack>（每层增加2次）</style>充能。<style=cIsUtility>使辅助技能的冷却时间减少</style><style=cIsUtility>33%</style>。<color=#FFFF00>船长特殊效果：使UES顺风号等待时间缩短33%<style=cStack>（每层+33%）</style>。</color>", "zh-CN");
             AddOverlay("ITEM_WARCRYONMULTIKILL_DESC", $"<style=cIsDamage>击杀敌人</style>会使你获得<style=cIsDamage>狂热</style>增益，最高{WarCryOnMultiKillTweak.BaseMaxBuffCount.ToBaseWithStk(WarCryOnMultiKillTweak.StackMaxBuffCount).ToUtil("_层")}，每层持续{WarCryOnMultiKillTweak.BuffDuration.ToDmg("_秒")}。每层<style=cIsDamage>狂热</style>可使{攻击速度}提高{WarCryOnMultiKillTweak.AttackSpeedMultAddPerBuff.ToDmgPct()}，使{移动速度}提高{WarCryOnMultiKillTweak.MoveSpeedMultAddPerBuff.ToPct().ToUtil()}。", "zh-CN");
             //AddOverlay("ITEM_WARDONLEVEL_DESC", $"<style=cIsUtility>升级</style>或开始<style=cIsUtility>传送器事件</style>时放置一面旗帜，强化<style=cIsUtility>16米</style><style=cStack>（每层+8米）</style>内的全体友方，使其<style=cIsDamage>攻击</style>和<style=cIsUtility>移动速度</style>均提高<style=cIsDamage>30%</style>。", "zh-CN");
-            AddOverlay("KEYWORD_ACTIVERELOAD", $"<style=cKeywordName>主动上弹</style><style=cSub>开火后给你的磁轨炮上弹（按{ModConfig.ReloadKey.Value.MainKey.ToUtil()}键也可进入上弹）。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。", "zh-CN");
+            AddOverlay("KEYWORD_ACTIVERELOAD", $"<style=cKeywordName>主动上弹</style><style=cSub>开火后给你的磁轨炮上弹（按{Settings.ReloadKey.Value.MainKey.ToUtil()}键也可进入上弹）。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。", "zh-CN");
             AddOverlay("KEYWORD_ARC", "<style=cKeywordName>击穿</style><style=cSub>在最多4个敌人之间形成电弧，每次造成30%的伤害。</style>", "zh-CN");
             AddOverlay("KEYWORD_ENTANGLE", $"<style=cKeywordName>纠缠</style><style=cSub>攻击造成<style=cIsVoid>纠缠</style>减益，当此攻击击中被<style=cIsVoid>纠缠</style>的敌人时，其他所有被<style=cIsVoid>纠缠</style>敌人将同时受到<style=cIsVoid>{PlasmaCoreSpikestripContent.Content.Skills.States.FireWeave.damageCoefficient.ToDmgPct()}基础伤害</style>。</style>");
             AddOverlay("KEYWORD_FLEETING", "<style=cKeywordName>一闪</style><style=cSub><style=cIsDamage>攻速</style>转化为<style=cIsDamage>技能伤害</style>。", "zh-CN");
@@ -782,19 +783,19 @@ namespace BtpTweak {
         //}
 
         private static void 象征汉化() {
-        //    TPDespair.ZetAspects.Language.targetLanguage = "zh-CN";
-        //    TPDespair.ZetAspects.Language.tokens["zh-CN"]["ITEM_SHIELDONLY_DESC"] += $"\n{基础护盾百分比再生速度}增加{0.01f.ToBaseAndStkPct().ToHealing("_hp/s")}";
-        //    var oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken];
-        //    TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
-        //    oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken];
-        //    TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
+            //    TPDespair.ZetAspects.Language.targetLanguage = "zh-CN";
+            //    TPDespair.ZetAspects.Language.tokens["zh-CN"]["ITEM_SHIELDONLY_DESC"] += $"\n{基础护盾百分比再生速度}增加{0.01f.ToBaseAndStkPct().ToHealing("_hp/s")}";
+            //    var oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken];
+            //    TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Item.ZetAspectRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
+            //    oldStr = TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken];
+            //    TPDespair.ZetAspects.Language.tokens["zh-CN"][Catalog.Equip.AffixRed.descriptionToken] = oldStr.Replace(TPDespair.ZetAspects.Language.SecondText(Configuration.AspectRedBurnDuration.Value, "over"), "");
         }
 
         private static string Language_GetLocalizedStringByToken(On.RoR2.Language.orig_GetLocalizedStringByToken orig, RoR2.Language self, string token) {
             var result = orig(self, token);
-            if (self.name == "zh-CN" && result.Length > 0 && !strings.Contains(token) && (大小写字母串.Contains(result[..1]) || (result.StartsWith("<") && 大小写字母串.Contains(result.Substring(result.IndexOf('>') + 1, 1))))) {
+            if (self.name == "zh-CN" && result.Length > 0 && !strings.Contains(token) && (大小写字母串.Contains(result[..1]) || result.StartsWith("<") && 大小写字母串.Contains(result.Substring(result.IndexOf('>') + 1, 1)))) {
                 strings.Add(token);
-                $"AddOverlay(\"{token}\",\"{result}\",\"zh-CN\")".Qlog("");
+                $"AddOverlay(\"{token}\",\"{result}\",\"zh-CN\")".LogMessage();
             }
             return result;
         }
@@ -804,7 +805,7 @@ namespace BtpTweak {
             On.RoR2.UI.MainMenu.MainMenuController.Start -= OnMainMenuControllerFirstStart;
             await Task.Run(基础汉化);
             await Task.Run(权杖技能汉化);
-            await Task.Run(圣骑士汉化);
+            //await Task.Run(圣骑士汉化);
             //await Task.Run(探路者汉化);
             await Task.Run(象征汉化);
             //Task.Run(破坏者汉化);

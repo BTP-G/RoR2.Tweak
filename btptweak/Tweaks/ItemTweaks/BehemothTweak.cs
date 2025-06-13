@@ -1,7 +1,7 @@
-﻿using BtpTweak.Pools;
+﻿using BTP.RoR2Plugin.Pools;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BehemothTweak : TweakBase<BehemothTweak>, IOnModLoadBehavior {
         public const int Radius = 3;

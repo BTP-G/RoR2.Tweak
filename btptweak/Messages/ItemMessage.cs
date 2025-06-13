@@ -3,7 +3,7 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Messages {
+namespace BTP.RoR2Plugin.Messages {
 
     internal struct ItemMessage(Inventory inventory, ItemIndex itemIndex, int itemCount) : INetMessage {
         private Inventory _inventory = inventory;
@@ -20,7 +20,7 @@ namespace BtpTweak.Messages {
             _inventory.GiveItem(_itemIndex, _itemCount);
         }
 
-        public void Serialize(NetworkWriter writer) {
+        public readonly void Serialize(NetworkWriter writer) {
             writer.Write(_inventory.gameObject);
             writer.Write(_itemIndex);
             writer.Write(_itemCount);
@@ -29,9 +29,9 @@ namespace BtpTweak.Messages {
         [RuntimeInitializeOnLoadMethod]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<ItemMessage>()) {
-                Main.Logger.LogMessage(typeof(ItemMessage).FullName + " Register Successd!");
+                (typeof(ItemMessage).FullName + " Register Successd!").LogMessage();
             } else {
-                Main.Logger.LogError(typeof(ItemMessage).FullName + "ItemMessage Register Failed!");
+                (typeof(ItemMessage).FullName + "ItemMessage Register Failed!").LogError();
             }
         }
     }

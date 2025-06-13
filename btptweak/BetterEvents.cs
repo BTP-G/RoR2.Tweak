@@ -2,7 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin {
 
     public static class BetterEvents {
 
@@ -24,7 +24,7 @@ namespace BtpTweak {
         }
 
         private static void GlobalEventManager_OnHitAll(On.RoR2.GlobalEventManager.orig_OnHitAllProcess orig, GlobalEventManager self, DamageInfo damageInfo, UnityEngine.GameObject hitObject) {
-            if (damageInfo.procCoefficient == 0f || damageInfo.rejected || damageInfo.attacker is null) {
+            if (damageInfo.procCoefficient == 0f || damageInfo.rejected || damageInfo.attacker == null) {
                 return;
             }
             if (damageInfo.attacker.TryGetComponent<CharacterBody>(out var attackerBody) && attackerBody.master is not null) {
@@ -35,17 +35,17 @@ namespace BtpTweak {
         private static void GlobalEventManager_OnHitEnemy(ILContext il) {
             var iLCursor = new ILCursor(il);
             if (iLCursor.TryGotoNext(MoveType.Before,
-                                     x => x.MatchLdloc(5),
+                                     x => x.MatchLdloc(7),
                                      x => x.MatchCallvirt<CharacterMaster>("get_inventory"),
-                                     x => x.MatchStloc(6))) {
+                                     x => x.MatchStloc(8))) {
                 iLCursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldloc_0)
                         .Emit(OpCodes.Ldloc_1)
-                        .Emit(OpCodes.Ldloc_2)
                         .EmitDelegate((DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
                             OnHitEnemy?.Invoke(damageInfo, attackerBody, victimBody);
                         });
             } else {
-                Main.Logger.LogError("OnHitEnemy Hook Failed!");
+                 "OnHitEnemy Hook Failed!".LogError();
             }
         }
     }

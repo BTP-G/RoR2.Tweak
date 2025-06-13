@@ -1,6 +1,6 @@
 ﻿using RoR2;
 
-namespace BtpTweak.Pools.OrbPools {
+namespace BTP.RoR2Plugin.Pools.OrbPools {
 
     public struct OrbPoolKey {
         public bool isCrit;

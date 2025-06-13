@@ -1,11 +1,10 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using R2API;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class TPHealingNovaTweak : TweakBase<TPHealingNovaTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float HealFraction = 0.02f;

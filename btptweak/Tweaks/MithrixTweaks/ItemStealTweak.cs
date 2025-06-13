@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.MithrixTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
     internal class ItemStealTweak : TweakBase<ItemStealTweak>, IOnModLoadBehavior {
         private readonly Dictionary<ItemStealController.StolenInventoryInfo, List<ItemIndex>> StolenInventoryInfoToItemIndexes = [];

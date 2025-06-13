@@ -1,9 +1,9 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ExecuteLowHealthEliteTweak : TweakBase<ExecuteLowHealthEliteTweak>, IOnModLoadBehavior {
         public const float BaseExecuteEliteHealthFraction = 10f;
@@ -19,7 +19,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         .Emit(OpCodes.Ldarg_0)
                         .EmitDelegate((CharacterBody body) => BtpUtils.简单逼近(body.inventory.GetItemCount(RoR2Content.Items.ExecuteLowHealthElite.itemIndex), 4f, 0.5f));
             } else {
-                Main.Logger.LogError("ExecuteLowHealthElite Hook Failed!");
+                LogExtensions.LogError("ExecuteLowHealthElite Hook Failed!");
             }
         }
     }

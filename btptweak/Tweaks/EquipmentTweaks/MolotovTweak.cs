@@ -2,7 +2,7 @@
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.EquipmentTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
     internal class MolotovTweak : TweakBase<MolotovTweak>, IOnModLoadBehavior {
         public const float DamageBonusCoefficient = 0.1666f;

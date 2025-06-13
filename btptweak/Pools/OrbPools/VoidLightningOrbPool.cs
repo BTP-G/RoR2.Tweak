@@ -1,8 +1,8 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using RoR2;
 using RoR2.Orbs;
 
-namespace BtpTweak.Pools.OrbPools {
+namespace BTP.RoR2Plugin.Pools.OrbPools {
 
     internal sealed class VoidLightningOrbPool : Pool<VoidLightningOrbPool, OrbPoolKey, VoidLightningOrb> {
         protected override float Interval => ChainLightningVoidTweak.Interval;

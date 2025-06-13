@@ -1,4 +1,4 @@
-﻿namespace BtpTweak {
+﻿namespace BTP.RoR2Plugin {
 
     /// <summary>适用于 TweakBase 的非抽象派生类</summary>
     internal interface IOnRoR2LoadedBehavior {

@@ -1,12 +1,11 @@
-﻿using BtpTweak.Utils.RoR2ResourcesPaths;
-using RoR2;
+﻿using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
 using TPDespair.ZetAspects;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Utils {
+namespace BTP.RoR2Plugin.Utils {
 
     public static class BtpUtils {
 
@@ -73,13 +72,13 @@ namespace BtpTweak.Utils {
             var serializedFields = configuration.serializedFieldsCollection.serializedFields;
             for (int i = 0; i < serializedFields.Length; ++i) {
                 if (fieldNameToNewFieldValues.TryGetValue(serializedFields[i].fieldName, out var newValue)) {
-                    Main.Logger.LogMessage($"set {configuration.targetType.assemblyQualifiedName} field '{serializedFields[i].fieldName}' : oldValue('{serializedFields[i].fieldValue.stringValue}') => newValue('{newValue}')");
+                    LogExtensions.LogMessage($"set {configuration.targetType.assemblyQualifiedName} field '{serializedFields[i].fieldName}' : oldValue('{serializedFields[i].fieldValue.stringValue}') => newValue('{newValue}')");
                     serializedFields[i].fieldValue.stringValue = newValue;
                     fieldNameToNewFieldValues.Remove(serializedFields[i].fieldName);
                 }
             }
             if (fieldNameToNewFieldValues.Count != 0) {
-                Main.Logger.LogError($"set {configuration.targetType.assemblyQualifiedName} fields '{string.Join("|", fieldNameToNewFieldValues.Keys)}' not found!");
+                LogExtensions.LogError($"set {configuration.targetType.assemblyQualifiedName} fields '{string.Join("|", fieldNameToNewFieldValues.Keys)}' not found!");
                 fieldNameToNewFieldValues.Clear();
             }
         }
@@ -88,12 +87,12 @@ namespace BtpTweak.Utils {
             var serializedFields = configuration.serializedFieldsCollection.serializedFields;
             for (int i = 0; i < serializedFields.Length; ++i) {
                 if (serializedFields[i].fieldName == fieldName) {
-                    Main.Logger.LogMessage($"set {configuration.targetType.assemblyQualifiedName} field '{serializedFields[i].fieldName}' : oldValue('{serializedFields[i].fieldValue.stringValue}') => newValue('{newFieldValue}')");
+                    LogExtensions.LogMessage($"set {configuration.targetType.assemblyQualifiedName} field '{serializedFields[i].fieldName}' : oldValue('{serializedFields[i].fieldValue.stringValue}') => newValue('{newFieldValue}')");
                     serializedFields[i].fieldValue.stringValue = newFieldValue;
                     return;
                 }
             }
-            Main.Logger.LogError($"set {configuration.targetType.assemblyQualifiedName} field '{fieldName}' not found!");
+            LogExtensions.LogError($"set {configuration.targetType.assemblyQualifiedName} field '{fieldName}' not found!");
         }
 
         public static void InflictTotalDamageWithinDuration(this ref InflictDotInfo dotInfo, CharacterBody attackerBody = null) {

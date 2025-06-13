@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace BtpTweak.Utils {
+namespace BTP.RoR2Plugin.Utils {
 
     public static class StringExtension {
 

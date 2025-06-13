@@ -6,7 +6,7 @@ using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates {
 
     public class AimCrushingLeap : BaseSkillState {
         private static readonly Material awShellExpolsionMat = Addressables.LoadAssetAsync<Material>("RoR2/Base/artifactworld/matArtifactShellExplosionIndicator.mat").WaitForCompletion();

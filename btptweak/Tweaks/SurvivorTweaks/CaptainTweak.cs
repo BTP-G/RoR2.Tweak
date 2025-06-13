@@ -1,6 +1,5 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 using R2API;
 using RoR2;
 using RoR2.Orbs;
@@ -9,7 +8,7 @@ using RoR2.Skills;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class CaptainTweak : TweakBase<CaptainTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float CallAirstrikeAltDamageCoefficient = 500f;

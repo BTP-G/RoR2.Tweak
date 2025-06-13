@@ -2,7 +2,7 @@
 using EntityStates.BrotherMonster;
 using RoR2;
 
-namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates {
 
     public class EnterCrushingLeap : BaseSkillState {
         public static float baseDuration = 0.5f;

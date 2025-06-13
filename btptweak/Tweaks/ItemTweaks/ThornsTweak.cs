@@ -1,9 +1,9 @@
-﻿using BtpTweak.Pools.OrbPools;
+﻿using BTP.RoR2Plugin.Pools.OrbPools;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior {
         public const int BaseRadius = 20;
@@ -38,7 +38,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                       });
                 cursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Thorns :: Hook Failed!");
+                LogExtensions.LogError("Thorns :: Hook Failed!");
             }
         }
     }

@@ -1,13 +1,13 @@
-﻿using BtpTweak.Messages;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Messages;
+using BTP.RoR2Plugin.Utils;
 using R2API.Utils;
 using RoR2;
+using System;
 using System.Runtime.Serialization;
 using TPDespair.ZetArtifacts;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     public enum LunarWingsState : byte {
         Default,
@@ -20,6 +20,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         Count,
     }
 
+    [Obsolete]
     internal class LunarWingsTweak : TweakBase<LunarWingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const string DescToken = "ITEM_LUNARWINGS_DESC";
         public const string DefaultDesc = "默认：看起来只是一双翅膀。";
@@ -111,7 +112,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                 default:
                     break;
             }
-            Main.Logger.LogMessage($"LunarWingsState changed {_state} => {newState}");
+            LogExtensions.LogMessage($"LunarWingsState changed {_state} => {newState}");
             _state = newState;
         }
 
@@ -171,7 +172,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
             private void Start() {
                 if (Instance) {
-                    Main.Logger.LogError("Singleton class 'LunarWingsBehavior' was instantiated twice!!!");
+                    LogExtensions.LogError("Singleton class 'LunarWingsBehavior' was instantiated twice!!!");
                 }
                 Instance = this;
                 UpgradeLunarWings(LunarWingsState.过去时);

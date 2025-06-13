@@ -2,7 +2,7 @@
 using RoR2;
 using RoR2.Projectile;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class ToolbotTweak : TweakBase<ToolbotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private static float _nailgunBaseMaxDistance;

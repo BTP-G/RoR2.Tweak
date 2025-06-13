@@ -2,7 +2,7 @@
 using RoR2.Artifacts;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class ArtifactTweak : TweakBase<ArtifactTweak>, IOnModLoadBehavior {
         private float _牺牲保底概率;
@@ -20,7 +20,7 @@ namespace BtpTweak.Tweaks {
             if (damageReport.attackerTeamIndex == damageReport.victimTeamIndex && damageReport.victimMaster.minionOwnership.ownerMaster) {
                 return;
             }
-            float baseDropChancePercent = ModConfig.牺牲基础掉率.Value + _牺牲保底概率 - _牺牲衰减概率;
+            float baseDropChancePercent = Settings.牺牲基础掉率.Value + _牺牲保底概率 - _牺牲衰减概率;
             if (damageReport.victimIsChampion) {
                 baseDropChancePercent *= 1.5f;
             } else if (damageReport.victimIsElite) {
@@ -48,11 +48,11 @@ namespace BtpTweak.Tweaks {
                     }
                     if (itemScore > 0f) {
                         _牺牲保底概率 = 0;
-                        _牺牲衰减概率 += ModConfig.牺牲基础掉率.Value * itemScore / Run.instance.participatingPlayerCount;
+                        _牺牲衰减概率 += Settings.牺牲基础掉率.Value * itemScore / Run.instance.participatingPlayerCount;
                     }
                 }
             } else {
-                _牺牲保底概率 += ModConfig.牺牲基础掉率.Value * 0.04f * Run.instance.participatingPlayerCount;
+                _牺牲保底概率 += Settings.牺牲基础掉率.Value * 0.04f * Run.instance.participatingPlayerCount;
             }
         }
 

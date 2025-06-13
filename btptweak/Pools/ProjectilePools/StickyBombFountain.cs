@@ -1,8 +1,8 @@
-﻿using BtpTweak.Tweaks;
-using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks;
+using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using UnityEngine;
 
-namespace BtpTweak.Pools.ProjectilePools {
+namespace BTP.RoR2Plugin.Pools.ProjectilePools {
 
     internal sealed class StickyBombFountain : ProjectileFountain<StickyBombFountain> {
         protected override GameObject ProjectilePrefab => AssetReferences.stickyBombProjectile;

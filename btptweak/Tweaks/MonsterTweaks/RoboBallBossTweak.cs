@@ -1,9 +1,8 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using RoR2.Skills;
 
-namespace BtpTweak.Tweaks.MonsterTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
     internal class RoboBallBossTweak : TweakBase<RoboBallBossTweak>, IOnRoR2LoadedBehavior {
 

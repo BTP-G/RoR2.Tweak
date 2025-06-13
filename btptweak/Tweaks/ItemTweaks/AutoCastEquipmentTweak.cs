@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class AutoCastEquipmentTweak : TweakBase<AutoCastEquipmentTweak>, IOnModLoadBehavior {
         public const float 强制冷却时间 = 0.15f;
@@ -14,13 +14,13 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private void IL_Inventory_UpdateEquipment(ILContext il) {
             var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchStloc(x, 6))) {
+            if (ilcursor.TryGotoNext(x => x.MatchStloc(6))) {
                 ilcursor.Emit(OpCodes.Ldarg_0)
                         .EmitDelegate((float chargeFinishTime, Inventory inventory) => {
                             return Mathf.Max(强制冷却时间 * inventory.GetItemCount(RoR2Content.Items.AutoCastEquipment.itemIndex), chargeFinishTime);
                         });
             } else {
-                Main.Logger.LogError("AutoCastEquipment Hook Failed!");
+                "AutoCastEquipment Hook Failed!".LogError();
             }
         }
     }

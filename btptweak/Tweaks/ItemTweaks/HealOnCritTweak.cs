@@ -1,6 +1,6 @@
 ﻿using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior {
         public const int BaseCrit = 10;

@@ -1,15 +1,14 @@
-﻿using BtpTweak.RoR2Indexes;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
-using BtpTweak.Utils.RoR2ResourcesPaths;
-using BtpTweak.Utils;
 using RoR2.Skills;
 using EntityStates.Treebot.Weapon;
 using R2API;
+using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class TreebotTweak : TweakBase<TreebotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float HurtBoxSizeMultiplier = 0.66f;
@@ -34,7 +33,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         private void HealthComponent_Heal(ILContext il) {
             var cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdfld<HealthComponent.ItemCounts>(x, "increaseHealing"))) {
+            if (cursor.TryGotoNext(x => x.MatchLdfld<HealthComponent.ItemCounts>("increaseHealing"))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);
                 cursor.EmitDelegate((HealthComponent healthComponent, float amount) => {
@@ -45,7 +44,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 });
                 cursor.Emit(OpCodes.Starg, 1);
             } else {
-                Main.Logger.LogError("Treebot HealHook Failed!");
+                LogExtensions.LogError("Treebot HealHook Failed!");
             }
         }
     }

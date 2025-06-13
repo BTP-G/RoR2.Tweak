@@ -1,4 +1,4 @@
-﻿namespace BtpTweak.Utils.RoR2ResourcesPaths {
+﻿namespace BTP.RoR2Plugin.Utils {
 
     public static class Texture2DPaths {
         public const string texAttackSpeedIcon = "RoR2/Base/Achievements/texAttackSpeedIcon.png";

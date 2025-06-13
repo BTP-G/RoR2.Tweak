@@ -1,8 +1,8 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Pools {
+namespace BTP.RoR2Plugin.Pools {
 
     public struct IceBlastPoolKey {
         public bool crit;

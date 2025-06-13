@@ -1,10 +1,9 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using RoR2.Orbs;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class DroneWeaponsTweak : TweakBase<DroneWeaponsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
@@ -28,7 +27,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         damageColorIndex = DamageColorIndex.Item,
                         damageValue = Util.OnHitProcDamage(damageInfo.damage, body.damage, self.stack),
                         isCrit = damageInfo.crit,
-                        origin = (self.missileMuzzleTransform ? self.missileMuzzleTransform.position : body.corePosition),
+                        origin = self.missileMuzzleTransform ? self.missileMuzzleTransform.position : body.corePosition,
                         procChainMask = damageInfo.procChainMask,
                         procCoefficient = 0.5f,
                         target = victimBody.mainHurtBox,

@@ -1,8 +1,7 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class VoidRaidCrabTweak : TweakBase<VoidRaidCrabTweak>, IOnRoR2LoadedBehavior {
 

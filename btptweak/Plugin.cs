@@ -1,37 +1,32 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using BtpTweak.Tweaks;
+using BTP.RoR2Plugin.Tweaks;
 using RoR2;
+using RoR2.UI.MainMenu;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin {
 
-    [BepInDependency("com.groovesalad.GrooveSaladSpikestripContent")]
-    [BepInDependency("com.plasmacore.PlasmaCoreSpikestripContent")]
-    [BepInDependency("com.rune580.riskofoptions")]
-    [BepInDependency("com.Phreel.GoldenCoastPlusRevived")]
     [BepInDependency(R2API.R2API.PluginGUID)]
     [BepInDependency(TPDespair.ZetAspects.ZetAspectsPlugin.ModGuid)]
     [BepInDependency(vanillaVoid.vanillaVoidPlugin.ModGuid)]
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    public class Main : BaseUnityPlugin {
+    public class Plugin : BaseUnityPlugin {
         public const string PluginAuthor = "BTP";
-        public const string PluginGUID = "com." + PluginAuthor + "." + PluginName;
-        public const string PluginName = "BtpTweak";
+        public const string PluginGUID = "com.BTP.Tweak";
+        public const string PluginName = "BTP.Tweak";
         public const string PluginVersion = "3.0.0";
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
-        internal new static ManualLogSource Logger { get; private set; }
-        internal new static ConfigFile Config { get; private set; }
+        private readonly List<IOnRoR2LoadedBehavior> onRoR2LoadedBehaviors = [];
 
         private void Awake() {
-            Config = base.Config;
-            Logger = base.Logger;
-            ModConfig.InitConfig(base.Config);
+            LogExtensions.logger = base.Logger;
+            Settings.Initialize(base.Config);
+            MainMenuController.OnMainMenuInitialised += OnRoR2Loaded;
+            AssetReferences.Init();
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
                 if (!type.IsAbstract && !type.IsDefined(typeof(ObsoleteAttribute))) {
                     if (type.IsSubclassOf(typeof(TweakBase))) {
@@ -43,46 +38,56 @@ namespace BtpTweak {
                             onModUnloadBehaviors.Add(disableBehavior);
                         }
                         if (tweakBase is IOnRoR2LoadedBehavior ror2LoadedBehavior) {
-                            RoR2Application.onLoad += ror2LoadedBehavior.OnRoR2Loaded;
+                            onRoR2LoadedBehaviors.Add(ror2LoadedBehavior);
                         }
                     }
                 }
-                var staticMethodInfos = type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                if (staticMethodInfos.Length > 0) {
-                    foreach (var staticMethod in staticMethodInfos) {
-                        if (staticMethod.IsDefined(typeof(RuntimeInitializeOnLoadMethodAttribute), true)) {
-                            try {
-                                staticMethod.Invoke(null, null);
-                                Logger.LogMessage($"RuntimeInitializeOnLoadMethod: {type.FullName}.{staticMethod.Name} has been called.");
-                            } catch (Exception e) {
-                                Logger.LogError(e);
-                            }
+                foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).AsSpan()) {
+                    if (method.IsDefined(typeof(RuntimeInitializeOnLoadMethodAttribute), true)) {
+                        try {
+                            method.Invoke(null, null);
+                            Logger.LogMessage($"RuntimeInitializeOnLoadMethod: {type.FullName}.{method.Name} has been called.");
+                        } catch (Exception e) {
+                            Logger.LogError(e);
                         }
                     }
+                }
+            }
+        }
+
+        private void OnRoR2Loaded() {
+            MainMenuController.OnMainMenuInitialised -= OnRoR2Loaded;
+            foreach (var behavior in onRoR2LoadedBehaviors) {
+                try {
+                    var roR2LoadedBehavior = behavior;
+                    roR2LoadedBehavior.OnRoR2Loaded();
+                    Logger.LogMessage(roR2LoadedBehavior.GetType().FullName + " :: has called.");
+                } catch (Exception e) {
+                    Debug.LogException(e, this);
                 }
             }
         }
 
         private void OnEnable() {
-            for (int i = 0; i < onModLoadBehaviors.Count; ++i) {
+            foreach (var behavior in onModLoadBehaviors) {
                 try {
-                    var onModLoadBehavior = onModLoadBehaviors[i];
+                    var onModLoadBehavior = behavior;
                     onModLoadBehavior.OnModLoad();
                     Logger.LogMessage(onModLoadBehavior.GetType().FullName + " :: has set event handlers.");
                 } catch (Exception e) {
-                    Debug.LogException(e);
+                    Debug.LogException(e, this);
                 }
             }
         }
 
         private void OnDisable() {
-            for (int i = 0; i < onModUnloadBehaviors.Count; ++i) {
+            foreach (var behavior in onModUnloadBehaviors) {
                 try {
-                    var onModUnloadBehavior = onModUnloadBehaviors[i];
+                    var onModUnloadBehavior = behavior;
                     onModUnloadBehavior.OnModUnload();
                     Logger.LogMessage(onModUnloadBehavior.GetType().FullName + " :: has cleared event handlers.");
                 } catch (Exception e) {
-                    Debug.LogException(e);
+                    Debug.LogException(e, this);
                 }
             }
         }

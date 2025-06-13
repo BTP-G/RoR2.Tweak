@@ -1,7 +1,7 @@
 ﻿using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class IgniteOnKillTweak : TweakBase<IgniteOnKillTweak>, IOnModLoadBehavior {
         public const float ExplosionBaseDamageCoefficient = 1.2f;

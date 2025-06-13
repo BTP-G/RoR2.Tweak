@@ -1,7 +1,7 @@
 ﻿using R2API;
 using RoR2;
 
-namespace BtpTweak.Tweaks.EquipmentTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
     internal class TeamWarCryTweak : TweakBase<TeamWarCryTweak>, IOnModLoadBehavior {
         public const float 每层战争号角攻速提升系数 = 0.25f;

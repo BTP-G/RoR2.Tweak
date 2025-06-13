@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin {
 
     public interface ISaveData {
 
@@ -17,25 +17,25 @@ namespace BtpTweak {
 
         public static void AddSaveDataType(Type type) {
             if (_saveDataTypes.Contains(type)) {
-                Main.Logger.LogError($"此类型('{type.FullName}')已添加！请勿重复添加！");
+                $"此类型('{type.FullName}')已添加！请勿重复添加！".LogError();
                 return;
             }
             if (!type.ImplementInterface(typeof(ISaveData))) {
-                Main.Logger.LogError($"此类型('{type.FullName}')不实现接口('{typeof(ISaveData).FullName}')！请实现此接口！");
+                $"此类型('{type.FullName}')不实现接口('{typeof(ISaveData).FullName}')！请实现此接口！".LogError();
                 return;
             }
             _saveDataTypes.Add(type);
-            Main.Logger.LogMessage($"存档类型('{type.FullName}')已添加。");
+            $"存档类型('{type.FullName}')已添加。".LogMessage();
         }
 
         public static void AddSaveDataType<T>() where T : ISaveData {
             var type = typeof(T);
             if (_saveDataTypes.Contains(type)) {
-                Main.Logger.LogError($"此类型('{type.FullName}')已添加！请勿重复添加！");
+                $"此类型('{type.FullName}')已添加！请勿重复添加！".LogError();
                 return;
             }
             _saveDataTypes.Add(type);
-            Main.Logger.LogMessage($"存档类型('{type.FullName}')已添加。");
+            $"存档类型('{type.FullName}')已添加。".LogMessage();
         }
 
         [RuntimeInitializeOnLoadMethod]
@@ -49,14 +49,14 @@ namespace BtpTweak {
                 var saveData = (ISaveData)Activator.CreateInstance(type);
                 saveData.SaveData();
                 obj.Add(type.FullName, saveData);
-                Main.Logger.LogMessage($"存档类型('{type.FullName}')已存入。");
+                $"存档类型('{type.FullName}')已存入。".LogMessage(  );
             }
         }
 
         private static void Loading_OnLoadingEnded(ProperSave.SaveFile obj) {
             foreach (var type in _saveDataTypes) {
                 obj.GetModdedData<ISaveData>(type.FullName)?.LoadData();
-                Main.Logger.LogMessage($"存档类型('{type.FullName}')已载入。");
+                $"存档类型('{type.FullName}')已载入。".LogMessage();
             }
         }
     }

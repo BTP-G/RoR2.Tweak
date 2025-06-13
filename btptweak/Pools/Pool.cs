@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace BtpTweak.Pools {
+namespace BTP.RoR2Plugin.Pools {
 
     internal abstract class Pool<TKey, TValue> {
         protected readonly Dictionary<TKey, TValue> pool = [];
@@ -30,6 +30,7 @@ namespace BtpTweak.Pools {
         private static readonly Dictionary<GameObject, T> _pools = [];
         private static readonly Stack<T> _poolStack = [];
         private GameObject _owner;
+        public GameObject Owner => _owner;
 
         public static T RentPool(GameObject owner) {
             if (!_pools.TryGetValue(owner, out var pool)) {

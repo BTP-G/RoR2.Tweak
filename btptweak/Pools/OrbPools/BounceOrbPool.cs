@@ -1,10 +1,10 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using HG;
 using RoR2;
 using RoR2.Orbs;
 using System.Collections.Generic;
 
-namespace BtpTweak.Pools.OrbPools {
+namespace BTP.RoR2Plugin.Pools.OrbPools {
 
     internal sealed class BounceOrbPool : Pool<BounceOrbPool, OrbPoolKey, BounceOrb> {
         private static readonly BullseyeSearch search = new();

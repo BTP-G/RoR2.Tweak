@@ -1,7 +1,6 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Tweaks.ItemTweaks;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Tweaks.ItemTweaks;
+using BTP.RoR2Plugin.Utils;
 using EntityStates.BrotherMonster;
 using RoR2;
 using RoR2.Projectile;
@@ -10,7 +9,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.MithrixTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
     internal class BrotherHurtTweak : TweakBase<BrotherHurtTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int missileCountPerFire = 5;
@@ -30,7 +29,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             var body = GameObjectPaths.BrotherHurtBody.LoadComponent<CharacterBody>();
             body.GetComponent<SetStateOnHurt>().canBeFrozen = false;
-            var component = body.AddComponent<BrotherHurtBodyComponent>();
+            var component = body.gameObject.AddComponent<BrotherHurtBodyComponent>();
             var meteorStormController = GameObjectPaths.MeteorStorm.LoadComponent<MeteorStormController>();
             component.warningEffectPrefab = meteorStormController.warningEffectPrefab;
             component.impactEffectPrefab = meteorStormController.impactEffectPrefab;

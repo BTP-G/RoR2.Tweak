@@ -1,10 +1,10 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class ShrineBloodTweak : TweakBase<ShrineBloodTweak>, IOnModLoadBehavior {
 

@@ -2,7 +2,7 @@
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class LunarSunTweak : TweakBase<LunarSunTweak>, IOnModLoadBehavior {
         public const float BaseDamageCoefficient = 3.6f;

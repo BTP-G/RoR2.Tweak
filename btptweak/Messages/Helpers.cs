@@ -1,10 +1,10 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using EntityStates;
 using R2API.Networking.Interfaces;
 using RoR2;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Messages {
+namespace BTP.RoR2Plugin.Messages {
 
     public static class Helpers {
 

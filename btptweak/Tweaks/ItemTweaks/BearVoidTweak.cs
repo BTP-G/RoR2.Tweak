@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BearVoidTweak : TweakBase<BearVoidTweak>, IOnModLoadBehavior {
         public const int BasePercentChance = 50;
@@ -13,29 +13,28 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {
-            var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(x => x.Match(OpCodes.Brtrue),
-                                     x => x.MatchLdarg(0),
-                                     x => x.MatchLdfld<HealthComponent>("body"),
-                                     x => x.MatchLdsfld(typeof(DLC1Content.Buffs), "BearVoidReady"))) {  // 113
-                ilcursor.Index += 10;
-                ilcursor.RemoveRange(53)
-                        .Emit(OpCodes.Ldarg, 0)
-                        .Emit(OpCodes.Ldarg, 1)
-                        .EmitDelegate((HealthComponent healthComponent, DamageInfo damageInfo) => {
-                            var body = healthComponent.body;
-                            if (body.HasBuff(DLC1Content.Buffs.EliteVoid.buffIndex) || Util.CheckRoll(BasePercentChance)) {
-                                EffectManager.SpawnEffect(HealthComponent.AssetReferences.bearVoidEffectPrefab, new EffectData() {
-                                    origin = damageInfo.position,
-                                    rotation = Util.QuaternionSafeLookRotation(damageInfo.force != Vector3.zero ? damageInfo.force : Random.onUnitSphere)
-                                }, true);
-                                damageInfo.rejected = true;
-                            }
-                            body.RemoveBuff(DLC1Content.Buffs.BearVoidReady.buffIndex);
-                            body.AddTimedBuff(DLC1Content.Buffs.BearVoidCooldown.buffIndex, 15f * Mathf.Pow(0.9f, body.inventory.GetItemCount(DLC1Content.Items.BearVoid)));
-                        });
+            var cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(MoveType.After,
+                x => x.MatchLdsfld(typeof(DLC1Content.Buffs), "BearVoidReady"),
+                i => i.MatchCallvirt<CharacterBody>("HasBuff"))) {
+                cursor.Emit(OpCodes.Ldarg, 0)
+                      .Emit(OpCodes.Ldarg, 1)
+                      .EmitDelegate((bool hasBearVoidReady, HealthComponent healthComponent, DamageInfo damageInfo) => {
+                          if (!hasBearVoidReady) return;
+                          var body = healthComponent.body;
+                          if (body.HasBuff(DLC1Content.Buffs.EliteVoid.buffIndex) || Util.CheckRoll(BasePercentChance)) {
+                              EffectManager.SpawnEffect(HealthComponent.AssetReferences.bearVoidEffectPrefab, new EffectData() {
+                                  origin = damageInfo.position,
+                                  rotation = Util.QuaternionSafeLookRotation(damageInfo.force != Vector3.zero ? damageInfo.force : Random.onUnitSphere)
+                              }, true);
+                              damageInfo.rejected = true;
+                          }
+                          body.RemoveBuff(DLC1Content.Buffs.BearVoidReady.buffIndex);
+                          body.AddTimedBuff(DLC1Content.Buffs.BearVoidCooldown.buffIndex, 15f * Mathf.Pow(0.9f, body.inventory.GetItemCount(DLC1Content.Items.BearVoid)));
+                      });
+                cursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("BearVoid Hook Failed!");
+                "BearVoid Hook Failed!".LogError();
             }
         }
     }

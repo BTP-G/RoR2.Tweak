@@ -1,6 +1,5 @@
-﻿using BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates;
+using BTP.RoR2Plugin.Utils;
 using EntityStates.BrotherMonster;
 using EntityStates.BrotherMonster.Weapon;
 using EntityStates.LunarGolem;
@@ -14,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.MithrixTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
     internal class SkillTweak : TweakBase<SkillTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
@@ -51,7 +50,7 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             GroundedSkillDefPaths.SkyLeap.Load<SkillDef>().activationState = new EntityStates.SerializableEntityStateType(typeof(EnterCrushingLeap));
-            GameObjectPaths.BrotherBody.LoadComponent<SkillLocator>().utility.skillFamily.variants[0].skillDef = BtpContent.Skills.UngroundedDash;
+            GameObjectPaths.BrotherBody.LoadComponent<SkillLocator>().utility.skillFamily.variants[0].skillDef = Content.Skills.UngroundedDash;
         }
 
         private void FireLunarShards_OnEnter(On.EntityStates.BrotherMonster.Weapon.FireLunarShards.orig_OnEnter orig, FireLunarShards self) {

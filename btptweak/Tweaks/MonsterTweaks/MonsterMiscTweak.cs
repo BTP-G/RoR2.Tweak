@@ -1,6 +1,6 @@
 ﻿using RoR2;
 
-namespace BtpTweak.Tweaks.MonsterTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
     internal class MonsterMiscTweak : TweakBase<MonsterMiscTweak>, IOnModLoadBehavior {
 

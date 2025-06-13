@@ -1,10 +1,10 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BleedTweak : TweakBase<BleedTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BleedDamageCoefficient = 0.1f;
@@ -29,99 +29,96 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             if (ilcursor.TryGotoNext(MoveType.After,
                                      x => x.MatchLdcI4(5),
                                      x => x.MatchCall<ProcChainMask>("HasProc"))) {
-                ilcursor.Emit(OpCodes.Ldarg_1)
-                        .Emit(OpCodes.Ldarg_2)
-                        .Emit(OpCodes.Ldloc, 1)
-                        .Emit(OpCodes.Ldloc, 0)
-                        .EmitDelegate((bool hasProc, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody, uint? maxStacksFromAttacker) => {
-                            if (hasProc) {
-                                return;
-                            }
-                            if (damageInfo.crit) {
-                                var superBleedCount = 0f;
-                                if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal)) {
-                                    ++superBleedCount;
-                                }
-                                if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
-                                    ++superBleedCount;
-                                }
-                                if (damageInfo.damageType.damageType.HasFlag(DamageType.SuperBleedOnCrit)) {
-                                    ++superBleedCount;
-                                }
-                                if (superBleedCount > 0) {
-                                    var dotInfo = new InflictDotInfo {
-                                        attackerObject = damageInfo.attacker,
-                                        dotIndex = DotController.DotIndex.SuperBleed,
-                                        duration = SurperBleedDuration,
-                                        maxStacksFromAttacker = maxStacksFromAttacker,
-                                        totalDamage = superBleedCount * damageInfo.damage * SurperBleedDamageCoefficient * attackerBody.critMultiplier,
-                                        victimObject = victim,
-                                    };
-                                    dotInfo.InflictTotalDamageWithinDuration(attackerBody);
-                                    DotController.InflictDot(ref dotInfo);
-                                }
-                                if (damageInfo.damageType.damageType.HasFlag(DamageType.BleedOnHit)) {
-                                    var dotInfo = new InflictDotInfo {
-                                        attackerObject = damageInfo.attacker,
-                                        dotIndex = DotController.DotIndex.Bleed,
-                                        duration = BleedDuration,
-                                        maxStacksFromAttacker = maxStacksFromAttacker,
-                                        totalDamage = damageInfo.damage * BleedDamageCoefficient * attackerBody.critMultiplier,
-                                        victimObject = victim,
-                                    };
-                                    dotInfo.InflictTotalDamageWithinDuration(attackerBody);
-                                    DotController.InflictDot(ref dotInfo);
-                                }
-                            } else {
-                                var bleedCount = 0;
-                                if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal)) {
-                                    ++bleedCount;
-                                }
-                                if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
-                                    ++bleedCount;
-                                }
-                                if (damageInfo.damageType.damageType.HasFlag(DamageType.BleedOnHit)) {
-                                    ++bleedCount;
-                                }
-                                if (bleedCount > 0) {
-                                    var dotInfo = new InflictDotInfo {
-                                        attackerObject = damageInfo.attacker,
-                                        dotIndex = DotController.DotIndex.Bleed,
-                                        duration = BleedDuration,
-                                        maxStacksFromAttacker = maxStacksFromAttacker,
-                                        totalDamage = bleedCount * damageInfo.damage * BleedDamageCoefficient,
-                                        victimObject = victim,
-                                    };
-                                    dotInfo.InflictTotalDamageWithinDuration(attackerBody);
-                                    DotController.InflictDot(ref dotInfo);
-                                }
-                            }
-                        });
+                ilcursor.Emit(OpCodes.Ldarg_1);
+                ilcursor.Emit(OpCodes.Ldarg_2);
+                ilcursor.Emit(OpCodes.Ldloc_0);
+                ilcursor.Emit(OpCodes.Ldloc_3);
+                ilcursor.EmitDelegate((bool hasProc, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody, uint? maxStacksFromAttacker) => {
+                    if (hasProc) return;
+                    if (damageInfo.crit) {
+                        var superBleedCount = 0f;
+                        if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal)) {
+                            ++superBleedCount;
+                        }
+                        if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
+                            ++superBleedCount;
+                        }
+                        if (damageInfo.damageType.damageType.HasFlag(DamageType.SuperBleedOnCrit)) {
+                            ++superBleedCount;
+                        }
+                        if (superBleedCount > 0) {
+                            var dotInfo = new InflictDotInfo {
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DotController.DotIndex.SuperBleed,
+                                duration = SurperBleedDuration,
+                                maxStacksFromAttacker = maxStacksFromAttacker,
+                                totalDamage = superBleedCount * damageInfo.damage * SurperBleedDamageCoefficient * attackerBody.critMultiplier,
+                                victimObject = victim,
+                            };
+                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                            DotController.InflictDot(ref dotInfo);
+                        }
+                        if (damageInfo.damageType.damageType.HasFlag(DamageType.BleedOnHit)) {
+                            var dotInfo = new InflictDotInfo {
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DotController.DotIndex.Bleed,
+                                duration = BleedDuration,
+                                maxStacksFromAttacker = maxStacksFromAttacker,
+                                totalDamage = damageInfo.damage * BleedDamageCoefficient * attackerBody.critMultiplier,
+                                victimObject = victim,
+                            };
+                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                            DotController.InflictDot(ref dotInfo);
+                        }
+                    } else {
+                        var bleedCount = 0;
+                        if (attackerBody.HasBuff(RoR2Content.Buffs.LifeSteal)) {
+                            ++bleedCount;
+                        }
+                        if (Util.CheckRoll(attackerBody.bleedChance * damageInfo.procCoefficient, attackerBody.master)) {
+                            ++bleedCount;
+                        }
+                        if (damageInfo.damageType.damageType.HasFlag(DamageType.BleedOnHit)) {
+                            ++bleedCount;
+                        }
+                        if (bleedCount > 0) {
+                            var dotInfo = new InflictDotInfo {
+                                attackerObject = damageInfo.attacker,
+                                dotIndex = DotController.DotIndex.Bleed,
+                                duration = BleedDuration,
+                                maxStacksFromAttacker = maxStacksFromAttacker,
+                                totalDamage = bleedCount * damageInfo.damage * BleedDamageCoefficient,
+                                victimObject = victim,
+                            };
+                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
+                            DotController.InflictDot(ref dotInfo);
+                        }
+                    }
+                });
                 ilcursor.Emit(OpCodes.Ldc_I4_1);
             } else {
-                Main.Logger.LogError("BleedOnHit :: Hook Failed!");
+                "BleedOnHit :: Hook Failed!".LogError();
             }
         }
 
         private void GlobalEventManager_OnHitEnemy2(ILContext il) {
             var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(x => x.MatchLdarg(1),
-                                     x => x.Match(OpCodes.Brfalse),
-                                     x => x.MatchLdarg(1),
-                                     x => x.MatchLdfld<DamageInfo>("inflictor"),
-                                     x => x.MatchLdnull())) {
-                ilcursor.Index += 1;
+            if (ilcursor.TryGotoNext(i => i.MatchCall<GlobalEventManager>("ProcDeathMark"),
+                x => x.MatchLdarg(1),
+                x => x.MatchLdfld<DamageInfo>("inflictor"),
+                x => x.MatchLdnull())) {
+                ilcursor.Index += 3;
                 ilcursor.Emit(OpCodes.Pop)
-                        .Emit(OpCodes.Ldc_I4_0);
+                        .Emit(OpCodes.Ldnull);
             } else {
-                Main.Logger.LogError("Bleed :: Hook2 Failed!");
+                "Bleed :: Hook2 Failed!".LogError();
             }
             if (ilcursor.TryGotoNext(x => x.MatchCall<DotController>("InflictDot"))) {
                 ilcursor.Index += 3;
                 ilcursor.Emit(OpCodes.Pop)
                         .Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Bleed :: Hook3 Failed!");
+                "Bleed :: Hook3 Failed!".LogError();
             }
         }
     }

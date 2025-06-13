@@ -1,8 +1,8 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.MithrixTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
     internal class MiscTweak : TweakBase<MiscTweak>, IOnModLoadBehavior {
 

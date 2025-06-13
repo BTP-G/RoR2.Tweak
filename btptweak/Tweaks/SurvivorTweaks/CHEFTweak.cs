@@ -1,8 +1,8 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using R2API;
 using RoR2;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class CHEFTweak : TweakBase<CHEFTweak>, IOnRoR2LoadedBehavior {
 

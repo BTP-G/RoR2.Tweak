@@ -1,4 +1,4 @@
-﻿namespace BtpTweak.Tweaks.ItemTweaks {
+﻿namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class FlatHealthTweak {
         public const float LevelHealthAddCoefficient = 0.2f;

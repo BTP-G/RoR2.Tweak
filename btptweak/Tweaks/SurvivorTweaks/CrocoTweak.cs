@@ -1,7 +1,7 @@
 ﻿using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class CrocoTweak : TweakBase<CrocoTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 

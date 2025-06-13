@@ -1,10 +1,9 @@
-﻿using BtpTweak.Pools.OrbPools;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Pools.OrbPools;
+using BTP.RoR2Plugin.Utils;
 using RoR2;
-using RoR2.Orbs;
 using TPDespair.ZetAspects;
 
-namespace BtpTweak.Tweaks.EliteTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
     internal class IceTweak : TweakBase<IceTweak>, IOnModLoadBehavior {
         public const float Interval = 0.1f;

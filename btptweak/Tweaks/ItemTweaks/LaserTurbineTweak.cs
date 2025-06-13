@@ -10,7 +10,7 @@ using System.Linq;
 using UnityEngine;
 using static RoR2.BulletAttack;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class LaserTurbineTweak : TweakBase<LaserTurbineTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float MainBeamDamageCoefficient = 1f;
@@ -48,7 +48,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
             if (self.cachedOwnerBody) {
                 self.charge = Mathf.Clamp01(self.charge
                     + (ChargeCoefficient * self.cachedOwnerBody.inventory.GetItemCount(RoR2Content.Items.LaserTurbine.itemIndex)
-                        + (ChargeCoefficientPerKill * self.cachedOwnerBody.GetBuffCount(RoR2Content.Buffs.LaserTurbineKillCharge)))
+                        + ChargeCoefficientPerKill * self.cachedOwnerBody.GetBuffCount(RoR2Content.Buffs.LaserTurbineKillCharge))
                     * Time.fixedDeltaTime);
             } else {
                 self.charge = Mathf.Clamp01(self.charge + ChargeCoefficient * Time.fixedDeltaTime);
@@ -91,7 +91,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                       });
                 cursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError(GetType().FullName + " add hook 'AimState_OnEnter' failed!");
+                LogExtensions.LogError(GetType().FullName + " add hook 'AimState_OnEnter' failed!");
             }
         }
 

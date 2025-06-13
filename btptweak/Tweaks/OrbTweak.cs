@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     [Obsolete]
     internal class OrbTweak : TweakBase<OrbTweak> {

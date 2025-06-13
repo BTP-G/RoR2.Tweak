@@ -2,7 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ParentEggTweak : TweakBase<ParentEggTweak>, IOnModLoadBehavior {
         public const float HealFractionFromDamage = 0.01f;
@@ -18,14 +18,14 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdarg(0),
                                      x => x.MatchLdflda<HealthComponent>("itemCounts"),
                                      x => x.MatchLdfld(typeof(HealthComponent.ItemCounts), "parentEgg"))) {
-                ilcursor.Emit(OpCodes.Ldarg_0)
-                        .Emit(OpCodes.Ldloc, 7)
-                        .EmitDelegate((int itemCount, HealthComponent healthComponent, float damage) => {
-                            healthComponent.Heal(itemCount * (damage * HealFractionFromDamage + HealAmount), default, true);
-                        });
+                ilcursor.Emit(OpCodes.Ldarg_0);
+                ilcursor.Emit(OpCodes.Ldloc, 7);
+                ilcursor.EmitDelegate((int itemCount, HealthComponent healthComponent, float damage) => {
+                    healthComponent.Heal(itemCount * (damage * HealFractionFromDamage + HealAmount), default, true);
+                });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("ParentEgg hook error");
+                LogExtensions.LogError("ParentEgg hook error");
             }
         }
     }

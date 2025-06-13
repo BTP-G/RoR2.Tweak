@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates.Mage;
 using EntityStates.Mage.Weapon;
 using RoR2;
@@ -11,7 +10,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class MageTweak : TweakBase<MageTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float 电击半径 = 25;
@@ -82,7 +81,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             private void OnDestroy() {
                 var projectileController = gameObject.GetComponent<ProjectileController>();
                 var projectileDamage = gameObject.GetComponent<ProjectileDamage>();
-                var iceExplosion = Instantiate(AssetReferences.genericDelayBlast, transform.position, Quaternion.identity);
+                var iceExplosion = Instantiate(AssetReferences.genericDelayBlast.Asset, transform.position, Quaternion.identity);
                 iceExplosion.transform.localScale = new Vector3(12, 12, 12);
                 var delayBlast = iceExplosion.GetComponent<DelayBlast>();
                 delayBlast.position = transform.position;

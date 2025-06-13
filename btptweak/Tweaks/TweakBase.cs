@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal abstract class TweakBase<T> : TweakBase where T : TweakBase<T> {
 

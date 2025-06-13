@@ -1,14 +1,12 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
-    [Obsolete]
     internal class HealthComponentTweak : TweakBase<HealthComponentTweak>, IOnModLoadBehavior {
         private float _老米爆发伤害限制;
         private float _老米触发伤害限制;
@@ -24,10 +22,10 @@ namespace BtpTweak.Tweaks {
 
         private void IL_HealthComponent_TakeDamage(ILContext il) {
             var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdsfld(x, typeof(RoR2Content.Buffs), "LunarShell"))) {  // 901
+            if (ilcursor.TryGotoNext(x => x.MatchLdsfld(typeof(RoR2Content.Buffs), "LunarShell"))) {  // 901
                 ilcursor.Emit(OpCodes.Ldarg, 0);
                 ilcursor.Emit(OpCodes.Ldarg, 1);
-                ilcursor.Emit(OpCodes.Ldloc, 6);
+                ilcursor.Emit(OpCodes.Ldloc, 7);
                 ilcursor.EmitDelegate((HealthComponent healthComponent, DamageInfo damageInfo, float damage) => {
                     if (RunInfo.已选择造物难度) {
                         if (RunInfo.位于天文馆) {
@@ -37,7 +35,7 @@ namespace BtpTweak.Tweaks {
                                     damage = Mathf.Min(damage, _虚灵触发伤害限制 * healthComponent.fullHealth);
                                 } else {
                                     damage = Mathf.Min(damage, _虚灵爆发伤害限制 * healthComponent.fullHealth);
-                                    Util.CleanseBody(victimBody, true, false, false, false, true, true);
+                                    Util.CleanseBody(victimBody, true, false, false, false, true, false);
                                 }
                             }
                         } else if (RunInfo.位于月球) {
@@ -46,16 +44,16 @@ namespace BtpTweak.Tweaks {
                                     damage = Mathf.Min(damage, _老米触发伤害限制 * healthComponent.fullCombinedHealth);
                                 } else {
                                     damage = Mathf.Min(damage, _老米爆发伤害限制 * healthComponent.fullCombinedHealth);
-                                    Util.CleanseBody(healthComponent.body, true, false, false, false, true, true);
+                                    Util.CleanseBody(healthComponent.body, true, false, false, false, true, false);
                                 }
                             }
                         }
                     }
                     return damage;
                 });
-                ilcursor.Emit(OpCodes.Stloc, 6);
+                ilcursor.Emit(OpCodes.Stloc, 7);
             } else {
-                Main.Logger.LogError("Enemy TakeDamage Hook Error");
+                "Enemy TakeDamage Hook Error".LogError();
             }
         }
 

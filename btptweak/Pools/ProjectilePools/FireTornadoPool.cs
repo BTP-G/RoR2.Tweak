@@ -1,9 +1,9 @@
 ﻿using RoR2.Projectile;
 using RoR2;
 using UnityEngine;
-using BtpTweak.Tweaks.ItemTweaks;
+using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 
-namespace BtpTweak.Pools.ProjectilePools {
+namespace BTP.RoR2Plugin.Pools.ProjectilePools {
 
     internal sealed class FireTornadoPool : Pool<FireTornadoPool, ProjectilePoolKey, ProjectileInfo> {
         protected override float Interval => RingsTweak.FireRingInterval;

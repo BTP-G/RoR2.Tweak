@@ -1,11 +1,12 @@
-﻿using BtpTweak.Pools.ProjectilePools;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Pools.ProjectilePools;
+using BTP.RoR2Plugin.Utils;
+using GuestUnion;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class StickyBombTweak : TweakBase<StickyBombTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int PercnetChance = 5;
@@ -17,9 +18,9 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            AssetReferences.stickyBombProjectile.GetComponent<ProjectileController>().procCoefficient = 1f;
-            AssetReferences.stickyBombProjectile.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
-            AssetReferences.stickyBombProjectile.RemoveComponent<LoopSound>();
+            AssetReferences.stickyBombProjectile.Asset.GetComponent<ProjectileController>().procCoefficient = 1f;
+            AssetReferences.stickyBombProjectile.Asset.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
+            AssetReferences.stickyBombProjectile.Asset.RemoveComponent<LoopSound>();
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -28,8 +29,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("StickyBomb")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
-                        .Emit(OpCodes.Ldloc, 5)
-                        .Emit(OpCodes.Ldloc_2)
+                        .Emit(OpCodes.Ldloc, 7)
+                        .Emit(OpCodes.Ldloc_1)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterMaster attackerMaster, CharacterBody victimBody) => {
                             if (itemCount > 0
                             && !damageInfo.procChainMask.HasProc(ProcChainTweak.StickyBombOnHit)
@@ -47,7 +48,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("StickyBomb :: Hook Failed!");
+                LogExtensions.LogError("StickyBomb :: Hook Failed!");
             }
         }
     }

@@ -1,13 +1,13 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates.Scrapper;
+using GuestUnion;
 using HG;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.EntityLogic;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class InteractionTweak : TweakBase<InteractionTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float origInitialDelayDuration = 1.5f;
@@ -108,7 +108,7 @@ namespace BtpTweak.Tweaks {
                     return shopTerminal;
                 });
             } else {
-                Main.Logger.LogError("Duplicating_DropDroplet hook failed!");
+                "Duplicating_DropDroplet hook failed!".LogError();
             }
         }
 

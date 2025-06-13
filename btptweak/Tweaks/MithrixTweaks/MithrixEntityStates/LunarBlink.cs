@@ -1,4 +1,4 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using EntityStates;
 using EntityStates.BrotherMonster;
 using EntityStates.Mage.Weapon;
@@ -7,7 +7,7 @@ using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates {
 
     public class LunarBlink : BaseState {
         public const float speedCoefficient = 7.5f;

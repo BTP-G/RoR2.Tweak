@@ -1,9 +1,9 @@
-﻿using BtpTweak.Pools.OrbPools;
+﻿using BTP.RoR2Plugin.Pools.OrbPools;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BounceNearbyTweak : TweakBase<BounceNearbyTweak>, IOnModLoadBehavior {
         public const float BaseDamageCoefficient = 1;
@@ -23,8 +23,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("BounceNearby")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldloc_0)
                         .Emit(OpCodes.Ldloc_1)
-                        .Emit(OpCodes.Ldloc_2)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
                             if (itemCount > 0
                             && !damageInfo.procChainMask.HasProc(ProcType.BounceNearby)
@@ -43,7 +43,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("BounceNearby :: Hook Failed!");
+                "BounceNearby :: Hook Failed!".LogError();
             }
         }
     }

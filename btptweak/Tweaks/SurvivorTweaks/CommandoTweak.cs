@@ -1,10 +1,9 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 using R2API;
 using RoR2;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class CommandoTweak : TweakBase<CommandoTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float FMJDamageCoefficient = 4f;

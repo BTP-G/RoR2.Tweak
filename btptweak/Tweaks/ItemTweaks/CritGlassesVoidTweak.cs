@@ -2,7 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class CritGlassesVoidTweak : TweakBase<CritGlassesVoidTweak>, IOnModLoadBehavior {
         public const float CritDamageMultAdd = 0.0666f;
@@ -23,7 +23,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                       .Emit(OpCodes.Pop)
                       .Emit(OpCodes.Ldc_I4_1);
             } else {
-                Main.Logger.LogError("CritGlassesVoid Hook Failed!");
+                LogExtensions.LogError("CritGlassesVoid Hook Failed!");
             }
         }
 

@@ -2,7 +2,7 @@
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class MissileUtilsTweak : TweakBase<MissileUtilsTweak>, IOnModLoadBehavior {
 

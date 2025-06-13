@@ -2,7 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     [System.Obsolete]
     internal class RepeatHealTweak : TweakBase<RepeatHealTweak>, IOnModLoadBehavior {
@@ -18,7 +18,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         .Remove()
                         .Emit(OpCodes.Ldc_R4, 0.5f);
             } else {
-                Main.Logger.LogError("RepeatHeal Hook Failed!");
+                LogExtensions.LogError("RepeatHeal Hook Failed!");
             }
         }
     }

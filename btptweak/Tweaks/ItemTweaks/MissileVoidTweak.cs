@@ -1,9 +1,9 @@
-﻿using BtpTweak.Pools.OrbPools;
+﻿using BTP.RoR2Plugin.Pools.OrbPools;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class MissileVoidTweak : TweakBase<MissileVoidTweak>, IOnModLoadBehavior {
         public const float DamageCoefficient = 0.5f;
@@ -16,11 +16,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
 
         private void MissileVoidOrb_Begin(ILContext il) {
             var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(MoveType.Before, x => ILPatternMatchingExt.MatchLdcR4(x, 75f))) {
+            if (ilcursor.TryGotoNext(MoveType.Before, x => x.MatchLdcR4(75f))) {
                 ilcursor.Remove()
                         .Emit(OpCodes.Ldc_R4, 100f);
             } else {
-                Main.Logger.LogError("MissileVoidOrb Hook Failed!");
+                LogExtensions.LogError("MissileVoidOrb Hook Failed!");
             }
         }
 
@@ -30,8 +30,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(DLC1Content.Items).GetField("MissileVoid")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldloc_0)
                         .Emit(OpCodes.Ldloc_1)
-                        .Emit(OpCodes.Ldloc_2)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
                             if (itemCount < 1 || !victimBody.mainHurtBox) {
                                 return;
@@ -53,7 +53,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("MissileVoid :: Hook Failed!");
+                LogExtensions.LogError("MissileVoid :: Hook Failed!");
             }
         }
     }

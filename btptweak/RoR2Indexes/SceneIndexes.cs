@@ -1,7 +1,7 @@
 ﻿using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.RoR2Indexes {
+namespace BTP.RoR2Plugin.RoR2Indexes {
 
     public static class SceneIndexes {
         public static SceneIndex AncientLoft { get; private set; }

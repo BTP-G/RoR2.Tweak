@@ -1,10 +1,10 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Orbs;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class InfusionTweak : TweakBase<InfusionTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float 基础生命值占比 = 0.1f;
@@ -38,7 +38,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                 }
                                 var ownerBody = damageReport.attackerOwnerMaster?.GetBody();
                                 if (ownerBody && ownerBody.mainHurtBox && ownerBody.inventory.infusionBonus < (uint)(ownerBody.level * ownerBody.baseMaxHealth * 基础生命值占比 * teamItemCount)) {
-                                     
+
                                     var infusionOrb = new InfusionOrb() {
                                         origin = damageReport.damageInfo.position,
                                         target = ownerBody.mainHurtBox,
@@ -50,7 +50,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Infusion :: Hook Failed!");
+                LogExtensions.LogError("Infusion :: Hook Failed!");
             }
         }
     }

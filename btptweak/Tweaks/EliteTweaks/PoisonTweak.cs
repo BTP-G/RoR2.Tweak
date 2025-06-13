@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.EliteTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
     internal class PoisonTweak : TweakBase<PoisonTweak>, IOnModLoadBehavior {
         private readonly List<HealthComponent> SearchedObjects = [];
@@ -45,10 +45,10 @@ namespace BtpTweak.Tweaks.EliteTweaks {
                         }
                     });
                 } else {
-                    Main.Logger.LogError("AffixPoison Hook2 Failed!");
+                    "AffixPoison Hook2 Failed!".LogError();
                 }
             } else {
-                Main.Logger.LogError("AffixPoison Hook1 Failed!");
+                "AffixPoison Hook1 Failed!".LogError();
             }
         }
     }

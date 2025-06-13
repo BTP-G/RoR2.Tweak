@@ -1,6 +1,6 @@
 ﻿using RoR2;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal partial class SummonTweak : TweakBase<SummonTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private ItemDef _weddingRing;

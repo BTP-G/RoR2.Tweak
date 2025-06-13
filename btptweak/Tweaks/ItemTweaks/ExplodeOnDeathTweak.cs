@@ -1,13 +1,10 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System;
 using UnityEngine;
-using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ExplodeOnDeathTweak : TweakBase<ExplodeOnDeathTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BaseRadius = 12;
@@ -91,7 +88,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("ExplodeOnDeath :: Hook Failed!");
+                LogExtensions.LogError("ExplodeOnDeath :: Hook Failed!");
             }
         }
     }

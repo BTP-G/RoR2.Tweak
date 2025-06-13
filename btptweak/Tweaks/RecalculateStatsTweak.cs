@@ -1,14 +1,14 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
-using GoldenCoastPlusRevived;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using R2API;
 using RoR2;
 using System;
 using System.Collections.Generic;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class RecalculateStatsTweak : TweakBase<RecalculateStatsTweak>, IOnModLoadBehavior {
+    internal class RecalculateStatsTweak : TweakBase<RecalculateStatsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private static readonly Dictionary<int, Action<CharacterBody, Inventory, RecalculateStatsAPI.StatHookEventArgs>> BodyIndexToRecalculateStatsAction = [];
+        private ItemIndex _goldenKnurlIndex;
 
         public static void AddRecalculateStatsActionToBody(BodyIndex bodyIndex, Action<CharacterBody, Inventory, RecalculateStatsAPI.StatHookEventArgs> action) {
             if (bodyIndex == BodyIndex.None || action == null) {
@@ -25,6 +25,10 @@ namespace BtpTweak.Tweaks {
             RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }
 
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            _goldenKnurlIndex = ItemCatalog.FindItemIndex("Golden Knurl");
+        }
+
         private void RecalculateStatsAPI_GetStatCoefficients(CharacterBody sender, RecalculateStatsAPI.StatHookEventArgs args) {
             if (sender.inventory) {
                 var inventory = sender.inventory;
@@ -36,9 +40,9 @@ namespace BtpTweak.Tweaks {
                 }
                 args.critAdd += HealOnCritTweak.StackCrit * inventory.GetItemCount(RoR2Content.Items.HealOnCrit.itemIndex);
                 args.baseRegenAdd += regenFraction * sender.maxHealth + 0.01f * inventory.GetItemCount(RoR2Content.Items.ShieldOnly.itemIndex) * sender.maxShield;
-                args.regenMultAdd += 0.5f * inventory.GetItemCount(GoldenCoastPlusPlugin.goldenKnurlDef);
+                args.regenMultAdd += 0.5f * inventory.GetItemCount(_goldenKnurlIndex);
                 var barrierOnOverHealCount = inventory.GetItemCount(RoR2Content.Items.BarrierOnOverHeal.itemIndex);
-                args.armorAdd += 50 * barrierOnOverHealCount - 10 * sender.GetBuffCount(RoR2Content.Buffs.BeetleJuice.buffIndex);
+                args.armorAdd += 10 * inventory.GetItemCount(RoR2Content.Items.Bear.itemIndex) + 50 * barrierOnOverHealCount - 10 * sender.GetBuffCount(RoR2Content.Buffs.BeetleJuice.buffIndex);
                 args.levelArmorAdd += barrierOnOverHealCount;
                 if (BodyIndexToRecalculateStatsAction.TryGetValue((int)sender.bodyIndex, out var action)) {
                     action.Invoke(sender, inventory, args);

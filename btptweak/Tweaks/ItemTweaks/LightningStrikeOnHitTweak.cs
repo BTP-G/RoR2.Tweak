@@ -1,10 +1,10 @@
-﻿using BtpTweak.Pools.OrbPools;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Pools.OrbPools;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class LightningStrikeOnHitTweak : TweakBase<LightningStrikeOnHitTweak>, IOnModLoadBehavior {
         public const float 半数 = 9f;
@@ -22,8 +22,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("LightningStrikeOnHit")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
+                        .Emit(OpCodes.Ldloc_0)
                         .Emit(OpCodes.Ldloc_1)
-                        .Emit(OpCodes.Ldloc_2)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody, CharacterBody victimBody) => {
                             if (itemCount > 0
                             && !damageInfo.procChainMask.HasProc(ProcType.LightningStrikeOnHit)
@@ -41,7 +41,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("LightningStrikeOnHit :: Hook Failed!");
+                LogExtensions.LogError("LightningStrikeOnHit :: Hook Failed!");
             }
         }
     }

@@ -3,7 +3,7 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class WarCryOnMultiKillTweak : TweakBase<WarCryOnMultiKillTweak>, IOnModLoadBehavior {
         public const int BaseMaxBuffCount = 3;

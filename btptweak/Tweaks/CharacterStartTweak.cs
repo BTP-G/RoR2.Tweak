@@ -1,13 +1,13 @@
-﻿using BtpTweak.Tweaks.MithrixTweaks.MithrixEntityStates;
+﻿using BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates;
 using EntityStates;
 using EntityStates.BrotherMonster;
 using KinematicCharacterController;
 using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
-using static BtpTweak.RoR2Indexes.BodyIndexes;
+using static BTP.RoR2Plugin.RoR2Indexes.BodyIndexes;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class CharacterStartTweak : TweakBase<CharacterStartTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private int _造物难度敌人血量提升物品数量;
@@ -61,19 +61,19 @@ namespace BtpTweak.Tweaks {
                         case BodyNameIndex.BrotherHurtBody: {
                             switch (PhaseCounter.instance?.phase) {  // Give Mithrix the Scourge items
                                 case 1: {
-                                    inventory.GiveItem(BtpContent.Items.MoonscourgeAccursedItem);
+                                    inventory.GiveItem(Content.Items.MoonscourgeAccursedItem);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
                                     body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     break;
                                 }
                                 case 2: {
-                                    inventory.GiveItem(BtpContent.Items.StormscourgeAccursedItem);
+                                    inventory.GiveItem(Content.Items.StormscourgeAccursedItem);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
                                     body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     break;
                                 }
                                 case 3: {
-                                    inventory.GiveItem(BtpContent.Items.HelscourgeAccursedItemDef);
+                                    inventory.GiveItem(Content.Items.HelscourgeAccursedItemDef);
                                     body.baseAcceleration *= Run.instance.participatingPlayerCount;
                                     body.AddBuff(RoR2Content.Buffs.LunarShell.buffIndex);
                                     body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);

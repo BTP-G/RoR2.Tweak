@@ -1,14 +1,13 @@
-﻿using BtpTweak.Pools;
-using BtpTweak.Pools.ProjectilePools;
-using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Pools;
+using BTP.RoR2Plugin.Pools.ProjectilePools;
+using BTP.RoR2Plugin.RoR2Indexes;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class RingsTweak : TweakBase<RingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float FireRingDamageCoefficient = 1f;
@@ -31,11 +30,11 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            var projectileOverlapAttack = AssetReferences.fireTornado.GetComponent<ProjectileOverlapAttack>();
+            var projectileOverlapAttack = AssetReferences.fireTornado.Asset.GetComponent<ProjectileOverlapAttack>();
             projectileOverlapAttack.overlapProcCoefficient = FireRingProcCoefficientPerTick;
             projectileOverlapAttack.SetDamageCoefficient(0.1f);
-            AssetReferences.fireTornado.GetComponent<ProjectileSimple>().lifetime = 3f;
-            AssetReferences.elementalRingVoidBlackHole.AddComponent<ElementalRingVoidBlackHoleAction>();
+            AssetReferences.fireTornado.Asset.GetComponent<ProjectileSimple>().lifetime = 3f;
+            AssetReferences.elementalRingVoidBlackHole.Asset.AddComponent<ElementalRingVoidBlackHoleAction>();
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -46,8 +45,8 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdcI4(12),
                                      x => x.MatchCall<ProcChainMask>("HasProc"))) {
                 cursor.Emit(OpCodes.Ldarg_1)
-                      .Emit(OpCodes.Ldloc, 1)
-                      .Emit(OpCodes.Ldloc, 6)
+                      .Emit(OpCodes.Ldloc_0)
+                      .Emit(OpCodes.Ldloc, 8)
                       .EmitDelegate((bool hasRingsProc, DamageInfo damageInfo, CharacterBody attackerBody, Inventory inventory) => {
                           if (hasRingsProc) {
                               return;
@@ -109,7 +108,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                       });
                 cursor.Emit(OpCodes.Ldc_I4_1);
             } else {
-                Main.Logger.LogError("Rings :: Hook Failed!");
+                LogExtensions.LogError("Rings :: Hook Failed!");
             }
         }
 

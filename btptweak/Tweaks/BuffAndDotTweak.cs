@@ -1,18 +1,16 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using GrooveSaladSpikestripContent.Content;
 using HG;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using PlasmaCoreSpikestripContent.Content.Skills;
 using RoR2;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using static RoR2.DotController;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class BuffAndDotTweak : TweakBase<BuffAndDotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BurnDuration = 4f;
@@ -38,8 +36,8 @@ namespace BtpTweak.Tweaks {
             DeepRotBuffIndex = DeepRot.scriptableObject.buffs[0].buffIndex;
             VoidPoisonBuffIndex = DeepRot.scriptableObject.buffs[1].buffIndex;
             PlatedElite.damageReductionBuff.canStack = false;
-            DotController.GetDotDef(DotIndex.Burn).terminalTimedBuff = null;
-            DotController.GetDotDef(DotIndex.StrongerBurn).terminalTimedBuff = null;
+            GetDotDef(DotIndex.Burn).terminalTimedBuff = null;
+            GetDotDef(DotIndex.StrongerBurn).terminalTimedBuff = null;
         }
 
         private bool BetterEvaluateDotStacksForType(DotController self, DotDef dotDef, DotIndex dotIndex) {
@@ -129,9 +127,11 @@ namespace BtpTweak.Tweaks {
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
             var cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(c => c.MatchLdarg(1), c => c.MatchLdfld<DamageInfo>("damageType"), c => c.MatchLdcI4(0x1000))) {
+            if (cursor.TryGotoNext(c => c.MatchLdarg(1),
+                c => c.MatchLdfld<DamageInfo>("damageType"),
+                c => c.MatchLdcI4(4096))) {
                 cursor.Emit(OpCodes.Ldarg_1);
-                cursor.Emit(OpCodes.Ldloc_2);
+                cursor.Emit(OpCodes.Ldloc_1);
                 cursor.EmitDelegate((DamageInfo damageInfo, CharacterBody victimBody) => {
                     if ((damageInfo.damageType & CoroDamageType) > DamageType.Generic
                     && damageInfo.attacker.TryGetComponent<CrocoDamageTypeController>(out var crocoDamageTypeController)
@@ -151,7 +151,7 @@ namespace BtpTweak.Tweaks {
                     }
                 });
             } else {
-                Main.Logger.LogError("DeepRot :: Hook Failed!");
+                "DeepRot :: Hook Failed!".LogError();
             }
         }
 
@@ -217,26 +217,26 @@ namespace BtpTweak.Tweaks {
         private void DotController_AddDot(ILContext il) {
             var cursor = new ILCursor(il);
             //===============流血===============//
-            cursor.GotoNext(c => c.MatchLdcI4(0), c => c.MatchStloc(9));
-            var labels = cursor.IncomingLabels;
-            cursor.RemoveRange(33).Emit(OpCodes.Ldarg_0).Emit(OpCodes.Ldloc, 5).EmitDelegate((DotController dotController, DotStack newDotStack) => {
-                var dotStackList = dotController.dotStackList;
-                for (int i = dotStackList.Count - 1; i > -1; --i) {
-                    var oldDotStack = dotStackList[i];
-                    if (oldDotStack.dotIndex == newDotStack.dotIndex && oldDotStack.attackerObject == newDotStack.attackerObject) {
-                        newDotStack.damage += oldDotStack.damage;
-                        if (newDotStack.timer < oldDotStack.timer) {
-                            newDotStack.timer = oldDotStack.timer;
+            cursor.GotoNext(c => c.MatchLdcI4(0), c => c.MatchStloc(9))
+                .GotoNext(i => i.MatchStloc(10))
+                .Emit(OpCodes.Pop)
+                .Emit(OpCodes.Ldc_I4_0)
+                .Emit(OpCodes.Ldarg_0)
+                .Emit(OpCodes.Ldloc, 5)
+                .EmitDelegate((DotController dotController, DotStack newDotStack) => {
+                    var dotStackList = dotController.dotStackList;
+                    for (var i = dotStackList.Count - 1; i > -1; --i) {
+                        var oldDotStack = dotStackList[i];
+                        if (oldDotStack.dotIndex == newDotStack.dotIndex && oldDotStack.attackerObject == newDotStack.attackerObject) {
+                            newDotStack.damage += oldDotStack.damage;
+                            if (newDotStack.timer < oldDotStack.timer) {
+                                newDotStack.timer = oldDotStack.timer;
+                            }
+                            dotController.RemoveDotStackAtServer(i);
+                            break;
                         }
-                        dotController.RemoveDotStackAtServer(i);
-                        break;
                     }
-                }
-            });
-            cursor.GotoPrev(x => x.MatchLdarg(0));
-            foreach (var label in labels) {
-                cursor.MarkLabel(label);
-            }
+                });
             ////===============燃烧===============//
             //cursor.GotoNext(c => c.MatchLdloc(5), c => c.MatchLdloc(5));
             //labels = cursor.IncomingLabels;

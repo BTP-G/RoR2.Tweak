@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour.HookGen;
 using RoR2;
@@ -7,9 +6,8 @@ using RoR2.Projectile;
 using System;
 using System.Linq;
 using TPDespair.ZetAspects;
-using UnityEngine;
 
-namespace BtpTweak.Tweaks.EliteTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
     internal class EliteMiscTweak : TweakBase<EliteMiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 

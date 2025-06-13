@@ -2,7 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BarrierOnKillTweak : TweakBase<BarrierOnKillTweak>, IOnModLoadBehavior {
         public const float AddBarrierFraction = 0.0075f;
@@ -24,7 +24,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                       });
                 cursor.Emit(OpCodes.Add);
             } else {
-                Main.Logger.LogError("BarrierOnKill :: Hook Failed!");
+                "BarrierOnKill :: Hook Failed!".LogError();
             }
         }
     }

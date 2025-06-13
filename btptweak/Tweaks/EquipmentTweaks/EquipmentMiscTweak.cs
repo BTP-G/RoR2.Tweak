@@ -1,10 +1,9 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.EquipmentTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
     internal class EquipmentMiscTweak : TweakBase<EquipmentMiscTweak>, IOnRoR2LoadedBehavior {
 

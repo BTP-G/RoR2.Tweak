@@ -1,4 +1,4 @@
-﻿namespace BtpTweak.RoR2Indexes {
+﻿namespace BTP.RoR2Plugin.RoR2Indexes {
 
     internal enum MasterNameIndex : byte {
         None = 0,

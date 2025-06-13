@@ -3,7 +3,7 @@ using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class SeedTweak : TweakBase<SeedTweak>, IOnModLoadBehavior {
         public const float Leech = 0.01f;
@@ -19,7 +19,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchLdsfld(typeof(RoR2Content.Items).GetField("Seed")),
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
-                        .Emit(OpCodes.Ldloc_1)
+                        .Emit(OpCodes.Ldloc_0)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, CharacterBody attackerBody) => {
                             if (itemCount > 0) {
                                 var procChainMask = damageInfo.procChainMask;
@@ -29,7 +29,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Seed :: Hook Failed!");
+                LogExtensions.LogError("Seed :: Hook Failed!");
             }
         }
     }

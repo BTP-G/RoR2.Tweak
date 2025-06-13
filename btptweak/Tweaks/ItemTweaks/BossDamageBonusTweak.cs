@@ -2,7 +2,7 @@
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BossDamageBonusTweak : TweakBase<BossDamageBonusTweak>, IOnModLoadBehavior {
 
@@ -19,7 +19,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         .Emit(OpCodes.Ldarg_0)
                         .EmitDelegate((HealthComponent healthComponent) => healthComponent.barrier + healthComponent.shield > 0);
             } else {
-                Main.Logger.LogError("BossDamageBonus Hook Failed!");
+                "BossDamageBonus Hook Failed!".LogError();
             }
         }
     }

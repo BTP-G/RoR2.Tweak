@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates;
 using EntityStates.Merc;
 using EntityStates.Merc.Weapon;
@@ -10,7 +9,7 @@ using RoR2;
 using RoR2.Skills;
 using System.Linq;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class MercTweak : TweakBase<MercTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private static readonly BullseyeSearch _bullseyeSearch = new();

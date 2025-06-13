@@ -1,10 +1,9 @@
-﻿using BtpTweak.Messages;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Messages;
+using BTP.RoR2Plugin.Utils;
 using R2API.Networking;
 using RoR2;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class Bandit2Tweak : TweakBase<Bandit2Tweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float ResetRevolverDamageCoefficient = 12f;

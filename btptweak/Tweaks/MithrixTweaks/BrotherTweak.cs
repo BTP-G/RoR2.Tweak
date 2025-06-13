@@ -1,11 +1,10 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 using RoR2;
 using RoR2.CharacterAI;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.MithrixTweaks {
+namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
     internal class BrotherTweak : TweakBase<BrotherTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
@@ -21,10 +20,10 @@ namespace BtpTweak.Tweaks.MithrixTweaks {
                 var aISkillDriver = aISkillDrivers[i];
                 if (aISkillDriver.customName.EndsWith("Slam")) {  // Increasing slam distance
                     aISkillDriver.maxDistance = 60f;
-                    Main.Logger.LogInfo("Skill Slam Change Finished");
+                    LogExtensions.LogInfo("Skill Slam Change Finished");
                 } else if (aISkillDriver.customName.EndsWith("FireLunarShards")) {  // Making shards more aggressive
                     aISkillDriver.minDistance = 12f;
-                    Main.Logger.LogInfo("Skill FireLunarShards Change Finished");
+                    LogExtensions.LogInfo("Skill FireLunarShards Change Finished");
                 }
             }
             // 防止被斩杀

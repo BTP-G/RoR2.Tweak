@@ -1,10 +1,9 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class ShrineCombatTweak : TweakBase<ShrineCombatTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 
@@ -44,7 +43,7 @@ namespace BtpTweak.Tweaks {
                 return;
             }
             var playerCount = Run.instance.participatingPlayerCount;
-            var position = shrine.transform.position + (Vector3.up * 6);
+            var position = shrine.transform.position + Vector3.up * 6;
             var velocity = Quaternion.AngleAxis(Random.Range(0, 360f), Vector3.up) * (Vector3.up * 40f + Vector3.forward * 2.5f);
             var rotation = Quaternion.AngleAxis(360f / playerCount, Vector3.up);
             for (int i = 0; i < playerCount; ++i) {

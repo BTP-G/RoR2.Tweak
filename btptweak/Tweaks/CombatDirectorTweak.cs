@@ -1,9 +1,9 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using R2API;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class CombatDirectorTweak : TweakBase<CombatDirectorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private float _精英转化几率;
@@ -22,7 +22,7 @@ namespace BtpTweak.Tweaks {
             EliteAPI.AddCustomEliteTier(new CombatDirector.EliteTierDef() {
                 costMultiplier = CombatDirector.baseEliteCostMultiplier * 10f,
                 eliteTypes = EliteCatalog.eliteDefs,
-                isAvailable = (SpawnCard.EliteRules rules) => Run.instance.loopClearCount > 1 && rules == SpawnCard.EliteRules.Default,
+                isAvailable = (rules) => Run.instance.loopClearCount > 1 && rules == SpawnCard.EliteRules.Default,
                 canSelectWithoutAvailableEliteDef = false
             }, -1);
             TeamCatalog.GetTeamDef(TeamIndex.Player).softCharacterLimit = 40;

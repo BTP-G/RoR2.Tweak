@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates.Loader;
 using HG;
 using Mono.Cecil.Cil;
@@ -11,7 +10,7 @@ using RoR2.Skills;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class LoaderTweak : TweakBase<LoaderTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float ChargeZapFistLightningDamageCoefficient = 0.5f;
@@ -96,7 +95,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate((BaseSwingChargedFist state) => Mathf.Pow(state.punchSpeed * SwingChargedFistVelocityDamageCoefficient * (state.moveSpeedStat / state.characterBody.baseMoveSpeed), pow) * state.damageStat);
             } else {
-                Main.Logger.LogError(GetType().FullName + " add hook 'IL_BaseSwingChargedFist_OnEnter' failed!");
+                LogExtensions.LogError(GetType().FullName + " add hook 'IL_BaseSwingChargedFist_OnEnter' failed!");
             }
         }
 
@@ -108,7 +107,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate((SwingZapFist swingZapFistState) => swingZapFistState.overlapAttack.damage);
             } else {
-                Main.Logger.LogError(GetType().FullName + " add hook 'SwingZapFist_OnMeleeHitAuthority' failed!");
+                LogExtensions.LogError(GetType().FullName + " add hook 'SwingZapFist_OnMeleeHitAuthority' failed!");
             }
         }
 

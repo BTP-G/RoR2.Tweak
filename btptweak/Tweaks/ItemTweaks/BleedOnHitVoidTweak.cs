@@ -1,11 +1,11 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using TPDespair.ZetAspects;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BleedOnHitVoidTweak : TweakBase<BleedOnHitVoidTweak>, IOnModLoadBehavior {
         public const int PercnetChance = 10;
@@ -21,7 +21,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
                         .Emit(OpCodes.Ldarg_2)
-                        .Emit(OpCodes.Ldloc, 1)
+                        .Emit(OpCodes.Ldloc_0)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
                             if (attackerBody.TryGetAspectStackMagnitude(DLC1Content.Buffs.EliteVoid.buffIndex, out var stack)) {
                                 var damageCoefficient = Configuration.AspectVoidBaseCollapseDamage.Value + Configuration.AspectVoidStackCollapseDamage.Value * (stack - 1f);
@@ -58,7 +58,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("BleedOnHitVoid Hook Failed!");
+                "BleedOnHitVoid Hook Failed!".LogError();
             }
         }
     }

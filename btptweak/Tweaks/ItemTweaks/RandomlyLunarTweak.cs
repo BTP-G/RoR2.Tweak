@@ -1,7 +1,7 @@
 ﻿using RoR2;
 using System.Collections.Generic;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class RandomlyLunarTweak : TweakBase<RandomlyLunarTweak>, IOnModLoadBehavior {
         public const int UsageCount = 1;

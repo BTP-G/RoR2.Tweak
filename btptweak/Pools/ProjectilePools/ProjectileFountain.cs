@@ -2,7 +2,7 @@
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Pools.ProjectilePools {
+namespace BTP.RoR2Plugin.Pools.ProjectilePools {
 
     internal struct ProjectilePoolKey {
         public GameObject attacker;

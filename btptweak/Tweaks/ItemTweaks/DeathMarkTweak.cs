@@ -1,9 +1,9 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class DeathMarkTweak : TweakBase<DeathMarkTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BaseDamageCoefficient = 0.4f;
@@ -30,7 +30,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                           return 1f + (teaamItemCount > 0 ? BaseDamageCoefficient + (teaamItemCount - 1) * StackDamageCoefficient : 0f);
                       });
             } else {
-                Main.Logger.LogError("DeathMark Hook Failed!");
+                LogExtensions.LogError("DeathMark Hook Failed!");
             }
         }
     }

@@ -2,9 +2,9 @@
 using RoR2;
 using UnityEngine.Networking;
 using UnityEngine;
-using BtpTweak.Utils;
+using BTP.RoR2Plugin.Utils;
 
-namespace BtpTweak.Tweaks.EquipmentTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
     internal class GoldGatTweak : TweakBase<GoldGatTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float 半数 = 3f;

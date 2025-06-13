@@ -1,13 +1,10 @@
-﻿using BtpTweak.RoR2Indexes;
-using BtpTweak.Utils;
-using EntityStates.GrandParent;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API;
 using RoR2;
-using UnityEngine;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class RobPaladinTweak : TweakBase<RobPaladinTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
 

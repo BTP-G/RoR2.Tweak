@@ -4,7 +4,7 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BonusGoldPackOnKillTweak : TweakBase<BonusGoldPackOnKillTweak>, IOnModLoadBehavior {
         public const int DropPercentChance = 5;
@@ -24,7 +24,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         .Emit(OpCodes.Ldloc, 6)
                         .EmitDelegate((int itemCount, CharacterBody attacterBody, TeamIndex attacterTeamindex, Vector3 pos) => {
                             if (itemCount > 0 && Util.CheckRoll(DropPercentChance * itemCount, attacterBody.master)) {
-                                var bonusMoneyPack = Object.Instantiate(AssetReferences.bonusMoneyPack, pos, Random.rotation);
+                                var bonusMoneyPack = Object.Instantiate(AssetReferences.bonusMoneyPack.Asset, pos, Random.rotation);
                                 var gravitatePickup = bonusMoneyPack.GetComponentInChildren<GravitatePickup>();
                                 if (gravitatePickup) {
                                     gravitatePickup.gravitateTarget = attacterBody.coreTransform;
@@ -39,7 +39,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("BonusGoldPackOnKill Hook Failed!");
+                "BonusGoldPackOnKill Hook Failed!".LogError();
             }
         }
     }

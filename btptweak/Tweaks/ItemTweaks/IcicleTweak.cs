@@ -1,7 +1,8 @@
 ﻿using RoR2;
 using RoR2.Items;
+using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class IcicleTweak : TweakBase<IcicleTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float DamageCoefficient = 3f;

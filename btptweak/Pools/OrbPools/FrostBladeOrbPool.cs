@@ -1,8 +1,8 @@
-﻿using BtpTweak.Tweaks.EliteTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.EliteTweaks;
 using RoR2;
 using RoR2.Orbs;
 
-namespace BtpTweak.Pools.OrbPools {
+namespace BTP.RoR2Plugin.Pools.OrbPools {
 
     internal sealed class FrostBladeOrbPool : Pool<FrostBladeOrbPool, OrbPoolKey, LightningOrb> {
         protected override float Interval => IceTweak.Interval;

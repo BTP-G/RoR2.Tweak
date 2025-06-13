@@ -1,11 +1,10 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class BleedOnHitAndExplodeTweak : TweakBase<BleedOnHitAndExplodeTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BaseRadius = 16;
@@ -68,7 +67,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("BleedOnHitAndExplode :: Hook Failed!");
+                "BleedOnHitAndExplode :: Hook Failed!".LogError();
             }
         }
     }

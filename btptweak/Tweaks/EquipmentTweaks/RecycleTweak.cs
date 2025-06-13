@@ -1,9 +1,9 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using System.Linq;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.EquipmentTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
     internal class RecycleTweak : TweakBase<RecycleTweak>, IOnModLoadBehavior {
 

@@ -1,9 +1,9 @@
-﻿using BtpTweak.Tweaks.ItemTweaks;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Pools {
+namespace BTP.RoR2Plugin.Pools {
 
     internal struct MissilePoolKey {
         public bool isCrit;

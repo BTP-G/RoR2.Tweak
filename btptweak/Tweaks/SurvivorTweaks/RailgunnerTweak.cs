@@ -1,6 +1,5 @@
 ﻿//using BetterUI;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+using BTP.RoR2Plugin.Utils;
 using HG;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -10,7 +9,7 @@ using RoR2.Projectile;
 using RoR2.Skills;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class RailgunnerTweak : TweakBase<RailgunnerTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float HH44DamageCoefficient = 4f;
@@ -45,7 +44,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
             GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<BuffWard>().radius = 15f;
             GameObjectPaths.RailgunnerPistolProjectile.LoadComponent<ProjectileSimple>().lifetime = 1f;
             RoR2ResourcesPaths.RailgunnerBodyFireSnipeHeavy.Load<RailgunSkillDef>().mustKeyPress = false;
-            LanguageAPI.Add("KEYWORD_ACTIVERELOAD_ALT", $"<style=cKeywordName>手动上弹</style><style=cSub>按{ModConfig.ReloadKey.Value.MainKey.ToUtil()}键给你的磁轨炮上弹。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。");
+            LanguageAPI.Add("KEYWORD_ACTIVERELOAD_ALT", $"<style=cKeywordName>手动上弹</style><style=cSub>按{Settings.ReloadKey.Value.MainKey.ToUtil()}键给你的磁轨炮上弹。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。");
             ArrayUtils.ArrayAppend(ref RoR2ResourcesPaths.RailgunnerBodyScopeLight.Load<RailgunSkillDef>().keywordTokens, "KEYWORD_ACTIVERELOAD_ALT");
         }
 
@@ -60,7 +59,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                 cursor.EmitDelegate((EntityStates.Railgunner.Reload.Boosted boosted) => boosted.bonusDamageCoefficient);
                 cursor.Emit(OpCodes.Mul);
             } else {
-                Main.Logger.LogError("Railgunner ReloadBoost Hook Failed!");
+                LogExtensions.LogError("Railgunner ReloadBoost Hook Failed!");
             }
         }
 
@@ -78,20 +77,20 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
 
         private void Reloading_OnEnter(ILContext il) {
             var cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(MoveType.After, x => ILPatternMatchingExt.MatchStloc(x, 1))) {
+            if (cursor.TryGotoNext(MoveType.After, x => x.MatchStloc(1))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate((EntityStates.Railgunner.Reload.Reloading reloading) => {
                     var body = reloading.characterBody;
                     reloading.attackSpeedStat = Mathf.Max(0.001f, reloading.attackSpeedStat - body.baseAttackSpeed * 0.15f * body.inventory.GetItemCount(RoR2Content.Items.SecondarySkillMagazine.itemIndex));
                 });
             } else {
-                Main.Logger.LogError("Railgunner ReloadingOnEnter Hook Failed!");
+                LogExtensions.LogError("Railgunner ReloadingOnEnter Hook Failed!");
             }
         }
 
         private void Waiting_FixedUpdate(On.EntityStates.Railgunner.Reload.Waiting.orig_FixedUpdate orig, EntityStates.Railgunner.Reload.Waiting self) {
             orig(self);
-            if (Input.GetKey(ModConfig.ReloadKey.Value.MainKey) && !self.isReloadQueued && self.CanReload()) {
+            if (Input.GetKey(Settings.ReloadKey.Value.MainKey) && !self.isReloadQueued && self.CanReload()) {
                 self.outer.SetNextState(new EntityStates.Railgunner.Reload.Reloading());
             }
         }

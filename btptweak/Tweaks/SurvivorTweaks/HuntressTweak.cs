@@ -1,5 +1,4 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates.Huntress;
 using EntityStates.Huntress.HuntressWeapon;
 using HG;
@@ -12,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class HuntressTweak : TweakBase<HuntressTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float 基础射程 = 60f;
@@ -110,7 +109,7 @@ namespace BtpTweak.Tweaks.SurvivorTweaks {
                                    x => x.MatchPop())) {
                 cursor.RemoveRange(3);
             } else {
-                Main.Logger.LogError("HuntressTracker FixedUpdateHook Failed!");
+                LogExtensions.LogError("HuntressTracker FixedUpdateHook Failed!");
             }
         }
     }

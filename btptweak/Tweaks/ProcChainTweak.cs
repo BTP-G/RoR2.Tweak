@@ -1,6 +1,6 @@
 ﻿using RoR2;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal static class ProcChainTweak {
         public const ProcType StickyBombOnHit = ProcType.Count;
@@ -25,25 +25,25 @@ namespace BtpTweak.Tweaks {
         }
 
         public static void AddWGRYProcs(this ref ProcChainMask procChainMask) {
-            if (ModConfig.启用阶梯触发链.Value) {
+            if (Settings.启用阶梯触发链.Value) {
                 procChainMask.mask |= white_green_red_yellowProcsMask;
             }
         }
 
         public static void AddGRYProcs(this ref ProcChainMask procChainMask) {
-            if (ModConfig.启用阶梯触发链.Value) {
+            if (Settings.启用阶梯触发链.Value) {
                 procChainMask.mask |= green_red_yellowProcsMask;
             }
         }
 
         public static void AddRYProcs(this ref ProcChainMask procChainMask) {
-            if (ModConfig.启用阶梯触发链.Value) {
+            if (Settings.启用阶梯触发链.Value) {
                 procChainMask.mask |= red_yellowProcsMask;
             }
         }
 
         public static void AddYellowProcs(this ref ProcChainMask procChainMask) {
-            if (ModConfig.启用阶梯触发链.Value) {
+            if (Settings.启用阶梯触发链.Value) {
                 procChainMask.mask |= yellowProcsMask;
             }
         }

@@ -1,4 +1,4 @@
-﻿using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using RoR2;
 using RoR2.UI;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ItemMiscTweak : TweakBase<ItemMiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         private static readonly Dictionary<Inventory, int> 背包物品数量缓存 = [];
@@ -17,7 +17,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            AssetReferences.bonusMoneyPack.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
+            AssetReferences.bonusMoneyPack.Asset.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
             DLC1Content.Items.ElementalRingVoid.TryApplyTag(ItemTag.AIBlacklist);
             DLC1Content.Items.ExtraLifeVoid.TryApplyTag(ItemTag.CannotSteal);
             DLC1Content.Items.FreeChest.TryApplyTag(ItemTag.CannotCopy);

@@ -1,14 +1,10 @@
 ﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class RandomEquipmentTriggerTweak : TweakBase<RandomEquipmentTriggerTweak>, IOnModLoadBehavior {
 

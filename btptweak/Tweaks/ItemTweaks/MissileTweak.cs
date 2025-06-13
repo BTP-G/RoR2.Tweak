@@ -1,12 +1,12 @@
-﻿using BtpTweak.Pools;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Pools;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.ItemTweaks {
+namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class MissileTweak : TweakBase<MissileTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BasePercnetChance = 10f;
@@ -35,7 +35,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                                      x => x.MatchCallvirt<Inventory>("GetItemCount"))) {
                 ilcursor.Emit(OpCodes.Ldarg_1)
                         .Emit(OpCodes.Ldarg_2)
-                        .Emit(OpCodes.Ldloc_1)
+                        .Emit(OpCodes.Ldloc_0)
                         .EmitDelegate((int itemCount, DamageInfo damageInfo, GameObject victim, CharacterBody attackerBody) => {
                             if (itemCount > 0 && Util.CheckRoll(BtpUtils.简单逼近(itemCount, 半数, 100f * damageInfo.procCoefficient), attackerBody.master)) {
                                 var missileInfo = new MissilePoolKey {
@@ -52,7 +52,7 @@ namespace BtpTweak.Tweaks.ItemTweaks {
                         });
                 ilcursor.Emit(OpCodes.Ldc_I4_0);
             } else {
-                Main.Logger.LogError("Missile :: FireHook Failed!");
+                LogExtensions.LogError("Missile :: FireHook Failed!");
             }
         }
     }

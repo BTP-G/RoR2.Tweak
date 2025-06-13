@@ -1,9 +1,9 @@
-﻿using BtpTweak.Pools.ProjectilePools;
-using BtpTweak.Utils;
+﻿using BTP.RoR2Plugin.Pools.ProjectilePools;
+using BTP.RoR2Plugin.Utils;
 using RoR2;
 using TPDespair.ZetAspects;
 
-namespace BtpTweak.Tweaks.EliteTweaks {
+namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
     internal class LightningTweak : TweakBase<LightningTweak>, IOnModLoadBehavior {
 

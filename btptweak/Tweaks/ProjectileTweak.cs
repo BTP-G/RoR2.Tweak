@@ -1,12 +1,11 @@
-﻿using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+﻿using BTP.RoR2Plugin.Utils;
 using EntityStates.BrotherMonster;
 using EntityStates.BrotherMonster.Weapon;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class ProjectileTweak : TweakBase<ProjectileTweak>, IOnRoR2LoadedBehavior {
 

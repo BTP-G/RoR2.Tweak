@@ -3,7 +3,7 @@ using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BtpTweak.Messages {
+namespace BTP.RoR2Plugin.Messages {
 
     internal struct MoneyMessage(CharacterMaster master, uint amount, bool changeToRemoveMoney = true) : INetMessage {
         private CharacterMaster _master = master;
@@ -33,9 +33,9 @@ namespace BtpTweak.Messages {
         [RuntimeInitializeOnLoadMethod]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<MoneyMessage>()) {
-                Main.Logger.LogMessage("MoneyMessage Register Successd!");
+                "MoneyMessage Register Successd!".LogMessage();
             } else {
-                Main.Logger.LogError("MoneyMessage Register Failed!");
+                "MoneyMessage Register Failed!".LogError();
             }
         }
     }

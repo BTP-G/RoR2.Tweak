@@ -1,9 +1,8 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
-using BtpTweak.Tweaks;
-using BtpTweak.Tweaks.ItemTweaks;
-using BtpTweak.Utils;
-using BtpTweak.Utils.RoR2ResourcesPaths;
+using BTP.RoR2Plugin.Tweaks;
+using BTP.RoR2Plugin.Tweaks.ItemTweaks;
+using BTP.RoR2Plugin.Utils;
 using RiskOfOptions;
 using RiskOfOptions.Lib;
 using RiskOfOptions.OptionConfigs;
@@ -13,9 +12,11 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-namespace BtpTweak {
+namespace BTP.RoR2Plugin {
 
-    public static class ModConfig {
+    /// <summary>Mod设置的配置类</summary>
+    public static class Settings {
+        public static ConfigFile Config { get; private set; }
         public static KeyBindOption ReloadKey { get; private set; }
         public static CheckBoxOption 关闭所有特效 { get; private set; }
         public static CheckBoxOption 开启特效生成日志 { get; private set; }
@@ -23,12 +24,14 @@ namespace BtpTweak {
         public static ChoiceOption 开启特拉法梅 { get; private set; }
         public static CheckBoxOption 启用阶梯触发链 { get; private set; }
         public static SliderOption Boss物品掉率 { get; private set; }
-        public static SliderOption 测试用 { get; private set; }
-        public static SliderOption 测试用2 { get; private set; }
+        public static SliderOption 物品传送时间 { get; private set; }
+        public static SliderOption 商店物品传送时间 { get; private set; }
         public static SliderOption 导弹发射间隔 { get; private set; }
         public static SliderOption 每关难度增加量 { get; private set; }
         public static SliderOption 喷泉喷射间隔 { get; private set; }
         public static SliderOption 牺牲基础掉率 { get; private set; }
+        public static SliderOption BubbleShieldLifetime { get; internal set; }
+        public static SliderOption BubbleShieldRaius { get; internal set; }
         public static StringInputFieldOption 特效_间隔 { get; private set; }
 
         public static CheckBoxOption AddCheckBoxOption(ConfigFile config, string section, string key, bool defaultValue, string description, Action<bool> onChanged = null) {
@@ -111,7 +114,7 @@ namespace BtpTweak {
 
         public static ModMetaData GetModMetaData(this Assembly assembly) {
             var result = default(ModMetaData);
-            Type[] exportedTypes = assembly.GetExportedTypes();
+            var exportedTypes = assembly.GetExportedTypes();
             for (int i = 0; i < exportedTypes.Length; ++i) {
                 var customAttribute = exportedTypes[i].GetCustomAttribute<BepInPlugin>();
                 if (customAttribute != null) {
@@ -122,9 +125,10 @@ namespace BtpTweak {
             return result;
         }
 
-        internal static void InitConfig(ConfigFile config) {
-            ModSettingsManager.SetModIcon(Texture2DPaths.texVoidCoinIcon.Load<Sprite>(), Main.PluginGUID, Main.PluginName);
-            ModSettingsManager.SetModDescription("这里是关于BTP的整合包的内部的Mod设置", Main.PluginGUID, Main.PluginName);
+        internal static void Initialize(ConfigFile config) {
+            Config = config;
+            ModSettingsManager.SetModIcon(Texture2DPaths.texVoidCoinIcon.Load<Sprite>(), Plugin.PluginGUID, Plugin.PluginName);
+            ModSettingsManager.SetModDescription("这里是关于BTP的整合包的内部的Mod设置", Plugin.PluginGUID, Plugin.PluginName);
             Boss物品掉率 = AddSliderOption(config,
                                        "测试",
                                        "Boss物品掉率",
@@ -138,19 +142,19 @@ namespace BtpTweak {
                                   "磁轨炮手上弹按键",
                                   new KeyboardShortcut(KeyCode.B),
                                   "按此按键进入上弹模式。");
-            测试用 = AddSliderOption(config,
-                            "测试",
-                            "测试用",
+            物品传送时间 = AddSliderOption(config,
+                            "物品",
+                            "一般情况下，物品在经过此时间后会传送到最近的安全地带。（单位：秒）",
                             0f,
-                            -10000f,
-                            10000f,
+                            1,
+                            60f,
                             "");
-            测试用2 = AddSliderOption(config,
-                             "测试",
-                             "测试用2",
+            商店物品传送时间 = AddSliderOption(config,
+                             "物品",
+                             "在月球商店中，物品在经过此时间后会传送到最近的安全地带。（单位：秒）",
                              0f,
-                             -10000f,
-                             10000f,
+                             0,
+                             90,
                              "");
             导弹发射间隔 = AddSliderOption(config,
                                "物品",
@@ -164,12 +168,12 @@ namespace BtpTweak {
                                "开启时禁用所有特效",
                                false,
                                "用于后期防止卡顿。");
-            开启特拉法梅 = AddChoiceOption(config,
-                               "物品",
-                               "特拉法梅的祝福",
-                               LunarWingsState.Default,
-                               "游戏内选择后将直接更新物品效果，物品对应汉化也会更新。不了解此选项请勿修改！",
-                               onChanged: LunarWingsTweak.UpdateLunarWingsState);
+            //开启特拉法梅 = AddChoiceOption(config,
+            //                   "物品",
+            //                   "特拉法梅的祝福",
+            //                   LunarWingsState.Default,
+            //                   "游戏内选择后将直接更新物品效果，物品对应汉化也会更新。不了解此选项请勿修改！",
+            //                   onChanged: LunarWingsTweak.UpdateLunarWingsState);
             开启特效生成日志 = AddCheckBoxOption(config,
                                  "日志",
                                  "是否开启特效生成日志",

@@ -1,10 +1,10 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks {
+namespace BTP.RoR2Plugin.Tweaks {
 
     internal class GlobalEventTweak : TweakBase<GlobalEventTweak>, IOnModLoadBehavior {
 
@@ -34,18 +34,18 @@ namespace BtpTweak.Tweaks {
             if (victimBody.bodyIndex == BodyIndexes.EquipmentDrone) {
                 PickupDropletController.CreatePickupDroplet(PickupCatalog.FindPickupIndex(victimBody.inventory.currentEquipmentIndex), victimBody.corePosition, Vector3.up * 15f);
             }
-            if (victimBody.TryGetComponent<DeathRewards>(out var deathRewards) && deathRewards.bossDropTable && Util.CheckRoll(ModConfig.Boss物品掉率.Value)) {
+            if (victimBody.TryGetComponent<DeathRewards>(out var deathRewards) && deathRewards.bossDropTable && Util.CheckRoll(Settings.Boss物品掉率.Value)) {
                 PickupDropletController.CreatePickupDroplet(deathRewards.bossDropTable.GenerateDrop(Run.instance.treasureRng), victimBody.corePosition, Vector3.up * 15f);
             }
         }
 
         private void IL_GlobalEventManager_OnCharacterDeath(ILContext il) {
             var ilcursor = new ILCursor(il);
-            if (ilcursor.TryGotoNext(x => ILPatternMatchingExt.MatchLdstr(x, "Prefabs/Effects/ImpactEffects/Bandit2ResetEffect"))) {
+            if (ilcursor.TryGotoNext(x => x.MatchLdstr("Prefabs/Effects/ImpactEffects/Bandit2ResetEffect"))) {
                 ilcursor.Emit(OpCodes.Ldloc, 15);
                 ilcursor.EmitDelegate((CharacterBody attackerBody) => attackerBody.inventory.DeductActiveEquipmentCooldown(float.MaxValue));
             } else {
-                Main.Logger.LogError("ResetCooldownsOnKill Hook Error");
+                "ResetCooldownsOnKill Hook Error".LogError();
             }
         }
     }
