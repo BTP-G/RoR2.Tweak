@@ -1,24 +1,21 @@
-﻿using System;
+﻿using BTP.RoR2Plugin.Utils;
+using System;
 using System.Linq;
-using UnityEngine;
+using System.Text;
 
-namespace BTP.RoR2Plugin.Utils {
+namespace BTP.RoR2Plugin.Language {
 
-    public static class StringExtension {
+    public static class StringExtensions {
+        private static readonly StringBuilder _shared = new();
 
-        public static T Load<T>(this string path) => UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<T>(path).WaitForCompletion();
-
-        public static T LoadComponent<T>(this string path) where T : Component => path.Load<GameObject>().GetComponent<T>();
-
-        public static T LoadComponentInChildren<T>(this string path) where T : Component => path.Load<GameObject>().GetComponentInChildren<T>();
-
-        public static T[] LoadComponents<T>(this string path) where T : Component => path.Load<GameObject>().GetComponents<T>();
-
-        public static string ToDeath(this string str) => "<style=cDeath>" + str + "</style>";
+        public static string ToDeath(this string str) => _shared.Clear()
+            .Append("<style=cDeath>")
+            .Append(str)
+            .Append("</style>").ToString();
 
         public static string ToShrine(this string str) => "<style=cShrine>" + str + "</style>";
 
-        public static string ToDmg(this object obj, string prefix_suffix = "") {
+        public static string ToDmg<T>(this T obj, string prefix_suffix = "") {
             if (obj == null) {
                 return string.Empty;
             }
@@ -36,7 +33,7 @@ namespace BTP.RoR2Plugin.Utils {
 
         public static string ToFire(this string str) => "<color=#f25d25>" + str + "</color>";
 
-        public static string ToHealing(this object obj, string prefix_suffix = "") {
+        public static string ToHealing<T>(this T obj, string prefix_suffix = "") {
             if (obj == null) {
                 return string.Empty;
             }
@@ -50,7 +47,7 @@ namespace BTP.RoR2Plugin.Utils {
 
         public static string ToHealPct(this float value) => "<style=cIsHealing>" + value.ToPct() + "</style>";
 
-        public static string ToHealth(this object str) => "<style=cIsHealth>" + str + "</style>";
+        public static string ToHealth<T>(this T str) => "<style=cIsHealth>" + str + "</style>";
 
         public static string ToIce(this string str) => "<color=#CCFFFF>" + str + "</color>";
 
@@ -64,9 +61,9 @@ namespace BTP.RoR2Plugin.Utils {
 
         public static string ToLunar(this string str) => "<style=cIsLunar>" + str + "</style>";
 
-        public static string ToStk(this object str) => "<style=cStack>" + str + "</style>";
+        public static string ToStk<T>(this T str) => "<style=cStack>" + str + "</style>";
 
-        public static string ToStk(this object obj, string prefix_suffix) {
+        public static string ToStk<T>(this T obj, string prefix_suffix) {
             if (obj == null) {
                 return string.Empty;
             }
@@ -113,9 +110,9 @@ namespace BTP.RoR2Plugin.Utils {
 
         public static string ToScepterDesc(this string desc) => "\n<color=#d299ff>权杖：" + desc + "</color>";
 
-        public static string ToUtil(this object str) => "<style=cIsUtility>" + str + "</style>";
+        public static string ToUtil<T>(this T str) => "<style=cIsUtility>" + str + "</style>";
 
-        public static string ToUtil(this object str, string prefix_suffix) {
+        public static string ToUtil<T>(this T str, string prefix_suffix) {
             var content = str.ToString();
             if (content == "0") {
                 return string.Empty;

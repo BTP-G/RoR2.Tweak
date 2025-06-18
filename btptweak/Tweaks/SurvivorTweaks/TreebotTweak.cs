@@ -1,12 +1,12 @@
-﻿using Mono.Cecil.Cil;
-using MonoMod.Cil;
-using RoR2;
-using UnityEngine;
-using RoR2.Skills;
-using EntityStates.Treebot.Weapon;
-using R2API;
-using BTP.RoR2Plugin.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using BTP.RoR2Plugin.Utils;
+using EntityStates.Treebot.Weapon;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using R2API;
+using RoR2;
+using RoR2.Skills;
+using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 

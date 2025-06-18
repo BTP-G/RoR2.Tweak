@@ -3,7 +3,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 using TPDespair.ZetAspects;
-using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 

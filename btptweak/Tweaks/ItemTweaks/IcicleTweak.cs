@@ -1,6 +1,5 @@
 ﻿using RoR2;
 using RoR2.Items;
-using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 

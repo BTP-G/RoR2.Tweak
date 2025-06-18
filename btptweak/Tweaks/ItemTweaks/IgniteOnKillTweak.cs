@@ -41,7 +41,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                     dotIndex = DotController.DotIndex.Burn,
                     totalDamage = Util.OnHitProcDamage(_blastAttack.baseDamage, attackerBody.damage, IgniteDamageCoefficient * igniteOnKillCount * (_blastAttack.crit ? attackerBody.critMultiplier : 1f)),
                 };
-                StrengthenBurnUtils.CheckDotForUpgrade(attackerBody.inventory, ref baseDotInfo);
+                StrengthenBurnUtils.CheckDotForUpgrade(damageReport.attackerMaster.inventory, ref baseDotInfo);
                 foreach (var hitPoint in result.hitPoints) {
                     var dotInfo = baseDotInfo;
                     dotInfo.victimObject = hitPoint.hurtBox.healthComponent.gameObject;

@@ -13,7 +13,7 @@ namespace BTP.RoR2Plugin.Components {
         }
 
         private void OnEnable() {
-            if(RunInfo.位于月球商店) {
+            if (RunInfo.位于月球商店) {
                 _teleportTime = Time.time + Settings.商店物品传送时间.Value;
             } else {
                 _teleportTime = Time.time + Settings.物品传送时间.Value;

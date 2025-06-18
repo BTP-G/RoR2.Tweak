@@ -1,4 +1,5 @@
-﻿using BTP.RoR2Plugin.Utils;
+﻿using BTP.RoR2Plugin.Buffs;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -55,10 +56,8 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                     var itemCount = master.inventory.GetItemCount(DLC1Content.Items.ExplodeOnDeathVoid.itemIndex);
                     if (itemCount > 0) {
                         var victimBody = healthComponent.body;
-                        if (victimBody.HasBuff(Content.Buffs.VoidFire)) {
-                            return;
-                        }
-                        victimBody.AddBuff(Content.Buffs.VoidFire);
+                        if (victimBody.HasBuff(VoidFire.BuffDef)) return;
+                        victimBody.AddBuff(VoidFire.BuffDef);
                         var combinedHealthFraction = Mathf.Clamp01(healthComponent.combinedHealthFraction);
                         _blastAttack.attacker = damageInfo.attacker;
                         _blastAttack.baseDamage = Util.OnHitProcDamage(damageInfo.damage, 0, BtpUtils.简单逼近(itemCount, 半数, combinedHealthFraction));

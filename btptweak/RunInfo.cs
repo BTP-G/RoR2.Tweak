@@ -1,5 +1,6 @@
-﻿using BTP.RoR2Plugin.RoR2Indexes;
-using BTP.RoR2Plugin.Utils;
+﻿using BTP.RoR2Plugin.Difficulities;
+using BTP.RoR2Plugin.Language;
+using BTP.RoR2Plugin.RoR2Indexes;
 using R2API.Utils;
 using RoR2;
 using System.Runtime.Serialization;
@@ -27,7 +28,7 @@ namespace BTP.RoR2Plugin {
 
         private static void OnRunSetRuleBookGlobal(Run run, RuleBook ruleBook) {
             造物主的试炼 = false;
-            已选择造物难度 = run.selectedDifficulty == Content.Difficulties.造物索引;
+            已选择造物难度 = run.selectedDifficulty == HarryRoadGreatWhirlwind.造物索引;
         }
 
         private static void OnBrotherTrueDeath(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {

@@ -1,7 +1,7 @@
-﻿using RoR2.Projectile;
+﻿using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using RoR2;
+using RoR2.Projectile;
 using UnityEngine;
-using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 
 namespace BTP.RoR2Plugin.Pools.ProjectilePools {
 

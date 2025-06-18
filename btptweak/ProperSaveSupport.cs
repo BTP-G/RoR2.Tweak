@@ -49,7 +49,7 @@ namespace BTP.RoR2Plugin {
                 var saveData = (ISaveData)Activator.CreateInstance(type);
                 saveData.SaveData();
                 obj.Add(type.FullName, saveData);
-                $"存档类型('{type.FullName}')已存入。".LogMessage(  );
+                $"存档类型('{type.FullName}')已存入。".LogMessage();
             }
         }
 

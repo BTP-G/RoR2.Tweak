@@ -1,8 +1,8 @@
 ﻿using BepInEx;
 using BTP.RoR2Plugin.Tweaks;
-using RoR2;
 using RoR2.UI.MainMenu;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -18,6 +18,7 @@ namespace BTP.RoR2Plugin {
         public const string PluginGUID = "com.BTP.Tweak";
         public const string PluginName = "BTP.Tweak";
         public const string PluginVersion = "3.0.0";
+        internal static HashSet<IFixedTickable> fixedTickableSet = [];
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
         private readonly List<IOnRoR2LoadedBehavior> onRoR2LoadedBehaviors = [];
@@ -25,7 +26,7 @@ namespace BTP.RoR2Plugin {
         private void Awake() {
             LogExtensions.logger = base.Logger;
             Settings.Initialize(base.Config);
-            MainMenuController.OnMainMenuInitialised += OnRoR2Loaded;
+            MainMenuController.OnMainMenuInitialised += OnMainMenuFirstInitialised;
             AssetReferences.Init();
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
                 if (!type.IsAbstract && !type.IsDefined(typeof(ObsoleteAttribute))) {
@@ -55,8 +56,20 @@ namespace BTP.RoR2Plugin {
             }
         }
 
-        private void OnRoR2Loaded() {
-            MainMenuController.OnMainMenuInitialised -= OnRoR2Loaded;
+        private void OnEnable() {
+            foreach (var behavior in onModLoadBehaviors) {
+                try {
+                    var onModLoadBehavior = behavior;
+                    onModLoadBehavior.OnModLoad();
+                    Logger.LogMessage(onModLoadBehavior.GetType().FullName + " :: has set event handlers.");
+                } catch (Exception e) {
+                    Debug.LogException(e, this);
+                }
+            }
+        }
+
+        private void OnMainMenuFirstInitialised() {
+            MainMenuController.OnMainMenuInitialised -= OnMainMenuFirstInitialised;
             foreach (var behavior in onRoR2LoadedBehaviors) {
                 try {
                     var roR2LoadedBehavior = behavior;
@@ -68,16 +81,15 @@ namespace BTP.RoR2Plugin {
             }
         }
 
-        private void OnEnable() {
-            foreach (var behavior in onModLoadBehaviors) {
-                try {
-                    var onModLoadBehavior = behavior;
-                    onModLoadBehavior.OnModLoad();
-                    Logger.LogMessage(onModLoadBehavior.GetType().FullName + " :: has set event handlers.");
-                } catch (Exception e) {
-                    Debug.LogException(e, this);
-                }
+        private void FixedUpdate() {
+            var array = ArrayPool<IFixedTickable>.Shared.Rent(fixedTickableSet.Count);
+            fixedTickableSet.CopyTo(array);
+            foreach (ref var tickable in array.AsSpan()) {
+                if (tickable == null) break;
+                tickable.FixedTick();
+                tickable = null;
             }
+            ArrayPool<IFixedTickable>.Shared.Return(array);
         }
 
         private void OnDisable() {

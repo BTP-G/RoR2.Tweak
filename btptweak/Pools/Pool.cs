@@ -1,5 +1,4 @@
-﻿using RoR2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace BTP.RoR2Plugin.Pools {
         protected float fixedTimer;
         protected abstract float Interval { get; }
 
-        protected virtual void FixedUpdate() {
+        protected void FixedUpdate() {
             if ((fixedTimer -= Time.fixedDeltaTime) > 0) {
                 return;
             }
@@ -26,7 +25,7 @@ namespace BTP.RoR2Plugin.Pools {
         protected abstract void OnTimeOut(in TKey key, in TValue value);
     }
 
-    internal abstract class Pool<T, TKey, TValue> : Pool<TKey, TValue> where T : Pool<T, TKey, TValue> {
+    internal abstract class Pool<T, TKey, TValue> : Pool<TKey, TValue>, IFixedTickable where T : Pool<T, TKey, TValue> {
         private static readonly Dictionary<GameObject, T> _pools = [];
         private static readonly Stack<T> _poolStack = [];
         private GameObject _owner;
@@ -34,22 +33,20 @@ namespace BTP.RoR2Plugin.Pools {
 
         public static T RentPool(GameObject owner) {
             if (!_pools.TryGetValue(owner, out var pool)) {
-                if (_poolStack.Count > 0) {
-                    pool = _poolStack.Pop();
-                } else {
+                if (!_poolStack.TryPop(out pool)) {
                     pool = Activator.CreateInstance<T>();
                 }
                 pool._owner = owner;
                 pool.fixedTimer = 0;
                 _pools.Add(owner, pool);
-                RoR2Application.onFixedUpdate += pool.FixedUpdate;
+                pool.RegisterFixedTick();
             }
             return pool;
         }
 
-        protected override void FixedUpdate() {
+        void IFixedTickable.FixedTick() {
             if (!_owner) {
-                RoR2Application.onFixedUpdate -= FixedUpdate;
+                this.UnregisterFixedTick();
                 pool.Clear();
                 if (_pools.Remove(_owner)) {
                     _poolStack.Push(this as T);
@@ -57,7 +54,7 @@ namespace BTP.RoR2Plugin.Pools {
                 _owner = null;
                 return;
             }
-            base.FixedUpdate();
+            FixedUpdate();
         }
     }
 }

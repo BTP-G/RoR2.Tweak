@@ -1,4 +1,5 @@
-﻿using BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates;
+﻿using BTP.RoR2Plugin.Skills;
+using BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates;
 using BTP.RoR2Plugin.Utils;
 using EntityStates.BrotherMonster;
 using EntityStates.BrotherMonster.Weapon;
@@ -50,7 +51,7 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             GroundedSkillDefPaths.SkyLeap.Load<SkillDef>().activationState = new EntityStates.SerializableEntityStateType(typeof(EnterCrushingLeap));
-            GameObjectPaths.BrotherBody.LoadComponent<SkillLocator>().utility.skillFamily.variants[0].skillDef = Content.Skills.UngroundedDash;
+            GameObjectPaths.BrotherBody.LoadComponent<SkillLocator>().utility.skillFamily.variants[0].skillDef = UngroundedDash.SkillDef;
         }
 
         private void FireLunarShards_OnEnter(On.EntityStates.BrotherMonster.Weapon.FireLunarShards.orig_OnEnter orig, FireLunarShards self) {

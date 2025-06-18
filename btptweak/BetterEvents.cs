@@ -45,7 +45,7 @@ namespace BTP.RoR2Plugin {
                             OnHitEnemy?.Invoke(damageInfo, attackerBody, victimBody);
                         });
             } else {
-                 "OnHitEnemy Hook Failed!".LogError();
+                "OnHitEnemy Hook Failed!".LogError();
             }
         }
     }

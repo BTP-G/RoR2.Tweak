@@ -1,5 +1,4 @@
 ﻿using BTP.RoR2Plugin.Pools.ProjectilePools;
-using BTP.RoR2Plugin.Utils;
 using GuestUnion;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;

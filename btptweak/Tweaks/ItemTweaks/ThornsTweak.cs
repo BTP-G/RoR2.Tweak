@@ -20,19 +20,19 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             var cursor = new ILCursor(il);
             if (cursor.TryGotoNext(MoveType.After, c => c.MatchLdfld<HealthComponent.ItemCounts>("thorns"))) {
                 cursor.GotoNext(MoveType.After, c => c.MatchLdfld<HealthComponent.ItemCounts>("thorns"))
-                      .Emit(OpCodes.Ldloc, 12)
+                      .Emit(OpCodes.Ldloc, 13)
                       .EmitDelegate((int itemCount, DamageReport damageReport) => {
                           if (itemCount > 0 && damageReport.damageDealt > 0) {
                               var damageInfo = damageReport.damageInfo;
                               if (!damageInfo.procChainMask.HasProc(ProcType.Thorns)) {
                                   var simpleOrbInfo = new OrbPoolKey {
                                       attackerBody = damageReport.victimBody,
-                                      target = damageReport.attackerBody?.mainHurtBox,
+                                      target = damageReport.attackerBody ? damageReport.attackerBody.mainHurtBox : null,
                                       procChainMask = damageInfo.procChainMask,
                                       isCrit = damageInfo.crit,
                                       通用浮点数 = itemCount - 1f,
                                   };
-                                  ThornsOrbPool.RentPool(damageReport.victim.gameObject).AddOrb(simpleOrbInfo, damageReport);
+                                  ThornsOrbPool.RentPool(simpleOrbInfo.attackerBody.gameObject).AddOrb(simpleOrbInfo, damageReport);
                               }
                           }
                       });

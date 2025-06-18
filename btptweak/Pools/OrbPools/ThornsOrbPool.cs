@@ -11,7 +11,7 @@ namespace BTP.RoR2Plugin.Pools.OrbPools {
             if (pool.TryGetValue(simpleOrbInfo, out var lightningOrb)) {
                 lightningOrb.damageValue += (ThornsTweak.BaseDamageCoefficient + ThornsTweak.StackDamageCoefficient * simpleOrbInfo.通用浮点数) * damageReport.damageDealt;
                 lightningOrb.damageType |= damageReport.damageInfo.damageType;
-                if (!lightningOrb.target && damageReport.attackerTeamIndex != lightningOrb.teamIndex) {
+                if (lightningOrb.target == null && damageReport.attackerTeamIndex != lightningOrb.teamIndex) {
                     lightningOrb.target = simpleOrbInfo.target;
                 }
             } else {
@@ -35,7 +35,7 @@ namespace BTP.RoR2Plugin.Pools.OrbPools {
 
         protected override void OnTimeOut(in OrbPoolKey orbInfo, in LightningOrb orb) {
             orb.origin = orbInfo.attackerBody.corePosition;
-            if (!orb.target) {
+            if (orb.target == null) {
                 orb.bouncedObjects = [];
                 if (orb.target = orb.PickNextTarget(orb.origin)) {
                     orb.procChainMask.AddProc(ProcType.Thorns);

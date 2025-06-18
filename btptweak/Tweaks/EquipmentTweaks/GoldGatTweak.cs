@@ -1,8 +1,8 @@
-﻿using EntityStates.GoldGat;
+﻿using BTP.RoR2Plugin.Utils;
+using EntityStates.GoldGat;
 using RoR2;
-using UnityEngine.Networking;
 using UnityEngine;
-using BTP.RoR2Plugin.Utils;
+using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 

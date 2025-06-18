@@ -1,5 +1,4 @@
-﻿using BTP.RoR2Plugin.Components;
-using EntityStates.Missions.LunarScavengerEncounter;
+﻿using EntityStates.Missions.LunarScavengerEncounter;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -86,10 +85,10 @@ namespace BTP.RoR2Plugin.Tweaks {
         private void StunState_PlayStunAnimation(On.EntityStates.StunState.orig_PlayStunAnimation orig, EntityStates.StunState self) {
             var modelAnimator = self.GetModelAnimator();
             if (modelAnimator) {
-                int layerIndex = modelAnimator.GetLayerIndex("Body");
+                var layerIndex = modelAnimator.GetLayerIndex("Body");
                 modelAnimator.CrossFadeInFixedTime(Random.Range(0, 2) == 0 ? "Hurt1" : "Hurt2", 0.1f);
                 modelAnimator.Update(0f);
-                AnimatorStateInfo nextAnimatorStateInfo = modelAnimator.GetNextAnimatorStateInfo(layerIndex);
+                var nextAnimatorStateInfo = modelAnimator.GetNextAnimatorStateInfo(layerIndex);
                 self.duration = Mathf.Max(self.stunDuration, nextAnimatorStateInfo.length);
                 if (self.stunDuration >= 0f && self.stunVfxInstance == null) {
                     self.stunVfxInstance = Object.Instantiate(EntityStates.StunState.stunVfxPrefab, self.transform);
@@ -103,7 +102,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             if (NetworkServer.active) {
                 foreach (var player in PlayerCharacterMasterController.instances) {
                     var inventory = player.master.inventory;
-                    int itemCount = inventory.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex);
+                    var itemCount = inventory.GetItemCount(RoR2Content.Items.TonicAffliction.itemIndex);
                     if (itemCount > 0) {
                         inventory.RemoveItem(RoR2Content.Items.TonicAffliction.itemIndex, itemCount);
                     }
@@ -113,7 +112,7 @@ namespace BTP.RoR2Plugin.Tweaks {
 
         private bool Util_CheckRoll_float_float_CharacterMaster(On.RoR2.Util.orig_CheckRoll_float_float_CharacterMaster orig, float percentChance, float luck, CharacterMaster effectOriginMaster) {
             if (percentChance > 0f) {
-                float random = Random.Range(0f, 100f);
+                var random = Random.Range(0f, 100f);
                 if (random <= percentChance + percentChance * (luck / (luck > 0 ? 3f + luck : 3f - luck))) {
                     if (random > percentChance && effectOriginMaster) {
                         var body = effectOriginMaster.GetBody();

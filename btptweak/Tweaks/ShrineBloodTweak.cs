@@ -1,4 +1,4 @@
-﻿using BTP.RoR2Plugin.Utils;
+﻿using BTP.RoR2Plugin.Language;
 using R2API.Utils;
 using RoR2;
 using UnityEngine;

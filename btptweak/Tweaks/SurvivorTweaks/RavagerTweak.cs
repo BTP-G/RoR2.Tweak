@@ -1,14 +1,16 @@
-﻿using BtpTweak.RoR2Indexes;
+﻿using BTP.RoR2Plugin.RoR2Indexes;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour.HookGen;
 using R2API;
+using RedGuyMod.Content.Components;
+using RedGuyMod.SkillStates.Ravager;
 using RoR2;
 using System;
 using System.Reflection;
 using UnityEngine;
 
-namespace BtpTweak.Tweaks.SurvivorTweaks {
+namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
     internal class RavagerTweak : TweakBase<RavagerTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float InfusionToDamageCoefficient = 0.1f;

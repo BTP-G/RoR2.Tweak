@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BTP.RoR2Plugin.Tweaks;
-using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using BTP.RoR2Plugin.Utils;
 using RiskOfOptions;
 using RiskOfOptions.Lib;
@@ -193,7 +192,7 @@ namespace BTP.RoR2Plugin {
                                 100000000f,
                                 "开始时难度为50%。难度计算公式：开始难度 + 当前关卡数 x ~",
                                 "{0}%",
-                                (_) => {
+                                _ => {
                                     if (Run.instance) {
                                         Run.instance.RecalculateDifficultyCoefficent();
                                     }

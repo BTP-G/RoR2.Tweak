@@ -1,4 +1,4 @@
-﻿//using BetterUI;
+﻿using BTP.RoR2Plugin.Language;
 using BTP.RoR2Plugin.Utils;
 using HG;
 using Mono.Cecil.Cil;
@@ -44,7 +44,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<BuffWard>().radius = 15f;
             GameObjectPaths.RailgunnerPistolProjectile.LoadComponent<ProjectileSimple>().lifetime = 1f;
             RoR2ResourcesPaths.RailgunnerBodyFireSnipeHeavy.Load<RailgunSkillDef>().mustKeyPress = false;
-            LanguageAPI.Add("KEYWORD_ACTIVERELOAD_ALT", $"<style=cKeywordName>手动上弹</style><style=cSub>按{Settings.ReloadKey.Value.MainKey.ToUtil()}键给你的磁轨炮上弹。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg() + "（每层备用弹夹+10%）".ToStk()}伤害。");
+            LanguageAPI.Add("KEYWORD_ACTIVERELOAD_ALT", $"<style=cKeywordName>手动上弹</style><style=cSub>按{Settings.ReloadKey.Value.MainKey.ToUtil()}键给你的磁轨炮上弹。<style=cIsDamage>完美上弹</style>后，下一发射弹额外造成{"50%".ToDmg()}{"（每层备用弹夹+10%）".ToStk()}伤害。");
             ArrayUtils.ArrayAppend(ref RoR2ResourcesPaths.RailgunnerBodyScopeLight.Load<RailgunSkillDef>().keywordTokens, "KEYWORD_ACTIVERELOAD_ALT");
         }
 

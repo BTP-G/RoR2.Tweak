@@ -1,4 +1,5 @@
-﻿using BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates;
+﻿using BTP.RoR2Plugin.Items;
+using BTP.RoR2Plugin.Tweaks.MithrixTweaks.MithrixEntityStates;
 using EntityStates;
 using EntityStates.BrotherMonster;
 using KinematicCharacterController;
@@ -61,19 +62,19 @@ namespace BTP.RoR2Plugin.Tweaks {
                         case BodyNameIndex.BrotherHurtBody: {
                             switch (PhaseCounter.instance?.phase) {  // Give Mithrix the Scourge items
                                 case 1: {
-                                    inventory.GiveItem(Content.Items.MoonscourgeAccursedItem);
+                                    inventory.GiveItem(MoonscourgeAccursedItem.ItemDef);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(SlideIntroState));
                                     body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     break;
                                 }
                                 case 2: {
-                                    inventory.GiveItem(Content.Items.StormscourgeAccursedItem);
+                                    inventory.GiveItem(StormscourgeAccursedItem.ItemDef);
                                     body.skillLocator.utility.skillDef.activationState = new SerializableEntityStateType(typeof(LunarBlink));
                                     body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);
                                     break;
                                 }
                                 case 3: {
-                                    inventory.GiveItem(Content.Items.HelscourgeAccursedItemDef);
+                                    inventory.GiveItem(HelscourgeAccursedItem.ItemDef);
                                     body.baseAcceleration *= Run.instance.participatingPlayerCount;
                                     body.AddBuff(RoR2Content.Buffs.LunarShell.buffIndex);
                                     body.AddBuff(RoR2Content.Buffs.TonicBuff.buffIndex);

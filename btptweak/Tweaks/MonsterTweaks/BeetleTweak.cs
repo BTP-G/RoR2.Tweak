@@ -37,7 +37,8 @@ namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
                 if (teamMember.body && (teamMember.body.corePosition - selfPosition).sqrMagnitude < 900f) {
                     teamMember.body.AddTimedBuff(RoR2Content.Buffs.Warbanner, 15f);
                 }
-            };
+            }
+            ;
         }
     }
 }

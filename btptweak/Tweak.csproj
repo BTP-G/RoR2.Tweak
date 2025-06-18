@@ -17,10 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Tweaks\SurvivorTweaks\RavagerTweak.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.0.8">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -94,6 +90,9 @@
         </Reference>
         <Reference Include="R2API.Addressables">
           <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-3.0\BepInEx\plugins\RiskofThunder-R2API_Addressables\R2API.Addressables\R2API.Addressables.dll</HintPath>
+        </Reference>
+        <Reference Include="RedGuyMod">
+          <HintPath>C:\Users\BTP\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\Mods-3.0\BepInEx\plugins\public_ParticleSystem-Ravager\rob_gaming-Ravager\RedGuyMod.dll</HintPath>
         </Reference>
         <Reference Include="Rewired_Windows_Lib">
             <HintPath>libs\Rewired_Windows_Lib.dll</HintPath>
