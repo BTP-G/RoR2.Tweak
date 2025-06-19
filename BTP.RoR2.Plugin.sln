@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Metadata", "Metadata", "{3A
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tweak", "btptweak\Tweak.csproj", "{6C15F36D-2A89-4220-A947-ABAD75BC584C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4671615E-2F2B-41C2-804F-52A2DB3B62BC}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -18,20 +16,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AncientScepter", "..\..\0_edit_tools\AncientScepter\AncientScepter\AncientScepter.csproj", "{806C6FE4-C706-2412-74DE-0345E7676B3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweak", "Tweak\Tweak.csproj", "{FC233B7D-FFA5-AEF1-E01F-CEC702BFED13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C15F36D-2A89-4220-A947-ABAD75BC584C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{806C6FE4-C706-2412-74DE-0345E7676B3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{806C6FE4-C706-2412-74DE-0345E7676B3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{806C6FE4-C706-2412-74DE-0345E7676B3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{806C6FE4-C706-2412-74DE-0345E7676B3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC233B7D-FFA5-AEF1-E01F-CEC702BFED13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC233B7D-FFA5-AEF1-E01F-CEC702BFED13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC233B7D-FFA5-AEF1-E01F-CEC702BFED13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC233B7D-FFA5-AEF1-E01F-CEC702BFED13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
