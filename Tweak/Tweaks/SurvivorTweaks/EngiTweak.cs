@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class EngiTweak : TweakBase<EngiTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class EngiTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private const float Interval = 0.2f;
 
         private static readonly BlastAttack _blastAttack = new() {
@@ -24,7 +24,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             radius = 15f,
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Engi.EngiBubbleShield.Deployed.FixedUpdate += Deployed_FixedUpdate;
             On.EntityStates.Engi.EngiWeapon.FireGrenades.OnExit += FireGrenades_OnExit;
             IL.RoR2.CharacterMaster.GetDeployableSameSlotLimit += CharacterMaster_GetDeployableSameSlotLimit;
@@ -51,7 +51,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
                 });
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GameObjectPaths.EngiGrenadeProjectile.LoadComponent<ProjectileImpactExplosion>().blastRadius = 5f;
             Array.Find(GameObjectPaths.EngiTurretMaster.LoadComponents<AISkillDriver>(), match => match.customName == "FireAtEnemy").maxDistance *= 2;
             GameObjectPaths.EngiBubbleShield.LoadComponent<BeginRapidlyActivatingAndDeactivating>().delayBeforeBeginningBlinking = Settings.BubbleShieldLifetime.Value * 0.9f;

@@ -3,9 +3,9 @@
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     [Obsolete]
-    internal class GoldenKnurlTweak : TweakBase<GoldenKnurlTweak>, IOnModLoadBehavior {
+    internal class GoldenKnurlTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
         }
     }
 }

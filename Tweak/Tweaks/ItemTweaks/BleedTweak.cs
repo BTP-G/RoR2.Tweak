@@ -8,18 +8,18 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BleedTweak : TweakBase<BleedTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class BleedTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float BleedDamageCoefficient = 0.1f;
         public const float BleedDuration = 5f;
         public const float SurperBleedDamageCoefficient = 0.2f;
         public const float SurperBleedDuration = 10f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy2;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Items.BleedOnHit.TryApplyTag(ItemTag.AIBlacklist);
             foreach (var item in ItemCatalog.allItemDefs) {
                 if (item.tier == ItemTier.Tier1 || item.tier == ItemTier.Tier2 || item.tier == ItemTier.Tier3)

@@ -20,7 +20,7 @@ namespace BTP.RoR2Plugin.Messages {
             writer.Write(_state);
         }
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<LunarWingsMessage>()) {
                 "LunarWingsMessage Register Successd!".LogMessage();

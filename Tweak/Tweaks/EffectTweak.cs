@@ -12,15 +12,15 @@ using Object = UnityEngine.Object;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class EffectTweak : TweakBase<EffectTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class EffectTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.CharacterBody.OnClientBuffsChanged += CharacterBody_OnClientBuffsChanged;
             On.RoR2.EffectManager.SpawnEffect_GameObject_EffectData_bool += EffectManager_SpawnEffect_GameObject_EffectData_bool;
             IL.EntityStates.TitanMonster.DeathState.OnEnter += DeathState_OnEnter;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             Object.Destroy(GameObjectPaths.SimpleLightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
             Object.Destroy(GameObjectPaths.LightningStrikeImpact.Load<GameObject>().transform.Find("Flash").gameObject);
             Object.Destroy(AssetReferences.affixWhiteExplosion.Asset.transform.Find("Flash, Blue").gameObject);
@@ -84,16 +84,16 @@ namespace BTP.RoR2Plugin.Tweaks {
                 if (EffectSpawnLimit.TrySpawnEffect(effectIndex)) {
                     EffectManager.SpawnEffect(effectIndex, effectData, transmit);
                     if (Settings.开启特效生成日志.Value) {
-                        ("EffectName == " + effectPrefab?.name + ", EffectIndex(ID) == " + effectIndex).LogMessage();
+                        $"EffectName == {effectPrefab?.name}, EffectIndex(ID) == {effectIndex}".LogMessage();
                     }
                 }
                 return;
             }
             if (effectPrefab && !string.IsNullOrEmpty(effectPrefab.name)) {
-                UnityEngine.Debug.LogWarning("Unable to SpawnEffect from prefab named '" + effectPrefab.name + "'");
+                UnityEngine.Debug.LogWarning($"Unable to SpawnEffect from prefab named '{effectPrefab.name}'");
                 return;
             }
-            UnityEngine.Debug.LogError(string.Format("Unable to SpawnEffect.  Is null? {0}.  Name = '{1}'.\n{2}", effectPrefab == null, effectPrefab?.name, new StackTrace()));
+            UnityEngine.Debug.LogError($"Unable to SpawnEffect.  Is null? {effectPrefab == null}.  Name = '{effectPrefab?.name}'.\n{new StackTrace()}");
         }
 
         public class EffectSpawnLimit {

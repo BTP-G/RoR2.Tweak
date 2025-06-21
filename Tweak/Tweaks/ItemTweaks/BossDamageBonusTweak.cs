@@ -4,9 +4,9 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BossDamageBonusTweak : TweakBase<BossDamageBonusTweak>, IOnModLoadBehavior {
+    internal class BossDamageBonusTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 

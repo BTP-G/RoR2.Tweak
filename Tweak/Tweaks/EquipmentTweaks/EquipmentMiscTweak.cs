@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class EquipmentMiscTweak : TweakBase<EquipmentMiscTweak>, IOnRoR2LoadedBehavior {
+    internal class EquipmentMiscTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var fireballVehicle = GameObjectPaths.FireballVehicle.LoadComponent<FireballVehicle>();
             fireballVehicle.duration = 6;
             fireballVehicle.overlapResetFrequency = 3f;

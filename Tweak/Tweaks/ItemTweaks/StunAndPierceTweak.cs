@@ -5,11 +5,11 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class StunAndPierceTweak : TweakBase<StunAndPierceTweak>, IOnModLoadBehavior {
+    internal class StunAndPierceTweak : ModComponent, IModLoadMessageHandler {
         public const float Interval = 0.34f;
         public const float DamageCoefficient = 0.4f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

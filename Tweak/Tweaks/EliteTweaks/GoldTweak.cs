@@ -7,9 +7,9 @@ using System.Reflection;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
-    internal class GoldTweak : TweakBase<GoldTweak>, IOnModLoadBehavior {
+    internal class GoldTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             //RemoveOrigHook();
             BetterEvents.OnHitEnemy += BetterEvents_OnHitEnemy;
         }

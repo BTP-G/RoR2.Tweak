@@ -3,10 +3,10 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class ArbiterTweak : TweakBase<ArbiterTweak>, IOnRoR2LoadedBehavior {
+    internal class ArbiterTweak : ModComponent, IRoR2LoadedMessageHandler {
         public const float StatUpCoefficient = 0.05f;
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Arbiter, RecalculateArbiterStats);
         }
 

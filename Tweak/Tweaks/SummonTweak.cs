@@ -2,14 +2,14 @@
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal partial class SummonTweak : TweakBase<SummonTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal partial class SummonTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private ItemDef _weddingRing;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             MasterSummon.onServerMasterSummonGlobal += MasterSummon_onServerMasterSummonGlobal;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             _weddingRing = ItemCatalog.GetItemDef(ItemCatalog.FindItemIndex("RuinaWeddingRing"));
         }
 

@@ -11,7 +11,7 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
-    internal class BrotherHurtTweak : TweakBase<BrotherHurtTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class BrotherHurtTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const int missileCountPerFire = 5;
         public const float missileSpeed = 60f;
         public const float missileFuse = 20f;
@@ -21,12 +21,12 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
         public const float fireInterval = 0.3f;
         private float fireTimer;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.BrotherMonster.SpellChannelExitState.OnEnter += SpellChannelExitState_OnEnter;
             On.EntityStates.BrotherMonster.TrueDeathState.FixedUpdate += TrueDeathState_FixedUpdate;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var body = GameObjectPaths.BrotherHurtBody.LoadComponent<CharacterBody>();
             body.GetComponent<SetStateOnHurt>().canBeFrozen = false;
             var component = body.gameObject.AddComponent<BrotherHurtBodyComponent>();

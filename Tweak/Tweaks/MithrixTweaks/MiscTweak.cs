@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
-    internal class MiscTweak : TweakBase<MiscTweak>, IOnModLoadBehavior {
+    internal class MiscTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             SceneCatalog.onMostRecentSceneDefChanged += SceneCatalog_onMostRecentSceneDefChanged;
         }
 

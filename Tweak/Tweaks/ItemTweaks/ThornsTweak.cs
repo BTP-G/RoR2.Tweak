@@ -6,18 +6,18 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ThornsTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const int BaseRadius = 20;
         public const int StackRadius = 10;
         public const float BaseDamageCoefficient = 2f;
         public const float StackDamageCoefficient = 2f;
         public const float Interval = 0.1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Items.Thorns.TryApplyTag(ItemTag.BrotherBlacklist);
         }
 

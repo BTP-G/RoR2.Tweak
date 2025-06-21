@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class VoidSurvivorTweak : TweakBase<VoidSurvivorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class VoidSurvivorTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float ChargeMegaBlasterBaseDuration = 4f;
         public const float FireCorruptDisksDamageCoefficient = 25f;
         public const float FireCorruptDisksSelfKnockbackForce = 0;
@@ -14,7 +14,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
         public const float FireMegaBlasterSmallDamageCoefficient = 4.44f;
         public const float FireMegaBlasterSmallForce = 444f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             EntityStateConfigurationPaths.EntityStatesVoidSurvivorWeaponChargeMegaBlaster.Load<EntityStateConfiguration>().Set("baseDuration", ChargeMegaBlasterBaseDuration.ToString());
             EntityStateConfigurationPaths.EntityStatesVoidSurvivorWeaponFireCorruptDisks.Load<EntityStateConfiguration>().Set(new System.Collections.Generic.Dictionary<string, string> {
                 ["damageCoefficient"] = FireCorruptDisksDamageCoefficient.ToString(),
@@ -30,7 +30,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             });
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var gameObject = GameObjectPaths.VoidSurvivorMegaBlasterBigProjectileCorrupted.Load<GameObject>();
             var projectileSimple = gameObject.GetComponent<ProjectileSimple>();
             projectileSimple.desiredForwardSpeed = 40f;

@@ -6,13 +6,13 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class BeetleTweak : TweakBase<BeetleTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class BeetleTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.BeetleQueenMonster.SummonEggs.SummonEgg += SummonEggs_SummonEgg;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             LegacyResourcesAPI.Load<SkillDef>("SkillDefs/BeetleQueen2Body/BeetleQueen2BodySpit").baseRechargeInterval = 6f;
             var body = GameObjectPaths.BeetleBody8.LoadComponent<CharacterBody>();
             body.baseMaxHealth *= 1.25f;

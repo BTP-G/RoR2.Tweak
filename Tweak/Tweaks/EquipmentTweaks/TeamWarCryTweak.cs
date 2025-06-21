@@ -3,11 +3,11 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class TeamWarCryTweak : TweakBase<TeamWarCryTweak>, IOnModLoadBehavior {
+    internal class TeamWarCryTweak : ModComponent, IModLoadMessageHandler {
         public const float 每层战争号角攻速提升系数 = 0.25f;
         public const float 每层战争号角移速提升系数 = 0.25f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.EquipmentSlot.FireTeamWarCry += EquipmentSlot_FireTeamWarCry;
             RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }

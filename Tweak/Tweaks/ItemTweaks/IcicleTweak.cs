@@ -3,7 +3,7 @@ using RoR2.Items;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class IcicleTweak : TweakBase<IcicleTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class IcicleTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float DamageCoefficient = 3f;
         public const float DamageCoefficientPerIcicle = 1f;
         public const float IcicleDuration = 3;
@@ -14,11 +14,11 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
         public const int BaseIcicleMax = 6;
         public const int StackicicleMax = 3;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.Items.IcicleBodyBehavior.OnEnable += IcicleBodyBehavior_OnEnable;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var icicleAuraController = IcicleBodyBehavior.icicleAuraPrefab.GetComponent<IcicleAuraController>();
             icicleAuraController.icicleDuration = IcicleDuration;  // 1.5
             icicleAuraController.icicleDamageCoefficientPerTick = DamageCoefficient * icicleAuraController.baseIcicleAttackInterval;  // 3

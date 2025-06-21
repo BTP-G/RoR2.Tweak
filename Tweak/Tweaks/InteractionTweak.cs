@@ -9,16 +9,16 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class InteractionTweak : TweakBase<InteractionTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class InteractionTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float origInitialDelayDuration = 1.5f;
         public const float origTimeBetweenStartAndDropDroplet = 1.333f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             GlobalEventManager.OnInteractionsGlobal += GlobalEventManager_OnInteractionsGlobal;
             IL.EntityStates.Duplicator.Duplicating.DropDroplet += Duplicating_DropDroplet;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             WaitToBeginScrapping.duration = 0.125f;
             Scrapping.duration = 0.5f;
             ScrappingToIdle.duration = 0.125f;

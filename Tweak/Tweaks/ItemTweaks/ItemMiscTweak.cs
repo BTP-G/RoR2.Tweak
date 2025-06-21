@@ -1,21 +1,21 @@
 ﻿using BTP.RoR2Plugin.Utils;
+using GuestUnion;
 using RoR2;
-using RoR2.UI;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ItemMiscTweak : TweakBase<ItemMiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ItemMiscTweak : ModComponent, IComparer<ItemIndex>, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
+        private static int[] ItemIndexToOrderIndex;
         private int itemCount = 0;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             PlayerCharacterMasterController.onLinkedToNetworkUserLocal += PlayerCharacterMasterController_onLinkedToNetworkUserLocal;
-             
+            On.RoR2.ItemCatalog.SetItemDefs += OnSetItemDefs;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             AssetReferences.bonusMoneyPack.Asset.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
             DLC1Content.Items.ExtraLifeVoid.TryApplyTag(ItemTag.CannotSteal);
             DLC1Content.Items.FreeChest.TryApplyTag(ItemTag.CannotCopy);
@@ -41,53 +41,37 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             }
         }
 
-        private void PlayerCharacterMasterController_onLinkedToNetworkUserLocal(PlayerCharacterMasterController player) {
-            Debug.Log($"PlayerCharacterMasterController.onLinkedToNetworkUserLocal: player.localPlayerAuthority: {player.localPlayerAuthority}");
-            if(!player.localPlayerAuthority) {
-                return;
+        public int Compare(ItemIndex x, ItemIndex y) => ItemIndexToOrderIndex[(int)x] - ItemIndexToOrderIndex[(int)y];
+
+        private void OnSetItemDefs(On.RoR2.ItemCatalog.orig_SetItemDefs orig, ItemDef[] newItemDefs) {
+            orig(newItemDefs);
+            var orderedItemIndexes = new int[ItemCatalog.itemCount];
+            for (var i = 0; i < orderedItemIndexes.Length; ++i) {
+                orderedItemIndexes[i] = i;
             }
+            Array.Sort(orderedItemIndexes, (x, y) => {
+                var xDef = ItemCatalog.GetItemDef((ItemIndex)x);
+                var yDef = ItemCatalog.GetItemDef((ItemIndex)y);
+                var result = (xDef.ContainsTag(ItemTag.PriorityScrap) ? 10000 : 0) - (yDef.ContainsTag(ItemTag.PriorityScrap) ? 10000 : 0);
+                result += (xDef.ContainsTag(ItemTag.Scrap) ? 1000 : 0) - (yDef.ContainsTag(ItemTag.Scrap) ? 1000 : 0);
+                result += 10 * (yDef.tier - xDef.tier);
+                result += xDef.name.CompareTo(yDef.name);
+                return result;
+            });
+            ItemIndexToOrderIndex = new int[ItemCatalog.itemCount];
+            for (var i = 0; i < ItemIndexToOrderIndex.Length; ++i) {
+                ItemIndexToOrderIndex[i] = orderedItemIndexes.IndexOf(i);
+            }
+        }
+
+        private void PlayerCharacterMasterController_onLinkedToNetworkUserLocal(PlayerCharacterMasterController player) {
             var inventory = player.master.inventory;
             inventory.onInventoryChanged += () => {
                 if (itemCount < inventory.itemAcquisitionOrder.Count) {
-                    inventory.itemAcquisitionOrder.Sort(ItemIndexComparer.Instance);
+                    inventory.itemAcquisitionOrder.Sort(this);
                 }
                 itemCount = inventory.itemAcquisitionOrder.Count;
             };
-        }
-
-        private class ItemIndexComparer : IComparer<ItemIndex> {
-            private static int[] ItemIndexToOrderIndex;
-            public static ItemIndexComparer Instance { get; } = new ItemIndexComparer();
-
-            public int Compare(ItemIndex x, ItemIndex y) {
-                return ItemIndexToOrderIndex[(int)x] - ItemIndexToOrderIndex[(int)y];
-            }
-
-            [RuntimeInitializeOnLoadMethod]
-            private static void Init() {
-                On.RoR2.ItemCatalog.SetItemDefs += ItemCatalog_SetItemDefs;
-            }
-
-            private static void ItemCatalog_SetItemDefs(On.RoR2.ItemCatalog.orig_SetItemDefs orig, ItemDef[] newItemDefs) {
-                orig(newItemDefs);
-                var OrderedItemIndexes = new int[ItemCatalog.itemCount];
-                for (int i = 0; i < OrderedItemIndexes.Length; ++i) {
-                    OrderedItemIndexes[i] = i;
-                }
-                Array.Sort(OrderedItemIndexes, (x, y) => {
-                    var xDef = ItemCatalog.GetItemDef((ItemIndex)x);
-                    var yDef = ItemCatalog.GetItemDef((ItemIndex)y);
-                    var result = (xDef.ContainsTag(ItemTag.PriorityScrap) ? 10000 : 0) - (yDef.ContainsTag(ItemTag.PriorityScrap) ? 10000 : 0);
-                    result += (xDef.ContainsTag(ItemTag.Scrap) ? 1000 : 0) - (yDef.ContainsTag(ItemTag.Scrap) ? 1000 : 0);
-                    result += 10 * (yDef.tier - xDef.tier);
-                    result += xDef.name.CompareTo(yDef.name);
-                    return result;
-                });
-                ItemIndexToOrderIndex = new int[ItemCatalog.itemCount];
-                for (int i = 0; i < ItemIndexToOrderIndex.Length; ++i) {
-                    ItemIndexToOrderIndex[i] = Array.IndexOf(OrderedItemIndexes, i);
-                }
-            }
         }
     }
 }

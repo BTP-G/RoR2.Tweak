@@ -3,12 +3,12 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BehemothTweak : TweakBase<BehemothTweak>, IOnModLoadBehavior {
+    internal class BehemothTweak : ModComponent, IModLoadMessageHandler {
         public const int Radius = 3;
         public const float BaseDamageCoefficient = 0.6f;
         public const float Interval = 0.1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             BetterEvents.OnHitAll += BetterEvents_OnHitAll;
         }
 

@@ -1,15 +1,14 @@
 ﻿using BTP.RoR2Plugin.Skills;
-using BTP.RoR2Plugin.Tweaks;
 using BTP.RoR2Plugin.Utils;
 using R2API;
 using RoR2;
 using UnityEngine;
 
 namespace BTP.RoR2Plugin.Items {
-    internal class StormscourgeAccursedItem : TweakBase<StormscourgeAccursedItem>, IOnModLoadBehavior {
+    internal class StormscourgeAccursedItem : ModComponent, IModLoadMessageHandler {
         public static ItemDef ItemDef { get; private set; }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             ItemDef = ScriptableObject.CreateInstance<ItemDef>();
             ItemDef.name = "StormscourgeAccursedItem";
             ItemDef.nameToken = "ACCURSEDMITHRIX_ITEM2_NAME";

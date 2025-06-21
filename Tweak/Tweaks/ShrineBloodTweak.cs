@@ -6,9 +6,9 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class ShrineBloodTweak : TweakBase<ShrineBloodTweak>, IOnModLoadBehavior {
+    internal class ShrineBloodTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.ShrineBloodBehavior.AddShrineStack += ShrineBloodBehavior_AddShrineStack;
             TeleporterInteraction.onTeleporterBeginChargingGlobal += TeleporterInteraction_onTeleporterBeginChargingGlobal;
         }

@@ -6,9 +6,9 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class RandomEquipmentTriggerTweak : TweakBase<RandomEquipmentTriggerTweak>, IOnModLoadBehavior {
+    internal class RandomEquipmentTriggerTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.EquipmentSlot.OnEquipmentExecuted += EquipmentSlot_OnEquipmentExecuted;
             CharacterBody.onBodyInventoryChangedGlobal += CharacterBody_onBodyInventoryChangedGlobal;
         }

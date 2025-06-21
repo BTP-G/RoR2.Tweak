@@ -4,13 +4,13 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class VoidRaidCrabTweak : TweakBase<VoidRaidCrabTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class VoidRaidCrabTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.VoidRaidCrab.SpinBeamAttack.OnEnter += SpinBeamAttack_OnEnter;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyBase.LoadComponent<CharacterBody>());
             AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyPhase1.LoadComponent<CharacterBody>());
             AdjustVoidRaidCrabBodyStats(GameObjectPaths.MiniVoidRaidCrabBodyPhase2.LoadComponent<CharacterBody>());

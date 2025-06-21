@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ExplodeOnDeathVoidTweak : TweakBase<ExplodeOnDeathVoidTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ExplodeOnDeathVoidTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float BaseDamageCoefficient = 0.5f;
         public const float 半数 = 1f;
         public const int BaseRadius = 12;
@@ -20,11 +20,11 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             falloffModel = BlastAttack.FalloffModel.None,
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             foreach (var c in HealthComponent.AssetReferences.explodeOnDeathVoidExplosionPrefab.GetComponents<Component>()) {
                 Debug.Log($"ExplodeOnDeathVoid Explosion Prefab Component: {c.GetType().Name}");
             }

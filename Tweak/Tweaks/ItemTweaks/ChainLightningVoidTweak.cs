@@ -6,13 +6,13 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ChainLightningVoidTweak : TweakBase<ChainLightningVoidTweak>, IOnModLoadBehavior {
+    internal class ChainLightningVoidTweak : ModComponent, IModLoadMessageHandler {
         public const float 半数 = 4;
         public const float DamageCoefficient = 0.15f;
         public const int TotalStrikes = 3;
         public const float Interval = 0.2f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

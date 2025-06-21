@@ -7,9 +7,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class ProjectileTweak : TweakBase<ProjectileTweak>, IOnRoR2LoadedBehavior {
+    internal class ProjectileTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var daggerProjectile = GameObjectPaths.DaggerProjectile.Load<GameObject>();
             daggerProjectile.GetComponent<ProjectileController>().procCoefficient = 0.33f;
             daggerProjectile.GetComponent<ProjectileSimple>().lifetime = 10f;

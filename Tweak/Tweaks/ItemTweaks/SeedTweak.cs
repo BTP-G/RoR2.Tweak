@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class SeedTweak : TweakBase<SeedTweak>, IOnModLoadBehavior {
+    internal class SeedTweak : ModComponent, IModLoadMessageHandler {
         public const float Leech = 0.01f;
         public const float 指数 = 0.5f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

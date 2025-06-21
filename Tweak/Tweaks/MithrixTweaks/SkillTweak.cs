@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
-    internal class SkillTweak : TweakBase<SkillTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class SkillTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
         public static readonly Dictionary<int, Vector3> p23PizzaPoints = new() {
             {
@@ -37,7 +37,7 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
             }
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             ContentAddition.AddEntityState<LunarBlink>(out _);
             ContentAddition.AddEntityState<EnterCrushingLeap>(out _);
             ContentAddition.AddEntityState<AimCrushingLeap>(out _);
@@ -49,7 +49,7 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
             EntityStateConfigurationPaths.EntityStatesBrotherMonsterWeaponFireLunarShardsHurt.Load<EntityStateConfiguration>().Set("damageCoefficient", "0.1");
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GroundedSkillDefPaths.SkyLeap.Load<SkillDef>().activationState = new EntityStates.SerializableEntityStateType(typeof(EnterCrushingLeap));
             GameObjectPaths.BrotherBody.LoadComponent<SkillLocator>().utility.skillFamily.variants[0].skillDef = UngroundedDash.SkillDef;
         }

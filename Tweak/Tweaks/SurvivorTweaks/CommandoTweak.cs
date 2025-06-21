@@ -5,16 +5,16 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class CommandoTweak : TweakBase<CommandoTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class CommandoTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float FMJDamageCoefficient = 4f;
         public const float ThrowGrenadeDamageCoefficient = 12f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             EntityStateConfigurationPaths.EntityStatesCommandoCommandoWeaponFireFMJ.Load<EntityStateConfiguration>().Set("damageCoefficient", FMJDamageCoefficient.ToString());
             EntityStateConfigurationPaths.EntityStatesCommandoCommandoWeaponThrowGrenade.Load<EntityStateConfiguration>().Set("damageCoefficient", ThrowGrenadeDamageCoefficient.ToString());
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             EntityStates.Commando.CommandoWeapon.FireBarrage.baseBulletCount = 12;
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Commando, RecalculateCommandoStats);
         }

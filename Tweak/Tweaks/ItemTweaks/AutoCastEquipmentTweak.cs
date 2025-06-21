@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class AutoCastEquipmentTweak : TweakBase<AutoCastEquipmentTweak>, IOnModLoadBehavior {
+    internal class AutoCastEquipmentTweak : ModComponent, IModLoadMessageHandler {
         public const float 强制冷却时间 = 0.15f;
 
-        public void OnModLoad() {
+        public void Handle() {
             IL.RoR2.Inventory.UpdateEquipment += IL_Inventory_UpdateEquipment;
         }
 

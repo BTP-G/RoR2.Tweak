@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class RingsTweak : TweakBase<RingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class RingsTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float FireRingDamageCoefficient = 1f;
         public const float FireRingProcCoefficientPerTick = 0.2f;
         public const float FireRingInterval = 1f;
@@ -26,11 +26,11 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
         public const float VoidRingStackRadius = 3f;
         public const float RingDamageRequired = 1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var projectileOverlapAttack = AssetReferences.fireTornado.Asset.GetComponent<ProjectileOverlapAttack>();
             projectileOverlapAttack.overlapProcCoefficient = FireRingProcCoefficientPerTick;
             projectileOverlapAttack.SetDamageCoefficient(0.1f);

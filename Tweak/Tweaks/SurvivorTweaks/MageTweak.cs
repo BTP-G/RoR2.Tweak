@@ -12,7 +12,7 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class MageTweak : TweakBase<MageTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class MageTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float 电击半径 = 25;
         public const float 电击伤害系数 = 0.6f;
         public const int 每次最大电击数 = 10;
@@ -21,13 +21,13 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
         public const float IcebombMinDamageCoefficient = 4;
         public const float IcebombMaxDamageCoefficient = 16;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Mage.FlyUpState.OnEnter += FlyUpState_OnEnter;
             EntityStateConfigurationPaths.EntityStatesMageWeaponFireFireBolt.Load<EntityStateConfiguration>().Set("baseDuration", "0.5");
             EntityStateConfigurationPaths.EntityStatesMageWeaponFireLightningBolt.Load<EntityStateConfiguration>().Set("baseDuration", "0.5");
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             //===火焰弹===//
             var mageFireFirebolt = SteppedSkillDefPaths.MageBodyFireFirebolt.Load<SteppedSkillDef>();
             mageFireFirebolt.baseRechargeInterval = 0;

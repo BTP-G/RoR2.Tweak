@@ -5,10 +5,10 @@ using TPDespair.ZetAspects;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
-    internal class IceTweak : TweakBase<IceTweak>, IOnModLoadBehavior {
+    internal class IceTweak : ModComponent, IModLoadMessageHandler {
         public const float Interval = 0.1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             BetterEvents.OnHitEnemy += BetterEvents_OnHitEnemy;
         }
 

@@ -11,16 +11,16 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class HereticTweak : TweakBase<HereticTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class HereticTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.GhostUtilitySkillState.FixedUpdate += GhostUtilitySkillState_FixedUpdate;
             On.EntityStates.GlobalSkills.LunarDetonator.Detonate.OnEnter += Detonate_OnEnter;
             On.EntityStates.GlobalSkills.LunarNeedle.FireLunarNeedle.OnEnter += FireLunarNeedle_OnEnter;
             On.EntityStates.Heretic.Weapon.Squawk.OnEnter += Squawk_OnEnter;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             SkillDefPaths.HereticDefaultAbility.Load<SkillDef>().baseRechargeInterval = 40;
             var lunarSecondaryProjectile = GameObjectPaths.LunarSecondaryProjectile.Load<GameObject>();
             lunarSecondaryProjectile.GetComponent<ProjectileController>().ghostPrefab.GetComponent<ProjectileGhostController>().inheritScaleFromProjectile = true;

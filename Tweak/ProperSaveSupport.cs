@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace BTP.RoR2Plugin {
 
@@ -38,8 +37,8 @@ namespace BTP.RoR2Plugin {
             $"存档类型('{type.FullName}')已添加。".LogMessage();
         }
 
-        [RuntimeInitializeOnLoadMethod]
-        private static void Init() {
+        [ModLoadMessageHandler]
+        internal static void Init() {
             ProperSave.SaveFile.OnGatherSaveData += SaveFile_OnGatherSaveData;
             ProperSave.Loading.OnLoadingEnded += Loading_OnLoadingEnded;
         }

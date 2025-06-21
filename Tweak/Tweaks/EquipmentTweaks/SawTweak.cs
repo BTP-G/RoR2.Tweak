@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class SawTweak : TweakBase<SawTweak>, IOnRoR2LoadedBehavior {
+    internal class SawTweak : ModComponent, IRoR2LoadedMessageHandler {
         public const float DamageCoefficient = 3f;
         public const float DamageCoefficientPerSecond = 3f;
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Equipment.Saw.cooldown = 20f;
             var sawmerang = GameObjectPaths.Sawmerang.Load<GameObject>();
             sawmerang.GetComponent<ProjectileDamage>().damageType |= DamageType.BleedOnHit | DamageType.SuperBleedOnCrit;

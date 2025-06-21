@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class GlobalEventTweak : TweakBase<GlobalEventTweak>, IOnModLoadBehavior {
+    internal class GlobalEventTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
             On.RoR2.GlobalEventManager.OnCrit += GlobalEventManager_OnCrit;
             IL.RoR2.GlobalEventManager.OnCharacterDeath += IL_GlobalEventManager_OnCharacterDeath;

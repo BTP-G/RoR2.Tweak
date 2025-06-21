@@ -78,7 +78,7 @@ namespace BTP.RoR2Plugin.RoR2Indexes {
 
         public static SceneIndex WispGraveYard { get; private set; }
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Init() {
             On.RoR2.SceneCatalog.SetSceneDefs += SceneCatalog_SetSceneDefs;
         }

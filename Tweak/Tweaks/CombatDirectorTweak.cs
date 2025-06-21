@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class CombatDirectorTweak : TweakBase<CombatDirectorTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class CombatDirectorTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private float _精英转化几率;
         private EliteDef _特殊环境精英属性;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.CombatDirector.Awake += CombatDirector_Awake;
             On.RoR2.CombatDirector.SetNextSpawnAsBoss += CombatDirector_SetNextSpawnAsBoss;
             On.RoR2.CombatDirector.Spawn += CombatDirector_Spawn;
@@ -18,7 +18,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             Run.onRunStartGlobal += Run_onRunStartGlobal;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             EliteAPI.AddCustomEliteTier(new CombatDirector.EliteTierDef() {
                 costMultiplier = CombatDirector.baseEliteCostMultiplier * 10f,
                 eliteTypes = EliteCatalog.eliteDefs,

@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class MolotovTweak : TweakBase<MolotovTweak>, IOnModLoadBehavior {
+    internal class MolotovTweak : ModComponent, IModLoadMessageHandler {
         public const float DamageBonusCoefficient = 0.1666f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.EquipmentSlot.FireMolotov += EquipmentSlot_FireMolotov;
         }
 

@@ -5,14 +5,14 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class WarCryOnMultiKillTweak : TweakBase<WarCryOnMultiKillTweak>, IOnModLoadBehavior {
+    internal class WarCryOnMultiKillTweak : ModComponent, IModLoadMessageHandler {
         public const int BaseMaxBuffCount = 3;
         public const int StackMaxBuffCount = 2;
         public const float AttackSpeedMultAddPerBuff = 0.1f;
         public const float MoveSpeedMultAddPerBuff = 0.1f;
         public const float BuffDuration = 4f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
             IL.RoR2.CharacterBody.RecalculateStats += CharacterBody_RecalculateStats;
             On.RoR2.CharacterBody.AddMultiKill += CharacterBody_AddMultiKill;

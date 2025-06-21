@@ -4,10 +4,10 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BarrierOnKillTweak : TweakBase<BarrierOnKillTweak>, IOnModLoadBehavior {
+    internal class BarrierOnKillTweak : ModComponent, IModLoadMessageHandler {
         public const float AddBarrierFraction = 0.0075f;
 
-        public void OnModLoad() {
+        public void Handle() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 

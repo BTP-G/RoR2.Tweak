@@ -6,14 +6,14 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class ShrineCombatTweak : TweakBase<ShrineCombatTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ShrineCombatTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.Util.DirectorCardIsReasonableChoice += Util_DirectorCardIsReasonableChoice;
             ShrineCombatBehavior.onDefeatedServerGlobal += ShrineCombatBehavior_onDefeatedServerGlobal;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GameObjectPaths.ShrineCombat.LoadComponent<CombatDirector>().ignoreTeamSizeLimit = false;
             GameObjectPaths.ShrineCombatSandyVariant.LoadComponent<CombatDirector>().ignoreTeamSizeLimit = false;
             GameObjectPaths.ShrineCombatSnowyVariant.LoadComponent<CombatDirector>().ignoreTeamSizeLimit = false;

@@ -2,9 +2,9 @@
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class MonsterMiscTweak : TweakBase<MonsterMiscTweak>, IOnModLoadBehavior {
+    internal class MonsterMiscTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             GlobalEventManager.onServerDamageDealt += GlobalEventManager_onServerDamageDealt;
             Run.ambientLevelCap = int.MaxValue;
         }

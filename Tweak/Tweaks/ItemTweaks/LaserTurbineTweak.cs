@@ -12,7 +12,7 @@ using static RoR2.BulletAttack;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class LaserTurbineTweak : TweakBase<LaserTurbineTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class LaserTurbineTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float MainBeamDamageCoefficient = 1f;
         public const float SecondBombDamageCoefficient = 3f;
         public const int ChargeDuration = 10;
@@ -25,7 +25,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             maxDistanceFilter = float.MaxValue,
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.LaserTurbineController.FixedUpdate += LaserTurbineController_FixedUpdate;
             On.RoR2.LaserTurbineController.OnCharacterDeathGlobalServer += LaserTurbineController_OnCharacterDeathGlobalServer;
             On.EntityStates.LaserTurbine.RechargeState.FixedUpdate += RechargeState_FixedUpdate;
@@ -34,7 +34,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             On.EntityStates.LaserTurbine.FireMainBeamState.OnExit += FireMainBeamState_OnExit;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RechargeState.killChargeDuration = ChargeDuration;
             RechargeState.killChargesRequired = ChargesRequired;
             AimState.targetAcquisitionRadius = float.MaxValue;

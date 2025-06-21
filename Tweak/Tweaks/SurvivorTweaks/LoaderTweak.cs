@@ -12,7 +12,7 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class LoaderTweak : TweakBase<LoaderTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class LoaderTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float ChargeZapFistLightningDamageCoefficient = 0.5f;
         public const float ChargeZapFistProcCoefficient = 2f;
         public const float ChargeZapFistLungeSpeed = 70f;
@@ -29,7 +29,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
         public const int PylonFireCount = 3;
         public const int PylonBounces = 1;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Loader.BaseSwingChargedFist.OnEnter += BaseSwingChargedFist_OnEnter;
             IL.EntityStates.Loader.BaseSwingChargedFist.OnEnter += IL_BaseSwingChargedFist_OnEnter;
             IL.EntityStates.Loader.SwingZapFist.OnMeleeHitAuthority += IL_SwingZapFist_OnMeleeHitAuthority;
@@ -39,7 +39,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             EntityStateConfigurationPaths.EntityStatesLoaderSwingZapFist.Load<EntityStateConfiguration>().Set("procCoefficient", ChargeZapFistProcCoefficient.ToString());
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             //===双钩===//
             var loaderBody = RoR2Content.Survivors.Loader.bodyPrefab.GetComponent<CharacterBody>();
             loaderBody.baseAcceleration = 100f;

@@ -18,7 +18,7 @@ namespace BTP.RoR2Plugin {
         public static bool 已选择造物难度 { get; private set; }
         public static bool 造物主的试炼 { get; private set; }
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Init() {
             Run.onRunSetRuleBookGlobal += OnRunSetRuleBookGlobal;
             SceneCatalog.onMostRecentSceneDefChanged += OnMostRecentSceneDefChanged;

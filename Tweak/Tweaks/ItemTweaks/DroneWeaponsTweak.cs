@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class DroneWeaponsTweak : TweakBase<DroneWeaponsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class DroneWeaponsTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.DroneWeaponsBehavior.TrySpawnDrone += DroneWeaponsBehavior_TrySpawnDrone;
             On.RoR2.DroneWeaponsBehavior.OnMasterSpawned += DroneWeaponsBehavior_OnMasterSpawned;
             On.RoR2.DroneWeaponsBoostBehavior.OnEnemyHit += DroneWeaponsBoostBehavior_OnEnemyHit;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GameObjectPaths.DroneCommanderMaster.Load<GameObject>().AddComponent<Deployable>();
         }
 

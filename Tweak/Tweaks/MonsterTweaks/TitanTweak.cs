@@ -4,9 +4,9 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class TitanTweak : TweakBase<TitanTweak>, IOnRoR2LoadedBehavior {
+    internal class TitanTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var body = GameObjectPaths.TitanBody13.LoadComponent<CharacterBody>();
             body.baseArmor += 30f;
             body.baseAcceleration = 24f;

@@ -35,7 +35,7 @@ namespace BTP.RoR2Plugin.Messages {
             writer.Write(EntityStateCatalog.GetStateIndex(_state.GetType()));
         }
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<StateMessage>()) {
                 "StateMessage Register Successd!".LogMessage();

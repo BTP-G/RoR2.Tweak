@@ -5,11 +5,11 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class MissileVoidTweak : TweakBase<MissileVoidTweak>, IOnModLoadBehavior {
+    internal class MissileVoidTweak : ModComponent, IModLoadMessageHandler {
         public const float DamageCoefficient = 0.5f;
         public const float Interval = 0.2f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.Orbs.MissileVoidOrb.Begin += MissileVoidOrb_Begin;
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }

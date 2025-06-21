@@ -5,10 +5,10 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class FireballVehicleTweak : TweakBase<FireballVehicleTweak>, IOnModLoadBehavior {
+    internal class FireballVehicleTweak : ModComponent, IModLoadMessageHandler {
         public const float FireBallsDamageCoeffcient = 5f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.FireballVehicle.FixedUpdate += FireballVehicle_FixedUpdate;
         }
 

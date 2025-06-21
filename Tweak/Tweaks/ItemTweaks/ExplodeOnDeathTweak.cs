@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ExplodeOnDeathTweak : TweakBase<ExplodeOnDeathTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ExplodeOnDeathTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const int BaseRadius = 12;
         public const int StackRadius = 4;
         public const float 半数 = 3f;
@@ -24,11 +24,11 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             procCoefficient = 0,
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var delayBlast = GlobalEventManager.CommonAssets.explodeOnDeathPrefab.GetComponent<DelayBlast>();
             delayBlast.baseForce = 3000f;
             delayBlast.bonusForce = Vector3.up * 1500f;

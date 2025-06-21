@@ -5,7 +5,7 @@ namespace BTP.RoR2Plugin.Tweaks {
 
     internal static class StrengthenBurnTweak {
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Init() {
             On.RoR2.StrengthenBurnUtils.CheckDotForUpgrade += StrengthenBurnUtils_CheckDotForUpgrade;
         }

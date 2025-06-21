@@ -6,11 +6,11 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class FireworkTweak : TweakBase<FireworkTweak>, IOnRoR2LoadedBehavior {
+    internal class FireworkTweak : ModComponent, IRoR2LoadedMessageHandler {
         public const int BaseDamageCoefficient = 1;
         public const int FireCount = 6;
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             AssetReferences.fireworkPrefab.Asset.GetComponent<ProjectileController>().procCoefficient = 1f;
             AssetReferences.fireworkPrefab.Asset.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
             AssetReferences.fireworkPrefab.Asset.GetComponent<QuaternionPID>().gain *= 100;

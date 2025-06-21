@@ -8,9 +8,9 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class MiscTweak : TweakBase<MiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class MiscTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += TrueDeathState_OnEnter;
             On.EntityStates.StunState.PlayStunAnimation += StunState_PlayStunAnimation;
             On.EntityStates.BaseState.RollCrit += BaseState_RollCrit;
@@ -24,7 +24,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             On.RoR2.CharacterMasterNotificationQueue.PushNotification += CharacterMasterNotificationQueue_PushNotification;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             FadeOut.duration = 60f;
             EntityStates.BrotherMonster.SpellChannelState.maxDuration = 180f;
         }

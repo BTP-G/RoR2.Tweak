@@ -5,15 +5,15 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class DeathMarkTweak : TweakBase<DeathMarkTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class DeathMarkTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float BaseDamageCoefficient = 0.4f;
         public const float StackDamageCoefficient = 0.08f;
 
-        public void OnModLoad() {
+        public void Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Items.DeathMark.TryApplyTag(ItemTag.CannotCopy);
         }
 

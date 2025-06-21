@@ -6,13 +6,13 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class LightningStrikeOnHitTweak : TweakBase<LightningStrikeOnHitTweak>, IOnModLoadBehavior {
+    internal class LightningStrikeOnHitTweak : ModComponent, IModLoadMessageHandler {
         public const float 半数 = 9f;
         public const int DamageCoefficient = 2;
         public const float ProcCoefficient = 0.5f;
         public const float Interval = 0.5f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

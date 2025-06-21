@@ -8,7 +8,7 @@ namespace BTP.RoR2Plugin {
 
     internal class FRCSharpFix {
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         public static void Fix() {
             var targetMethod = typeof(FRCSharp.VF2ContentPackProvider).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Static);
             HookEndpointManager.Modify<Action<ILContext>>(targetMethod, (ILContext il) => {

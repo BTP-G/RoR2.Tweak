@@ -8,17 +8,17 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class MissileTweak : TweakBase<MissileTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class MissileTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float BasePercnetChance = 10f;
         public const float 半数 = 9;
         public const float DamageCoefficient = 1f;
         public const float Interval = 1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GlobalEventManager.CommonAssets.missilePrefab.GetComponent<ProjectileController>().procCoefficient = 0.5f;
             GlobalEventManager.CommonAssets.missilePrefab.GetComponent<QuaternionPID>().gain *= 100;
             var missileController = GlobalEventManager.CommonAssets.missilePrefab.GetComponent<MissileController>();

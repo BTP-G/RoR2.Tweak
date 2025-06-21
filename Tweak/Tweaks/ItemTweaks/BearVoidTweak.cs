@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BearVoidTweak : TweakBase<BearVoidTweak>, IOnModLoadBehavior {
+    internal class BearVoidTweak : ModComponent, IModLoadMessageHandler {
         public const int BasePercentChance = 50;
 
-        public void OnModLoad() {
+        public void Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 

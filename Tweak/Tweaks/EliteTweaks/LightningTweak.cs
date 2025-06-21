@@ -5,9 +5,9 @@ using TPDespair.ZetAspects;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
-    internal class LightningTweak : TweakBase<LightningTweak>, IOnModLoadBehavior {
+    internal class LightningTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             BetterEvents.OnHitAll += BetterEvents_OnHitAll;
         }
 

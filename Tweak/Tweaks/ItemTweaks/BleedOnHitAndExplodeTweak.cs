@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BleedOnHitAndExplodeTweak : TweakBase<BleedOnHitAndExplodeTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class BleedOnHitAndExplodeTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const int BaseRadius = 16;
         public const int StackRadius = 8;
         public const int DamageCoefficient = 1;
@@ -23,11 +23,11 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             procCoefficient = 0,
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var delayBlast = GlobalEventManager.CommonAssets.bleedOnHitAndExplodeBlastEffect.GetComponent<DelayBlast>();
             delayBlast.baseForce = 0f;
             delayBlast.bonusForce = Vector3.zero;

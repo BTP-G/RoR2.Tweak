@@ -1,15 +1,14 @@
-﻿using BTP.RoR2Plugin.Tweaks;
-using BTP.RoR2Plugin.Utils;
+﻿using BTP.RoR2Plugin.Utils;
 using R2API;
 using RoR2;
 using UnityEngine;
 
 namespace BTP.RoR2Plugin.Buffs {
 
-    internal class DroneCommanderSpawnCooldown : TweakBase<DroneCommanderSpawnCooldown>, IOnModLoadBehavior {
+    internal class DroneCommanderSpawnCooldown : ModComponent, IModLoadMessageHandler {
         public static BuffDef BuffDef { get; private set; }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             BuffDef = ScriptableObject.CreateInstance<BuffDef>();
             BuffDef.name = "DroneCommander SpawnCooldown";
             BuffDef.iconSprite = Texture2DPaths.texDroneWeaponsIcon.Load<Sprite>();

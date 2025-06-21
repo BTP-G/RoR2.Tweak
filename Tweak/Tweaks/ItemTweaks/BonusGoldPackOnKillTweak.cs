@@ -6,11 +6,11 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BonusGoldPackOnKillTweak : TweakBase<BonusGoldPackOnKillTweak>, IOnModLoadBehavior {
+    internal class BonusGoldPackOnKillTweak : ModComponent, IModLoadMessageHandler {
         public const int DropPercentChance = 5;
         public const int StackMoney = 5;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 

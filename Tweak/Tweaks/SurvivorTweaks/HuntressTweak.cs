@@ -13,7 +13,7 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class HuntressTweak : TweakBase<HuntressTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class HuntressTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float 基础射程 = 60f;
         public const float 猎人的鱼叉叠加射程 = 10f;
         public const float BallistaDamageCoefficient = 9f;
@@ -25,7 +25,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
         public const int BallistaBoltCount = 3;
         public const int LaserGlaiveBounceCount = 10;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HuntressTracker.MyFixedUpdate += HuntressTracker_FixedUpdate;
             On.RoR2.HuntressTracker.Start += HuntressTracker_Start;
             On.RoR2.HuntressTracker.SearchForTarget += HuntressTracker_SearchForTarget;
@@ -40,7 +40,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             });
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var huntressBody = RoR2Content.Survivors.Huntress.bodyPrefab.GetComponent<CharacterBody>();
             huntressBody.baseCrit = 5f;
             huntressBody.levelCrit = 1f;

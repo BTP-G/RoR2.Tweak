@@ -11,13 +11,13 @@ using System.Linq;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class MercTweak : TweakBase<MercTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class MercTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private static readonly BullseyeSearch _bullseyeSearch = new();
 
         private static float _uppercutBaseDuration;
         private static float _uppercutBaseDamageCoefficient;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Merc.Weapon.GroundLight2.OnEnter += GroundLight2_OnEnter;
             On.EntityStates.Merc.WhirlwindBase.OnEnter += WhirlwindBase_OnEnter;
             On.EntityStates.Merc.Uppercut.OnEnter += Uppercut_OnEnter;
@@ -34,7 +34,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             EntityStateConfigurationPaths.EntityStatesMercFocusedAssaultDash.Load<EntityStateConfiguration>().Set("speedCoefficient", "40");
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             ArrayUtils.ArrayAppend(ref SteppedSkillDefPaths.MercGroundLight2.Load<SteppedSkillDef>().keywordTokens, "KEYWORD_FLEETING");
             ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyWhirlwind.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");
             ArrayUtils.ArrayAppend(ref SkillDefPaths.MercBodyUppercut.Load<SkillDef>().keywordTokens, "KEYWORD_FLEETING");

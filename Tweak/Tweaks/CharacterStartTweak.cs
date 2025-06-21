@@ -10,10 +10,10 @@ using static BTP.RoR2Plugin.RoR2Indexes.BodyIndexes;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class CharacterStartTweak : TweakBase<CharacterStartTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class CharacterStartTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private int _造物难度敌人血量提升物品数量;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             CharacterMaster.onStartGlobal += OnMasterStartGlobal;
             CharacterBody.onBodyStartGlobal += OnBodyStartGlobal;
             Run.onPlayerFirstCreatedServer += (_, player) => player.master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
@@ -21,7 +21,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             Run.onRunStartGlobal += (_) => _造物难度敌人血量提升物品数量 = 0;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var body = BodyCatalog.GetBodyPrefabBodyComponent(BodyCatalog.FindBodyIndex(BodyNameIndex.ShopkeeperBody.ToString()));
             body.baseMaxHealth = 1E+30f;
             body.levelMaxHealth = 0f;

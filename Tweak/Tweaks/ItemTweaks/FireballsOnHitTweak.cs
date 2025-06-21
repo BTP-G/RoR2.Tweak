@@ -7,16 +7,16 @@ using RoR2.Projectile;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class FireballsOnHitTweak : TweakBase<FireballsOnHitTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class FireballsOnHitTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float 半数 = 9;
         public const float DamageCoefficient = 0.6f;
         public const float Interval = 0.3f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var projectileController = AssetReferences.fireMeatBallProjectile.Asset.GetComponent<ProjectileController>();
             projectileController.procCoefficient = 1f;
             var projectileImpactExplosion = AssetReferences.fireMeatBallProjectile.Asset.GetComponent<ProjectileImpactExplosion>();

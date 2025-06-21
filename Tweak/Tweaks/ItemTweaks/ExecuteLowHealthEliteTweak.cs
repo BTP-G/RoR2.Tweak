@@ -5,10 +5,10 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ExecuteLowHealthEliteTweak : TweakBase<ExecuteLowHealthEliteTweak>, IOnModLoadBehavior {
+    internal class ExecuteLowHealthEliteTweak : ModComponent, IModLoadMessageHandler {
         public const float BaseExecuteEliteHealthFraction = 10f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.CharacterBody.OnInventoryChanged += CharacterBody_OnInventoryChanged;
         }
 

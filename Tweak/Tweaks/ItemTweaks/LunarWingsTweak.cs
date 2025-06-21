@@ -22,7 +22,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
     }
 
     [Obsolete]
-    internal class LunarWingsTweak : TweakBase<LunarWingsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class LunarWingsTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const string DescToken = "ITEM_LUNARWINGS_DESC";
         public const string DefaultDesc = "默认：看起来只是一双翅膀。";
         private static LunarWingsState _state = LunarWingsState.Default;
@@ -38,13 +38,13 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
         public static string FuturePerfectDesc => $"{"将来完成时"}：敬请期待。";
         public static ItemDef 特拉法梅的祝福 { get; private set; }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             Run.onRunStartGlobal += OnRunStartGlobal;
             CharacterBody.onBodyInventoryChangedGlobal += CharacterBody_onBodyInventoryChangedGlobal;
             ProperSaveSupport.AddSaveDataType<SaveData>();
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             特拉法梅的祝福 = ItemDefPaths.LunarWings.Load<ItemDef>();
             特拉法梅的祝福.tier = ItemTier.Lunar;
             特拉法梅的祝福.canRemove = false;

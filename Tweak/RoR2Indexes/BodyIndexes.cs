@@ -71,8 +71,8 @@ namespace BTP.RoR2Plugin.RoR2Indexes {
         public static BodyIndex MiniVoidRaidCrabBodyPhase3 { get; private set; }
         internal static Dictionary<int, BodyNameIndex> BodyIndexToNameIndex { get; } = [];
 
-        [RuntimeInitializeOnLoadMethod]
-        private static void Init() {
+        [ModLoadMessageHandler]
+        internal static void Init() {
             On.RoR2.BodyCatalog.SetBodyPrefabs += BodyCatalog_SetBodyPrefabs;
         }
 

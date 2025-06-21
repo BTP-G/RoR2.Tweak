@@ -4,10 +4,10 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class CritGlassesVoidTweak : TweakBase<CritGlassesVoidTweak>, IOnModLoadBehavior {
+    internal class CritGlassesVoidTweak : ModComponent, IModLoadMessageHandler {
         public const float CritDamageMultAdd = 0.0666f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
             R2API.RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }

@@ -5,11 +5,11 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ArmorReductionOnHitTweak : TweakBase<ArmorReductionOnHitTweak>, IOnModLoadBehavior {
+    internal class ArmorReductionOnHitTweak : ModComponent, IModLoadMessageHandler {
         public const float 基础破甲率 = 0.5f;
         public const float 半数 = 1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 

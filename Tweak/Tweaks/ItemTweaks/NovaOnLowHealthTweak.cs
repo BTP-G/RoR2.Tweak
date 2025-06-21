@@ -6,10 +6,10 @@ using System.Collections.Generic;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class NovaOnLowHealthTweak : TweakBase<NovaOnLowHealthTweak>, IOnModLoadBehavior {
+    internal class NovaOnLowHealthTweak : ModComponent, IModLoadMessageHandler {
         private static readonly Dictionary<EntityStates.VagrantNovaItem.ReadyState, float> damagePool = [];
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.VagrantNovaItem.ReadyState.OnEnter += ReadyState_OnEnter;
             On.EntityStates.VagrantNovaItem.ReadyState.OnDamaged += ReadyState_OnDamaged;
             On.EntityStates.VagrantNovaItem.ReadyState.OnExit += ReadyState_OnExit;

@@ -10,15 +10,15 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class TreebotTweak : TweakBase<TreebotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class TreebotTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float HurtBoxSizeMultiplier = 0.66f;
         public const float FirePlantSonicBoomDamageCoefficient = 5f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.Heal += HealthComponent_Heal;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var capsule = RoR2Content.Survivors.Treebot.bodyPrefab.transform.GetChild(0).GetChild(0).GetChild(0).GetChild(0).Find("TempHurtbox").GetComponent<CapsuleCollider>();
             capsule.radius = 1.42f * HurtBoxSizeMultiplier;
             capsule.height = 4.26f * HurtBoxSizeMultiplier;

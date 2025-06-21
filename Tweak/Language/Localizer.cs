@@ -46,7 +46,7 @@ namespace BTP.RoR2Plugin.Language {
         public const string 移动速度 = "<style=cIsUtility>移动速度</style>";
         public const string 总伤害 = "<style=cIsDamage>总伤害</style>";
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Init() {
             MainMenuController.OnMainMenuInitialised += OnMainMenuFirstInitialised;
         }

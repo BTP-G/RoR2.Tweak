@@ -3,16 +3,16 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class HealOnCritTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const int BaseCrit = 10;
         public const int StackCrit = 5;
         public const float HealFraction = 0.02f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Items.HealOnCrit.TryApplyTag(ItemTag.AIBlacklist);
         }
 

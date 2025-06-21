@@ -1,12 +1,12 @@
 ﻿namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class SiphonOnLowHealthTweak : TweakBase<SiphonOnLowHealthTweak>, IOnModLoadBehavior {
+    internal class SiphonOnLowHealthTweak : ModComponent, IModLoadMessageHandler {
         public const float DamageCoefficient = 1.5f;
         public const int BaseRadius = 15;
         public const int StackRadius = 5;
         public const int MaxTargets = 1;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.Items.SiphonOnLowHealthItemBodyBehavior.FixedUpdate += SiphonOnLowHealthItemBodyBehavior_FixedUpdate;
         }
 

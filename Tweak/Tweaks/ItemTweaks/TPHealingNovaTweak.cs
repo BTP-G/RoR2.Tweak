@@ -6,16 +6,16 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class TPHealingNovaTweak : TweakBase<TPHealingNovaTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class TPHealingNovaTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float HealFraction = 0.02f;
         public static GameObject TeleporterHealNovaWardPrefab { get; private set; } = GameObjectPaths.MushroomWard.Load<GameObject>().InstantiateClone("TeleporterHealNovaWard");
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.OnEnter += TeleporterHealNovaGeneratorMain_OnEnter;
             On.EntityStates.TeleporterHealNovaController.TeleporterHealNovaGeneratorMain.FixedUpdate += TeleporterHealNovaGeneratorMain_FixedUpdate;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             Object.Destroy(TeleporterHealNovaWardPrefab.transform.Find("Indicator").transform.Find("MushroomMeshes").gameObject);
             var healingWard = TeleporterHealNovaWardPrefab.GetComponent<HealingWard>();
             healingWard.floorWard = false;

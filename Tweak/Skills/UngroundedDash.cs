@@ -1,5 +1,4 @@
-﻿using BTP.RoR2Plugin.Tweaks;
-using EntityStates;
+﻿using EntityStates;
 using EntityStates.BrotherMonster;
 using R2API;
 using RoR2.Skills;
@@ -7,10 +6,10 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Skills {
 
-    internal class UngroundedDash : TweakBase<UngroundedDash>, IOnModLoadBehavior {
+    internal class UngroundedDash : ModComponent, IModLoadMessageHandler {
         public static SkillDef SkillDef { get; private set; }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             SkillDef = ScriptableObject.CreateInstance<SkillDef>();
             SkillDef.skillName = "LunarDash";
             SkillDef.skillNameToken = "LUNARDASH_NAME";

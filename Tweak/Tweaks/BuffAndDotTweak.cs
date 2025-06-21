@@ -11,14 +11,14 @@ using static RoR2.DotController;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class BuffAndDotTweak : TweakBase<BuffAndDotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class BuffAndDotTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float BurnDuration = 4f;
         public static readonly DamageType CoroDamageType = DamageType.PoisonOnHit | DamageType.BlightOnHit;
         public static int DeepRotSkillIndex { get; private set; }
         public static BuffIndex DeepRotBuffIndex { get; private set; }
         public static BuffIndex VoidPoisonBuffIndex { get; private set; }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.CharacterBody.AddTimedBuff_BuffDef_float += CharacterBody_AddTimedBuff_BuffDef_float;
             On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.GlobalEventManager_OnHitEnemy += DeepRot_GlobalEventManager_OnHitEnemy;
             On.PlasmaCoreSpikestripContent.Content.Skills.DeepRot.DotController_AddDot += DeepRot_DotController_AddDot;
@@ -26,7 +26,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Buffs.LunarDetonationCharge.isDebuff = false;
             RoR2Content.Buffs.WarCryBuff.canStack = true;
             DeepRotSkillIndex = DeepRot.instance.GetSkillDef().skillIndex;

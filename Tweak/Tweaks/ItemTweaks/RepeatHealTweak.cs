@@ -5,9 +5,9 @@ using RoR2;
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     [System.Obsolete]
-    internal class RepeatHealTweak : TweakBase<RepeatHealTweak>, IOnModLoadBehavior {
+    internal class RepeatHealTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.Heal += HealthComponent_Heal;
         }
 

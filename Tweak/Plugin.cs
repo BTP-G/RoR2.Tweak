@@ -1,5 +1,4 @@
 ﻿using BepInEx;
-using BTP.RoR2Plugin.Tweaks;
 using RoR2.UI.MainMenu;
 using System;
 using System.Buffers;
@@ -19,35 +18,36 @@ namespace BTP.RoR2Plugin {
         public const string PluginName = "BTP.Tweak";
         public const string PluginVersion = "3.0.1";
         internal static HashSet<IFixedTickable> fixedTickableSet = [];
-        private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
-        private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];
-        private readonly List<IOnRoR2LoadedBehavior> onRoR2LoadedBehaviors = [];
+        private readonly List<IModLoadMessageHandler> modLoadMessageHandlers = [];
+        private readonly List<IModUnloadMessageHandler> modUnloadMessageHandlers = [];
+        private readonly List<IRoR2LoadedMessageHandler> ror2LoadedMessageHandlers = [];
 
         private void Awake() {
             LogExtensions.logger = Logger;
             Settings.Initialize(Config);
             MainMenuController.OnMainMenuInitialised += OnMainMenuFirstInitialised;
+            //RoR2Application.onLoadFinished
             AssetReferences.Init();
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes()) {
                 if (!type.IsAbstract && !type.IsDefined(typeof(ObsoleteAttribute))) {
-                    if (type.IsSubclassOf(typeof(TweakBase))) {
-                        var tweakBase = Activator.CreateInstance(type);
-                        if (tweakBase is IOnModLoadBehavior enableBehavior) {
-                            onModLoadBehaviors.Add(enableBehavior);
+                    if (type.IsSubclassOf(typeof(ModComponent))) {
+                        var component = Activator.CreateInstance(type);
+                        if (component is IModLoadMessageHandler loadMessageHandler) {
+                            modLoadMessageHandlers.Add(loadMessageHandler);
                         }
-                        if (tweakBase is IOnModUnloadBehavior disableBehavior) {
-                            onModUnloadBehaviors.Add(disableBehavior);
+                        if (component is IModUnloadMessageHandler unloadMessageHandler) {
+                            modUnloadMessageHandlers.Add(unloadMessageHandler);
                         }
-                        if (tweakBase is IOnRoR2LoadedBehavior ror2LoadedBehavior) {
-                            onRoR2LoadedBehaviors.Add(ror2LoadedBehavior);
+                        if (component is IRoR2LoadedMessageHandler ror2LoadedMessageHandler) {
+                            ror2LoadedMessageHandlers.Add(ror2LoadedMessageHandler);
                         }
                     }
                 }
                 foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).AsSpan()) {
-                    if (method.IsDefined(typeof(RuntimeInitializeOnLoadMethodAttribute), true)) {
+                    if (method.IsDefined(typeof(ModLoadMessageHandlerAttribute), true)) {
                         try {
                             method.Invoke(null, null);
-                            Logger.LogMessage($"RuntimeInitializeOnLoadMethod: {type.FullName}.{method.Name} has been called.");
+                            Logger.LogMessage($"{type.FullName}.{method.Name} has been called.");
                         } catch (Exception e) {
                             Logger.LogError(e);
                         }
@@ -56,14 +56,12 @@ namespace BTP.RoR2Plugin {
             }
         }
 
-       
-
         private void OnEnable() {
-            foreach (var behavior in onModLoadBehaviors) {
+            foreach (var handler in modLoadMessageHandlers) {
                 try {
-                    var onModLoadBehavior = behavior;
-                    onModLoadBehavior.OnModLoad();
-                    Logger.LogMessage(onModLoadBehavior.GetType().FullName + " :: has set event handlers.");
+                    var handler2 = handler;
+                    handler2.Handle();
+                    Logger.LogMessage($"{handler2.GetType().FullName} :: {nameof(handler2.Handle)} has been called.");
                 } catch (Exception e) {
                     Debug.LogException(e, this);
                 }
@@ -72,11 +70,11 @@ namespace BTP.RoR2Plugin {
 
         private void OnMainMenuFirstInitialised() {
             MainMenuController.OnMainMenuInitialised -= OnMainMenuFirstInitialised;
-            foreach (var behavior in onRoR2LoadedBehaviors) {
+            foreach (var handler in ror2LoadedMessageHandlers) {
                 try {
-                    var roR2LoadedBehavior = behavior;
-                    roR2LoadedBehavior.OnRoR2Loaded();
-                    Logger.LogMessage(roR2LoadedBehavior.GetType().FullName + " :: has called.");
+                    var handler2 = handler;
+                    handler2.Handle();
+                    Logger.LogMessage($"{handler2.GetType().FullName} :: {nameof(handler2.Handle)} has been called.");
                 } catch (Exception e) {
                     Debug.LogException(e, this);
                 }
@@ -95,11 +93,11 @@ namespace BTP.RoR2Plugin {
         }
 
         private void OnDisable() {
-            foreach (var behavior in onModUnloadBehaviors) {
+            foreach (var handler in modUnloadMessageHandlers) {
                 try {
-                    var onModUnloadBehavior = behavior;
-                    onModUnloadBehavior.OnModUnload();
-                    Logger.LogMessage(onModUnloadBehavior.GetType().FullName + " :: has cleared event handlers.");
+                    var handler2 = handler;
+                    handler2.Handle();
+                    Logger.LogMessage($"{handler2.GetType().FullName} :: {nameof(handler2.Handle)} has been called.");
                 } catch (Exception e) {
                     Debug.LogException(e, this);
                 }

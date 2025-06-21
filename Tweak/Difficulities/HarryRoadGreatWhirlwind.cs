@@ -1,5 +1,4 @@
 ﻿using BTP.RoR2Plugin.Language;
-using BTP.RoR2Plugin.Tweaks;
 using BTP.RoR2Plugin.Utils;
 using GuestUnion;
 using R2API;
@@ -8,11 +7,11 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Difficulities {
 
-    internal class HarryRoadGreatWhirlwind : TweakBase<HarryRoadGreatWhirlwind>, IOnModLoadBehavior {
+    internal class HarryRoadGreatWhirlwind : ModComponent, IModLoadMessageHandler {
         public static DifficultyDef 造物 { get; private set; }
         public static DifficultyIndex 造物索引 { get; private set; }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             造物 = new DifficultyDef(3f,
                                    "DIFFICULTY_great_whirlwind_NAME",
                                    null,

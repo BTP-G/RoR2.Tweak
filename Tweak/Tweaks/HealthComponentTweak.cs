@@ -8,14 +8,14 @@ using UnityEngine;
 namespace BTP.RoR2Plugin.Tweaks {
 
     [System.Obsolete]
-    internal class HealthComponentTweak : TweakBase<HealthComponentTweak>, IOnModLoadBehavior {
+    internal class HealthComponentTweak : ModComponent, IModLoadMessageHandler {
         private float _老米爆发伤害限制;
         private float _老米触发伤害限制;
         private float _伤害阈值;
         private float _虚灵爆发伤害限制;
         private float _虚灵触发伤害限制;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += IL_HealthComponent_TakeDamage;
             Run.onRunAmbientLevelUp += Run_onRunAmbientLevelUp;
             Stage.onStageStartGlobal += StageStartAction;

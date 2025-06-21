@@ -6,14 +6,14 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
-    internal class BrotherTweak : TweakBase<BrotherTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class BrotherTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.PhaseCounter.OnEnable += PhaseCounter_OnEnable;
             On.RoR2.PhaseCounter.OnDisable += PhaseCounter_OnDisable;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             // AI 调整
             var aISkillDrivers = GameObjectPaths.BrotherMaster.LoadComponents<AISkillDriver>();
             for (int i = 0; i < aISkillDrivers.Length; ++i) {

@@ -26,7 +26,7 @@ namespace BTP.RoR2Plugin.Messages {
             writer.Write(_itemCount);
         }
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<ItemMessage>()) {
                 (typeof(ItemMessage).FullName + " Register Successd!").LogMessage();

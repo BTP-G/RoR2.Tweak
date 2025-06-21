@@ -8,12 +8,12 @@ using UnityEngine.Rendering.PostProcessing;
 
 namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
-    internal class PhaseTweak : TweakBase<PhaseTweak>, IOnModLoadBehavior {
+    internal class PhaseTweak : ModComponent, IModLoadMessageHandler {
         private static readonly SpawnCard brotherSpawnCard = CharacterSpawnCardPaths.cscBrother.Load<CharacterSpawnCard>();
         private static readonly AddressReferencedAsset<PostProcessProfile> ppMeteorStorm = "RoR2/Base/title/PostProcessing/ppLocalMeteorStorm.asset";
         private static readonly EntityStateMachine brotherEntityStateMachine = GameObjectPaths.BrotherBody.LoadComponent<EntityStateMachine>();
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Missions.BrotherEncounter.Phase1.OnEnter += Phase1_OnEnter;
             On.EntityStates.Missions.BrotherEncounter.Phase2.OnEnter += Phase2_OnEnter;
             On.EntityStates.Missions.BrotherEncounter.Phase3.OnEnter += Phase3_OnEnter;

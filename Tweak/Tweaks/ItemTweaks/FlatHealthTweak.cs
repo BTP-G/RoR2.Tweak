@@ -3,10 +3,10 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class FlatHealthTweak : TweakBase<FlatHealthTweak>, IOnRoR2LoadedBehavior {
+    internal class FlatHealthTweak : ModComponent, IRoR2LoadedMessageHandler {
         public const float LevelHealthAddCoefficient = 0.25f;
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Items.FlatHealth.TryRemoveTag(ItemTag.OnKillEffect);
         }
     }

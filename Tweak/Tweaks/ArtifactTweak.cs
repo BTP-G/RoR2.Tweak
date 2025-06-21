@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class ArtifactTweak : TweakBase<ArtifactTweak>, IOnModLoadBehavior {
+    internal class ArtifactTweak : ModComponent, IModLoadMessageHandler {
         private float _牺牲保底概率;
         private float _牺牲衰减概率;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.Artifacts.SacrificeArtifactManager.OnServerCharacterDeath += SacrificeArtifactManager_OnServerCharacterDeath;
             Stage.onStageStartGlobal += Stage_onStageStartGlobal;
         }

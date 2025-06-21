@@ -7,16 +7,16 @@ using RoR2.Projectile;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class StickyBombTweak : TweakBase<StickyBombTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class StickyBombTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const int PercnetChance = 5;
         public const float BaseDamageCoefficient = 1f;
         public const float Interval = 0.1f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             AssetReferences.stickyBombProjectile.Asset.GetComponent<ProjectileController>().procCoefficient = 1f;
             AssetReferences.stickyBombProjectile.Asset.GetComponent<ProjectileImpactExplosion>().blastProcCoefficient = 0.2f;
             AssetReferences.stickyBombProjectile.Asset.RemoveComponent<LoopSound>();

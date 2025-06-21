@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class RailgunnerTweak : TweakBase<RailgunnerTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class RailgunnerTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float HH44DamageCoefficient = 4f;
         public const float HH44PiercingDamageCoefficientPerTarget = 0.5f;
         public const float M99DamageCoefficient = 8f;
@@ -22,7 +22,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
         public const float SuperchargeCritDamageCoefficient = 1.5f;
         public const float PolarFieldDeviceSlowDownCoefficient = 0.01f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.EntityStates.Railgunner.Reload.Reloading.OnEnter += Reloading_OnEnter;
             IL.EntityStates.Railgunner.Weapon.BaseFireSnipe.ModifyBullet += BaseFireSnipe_ModifyBullet;
             On.EntityStates.Railgunner.Reload.Boosted.OnEnter += Boosted_OnEnter;
@@ -39,7 +39,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             //ProcCoefficientCatalog.AddSkill("RailgunnerBodyFireSnipeCryo", "SKILL_PROJECTILE_NAME", CryochargeProcCoefficient);
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<SlowDownProjectiles>().slowDownCoefficient = PolarFieldDeviceSlowDownCoefficient;
             GameObjectPaths.RailgunnerMineAltDetonated.LoadComponent<BuffWard>().radius = 15f;
             GameObjectPaths.RailgunnerPistolProjectile.LoadComponent<ProjectileSimple>().lifetime = 1f;

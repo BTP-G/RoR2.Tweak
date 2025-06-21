@@ -6,14 +6,14 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class GoldGatTweak : TweakBase<GoldGatTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class GoldGatTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float 半数 = 3f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.GoldGat.GoldGatFire.FireBullet += GoldGatFire_FireBullet;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GoldGatFire.windUpDuration = 10f;
             GoldGatFire.minFireFrequency = 1f;
             GoldGatFire.maxFireFrequency = 10f;

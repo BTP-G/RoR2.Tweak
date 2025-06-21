@@ -5,9 +5,9 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class ChefTweak : TweakBase<ChefTweak>, IOnRoR2LoadedBehavior {
+    internal class ChefTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Chef, RecalculateCHEFStats);
             DLC2Content.Buffs.Oiled.canStack = true;
         }

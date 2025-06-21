@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class HoldoutZoneTweak : TweakBase<HoldoutZoneTweak>, IOnModLoadBehavior {
+    internal class HoldoutZoneTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.HoldoutZoneController.Awake += HoldoutZoneController_Awake;
         }
 

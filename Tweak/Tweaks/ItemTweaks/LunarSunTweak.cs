@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class LunarSunTweak : TweakBase<LunarSunTweak>, IOnModLoadBehavior {
+    internal class LunarSunTweak : ModComponent, IModLoadMessageHandler {
         public const float BaseDamageCoefficient = 3.6f;
         public const float StackDamageCoefficient = 1.8f;
         public const float SecondsPerProjectile = 3.6f;
         public const float SecondsPerTransform = 36f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.LunarSunBehavior.FixedUpdate += LunarSunBehavior_FixedUpdate;
         }
 

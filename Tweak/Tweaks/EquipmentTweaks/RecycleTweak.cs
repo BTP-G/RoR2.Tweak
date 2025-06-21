@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.EquipmentTweaks {
 
-    internal class RecycleTweak : TweakBase<RecycleTweak>, IOnModLoadBehavior {
+    internal class RecycleTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.EquipmentSlot.FireRecycle += EquipmentSlot_FireRecycle;
         }
 

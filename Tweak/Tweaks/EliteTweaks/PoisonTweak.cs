@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
-    internal class PoisonTweak : TweakBase<PoisonTweak>, IOnModLoadBehavior {
+    internal class PoisonTweak : ModComponent, IModLoadMessageHandler {
         private readonly List<HealthComponent> SearchedObjects = [];
 
         private readonly BullseyeSearch search = new() {
@@ -17,7 +17,7 @@ namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
             sortMode = BullseyeSearch.SortMode.Distance,
         };
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.CharacterBody.UpdateAffixPoison += CharacterBody_UpdateAffixPoison;
         }
 

@@ -3,9 +3,9 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class VagrantTweak : TweakBase<VagrantTweak>, IOnRoR2LoadedBehavior {
+    internal class VagrantTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var body = GameObjectPaths.VagrantBody15.LoadComponent<CharacterBody>();
             body.baseMaxHealth *= 1.25f;
             body.levelMaxHealth *= 1.25f;

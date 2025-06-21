@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class MissileUtilsTweak : TweakBase<MissileUtilsTweak>, IOnModLoadBehavior {
+    internal class MissileUtilsTweak : ModComponent, IModLoadMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.MissileUtils.FireMissile_Vector3_CharacterBody_ProcChainMask_GameObject_float_bool_GameObject_DamageColorIndex_Vector3_float_bool += MissileUtils_FireMissile;
         }
 
@@ -25,10 +25,10 @@ namespace BTP.RoR2Plugin.Tweaks {
                 projectilePrefab = projectilePrefab,
                 target = victim,
             };
-            var itemCount = attackerBody.inventory ? attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile.itemIndex) : 0;
+            var itemCount = attackerBody.inventory is not null ? attackerBody.inventory.GetItemCount(DLC1Content.Items.MoreMissile.itemIndex) : 0;
             if (itemCount > 0) {
                 fireProjectileInfo.damage *= (itemCount + 1) * 0.5f;
-                var axis = attackerBody.inputBank ? attackerBody.inputBank.aimDirection : attackerBody.corePosition;
+                var axis = attackerBody.inputBank != null ? attackerBody.inputBank.aimDirection : attackerBody.corePosition;
                 fireProjectileInfo.rotation = Util.QuaternionSafeLookRotation(Quaternion.AngleAxis(45f, axis) * initialDirection);
                 ProjectileManager.instance.FireProjectile(fireProjectileInfo);
                 fireProjectileInfo.rotation = Util.QuaternionSafeLookRotation(Quaternion.AngleAxis(-45f, axis) * initialDirection);

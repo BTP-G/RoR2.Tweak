@@ -6,7 +6,7 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ChainLightningTweak : TweakBase<ChainLightningTweak>, IOnModLoadBehavior {
+    internal class ChainLightningTweak : ModComponent, IModLoadMessageHandler {
         public const float DamageCoefficient = 0.3f;
         public const float 半数 = 4;
         public const int BaseRadius = 18;
@@ -14,7 +14,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
         public const int StackRadius = 3;
         public const float Interval = 0.2f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

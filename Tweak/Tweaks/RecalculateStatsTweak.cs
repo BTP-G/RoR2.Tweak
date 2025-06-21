@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class RecalculateStatsTweak : TweakBase<RecalculateStatsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class RecalculateStatsTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private static readonly Dictionary<int, Action<CharacterBody, Inventory, RecalculateStatsAPI.StatHookEventArgs>> BodyIndexToRecalculateStatsAction = [];
         private ItemIndex _goldenKnurlIndex;
 
@@ -21,11 +21,11 @@ namespace BTP.RoR2Plugin.Tweaks {
             }
         }
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             RecalculateStatsAPI.GetStatCoefficients += RecalculateStatsAPI_GetStatCoefficients;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             _goldenKnurlIndex = ItemCatalog.FindItemIndex("Golden Knurl");
         }
 

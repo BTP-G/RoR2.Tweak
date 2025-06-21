@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
 
-    internal class ItemStealTweak : TweakBase<ItemStealTweak>, IOnModLoadBehavior {
+    internal class ItemStealTweak : ModComponent, IModLoadMessageHandler {
         private readonly Dictionary<ItemStealController.StolenInventoryInfo, List<ItemIndex>> StolenInventoryInfoToItemIndexes = [];
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.ReturnStolenItemsOnGettingHit.OnTakeDamageServer += ReturnStolenItemsOnGettingHit_OnTakeDamageServer;
             //On.RoR2.ItemStealController.StolenInventoryInfo.StealNewestItem += StolenInventoryInfo_StealNewestItem;
             //SceneCatalog.onMostRecentSceneDefChanged += SceneCatalog_onMostRecentSceneDefChanged;

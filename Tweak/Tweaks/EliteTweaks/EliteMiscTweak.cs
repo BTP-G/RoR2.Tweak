@@ -9,13 +9,13 @@ using TPDespair.ZetAspects;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
-    internal class EliteMiscTweak : TweakBase<EliteMiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class EliteMiscTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             Stage.onStageStartGlobal += On_StageStartGlobal;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             GameObjectPaths.LightningStake.LoadComponent<ProjectileImpactExplosion>().blastRadius = 10f;
             var ClassType_EffectHooks = typeof(Configuration).Assembly.GetTypes().First(type => type.Name == "EffectHooks");
             var targetMethod = ClassType_EffectHooks.GetMethod("ApplyAspectOnHitEnemyEffects", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);

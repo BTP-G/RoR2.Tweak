@@ -5,13 +5,13 @@ using RoR2.Skills;
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class ImpBossTweak : TweakBase<ImpBossTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ImpBossTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.ImpBossMonster.BlinkState.OnEnter += BlinkState_OnEnter;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             SkillDefPaths.ImpBossBodyFireVoidspikes.Load<SkillDef>().baseMaxStock = 2;
             FireVoidspikes.projectileCount = 12;  // 6
             FireVoidspikes.projectileYawSpread /= 2f;

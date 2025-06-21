@@ -4,11 +4,11 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ParentEggTweak : TweakBase<ParentEggTweak>, IOnModLoadBehavior {
+    internal class ParentEggTweak : ModComponent, IModLoadMessageHandler {
         public const float HealFractionFromDamage = 0.01f;
         public const float HealAmount = 20f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
         }
 

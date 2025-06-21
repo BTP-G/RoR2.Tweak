@@ -6,14 +6,14 @@ using RoR2.Orbs;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class InfusionTweak : TweakBase<InfusionTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class InfusionTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float 基础生命值占比 = 0.2f;
 
-        public void OnModLoad() {
+        public void Handle() {
             IL.RoR2.GlobalEventManager.OnCharacterDeath += GlobalEventManager_OnCharacterDeath;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RoR2Content.Items.Infusion.TryApplyTag(ItemTag.CannotCopy);
         }
 

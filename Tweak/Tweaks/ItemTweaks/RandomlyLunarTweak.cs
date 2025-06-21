@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class RandomlyLunarTweak : TweakBase<RandomlyLunarTweak>, IOnModLoadBehavior {
+    internal class RandomlyLunarTweak : ModComponent, IModLoadMessageHandler {
         public const int UsageCount = 1;
         private int _rerolledCount;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.Items.RandomlyLunarUtils.CheckForLunarReplacement += RandomlyLunarUtils_CheckForLunarReplacement;
             On.RoR2.Items.RandomlyLunarUtils.CheckForLunarReplacementUniqueArray += RandomlyLunarUtils_CheckForLunarReplacementUniqueArray;
             On.RoR2.PurchaseInteraction.SetAvailable += PurchaseInteraction_SetAvailable;

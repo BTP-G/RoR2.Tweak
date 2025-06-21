@@ -6,14 +6,14 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class RobPaladinTweak : TweakBase<RobPaladinTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class RobPaladinTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.GrandParentSunController.Start += GrandParentSunController_Start;
             IL.RoR2.GrandParentSunController.ServerFixedUpdate += GrandParentSunController_ServerFixedUpdate;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.RobPaladin, RecalculateRobPaladinStats);
         }
 

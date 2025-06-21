@@ -4,9 +4,9 @@ using RoR2.Skills;
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class RoboBallBossTweak : TweakBase<RoboBallBossTweak>, IOnRoR2LoadedBehavior {
+    internal class RoboBallBossTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             SkillDefPaths.FireEyeBeam.Load<SkillDef>().baseRechargeInterval = 3;
             var body = GameObjectPaths.RoboBallBossBody22.LoadComponent<CharacterBody>();
             body.baseAcceleration = 42f;  //14

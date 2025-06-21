@@ -4,15 +4,15 @@ using RoR2.Projectile;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class ToolbotTweak : TweakBase<ToolbotTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class ToolbotTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         private static float _nailgunBaseMaxDistance;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Toolbot.BaseNailgunState.PullCurrentStats += BaseNailgunState_PullCurrentStats;
             On.EntityStates.Toolbot.AimGrenade.OnEnter += AimGrenade_OnEnter;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             _nailgunBaseMaxDistance = BaseNailgunState.maxDistance;
         }
 

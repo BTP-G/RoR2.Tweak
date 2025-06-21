@@ -30,7 +30,7 @@ namespace BTP.RoR2Plugin.Messages {
             writer.Write(_changeToRemoveMoney);
         }
 
-        [RuntimeInitializeOnLoadMethod]
+        [ModLoadMessageHandler]
         private static void Register() {
             if (R2API.Networking.NetworkingAPI.RegisterMessageType<MoneyMessage>()) {
                 "MoneyMessage Register Successd!".LogMessage();

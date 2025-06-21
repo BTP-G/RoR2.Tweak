@@ -3,6 +3,6 @@
 namespace BTP.RoR2Plugin.Tweaks {
 
     [Obsolete]
-    internal class OrbTweak : TweakBase<OrbTweak> {
+    internal class OrbTweak : ModComponent {
     }
 }

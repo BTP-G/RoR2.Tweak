@@ -3,13 +3,13 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class CrocoTweak : TweakBase<CrocoTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class CrocoTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.EntityStates.Croco.Bite.OnMeleeHitAuthority += Bite_OnMeleeHitAuthority;
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             DeepRot.scriptableObject.buffs[0].canStack = true;
         }
 

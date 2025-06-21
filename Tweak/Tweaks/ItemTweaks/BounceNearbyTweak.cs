@@ -5,7 +5,7 @@ using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class BounceNearbyTweak : TweakBase<BounceNearbyTweak>, IOnModLoadBehavior {
+    internal class BounceNearbyTweak : ModComponent, IModLoadMessageHandler {
         public const float BaseDamageCoefficient = 1;
         public const float BasePercentChance = 33f;
         public const float BaseRadius = 33f;
@@ -13,7 +13,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
         public const int BaseMaxTargets = 6;
         public const float Interval = 0.33f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
         }
 

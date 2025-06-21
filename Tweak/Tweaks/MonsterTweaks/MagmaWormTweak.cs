@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
 
-    internal class MagmaWormTweak : TweakBase<MagmaWormTweak>, IOnRoR2LoadedBehavior {
+    internal class MagmaWormTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var bodyObject = GameObjectPaths.MagmaWormBody32.Load<GameObject>();
             var wormBodyPositions2 = bodyObject.GetComponent<WormBodyPositions2>();
             wormBodyPositions2.followDelay = 0.2f;  // 0.6

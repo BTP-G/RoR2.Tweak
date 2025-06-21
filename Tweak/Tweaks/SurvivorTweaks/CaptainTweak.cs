@@ -10,10 +10,10 @@ using UnityEngine.Networking;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class CaptainTweak : TweakBase<CaptainTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class CaptainTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float CallAirstrikeAltDamageCoefficient = 500f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             On.RoR2.Achievements.Captain.CaptainSupplyDropFinaleAchievement.CaptainSupplyDropFinaleServerAchievement.DoesDamageQualify += CaptainSupplyDropFinaleServerAchievement_DoesDamageQualify;
             On.EntityStates.Captain.Weapon.CallAirstrikeBase.ModifyProjectile += CallAirstrikeBase_ModifyProjectile;
             On.EntityStates.Captain.Weapon.FireCaptainShotgun.ModifyBullet += FireCaptainShotgun_ModifyBullet;
@@ -22,7 +22,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             EntityStateConfigurationPaths.EntityStatesCaptainWeaponCallAirstrikeAlt.Load<EntityStateConfiguration>().Set("damageCoefficient", CallAirstrikeAltDamageCoefficient.ToString());
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             var captainTazer = GameObjectPaths.CaptainTazer31.Load<GameObject>();
             captainTazer.AddComponent<ChainLightning>();
             captainTazer.GetComponent<ProjectileSimple>().lifetime = 6f;

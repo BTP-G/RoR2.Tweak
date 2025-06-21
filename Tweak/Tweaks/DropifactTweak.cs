@@ -3,9 +3,9 @@ using TPDespair.ZetArtifacts;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
-    internal class DropifactTweak : TweakBase<DropifactTweak>, IOnRoR2LoadedBehavior {
+    internal class DropifactTweak : ModComponent, IRoR2LoadedMessageHandler {
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             Run.onRunStartGlobal += OnRunStartGlobal;
             CharacterBody.onBodyInventoryChangedGlobal += OnBodyInventoryChangedGlobal;
         }

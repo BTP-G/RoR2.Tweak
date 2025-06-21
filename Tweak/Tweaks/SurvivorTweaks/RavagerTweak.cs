@@ -12,12 +12,12 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
-    internal class RavagerTweak : TweakBase<RavagerTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
+    internal class RavagerTweak : ModComponent, IModLoadMessageHandler, IRoR2LoadedMessageHandler {
         public const float InfusionToDamageCoefficient = 0.1f;
         public const float JumpPowerMultCoefficient = 0.1f;
         public const float ThrowSlashVelocityDamageCoefficient = 0.05f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             var targetMethod = typeof(ThrowSlash).GetMethod("OnEnter", BindingFlags.Public | BindingFlags.Instance);
             HookEndpointManager.Modify<Action<ILContext>>(targetMethod, (ILContext il) => {
                 var cursor = new ILCursor(il);
@@ -37,7 +37,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
             });
         }
 
-        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+        void IRoR2LoadedMessageHandler.Handle() {
             Slash._damageCoefficient = 2.5f;
             SlashCombo._damageCoefficient = 2f;
             SlashCombo.finisherDamageCoefficient = 4f;

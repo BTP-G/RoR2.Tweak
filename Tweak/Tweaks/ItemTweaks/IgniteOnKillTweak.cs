@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class IgniteOnKillTweak : TweakBase<IgniteOnKillTweak>, IOnModLoadBehavior {
+    internal class IgniteOnKillTweak : ModComponent, IModLoadMessageHandler {
         public const float ExplosionBaseDamageCoefficient = 1.2f;
         public const float IgniteDamageCoefficient = 0.6f;
         public const int BaseRadius = 12;
@@ -18,7 +18,7 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             procCoefficient = 0f,
         };
 
-        public void OnModLoad() {
+        public void Handle() {
             On.RoR2.GlobalEventManager.ProcIgniteOnKill += GlobalEventManager_ProcIgniteOnKill;
         }
 

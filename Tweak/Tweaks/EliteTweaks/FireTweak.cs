@@ -6,10 +6,10 @@ using TPDespair.ZetAspects;
 
 namespace BTP.RoR2Plugin.Tweaks.EliteTweaks {
 
-    internal class FireTweak : TweakBase<FireTweak>, IOnModLoadBehavior {
+    internal class FireTweak : ModComponent, IModLoadMessageHandler {
         public const float DamageCoefficient = 0.2f;
 
-        void IOnModLoadBehavior.OnModLoad() {
+        void IModLoadMessageHandler.Handle() {
             IL.RoR2.GlobalEventManager.ProcessHitEnemy += GlobalEventManager_OnHitEnemy;
             BetterEvents.OnHitEnemy += BetterEvents_OnHitEnemy;
         }
