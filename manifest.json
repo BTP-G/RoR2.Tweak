@@ -1,7 +1,7 @@
 ﻿{
 	"name": "MyFirstMod",
 	"version_number": "1.0.0",
-	"website_url": "",
+	"website_url": "https://github.com/BTP-G/RoR2.Tweak.git",
 	"description": "My first Mod",
 	"dependencies": [
 		"bbepis-BepInExPack-5.4.9",

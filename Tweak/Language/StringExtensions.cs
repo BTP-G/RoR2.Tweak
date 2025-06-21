@@ -2,11 +2,28 @@
 using GuestUnion;
 using System;
 using System.Linq;
-using System.Text;
 
 namespace BTP.RoR2Plugin.Language {
 
     public static class StringExtensions {
+
+        public static void AddOverlay(this string key, string value) {
+            if (key.IsNullOrWhiteSpace() || value.IsNullOrWhiteSpace()) {
+                return;
+            }
+            foreach (var language in RoR2.Language.GetAllLanguages()) {
+                language.stringsByToken.Remove(key);
+            }
+            R2API.LanguageAPI.AddOverlay(key, value);
+        }
+
+        public static void AddOverlay(this string key, string value, string lang) {
+            if (key.IsNullOrWhiteSpace() || value.IsNullOrWhiteSpace()) {
+                return;
+            }
+            RoR2.Language.FindLanguageByName(lang)?.stringsByToken.Remove(key);
+            R2API.LanguageAPI.AddOverlay(key, value, lang);
+        }
 
         public static string ToDeath(this string str) => "<style=cDeath>".ToStringBuilder().Append(str).Append("</style>").ToStringAndReturn();
 
@@ -47,12 +64,6 @@ namespace BTP.RoR2Plugin.Language {
         public static string ToHealth<T>(this T str) => "<style=cIsHealth>".ToStringBuilder().Append(str).Append("</style>").ToStringAndReturn();
 
         public static string ToIce(this string str) => "<color=#CCFFFF>".ToStringBuilder().Append(str).Append("</color>").ToStringAndReturn();
-
-        public static string ToWavy(this string str) => "<link=\"BulwarksHauntWavy\">".ToStringBuilder().Append(str).Append("</link>").ToStringAndReturn();
-
-        public static string ToRainbowWavy(this string str) => "<link=\"BulwarksHauntRainbowWavy\">".ToStringBuilder().Append(str).Append("</link>").ToStringAndReturn();
-
-        public static string ToShaky(this string str) => "<link=\"BulwarksHauntShaky\">".ToStringBuilder().Append(str).Append("</link>").ToStringAndReturn();
 
         public static string ToLightning(this string str) => "<color=#99CCFF>".ToStringBuilder().Append(str).Append("</color>").ToStringAndReturn();
 
@@ -124,5 +135,7 @@ namespace BTP.RoR2Plugin.Language {
         public static string ToYellow(this string str) => "<color=yellow>".ToStringBuilder().Append(str).Append("</color>").ToStringAndReturn();
 
         public static string ToBaseAndStkByCloseToPct(this float 半数) => Util2.CloseTo1(1, 半数).ToPct().ToStringBuilder().Append("<style=cStack>（结果 = 100%x(层数/(层数+").Append(半数).Append(")）</style>").ToStringAndReturn();
+
+        public static string ToGold(this string str) => "<color=#FFD700>".ToStringBuilder().Append(str).Append("</color>").ToStringAndReturn();
     }
 }

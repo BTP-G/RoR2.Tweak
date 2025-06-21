@@ -16,7 +16,7 @@ namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
             }
             if (RunInfo.已选择造物难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex != TeamIndex.Player) {
                 var victimBody = damageReport.victimBody;
-                if (!victimBody.inventory) {
+                if (victimBody.inventory == null) {
                     return;
                 }
                 if (damageReport.victimTeamIndex == TeamIndex.Monster

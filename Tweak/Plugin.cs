@@ -17,7 +17,7 @@ namespace BTP.RoR2Plugin {
         public const string PluginAuthor = "BTP";
         public const string PluginGUID = "com.BTP.Tweak";
         public const string PluginName = "BTP.Tweak";
-        public const string PluginVersion = "3.0.0";
+        public const string PluginVersion = "3.0.1";
         internal static HashSet<IFixedTickable> fixedTickableSet = [];
         private readonly List<IOnModLoadBehavior> onModLoadBehaviors = [];
         private readonly List<IOnModUnloadBehavior> onModUnloadBehaviors = [];

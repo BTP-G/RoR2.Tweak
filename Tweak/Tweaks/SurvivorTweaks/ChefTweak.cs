@@ -9,6 +9,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             RecalculateStatsTweak.AddRecalculateStatsActionToBody(BodyIndexes.Chef, RecalculateCHEFStats);
+            DLC2Content.Buffs.Oiled.canStack = true;
         }
 
         private void RecalculateCHEFStats(CharacterBody body, Inventory inventory, RecalculateStatsAPI.StatHookEventArgs args) {

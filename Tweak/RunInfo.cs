@@ -36,7 +36,7 @@ namespace BTP.RoR2Plugin {
             if (已选择造物难度 && !造物主的试炼) {
                 造物主的试炼 = true;
                 if (NetworkServer.active) {
-                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToRainbowWavy());
+                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToGold());
                 }
             }
         }

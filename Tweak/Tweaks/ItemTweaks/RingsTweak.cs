@@ -1,6 +1,7 @@
 ﻿using BTP.RoR2Plugin.Pools;
 using BTP.RoR2Plugin.Pools.ProjectilePools;
 using BTP.RoR2Plugin.RoR2Indexes;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
@@ -35,6 +36,8 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
             projectileOverlapAttack.SetDamageCoefficient(0.1f);
             AssetReferences.fireTornado.Asset.GetComponent<ProjectileSimple>().lifetime = 3f;
             AssetReferences.elementalRingVoidBlackHole.Asset.AddComponent<ElementalRingVoidBlackHoleAction>();
+            RoR2Content.Items.FireRing.TryApplyTag(ItemTag.AIBlacklist);
+            RoR2Content.Items.IceRing.TryApplyTag(ItemTag.AIBlacklist);
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {

@@ -1,11 +1,12 @@
 ﻿using BTP.RoR2Plugin.Pools.OrbPools;
+using BTP.RoR2Plugin.Utils;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior {
+    internal class ThornsTweak : TweakBase<ThornsTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BaseRadius = 20;
         public const int StackRadius = 10;
         public const float BaseDamageCoefficient = 2f;
@@ -14,6 +15,10 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamage;
+        }
+
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            RoR2Content.Items.Thorns.TryApplyTag(ItemTag.BrotherBlacklist);
         }
 
         private void HealthComponent_TakeDamage(ILContext il) {

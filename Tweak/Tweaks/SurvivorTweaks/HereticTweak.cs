@@ -88,7 +88,7 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
 
             private void Start() {
                 var owner = GetComponent<ProjectileController>().owner;
-                if (owner && owner.TryGetComponent<CharacterBody>(out var body) && body.bodyIndex == BodyIndexes.Heretic) {
+                if (owner != null && owner.TryGetComponent<CharacterBody>(out var body) && body.bodyIndex == BodyIndexes.Heretic) {
                     GetComponent<ProjectileExplosion>().blastRadius *= 1 + 0.5f * body.inventory.GetItemCount(RoR2Content.Items.LunarSecondaryReplacement.itemIndex);
                 }
             }

@@ -1,7 +1,9 @@
 ﻿using BTP.RoR2Plugin.Utils;
+using HarmonyLib;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using RoR2;
+using System.Linq;
 using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
@@ -18,10 +20,11 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
-            var dotDef = DotController.GetDotDef(DotController.DotIndex.Bleed);
-            dotDef.damageCoefficient = BleedDamageCoefficient * dotDef.interval;
-            dotDef = DotController.GetDotDef(DotController.DotIndex.SuperBleed);
-            dotDef.damageCoefficient = SurperBleedDamageCoefficient * dotDef.interval;
+            RoR2Content.Items.BleedOnHit.TryApplyTag(ItemTag.AIBlacklist);
+            foreach (var item in ItemCatalog.allItemDefs) {
+                if (item.tier == ItemTier.Tier1 || item.tier == ItemTier.Tier2 || item.tier == ItemTier.Tier3)
+                    $"BleedTweak :: ItemCatalog :: {RoR2.Language.GetString(item.nameToken)} :: {string.Join(", ", item.tags)}".LogInfo();
+            }
         }
 
         private void GlobalEventManager_OnHitEnemy(ILContext il) {
@@ -55,7 +58,6 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                                 totalDamage = superBleedCount * damageInfo.damage * SurperBleedDamageCoefficient * attackerBody.critMultiplier,
                                 victimObject = victim,
                             };
-                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
                             DotController.InflictDot(ref dotInfo);
                         }
                         if (damageInfo.damageType.damageType.HasFlag(DamageType.BleedOnHit)) {
@@ -67,7 +69,6 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                                 totalDamage = damageInfo.damage * BleedDamageCoefficient * attackerBody.critMultiplier,
                                 victimObject = victim,
                             };
-                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
                             DotController.InflictDot(ref dotInfo);
                         }
                     } else {
@@ -90,7 +91,6 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                                 totalDamage = bleedCount * damageInfo.damage * BleedDamageCoefficient,
                                 victimObject = victim,
                             };
-                            dotInfo.InflictTotalDamageWithinDuration(attackerBody);
                             DotController.InflictDot(ref dotInfo);
                         }
                     }

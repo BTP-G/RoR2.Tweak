@@ -13,7 +13,7 @@ namespace BTP.RoR2Plugin.RoR2Indexes {
             BrotherBody,
             BrotherHurtBody,
             CaptainBody,
-            CHEF,
+            ChefBody,
             CommandoBody,
             CrocoBody,
             EngiBody,

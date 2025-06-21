@@ -40,7 +40,6 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                                         ? damageCoefficient * attackerBody.damage
                                         : damageCoefficient * damageInfo.damage * (damageInfo.crit ? attackerBody.critMultiplier : 1f)
                                 };
-                                dotInfo.InflictTotalDamageWithinDuration(attackerBody);
                                 DotController.InflictDot(ref dotInfo);
                             } else if (itemCount > 0 && Util.CheckRoll(PercnetChance * itemCount * damageInfo.procCoefficient, attackerBody.master)) {
                                 var dotInfo = new InflictDotInfo {
@@ -52,7 +51,6 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
                                        ? Configuration.AspectVoidBaseCollapseDamage.Value * attackerBody.damage
                                        : Configuration.AspectVoidBaseCollapseDamage.Value * damageInfo.damage * (damageInfo.crit ? attackerBody.critMultiplier : 1f)
                                 };
-                                dotInfo.InflictTotalDamageWithinDuration(attackerBody);
                                 DotController.InflictDot(ref dotInfo);
                             }
                         });

@@ -6,7 +6,7 @@ using RoR2.Orbs;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class NovaOnHealTweak : TweakBase<NovaOnHealTweak>, IOnModLoadBehavior {
+    internal class NovaOnHealTweak : TweakBase<NovaOnHealTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const float BaseDamageCoefficient = 1;
         public const float Interval = 0.1f;
         public const float BaseRadius = 66.6f;
@@ -15,6 +15,10 @@ namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
         void IOnModLoadBehavior.OnModLoad() {
             IL.RoR2.HealthComponent.ServerFixedUpdate += HealthComponent_ServerFixedUpdate;
+        }
+
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            RoR2Content.Items.NovaOnHeal.TryApplyTag(ItemTag.AIBlacklist);
         }
 
         private void HealthComponent_ServerFixedUpdate(ILContext il) {

@@ -1,14 +1,19 @@
-﻿using RoR2;
+﻿using BTP.RoR2Plugin.Utils;
+using RoR2;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
-    internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior {
+    internal class HealOnCritTweak : TweakBase<HealOnCritTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
         public const int BaseCrit = 10;
         public const int StackCrit = 5;
         public const float HealFraction = 0.02f;
 
         void IOnModLoadBehavior.OnModLoad() {
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManager_onCharacterDeathGlobal;
+        }
+
+        void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
+            RoR2Content.Items.HealOnCrit.TryApplyTag(ItemTag.AIBlacklist);
         }
 
         private void GlobalEventManager_onCharacterDeathGlobal(DamageReport damageReport) {

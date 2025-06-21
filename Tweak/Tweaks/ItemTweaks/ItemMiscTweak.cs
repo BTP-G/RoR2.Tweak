@@ -3,83 +3,56 @@ using RoR2;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks.ItemTweaks {
 
     internal class ItemMiscTweak : TweakBase<ItemMiscTweak>, IOnModLoadBehavior, IOnRoR2LoadedBehavior {
-        private static readonly Dictionary<Inventory, int> 背包物品数量缓存 = [];
+        private int itemCount = 0;
 
         void IOnModLoadBehavior.OnModLoad() {
-            On.RoR2.UI.ItemInventoryDisplay.OnInventoryChanged += ItemInventoryDisplay_OnInventoryChanged;
-            On.RoR2.UI.ItemInventoryDisplay.OnDestroy += ItemInventoryDisplay_OnDestroy;
+            PlayerCharacterMasterController.onLinkedToNetworkUserLocal += PlayerCharacterMasterController_onLinkedToNetworkUserLocal;
+             
         }
 
         void IOnRoR2LoadedBehavior.OnRoR2Loaded() {
             AssetReferences.bonusMoneyPack.Asset.GetComponentInChildren<GravitatePickup>().maxSpeed = 50;
-            DLC1Content.Items.ElementalRingVoid.TryApplyTag(ItemTag.AIBlacklist);
             DLC1Content.Items.ExtraLifeVoid.TryApplyTag(ItemTag.CannotSteal);
             DLC1Content.Items.FreeChest.TryApplyTag(ItemTag.CannotCopy);
             DLC1Content.Items.ImmuneToDebuff.TryApplyTag(ItemTag.AIBlacklist);
-            DLC1Content.Items.MinorConstructOnKill.TryApplyTag(ItemTag.BrotherBlacklist);
             DLC1Content.Items.RegeneratingScrap.TryApplyTag(ItemTag.AIBlacklist);
             DLC1Content.Items.RegeneratingScrap.TryApplyTag(ItemTag.Scrap);
             DLC1Content.Items.TreasureCacheVoid.TryApplyTag(ItemTag.CannotCopy);
-            RoR2Content.Items.BeetleGland.TryApplyTag(ItemTag.BrotherBlacklist);
-            RoR2Content.Items.Behemoth.TryApplyTag(ItemTag.BrotherBlacklist);
             RoR2Content.Items.CaptainDefenseMatrix.TryApplyTag(ItemTag.AIBlacklist);
             RoR2Content.Items.CaptainDefenseMatrix.TryApplyTag(ItemTag.CannotSteal);
-            RoR2Content.Items.Dagger.TryApplyTag(ItemTag.BrotherBlacklist);
-            RoR2Content.Items.ExecuteLowHealthElite.TryApplyTag(ItemTag.BrotherBlacklist);
-            RoR2Content.Items.ExplodeOnDeath.TryApplyTag(ItemTag.BrotherBlacklist);
             RoR2Content.Items.ExtraLife.TryApplyTag(ItemTag.AIBlacklist);
             RoR2Content.Items.ExtraLife.TryApplyTag(ItemTag.CannotSteal);
-            RoR2Content.Items.FireRing.TryApplyTag(ItemTag.AIBlacklist);
-            RoR2Content.Items.IceRing.TryApplyTag(ItemTag.AIBlacklist);
-            RoR2Content.Items.IgniteOnKill.TryApplyTag(ItemTag.BrotherBlacklist);
-            RoR2Content.Items.NovaOnHeal.TryApplyTag(ItemTag.AIBlacklist);
-            RoR2Content.Items.NovaOnLowHealth.TryApplyTag(ItemTag.BrotherBlacklist);
-            RoR2Content.Items.RoboBallBuddy.TryApplyTag(ItemTag.BrotherBlacklist);
             RoR2Content.Items.ShockNearby.TryApplyTag(ItemTag.AIBlacklist);
-            RoR2Content.Items.ShockNearby.TryApplyTag(ItemTag.BrotherBlacklist);
-            RoR2Content.Items.Thorns.TryApplyTag(ItemTag.BrotherBlacklist);
             RoR2Content.Items.TreasureCache.TryApplyTag(ItemTag.CannotCopy);
             vanillaVoid.Items.VoidShell.instance.ItemDef.TryApplyTag(ItemTag.CannotCopy);
-            var tags = RoR2Content.Items.TonicAffliction.tags.ToList();
-            tags.Remove(ItemTag.CannotSteal);
-            RoR2Content.Items.TonicAffliction.tags = [.. tags];
-            RoR2Content.Items.FlatHealth.tags = [ItemTag.Healing];
+            RoR2Content.Items.TonicAffliction.TryRemoveTag(ItemTag.CannotSteal);
+            RoR2Content.Items.JumpBoost.TryApplyTag(ItemTag.AIBlacklist);
             foreach (var item in ItemCatalog.allItemDefs) {
                 item.TryApplyTag(ItemTag.BrotherBlacklist);
                 item.pickupToken = item.descriptionToken;
+                if (item.ContainsTag(ItemTag.OnKillEffect) || item.ContainsTag(ItemTag.Healing)) {
+                    item.TryApplyTag(ItemTag.AIBlacklist);
+                }
             }
         }
 
-        private void ItemInventoryDisplay_OnInventoryChanged(On.RoR2.UI.ItemInventoryDisplay.orig_OnInventoryChanged orig, ItemInventoryDisplay self) {
-            if (self.inventoryWasValid) {
-                var inventory = self.inventory;
-                if (!背包物品数量缓存.TryGetValue(inventory, out var count)) {
-                    背包物品数量缓存.Add(inventory, inventory.itemAcquisitionOrder.Count);
-                }
-                if (count != inventory.itemAcquisitionOrder.Count) {
-                    if (count < inventory.itemAcquisitionOrder.Count) {
-                        inventory.itemAcquisitionOrder.Sort(ItemIndexComparer.Instance);
-                    }
-                    背包物品数量缓存[inventory] = inventory.itemAcquisitionOrder.Count;
-                }
+        private void PlayerCharacterMasterController_onLinkedToNetworkUserLocal(PlayerCharacterMasterController player) {
+            Debug.Log($"PlayerCharacterMasterController.onLinkedToNetworkUserLocal: player.localPlayerAuthority: {player.localPlayerAuthority}");
+            if(!player.localPlayerAuthority) {
+                return;
             }
-            orig(self);
-        }
-
-        private void ItemInventoryDisplay_OnDestroy(On.RoR2.UI.ItemInventoryDisplay.orig_OnDestroy orig, ItemInventoryDisplay self) {
-            orig(self);
-            for (int i = 背包物品数量缓存.Count - 1; i > -1; --i) {
-                var e = 背包物品数量缓存.ElementAt(i);
-                if (!e.Key) {
-                    背包物品数量缓存.Remove(e.Key);
+            var inventory = player.master.inventory;
+            inventory.onInventoryChanged += () => {
+                if (itemCount < inventory.itemAcquisitionOrder.Count) {
+                    inventory.itemAcquisitionOrder.Sort(ItemIndexComparer.Instance);
                 }
-            }
+                itemCount = inventory.itemAcquisitionOrder.Count;
+            };
         }
 
         private class ItemIndexComparer : IComparer<ItemIndex> {

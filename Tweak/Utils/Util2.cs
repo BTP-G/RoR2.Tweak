@@ -1,6 +1,7 @@
 ﻿using RoR2;
 using RoR2.Projectile;
 using System.Collections.Generic;
+using System.Linq;
 using TPDespair.ZetAspects;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -51,6 +52,13 @@ namespace BTP.RoR2Plugin.Utils {
                 R2API.ItemAPI.ApplyTagToItem(itemTag, itemDef);
             }
         }
+        public static void TryRemoveTag(this ItemDef itemDef, ItemTag itemTag) {
+            if (itemDef != null && itemDef.ContainsTag(itemTag)) {
+                var set = itemDef.tags.ToHashSet();
+                set.Remove(itemTag);
+                itemDef.tags = [.. set];
+            }
+        }
 
         public static bool SpawnLunarPortal(Vector3 position) {
             var directorPlacementRule = new DirectorPlacementRule {
@@ -93,16 +101,6 @@ namespace BTP.RoR2Plugin.Utils {
                 }
             }
             LogExtensions.LogError($"set {configuration.targetType.assemblyQualifiedName} field '{fieldName}' not found!");
-        }
-
-        public static void InflictTotalDamageWithinDuration(this ref InflictDotInfo dotInfo, CharacterBody attackerBody = null) {
-            if (dotInfo.totalDamage.HasValue) {
-                var dotDef = DotController.GetDotDef(dotInfo.dotIndex);
-                if (dotInfo.duration > 0 && (attackerBody || dotInfo.attackerObject.TryGetComponent(out attackerBody))) {
-                    dotInfo.damageMultiplier = dotInfo.totalDamage.Value / (attackerBody.damage * dotDef.damageCoefficient * Mathf.Ceil(dotInfo.duration / dotDef.interval));
-                    dotInfo.totalDamage = null;
-                }
-            }
         }
     }
 }

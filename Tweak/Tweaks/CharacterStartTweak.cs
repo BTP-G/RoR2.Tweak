@@ -142,7 +142,7 @@ namespace BTP.RoR2Plugin.Tweaks {
                         inventory.GiveItem(RoR2Content.Items.BarrierOnKill.itemIndex, 3);
                         break;
                     }
-                    case BodyNameIndex.CHEF: {
+                    case BodyNameIndex.ChefBody: {
                         inventory.SetEquipmentIndex(RoR2Content.Equipment.Fruit.equipmentIndex);
                         break;
                     }

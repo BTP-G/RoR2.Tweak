@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace BTP.RoR2Plugin.Tweaks {
 
+    [System.Obsolete]
     internal class HealthComponentTweak : TweakBase<HealthComponentTweak>, IOnModLoadBehavior {
         private float _老米爆发伤害限制;
         private float _老米触发伤害限制;

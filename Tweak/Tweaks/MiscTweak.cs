@@ -116,7 +116,7 @@ namespace BTP.RoR2Plugin.Tweaks {
                 if (random <= percentChance + percentChance * (luck / (luck > 0 ? 3f + luck : 3f - luck))) {
                     if (random > percentChance && effectOriginMaster) {
                         var body = effectOriginMaster.GetBody();
-                        if (body) {
+                        if (body != null) {
                             body.wasLucky = true;
                         }
                     }
