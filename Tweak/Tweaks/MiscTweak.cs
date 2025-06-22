@@ -46,7 +46,7 @@ namespace BTP.RoR2Plugin.Tweaks {
                 cursor.Index += 1;
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldloc, 6);
-                cursor.EmitDelegate((Run run, float num6) => RunInfo.已选择造物难度 ? 0.0506f * Settings.每关难度增加量.Value / 50f * run.stageClearCount * num6 : 0f);
+                cursor.EmitDelegate((Run run, float num6) => RunInfo.已选择大旋风难度 ? 0.0506f * Settings.每关难度增加量.Value / 50f * run.stageClearCount * num6 : 0f);
                 cursor.Emit(OpCodes.Add);
             } else {
                 LogExtensions.LogError("Run_RecalculateDifficultyCoefficentInternal Hook Failed!");

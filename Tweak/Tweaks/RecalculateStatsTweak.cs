@@ -51,7 +51,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             if (sender.HasBuff(RoR2Content.Buffs.FullCrit.buffIndex) && sender.crit > 100f) {
                 args.critDamageMultAdd += (sender.crit - 100f) * 0.01f;
             }
-            if (RunInfo.已选择造物难度 && sender.teamComponent.teamIndex != TeamIndex.Player) {
+            if (RunInfo.已选择大旋风难度 && sender.teamComponent.teamIndex != TeamIndex.Player) {
                 args.levelArmorAdd += 0.05f
                     + (sender.isElite ? 0.1f : 0f)
                     + (sender.isBoss ? 0.15f : 0f)

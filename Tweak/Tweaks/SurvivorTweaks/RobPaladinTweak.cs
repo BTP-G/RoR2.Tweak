@@ -27,24 +27,26 @@ namespace BTP.RoR2Plugin.Tweaks.SurvivorTweaks {
         private void GrandParentSunController_ServerFixedUpdate(ILContext il) {
             var cursor = new ILCursor(il);
             cursor.GotoNext(i => i.MatchStloc(10));
-            cursor.Emit(OpCodes.Ldarg_0).Emit(OpCodes.Ldloc, 4).EmitDelegate((int buffCount, GrandParentSunController sun, CharacterBody victimBody) => {
-                if (buffCount > 0 && sun.ownership.ownerObject && sun.ownership.ownerObject.TryGetComponent<CharacterBody>(out var attackerBody)) {
-                    var inflictDotInfo = new InflictDotInfo {
-                        attackerObject = attackerBody.gameObject,
-                        damageMultiplier = 1f,
-                        dotIndex = DotController.DotIndex.Burn,
-                        totalDamage = attackerBody.damage * sun.burnDuration * buffCount,
-                        victimObject = victimBody.gameObject,
-                    };
-                    if (attackerBody.inventory) {
-                        var boostCoefficient = 1 + attackerBody.inventory.GetItemCount(RoR2Content.Items.ParentEgg.itemIndex);
-                        inflictDotInfo.damageMultiplier *= boostCoefficient;
-                        inflictDotInfo.totalDamage *= boostCoefficient;
-                        inflictDotInfo.TryUpgrade(attackerBody.inventory, victimBody);
+            cursor.Emit(OpCodes.Ldarg_0)
+                .Emit(OpCodes.Ldloc, 4)
+                .EmitDelegate((int buffCount, GrandParentSunController sun, CharacterBody victimBody) => {
+                    if (buffCount > 0 && sun.ownership.ownerObject && sun.ownership.ownerObject.TryGetComponent<CharacterBody>(out var attackerBody)) {
+                        var inflictDotInfo = new InflictDotInfo {
+                            attackerObject = attackerBody.gameObject,
+                            damageMultiplier = 1f,
+                            dotIndex = DotController.DotIndex.Burn,
+                            totalDamage = attackerBody.damage * sun.burnDuration * buffCount,
+                            victimObject = victimBody.gameObject,
+                        };
+                        if (attackerBody.inventory) {
+                            var boostCoefficient = 1 + attackerBody.inventory.GetItemCount(RoR2Content.Items.ParentEgg.itemIndex);
+                            inflictDotInfo.damageMultiplier = boostCoefficient;
+                            inflictDotInfo.totalDamage *= boostCoefficient;
+                            inflictDotInfo.TryUpgrade(attackerBody.inventory, victimBody);
+                        }
+                        DotController.InflictDot(ref inflictDotInfo);
                     }
-                    DotController.InflictDot(ref inflictDotInfo);
-                }
-            });
+                });
             cursor.Emit(OpCodes.Ldc_I4_0);
         }
 

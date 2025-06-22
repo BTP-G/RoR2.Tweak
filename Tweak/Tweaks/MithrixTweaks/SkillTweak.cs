@@ -6,7 +6,6 @@ using EntityStates.BrotherMonster.Weapon;
 using EntityStates.LunarGolem;
 using R2API;
 using R2API.Utils;
-
 using RoR2;
 using RoR2.Projectile;
 using RoR2.Skills;
@@ -122,7 +121,7 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
                         }
                     }
                 }
-                ChatMessage.Send("<color=#c6d5ff><size=120%>米斯历克斯：Fall!</color></size>");
+                ChatMessage.Send("<color=#c6d5ff><size=120%>米斯历克斯：Fall!</size></color>");
             }
             orig(self);
         }
@@ -169,11 +168,11 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
             orig(self);
             if (PhaseCounter.instance) {
                 if (PhaseCounter.instance.phase == 2) {
-                    float num = 360f / UltChannelState.totalWaves;
-                    Vector3 point = Vector3.ProjectOnPlane(self.inputBank.aimDirection, Vector3.up);
-                    for (int i = 0; i < 4; i++) {
-                        for (int j = 0; j < UltChannelState.totalWaves; ++j) {
-                            Vector3 forward = Quaternion.AngleAxis(num * j, Vector3.up) * point;
+                    var num = 360f / UltChannelState.totalWaves;
+                    var point = Vector3.ProjectOnPlane(self.inputBank.aimDirection, Vector3.up);
+                    for (var i = 0; i < 4; i++) {
+                        for (var j = 0; j < UltChannelState.totalWaves; ++j) {
+                            var forward = Quaternion.AngleAxis(num * j, Vector3.up) * point;
                             ProjectileManager.instance.FireProjectile(AssetReferences.brotherUltLineProjectileStatic, p23PizzaPoints[i], Util.QuaternionSafeLookRotation(forward), self.gameObject, self.characterBody.damage * UltChannelState.waveProjectileDamageCoefficient, UltChannelState.waveProjectileForce, self.RollCrit());
                         }
                     }
@@ -191,10 +190,10 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
                             damage = self.damageStat * UltChannelState.waveProjectileDamageCoefficient,
                             force = UltChannelState.waveProjectileForce,
                         };
-                        float anglePerLine = 360f / UltChannelState.totalWaves;
-                        Vector3 normalized = Vector3.ProjectOnPlane(Random.onUnitSphere, Vector3.up).normalized;
-                        for (int k = 0; k < 2; ++k) {
-                            for (int l = 0; l < UltChannelState.totalWaves; ++l) {
+                        var anglePerLine = 360f / UltChannelState.totalWaves;
+                        var normalized = Vector3.ProjectOnPlane(Random.onUnitSphere, Vector3.up).normalized;
+                        for (var k = 0; k < 2; ++k) {
+                            for (var l = 0; l < UltChannelState.totalWaves; ++l) {
                                 projectileInfo.position = hitPositions[k];
                                 projectileInfo.rotation = Util.QuaternionSafeLookRotation(Quaternion.AngleAxis(anglePerLine * l, Vector3.up) * normalized);
                                 projectileInfo.crit = self.RollCrit();

@@ -15,11 +15,11 @@ namespace BTP.RoR2Plugin {
         public static bool 位于天文馆 { get; private set; }
         public static bool 位于时之墓 { get; private set; }
         public static bool 位于月球商店 { get; private set; }
-        public static bool 已选择造物难度 { get; private set; }
-        public static bool 造物主的试炼 { get; private set; }
+        public static bool 已选择大旋风难度 { get; private set; }
+        public static bool 第二次大旋风 { get; private set; }
 
         [ModLoadMessageHandler]
-        private static void Init() {
+        internal static void Init() {
             Run.onRunSetRuleBookGlobal += OnRunSetRuleBookGlobal;
             SceneCatalog.onMostRecentSceneDefChanged += OnMostRecentSceneDefChanged;
             On.EntityStates.BrotherMonster.TrueDeathState.OnEnter += OnBrotherTrueDeath;
@@ -27,16 +27,16 @@ namespace BTP.RoR2Plugin {
         }
 
         private static void OnRunSetRuleBookGlobal(Run run, RuleBook ruleBook) {
-            造物主的试炼 = false;
-            已选择造物难度 = run.selectedDifficulty == HarryRoadGreatWhirlwind.造物索引;
+            第二次大旋风 = false;
+            已选择大旋风难度 = run.selectedDifficulty == HarryRoadGreatWhirlwind.DifficultyIndex;
         }
 
         private static void OnBrotherTrueDeath(On.EntityStates.BrotherMonster.TrueDeathState.orig_OnEnter orig, EntityStates.BrotherMonster.TrueDeathState self) {
             orig(self);
-            if (已选择造物难度 && !造物主的试炼) {
-                造物主的试炼 = true;
+            if (已选择大旋风难度 && !第二次大旋风) {
+                第二次大旋风 = true;
                 if (NetworkServer.active) {
-                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToGold());
+                    ChatMessage.Send("世界不再是你熟悉的那样！！！".ToDeath());
                 }
             }
         }
@@ -79,8 +79,8 @@ namespace BTP.RoR2Plugin {
                 RunInfo.位于天文馆 = 位于天文馆;
                 RunInfo.位于时之墓 = 位于时之墓;
                 RunInfo.位于月球商店 = 位于月球商店;
-                已选择造物难度 = 是否选择造物难度;
-                RunInfo.造物主的试炼 = 造物主的试炼;
+                已选择大旋风难度 = 是否选择造物难度;
+                RunInfo.第二次大旋风 = 造物主的试炼;
             }
 
             void ISaveData.SaveData() {
@@ -89,8 +89,8 @@ namespace BTP.RoR2Plugin {
                 位于天文馆 = RunInfo.位于天文馆;
                 位于时之墓 = RunInfo.位于时之墓;
                 位于月球商店 = RunInfo.位于月球商店;
-                是否选择造物难度 = 已选择造物难度;
-                造物主的试炼 = RunInfo.造物主的试炼;
+                是否选择造物难度 = 已选择大旋风难度;
+                造物主的试炼 = RunInfo.第二次大旋风;
             }
         }
     }

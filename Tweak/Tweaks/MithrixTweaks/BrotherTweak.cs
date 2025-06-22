@@ -1,5 +1,6 @@
 ﻿using BTP.RoR2Plugin.RoR2Indexes;
 using BTP.RoR2Plugin.Utils;
+using GuestUnion;
 using RoR2;
 using RoR2.CharacterAI;
 using UnityEngine;
@@ -58,13 +59,16 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
         private void GlobalEventManager_onServerDamageDealt(DamageReport damageReport) {
             if (damageReport.attackerBodyIndex == BodyIndexes.Brother) {
                 var victimBody = damageReport.victimBody;
-                var victimBodyArmor = victimBody.armor;
-                float curseStacks = (float)((double)damageReport.damageDealt / damageReport.victim.fullCombinedHealth * (10 * PhaseCounter.instance.phase));
-                if ((curseStacks -= victimBodyArmor / (victimBodyArmor > 0 ? 100f + victimBodyArmor : 100f - victimBodyArmor) * curseStacks) > 100f) {
-                    curseStacks = 100f;
+                var victimBodyArmor = (int)victimBody.armor;
+                var curseStacks = (int)(damageReport.damageDealt / damageReport.victim.fullCombinedHealth) * 10 * PhaseCounter.instance.phase;
+                var a = victimBodyArmor / (100f + victimBodyArmor.Abs());
+                curseStacks -= (int)(a * curseStacks);
+                if (curseStacks > 100) {
+                    curseStacks = 100;
                 }
-                while (curseStacks-- > 0) {
-                    victimBody.AddBuff(RoR2Content.Buffs.PermanentCurse.buffIndex);
+                if (curseStacks > 0) {
+                    var buffCount = victimBody.GetBuffCount(RoR2Content.Buffs.PermanentCurse.buffIndex);
+                    victimBody.SetBuffCount(RoR2Content.Buffs.PermanentCurse.buffIndex, buffCount + curseStacks);
                 }
             }
         }

@@ -11,7 +11,7 @@ namespace BTP.RoR2Plugin.Tweaks {
 
         private void HoldoutZoneController_Awake(On.RoR2.HoldoutZoneController.orig_Awake orig, HoldoutZoneController self) {
             orig(self);
-            if (RunInfo.已选择造物难度) {
+            if (RunInfo.已选择大旋风难度) {
                 self.minimumRadius = Mathf.Max(7f, self.minimumRadius);
                 self.dischargeRate = 0.5f / self.baseChargeDuration;
                 self.calcRadius += (ref radius) => {

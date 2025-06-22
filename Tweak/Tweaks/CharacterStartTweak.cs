@@ -17,7 +17,7 @@ namespace BTP.RoR2Plugin.Tweaks {
             CharacterMaster.onStartGlobal += OnMasterStartGlobal;
             CharacterBody.onBodyStartGlobal += OnBodyStartGlobal;
             Run.onPlayerFirstCreatedServer += (_, player) => player.master.onBodyStart += 造物难度_OnPlayerBodyFirstStartServer;
-            Run.onRunAmbientLevelUp += (run) => _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.造物主的试炼 ? 1f + 0.1f * run.stageClearCount : 1f), 100000000)); ;
+            Run.onRunAmbientLevelUp += (run) => _造物难度敌人血量提升物品数量 = Mathf.RoundToInt(Mathf.Min(Mathf.Pow(run.ambientLevel * 0.1f, RunInfo.第二次大旋风 ? 1f + 0.1f * run.stageClearCount : 1f), 100000000)); ;
             Run.onRunStartGlobal += (_) => _造物难度敌人血量提升物品数量 = 0;
         }
 
@@ -33,7 +33,7 @@ namespace BTP.RoR2Plugin.Tweaks {
         }
 
         private void OnMasterStartGlobal(CharacterMaster master) {
-            if (NetworkServer.active && RunInfo.已选择造物难度 && master.teamIndex != TeamIndex.Player) {
+            if (NetworkServer.active && RunInfo.已选择大旋风难度 && master.teamIndex != TeamIndex.Player) {
                 master.inventory.GiveItem(RoR2Content.Items.BoostHp.itemIndex, _造物难度敌人血量提升物品数量);
             }
         }
@@ -52,9 +52,8 @@ namespace BTP.RoR2Plugin.Tweaks {
                     switch (nameIndex) {
                         case BodyNameIndex.TreebotBody: {
                             var kinematicCharacterMotor = body.GetComponent<KinematicCharacterMotor>();
-                            kinematicCharacterMotor.MaxStableSlopeAngle = 180f;
+                            kinematicCharacterMotor.MaxStableSlopeAngle = 89f;
                             kinematicCharacterMotor.MaxStableDenivelationAngle = 180f;
-                            kinematicCharacterMotor.MaxStepHeight = 2;
                             kinematicCharacterMotor.MinRequiredStepDepth = 0;
                             break;
                         }
@@ -114,7 +113,7 @@ namespace BTP.RoR2Plugin.Tweaks {
 
         private void 造物难度_OnPlayerBodyFirstStartServer(CharacterBody body) {
             body.master.onBodyStart -= 造物难度_OnPlayerBodyFirstStartServer;
-            if (!RunInfo.已选择造物难度 || Run.instance.stageClearCount != 0) {
+            if (!RunInfo.已选择大旋风难度 || Run.instance.stageClearCount != 0) {
                 return;
             }
             var inventory = body.inventory;

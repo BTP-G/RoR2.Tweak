@@ -14,7 +14,7 @@ namespace BTP.RoR2Plugin.Tweaks.MonsterTweaks {
                 damageReport.victimBody.AddTimedBuff(RoR2Content.Buffs.ArmorBoost, 10f);
                 damageReport.victimBody.AddTimedBuff(RoR2Content.Buffs.TeamWarCry, 10f);
             }
-            if (RunInfo.已选择造物难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex != TeamIndex.Player) {
+            if (RunInfo.已选择大旋风难度 && damageReport.hitLowHealth && damageReport.victim.alive && damageReport.victimTeamIndex != TeamIndex.Player) {
                 var victimBody = damageReport.victimBody;
                 if (victimBody.inventory == null) {
                     return;

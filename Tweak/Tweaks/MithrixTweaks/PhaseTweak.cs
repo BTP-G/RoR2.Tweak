@@ -56,7 +56,7 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
         private void Phase4_OnEnter(On.EntityStates.Missions.BrotherEncounter.Phase4.orig_OnEnter orig, EntityStates.Missions.BrotherEncounter.Phase4 self) {
             orig(self);
             var blockingPillars = self.childLocator.FindChild("BlockingPillars");
-            if (blockingPillars) {
+            if (blockingPillars != null) {
                 blockingPillars.gameObject.SetActive(false);
             }
             if (NetworkServer.active) {

@@ -1,5 +1,4 @@
 ﻿using BTP.RoR2Plugin.RoR2Indexes;
-using BTP.RoR2Plugin.Tweaks.ItemTweaks;
 using BTP.RoR2Plugin.Utils;
 using EntityStates.BrotherMonster;
 using RoR2;
@@ -81,8 +80,8 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
                 useFuseOverride = true,
                 fuseOverride = missileFuse,
             };
-            for (int i = 0; i < missileCountPerFire; ++i) {
-                var bonusYaw = (float)(360.0 / missileCountPerFire * i + 360.0 * missileTurretYawFrequency * self.fixedAge);
+            for (var i = 0; i < missileCountPerFire; ++i) {
+                var bonusYaw = (360 / missileCountPerFire * i) + (360 * missileTurretYawFrequency * self.fixedAge);
                 var forward = Util.ApplySpread(aimRay.direction, 0.0f, 0.0f, 1f, 1f, bonusYaw, Mathf.Sin(6.283185f * missileTurretPitchFrequency * self.fixedAge) * missileTurretPitchMagnitude);
                 projectileInfo.position = aimRay.origin + new Vector3(0, self.fixedAge, 0);
                 projectileInfo.rotation = Util.QuaternionSafeLookRotation(forward);
@@ -120,9 +119,9 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
                     On.RoR2.HealthComponent.AddBarrier += HealthComponent_AddBarrier;
                     On.RoR2.HealthComponent.TakeDamage += HealthComponent_TakeDamage;
                 }
-                if (RunInfo.位于时之墓 && LunarWingsTweak.LunarWingsBehavior.Instance) {
-                    LunarWingsTweak.UpgradeLunarWings(LunarWingsState.过去完成时);
-                }
+                //if (RunInfo.位于时之墓 && LunarWingsTweak.LunarWingsBehavior.Instance) {
+                //    LunarWingsTweak.UpgradeLunarWings(LunarWingsState.过去完成时);
+                //}
             }
 
             private void Start() {
@@ -155,7 +154,7 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
                         hitChance = 0.1f,
                     });
                 }
-                for (int i = waveList.Count - 1; i >= 0; --i) {
+                for (var i = waveList.Count - 1; i >= 0; --i) {
                     var meteorWave = waveList[i];
                     meteorWave.timer -= Time.fixedDeltaTime;
                     if (meteorWave.timer <= 0f) {
@@ -172,9 +171,9 @@ namespace BTP.RoR2Plugin.Tweaks.MithrixTweaks {
                         }
                     }
                 }
-                float num = Run.instance.time - impactDelay;
-                float num2 = num - travelEffectDuration;
-                for (int j = meteorList.Count - 1; j >= 0; --j) {
+                var num = Run.instance.time - impactDelay;
+                var num2 = num - travelEffectDuration;
+                for (var j = meteorList.Count - 1; j >= 0; --j) {
                     var meteor = meteorList[j];
                     if (meteor.startTime < num2 && !meteor.didTravelEffect) {
                         meteor.didTravelEffect = true;
